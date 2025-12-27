@@ -1,0 +1,240 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.coverContainer {
+  flex-shrink: 0;
+}
+
+.cover {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+  border: 2px solid var(--border-color);
+}
+
+.coverPlaceholder {
+  width: 200px;
+  height: 200px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+}
+
+.description {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 24px 0;
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--nintendo-red);
+}
+
+.statLabel {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Progress Section */
+.progressSection {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 24px;
+  margin-bottom: 40px;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.progressLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.progressValue {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.progressBar {
+  height: 12px;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--nintendo-red) 0%, var(--switch-neon-red) 100%);
+  border-radius: 6px;
+  transition: width 0.5s ease;
+}
+
+.trophyEarned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.2) 100%);
+  border: 1px solid var(--switch-gold);
+  border-radius: var(--border-radius);
+  color: var(--switch-gold);
+  font-weight: 600;
+  font-size: 18px;
+  animation: trophyPulse 2s ease-in-out infinite;
+}
+
+@keyframes trophyPulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+  }
+}
+
+/* Sections */
+.achievementsSection,
+.trophySection {
+  margin-bottom: 40px;
+}
+
+.sectionHeader {
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Achievement List */
+.achievementList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Trophy Holders */
+.trophyHolders {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.trophyHolder {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--switch-gold);
+}
+
+.trophyIcon {
+  font-size: 28px;
+}
+
+.trophyInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trophyName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.trophyDate {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Error */
+.error {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.error p {
+  color: var(--nintendo-red);
+  margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .cover,
+  .coverPlaceholder {
+    width: 150px;
+    height: 150px;
+  }
+}
