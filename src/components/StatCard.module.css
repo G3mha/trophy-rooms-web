@@ -1,0 +1,43 @@
+.card {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 24px;
+  text-align: center;
+}
+
+.icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.value {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--nintendo-red);
+  line-height: 1;
+}
+
+.label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.gold .value {
+  color: var(--switch-gold);
+}
+
+.red .value {
+  color: var(--nintendo-red);
+}
+
+.blue .value {
+  color: var(--switch-neon-blue);
+}
+
+.default .value {
+  color: var(--nintendo-red);
+}
