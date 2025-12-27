@@ -1,0 +1,85 @@
+.container {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+.content {
+  width: 100%;
+  max-width: 420px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.logo {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Clerk customizations */
+.clerkRoot {
+  width: 100%;
+}
+
+.clerkCard {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: none !important;
+}
+
+.clerkHeaderTitle {
+  display: none !important;
+}
+
+.clerkHeaderSubtitle {
+  display: none !important;
+}
+
+.clerkSocialButton {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.clerkSocialButton:hover {
+  background: var(--bg-card-hover) !important;
+}
+
+.clerkPrimaryButton {
+  background: var(--nintendo-red) !important;
+}
+
+.clerkPrimaryButton:hover {
+  background: var(--nintendo-red-dark) !important;
+}
+
+.clerkInput {
+  background: var(--bg-secondary) !important;
+  border: 2px solid var(--border-color) !important;
+}
+
+.clerkInput:focus {
+  border-color: var(--nintendo-red) !important;
+}
+
+.clerkLink {
+  color: var(--nintendo-red) !important;
+}
