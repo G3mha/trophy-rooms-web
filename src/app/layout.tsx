@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ApolloWrapper } from "@/lib/apollo-wrapper";
+import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,7 +18,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body>
-          <ApolloWrapper>{children}</ApolloWrapper>
+          <ApolloWrapper>
+            <Header />
+            <main>{children}</main>
+          </ApolloWrapper>
         </body>
       </html>
     </ClerkProvider>
