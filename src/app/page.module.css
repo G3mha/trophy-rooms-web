@@ -1,0 +1,205 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Hero Section */
+.hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  padding: 80px 0;
+  min-height: 500px;
+}
+
+.heroContent {
+  max-width: 540px;
+}
+
+.heroTitle {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0 0 24px 0;
+  color: var(--text-primary);
+}
+
+.heroHighlight {
+  background: linear-gradient(90deg, var(--nintendo-red) 0%, var(--switch-neon-red) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.heroSubtitle {
+  font-size: 20px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 32px 0;
+}
+
+.heroActions {
+  display: flex;
+  gap: 16px;
+}
+
+.heroVisual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trophyDisplay {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border-color);
+  animation: trophyGlow 3s ease-in-out infinite alternate;
+}
+
+.trophyIcon {
+  font-size: 120px;
+}
+
+@keyframes trophyGlow {
+  from {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+  }
+  to {
+    box-shadow: 0 0 60px rgba(255, 215, 0, 0.4);
+  }
+}
+
+/* Features Section */
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  padding: 60px 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.feature {
+  text-align: center;
+  padding: 32px 24px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.feature:hover {
+  transform: translateY(-4px);
+  border-color: var(--nintendo-red);
+}
+
+.featureIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.featureTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.featureDescription {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Games Section */
+.gamesSection {
+  padding: 60px 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.sectionTitle {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.gamesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: var(--nintendo-red);
+}
+
+.error p {
+  margin-bottom: 16px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+    padding: 60px 0;
+  }
+
+  .heroContent {
+    max-width: 100%;
+  }
+
+  .heroActions {
+    justify-content: center;
+  }
+
+  .heroTitle {
+    font-size: 42px;
+  }
+
+  .trophyDisplay {
+    width: 200px;
+    height: 200px;
+  }
+
+  .trophyIcon {
+    font-size: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .features {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .heroTitle {
+    font-size: 36px;
+  }
+
+  .heroActions {
+    flex-direction: column;
+  }
+
+  .gamesGrid {
+    grid-template-columns: 1fr;
+  }
+}
