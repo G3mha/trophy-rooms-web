@@ -1,0 +1,119 @@
+.header {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.logoIcon {
+  font-size: 28px;
+}
+
+.logoText {
+  background: linear-gradient(90deg, var(--nintendo-red) 0%, var(--switch-neon-red) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav {
+  display: flex;
+  gap: 8px;
+}
+
+.navLink {
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.navLink:hover {
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+
+.navLinkActive {
+  color: var(--nintendo-red);
+  background: rgba(230, 0, 18, 0.1);
+}
+
+.navLinkActive:hover {
+  color: var(--nintendo-red);
+  background: rgba(230, 0, 18, 0.15);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.signInBtn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.signInBtn:hover {
+  background: var(--bg-card);
+}
+
+.signUpBtn {
+  padding: 8px 20px;
+  border-radius: 8px;
+  background: var(--nintendo-red);
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.signUpBtn:hover {
+  background: var(--nintendo-red-dark);
+  transform: scale(1.02);
+}
+
+.avatarBox {
+  width: 36px;
+  height: 36px;
+}
+
+@media (max-width: 768px) {
+  .nav {
+    display: none;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+}
