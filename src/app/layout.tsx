@@ -5,8 +5,8 @@ import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Trophy Rooms - Nintendo Switch Achievement Tracker",
-  description: "Track your Nintendo Switch game achievements and trophies",
+  title: "Trophy Rooms - Cross-Platform Achievement Tracker",
+  description: "Track achievements and trophies across retro classics and modern platforms",
 };
 
 export default function RootLayout({

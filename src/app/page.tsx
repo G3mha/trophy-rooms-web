@@ -2,7 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
-import { GET_GAMES } from "@/graphql/queries";
+import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GameCard, Button, LoadingSpinner, EmptyState } from "@/components";
 import styles from "./page.module.css";
 
@@ -17,9 +17,15 @@ interface GameNode {
 
 export default function Home() {
   const { isSignedIn } = useAuth();
+  const { data: meData } = useQuery(GET_ME, {
+    skip: !isSignedIn,
+  });
   const { data, loading, error } = useQuery(GET_GAMES, {
     variables: { first: 6 },
   });
+
+  const isAdmin =
+    meData?.me?.role === "ADMIN" || meData?.me?.role === "TRUSTED";
 
   return (
     <div className={styles.container}>
@@ -31,7 +37,7 @@ export default function Home() {
             <span className={styles.heroHighlight}> Achievements</span>
           </h1>
           <p className={styles.heroSubtitle}>
-            Your personal trophy room for Nintendo Switch games. Track achievements,
+            Your personal trophy room across every platform. Track achievements,
             earn trophies, and showcase your gaming legacy.
           </p>
           <div className={styles.heroActions}>
@@ -69,7 +75,7 @@ export default function Home() {
           <div className={styles.featureIcon}>🎮</div>
           <h3 className={styles.featureTitle}>Track Games</h3>
           <p className={styles.featureDescription}>
-            Add your favorite Nintendo Switch games and organize your collection.
+            Add your favorite games from any platform and organize your collection.
           </p>
         </div>
         <div className={styles.feature}>
@@ -130,8 +136,10 @@ export default function Home() {
             title="No games yet"
             description="Be the first to add a game to the collection!"
             action={
-              isSignedIn ? (
+              isSignedIn && isAdmin ? (
                 <Button href="/games/new">Add First Game</Button>
+              ) : isSignedIn ? (
+                <Button href="/games">Browse Games</Button>
               ) : (
                 <Button href="/sign-up">Sign Up to Add Games</Button>
               )
