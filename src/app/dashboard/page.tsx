@@ -20,9 +20,13 @@ interface UserAchievementNode {
     title: string;
     description?: string | null;
     iconUrl?: string | null;
-    game: {
+    achievementSet: {
       id: string;
       title: string;
+      game: {
+        id: string;
+        title: string;
+      };
     };
   };
 }
@@ -104,7 +108,7 @@ export default function Dashboard() {
         />
         <StatCard
           icon="🎮"
-          value={trophies.length}
+          value={user?.gamesWithAchievementsCount || 0}
           label="Games Completed"
           variant="blue"
         />
@@ -127,7 +131,7 @@ export default function Dashboard() {
                   title={node.achievement.title}
                   description={node.achievement.description}
                   iconUrl={node.achievement.iconUrl}
-                  gameName={node.achievement.game.title}
+                  gameName={node.achievement.achievementSet.game.title}
                   isCompleted={true}
                 />
               ))}
