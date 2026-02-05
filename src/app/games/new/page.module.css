@@ -45,7 +45,8 @@
 }
 
 .input,
-.textarea {
+.textarea,
+.select {
   width: 100%;
   padding: 14px 18px;
   font-size: 16px;
@@ -57,7 +58,8 @@
 }
 
 .input:focus,
-.textarea:focus {
+.textarea:focus,
+.select:focus {
   outline: none;
   border-color: var(--nintendo-red);
   box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.2);

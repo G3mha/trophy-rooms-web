@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import { CREATE_GAME } from "@/graphql/mutations";
-import { GET_GAMES } from "@/graphql/queries";
-import { Button, LoadingSpinner } from "@/components";
+import { GET_GAMES, GET_ME } from "@/graphql/queries";
+import { GET_PLATFORMS } from "@/graphql/admin_queries";
+import { Button, LoadingSpinner, EmptyState } from "@/components";
 import styles from "./page.module.css";
 
 export default function NewGamePage() {
@@ -15,7 +16,19 @@ export default function NewGamePage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
+  const [platformId, setPlatformId] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  const { data: meData, loading: meLoading } = useQuery(GET_ME, {
+    skip: !isSignedIn,
+  });
+
+  const { data: platformsData } = useQuery(GET_PLATFORMS, {
+    skip: !isSignedIn,
+  });
+
+  const isAdmin =
+    meData?.me?.role === "ADMIN" || meData?.me?.role === "TRUSTED";
 
   const [createGame, { loading }] = useMutation(CREATE_GAME, {
     refetchQueries: [{ query: GET_GAMES, variables: { first: 12 } }],
@@ -46,6 +59,7 @@ export default function NewGamePage() {
           title: title.trim(),
           description: description.trim() || null,
           coverUrl: coverUrl.trim() || null,
+          platformId: platformId || null,
         },
       },
     });
@@ -59,12 +73,29 @@ export default function NewGamePage() {
     return <RedirectToSignIn />;
   }
 
+  if (meLoading) {
+    return <LoadingSpinner text="Checking access..." />;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className={styles.container}>
+        <EmptyState
+          icon="🔒"
+          title="Admin Access Required"
+          description="You don’t have permission to add games yet."
+          action={<Button href="/games">Back to Games</Button>}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Add New Game</h1>
         <p className={styles.subtitle}>
-          Add a Nintendo Switch game to the library
+          Add a game to the library
         </p>
       </header>
 
@@ -121,6 +152,25 @@ export default function NewGamePage() {
               <img src={coverUrl} alt="Cover preview" className={styles.previewImage} />
             </div>
           )}
+        </div>
+
+        <div className={styles.field}>
+          <label htmlFor="platformId" className={styles.label}>
+            Platform
+          </label>
+          <select
+            id="platformId"
+            value={platformId}
+            onChange={(e) => setPlatformId(e.target.value)}
+            className={styles.select}
+          >
+            <option value="">No platform</option>
+            {platformsData?.platforms?.map((platform: any) => (
+              <option key={platform.id} value={platform.id}>
+                {platform.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className={styles.actions}>
