@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { useQuery } from "@apollo/client";
+import { GET_ME } from "@/graphql/queries";
 import styles from "./Header.module.css";
 
 const navLinks = [
@@ -13,6 +15,9 @@ const navLinks = [
 
 export function Header() {
   const pathname = usePathname();
+  const { data } = useQuery(GET_ME);
+  const role = data?.me?.role;
+  const isAdmin = role === "ADMIN" || role === "TRUSTED";
 
   return (
     <header className={styles.header}>
@@ -34,6 +39,16 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={`${styles.navLink} ${
+                pathname === "/admin" ? styles.navLinkActive : ""
+              }`}
+            >
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className={styles.actions}>
