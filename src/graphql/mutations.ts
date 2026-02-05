@@ -1,5 +1,9 @@
 import { gql } from "@apollo/client";
-import { GAME_FRAGMENT, ACHIEVEMENT_FRAGMENT } from "./queries";
+import {
+  GAME_FRAGMENT,
+  ACHIEVEMENT_FRAGMENT,
+  ACHIEVEMENT_SET_FRAGMENT,
+} from "./queries";
 
 // Game mutations
 export const CREATE_GAME = gql`
@@ -66,6 +70,107 @@ export const CREATE_ACHIEVEMENT = gql`
     }
   }
   ${ACHIEVEMENT_FRAGMENT}
+`;
+
+export const UPDATE_ACHIEVEMENT = gql`
+  mutation UpdateAchievement($id: ID!, $input: UpdateAchievementInput!) {
+    updateAchievement(id: $id, input: $input) {
+      success
+      achievement {
+        ...AchievementFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${ACHIEVEMENT_FRAGMENT}
+`;
+
+export const DELETE_ACHIEVEMENT = gql`
+  mutation DeleteAchievement($id: ID!) {
+    deleteAchievement(id: $id) {
+      success
+      achievement {
+        id
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+// Achievement Set mutations
+export const CREATE_ACHIEVEMENT_SET = gql`
+  mutation CreateAchievementSet($input: CreateAchievementSetInput!) {
+    createAchievementSet(input: $input) {
+      success
+      achievementSet {
+        ...AchievementSetFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${ACHIEVEMENT_SET_FRAGMENT}
+`;
+
+export const UPDATE_ACHIEVEMENT_SET = gql`
+  mutation UpdateAchievementSet($id: ID!, $input: UpdateAchievementSetInput!) {
+    updateAchievementSet(id: $id, input: $input) {
+      success
+      achievementSet {
+        ...AchievementSetFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${ACHIEVEMENT_SET_FRAGMENT}
+`;
+
+export const DELETE_ACHIEVEMENT_SET = gql`
+  mutation DeleteAchievementSet($id: ID!) {
+    deleteAchievementSet(id: $id) {
+      success
+      achievementSet {
+        id
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const PUBLISH_ACHIEVEMENT_SET = gql`
+  mutation PublishAchievementSet($id: ID!) {
+    publishAchievementSet(id: $id) {
+      success
+      achievementSet {
+        ...AchievementSetFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${ACHIEVEMENT_SET_FRAGMENT}
 `;
 
 // User achievement mutations

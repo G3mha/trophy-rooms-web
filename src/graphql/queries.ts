@@ -7,8 +7,31 @@ export const GAME_FRAGMENT = gql`
     title
     description
     coverUrl
+    platform {
+      id
+      name
+      slug
+    }
+    achievementSetCount
     achievementCount
     trophyCount
+    createdAt
+    updatedAt
+  }
+`;
+
+export const ACHIEVEMENT_SET_FRAGMENT = gql`
+  fragment AchievementSetFields on AchievementSet {
+    id
+    title
+    type
+    visibility
+    createdByUserId
+    achievementCount
+    game {
+      id
+      title
+    }
     createdAt
     updatedAt
   }
@@ -17,13 +40,22 @@ export const GAME_FRAGMENT = gql`
 export const GAME_WITH_ACHIEVEMENTS_FRAGMENT = gql`
   fragment GameWithAchievements on Game {
     ...GameFields
-    achievements {
+    achievementSets {
       id
       title
-      description
-      iconUrl
-      isCompleted
-      userCount
+      type
+      visibility
+      createdByUserId
+      achievements {
+        id
+        title
+        description
+        iconUrl
+        points
+        isCompleted
+        userCount
+        achievementSetId
+      }
     }
   }
   ${GAME_FRAGMENT}
@@ -36,14 +68,22 @@ export const ACHIEVEMENT_FRAGMENT = gql`
     title
     description
     iconUrl
-    gameId
+    points
+    achievementSetId
     isCompleted
     userCount
     createdAt
     updatedAt
-    game {
+    achievementSet {
       id
       title
+      type
+      visibility
+      createdByUserId
+      game {
+        id
+        title
+      }
     }
   }
 `;
@@ -54,8 +94,10 @@ export const USER_FRAGMENT = gql`
     id
     email
     name
+    role
     achievementCount
     trophyCount
+    gamesWithAchievementsCount
   }
 `;
 
@@ -129,6 +171,24 @@ export const GET_ACHIEVEMENT = gql`
   ${ACHIEVEMENT_FRAGMENT}
 `;
 
+export const GET_ACHIEVEMENT_SETS = gql`
+  query GetAchievementSets($gameId: ID, $visibility: AchievementSetVisibility, $type: AchievementSetType) {
+    achievementSets(gameId: $gameId, visibility: $visibility, type: $type) {
+      ...AchievementSetFields
+    }
+  }
+  ${ACHIEVEMENT_SET_FRAGMENT}
+`;
+
+export const GET_MY_ACHIEVEMENT_SETS = gql`
+  query GetMyAchievementSets {
+    myAchievementSets {
+      ...AchievementSetFields
+    }
+  }
+  ${ACHIEVEMENT_SET_FRAGMENT}
+`;
+
 export const GET_ME = gql`
   query GetMe {
     me {
@@ -161,9 +221,14 @@ export const GET_MY_ACHIEVEMENTS = gql`
             title
             description
             iconUrl
-            game {
+            points
+            achievementSet {
               id
               title
+              game {
+                id
+                title
+              }
             }
           }
         }
