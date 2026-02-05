@@ -1,10 +1,16 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
-import { GET_GAME } from "@/graphql/queries";
-import { MARK_ACHIEVEMENT_COMPLETE, UNMARK_ACHIEVEMENT_COMPLETE } from "@/graphql/mutations";
+import { GET_GAME, GET_ME } from "@/graphql/queries";
+import {
+  MARK_ACHIEVEMENT_COMPLETE,
+  UNMARK_ACHIEVEMENT_COMPLETE,
+  CREATE_ACHIEVEMENT_SET,
+  CREATE_ACHIEVEMENT,
+  PUBLISH_ACHIEVEMENT_SET,
+} from "@/graphql/mutations";
 import { AchievementCard, Button, LoadingSpinner, EmptyState } from "@/components";
 import styles from "./page.module.css";
 
@@ -15,6 +21,7 @@ interface Achievement {
   iconUrl?: string | null;
   isCompleted?: boolean;
   userCount: number;
+  achievementSetId: string;
 }
 
 interface Trophy {
@@ -27,6 +34,15 @@ interface Trophy {
   };
 }
 
+interface AchievementSet {
+  id: string;
+  title: string;
+  type: "OFFICIAL" | "COMPLETIONIST" | "CUSTOM";
+  visibility: "PRIVATE" | "PUBLIC";
+  createdByUserId?: string | null;
+  achievements: Achievement[];
+}
+
 interface Game {
   id: string;
   title: string;
@@ -34,7 +50,7 @@ interface Game {
   coverUrl?: string | null;
   achievementCount: number;
   trophyCount: number;
-  achievements: Achievement[];
+  achievementSets: AchievementSet[];
   trophies: Trophy[];
 }
 
@@ -46,9 +62,21 @@ export default function GameDetailPage({
   const { id } = use(params);
   const { isSignedIn } = useAuth();
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [newSetTitle, setNewSetTitle] = useState("");
+  const [setError, setSetError] = useState<string | null>(null);
+  const [achievementSetId, setAchievementSetId] = useState("");
+  const [achievementTitle, setAchievementTitle] = useState("");
+  const [achievementDescription, setAchievementDescription] = useState("");
+  const [achievementPoints, setAchievementPoints] = useState("0");
+  const [achievementIconUrl, setAchievementIconUrl] = useState("");
+  const [achievementError, setAchievementError] = useState<string | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_GAME, {
     variables: { id },
+  });
+
+  const { data: meData } = useQuery(GET_ME, {
+    skip: !isSignedIn,
   });
 
   const [markComplete] = useMutation(MARK_ACHIEVEMENT_COMPLETE, {
@@ -66,6 +94,54 @@ export default function GameDetailPage({
     },
     onError: () => setTogglingId(null),
   });
+
+  const [createAchievementSet, { loading: creatingSet }] = useMutation(
+    CREATE_ACHIEVEMENT_SET,
+    {
+      onCompleted: (result) => {
+        if (result.createAchievementSet.success) {
+          setNewSetTitle("");
+          setSetError(null);
+          refetch();
+        } else {
+          setSetError(
+            result.createAchievementSet.error?.message ||
+              "Failed to create achievement set"
+          );
+        }
+      },
+      onError: (err) => setSetError(err.message),
+    }
+  );
+
+  const [createAchievement, { loading: creatingAchievement }] = useMutation(
+    CREATE_ACHIEVEMENT,
+    {
+      onCompleted: (result) => {
+        if (result.createAchievement.success) {
+          setAchievementTitle("");
+          setAchievementDescription("");
+          setAchievementPoints("0");
+          setAchievementIconUrl("");
+          setAchievementError(null);
+          refetch();
+        } else {
+          setAchievementError(
+            result.createAchievement.error?.message ||
+              "Failed to create achievement"
+          );
+        }
+      },
+      onError: (err) => setAchievementError(err.message),
+    }
+  );
+
+  const [publishAchievementSet, { loading: publishingSet }] = useMutation(
+    PUBLISH_ACHIEVEMENT_SET,
+    {
+      onCompleted: () => refetch(),
+    }
+  );
 
   const handleToggleAchievement = async (achievementId: string) => {
     if (!isSignedIn) return;
@@ -102,6 +178,7 @@ export default function GameDetailPage({
   }
 
   const game: Game = data?.game;
+  const me = meData?.me;
 
   if (!game) {
     return (
@@ -118,10 +195,69 @@ export default function GameDetailPage({
     );
   }
 
-  const completedCount = game.achievements.filter((a: Achievement) => a.isCompleted).length;
-  const progress = game.achievementCount > 0
-    ? Math.round((completedCount / game.achievementCount) * 100)
-    : 0;
+  const allAchievements = game.achievementSets.flatMap((set) => set.achievements);
+  const completedCount = allAchievements.filter((a: Achievement) => a.isCompleted).length;
+  const totalCount = allAchievements.length;
+  const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  const ownedCustomSets = game.achievementSets.filter(
+    (set) => set.type === "CUSTOM" && set.createdByUserId === me?.id
+  );
+
+  useEffect(() => {
+    if (!achievementSetId && ownedCustomSets.length > 0) {
+      setAchievementSetId(ownedCustomSets[0].id);
+    }
+  }, [achievementSetId, ownedCustomSets]);
+
+  const handleCreateCustomSet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSetError(null);
+
+    if (!newSetTitle.trim()) {
+      setSetError("Title is required");
+      return;
+    }
+
+    await createAchievementSet({
+      variables: {
+        input: {
+          title: newSetTitle.trim(),
+          type: "CUSTOM",
+          gameId: id,
+        },
+      },
+    });
+  };
+
+  const handleCreateAchievement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAchievementError(null);
+
+    if (!achievementSetId) {
+      setAchievementError("Select a custom set");
+      return;
+    }
+
+    if (!achievementTitle.trim()) {
+      setAchievementError("Title is required");
+      return;
+    }
+
+    const points = Number.parseInt(achievementPoints, 10);
+
+    await createAchievement({
+      variables: {
+        input: {
+          title: achievementTitle.trim(),
+          description: achievementDescription.trim() || null,
+          iconUrl: achievementIconUrl.trim() || null,
+          points: Number.isFinite(points) ? points : 0,
+          achievementSetId,
+        },
+      },
+    });
+  };
 
   return (
     <div className={styles.container}>
@@ -143,7 +279,7 @@ export default function GameDetailPage({
           )}
           <div className={styles.stats}>
             <div className={styles.stat}>
-              <span className={styles.statValue}>{game.achievementCount}</span>
+              <span className={styles.statValue}>{totalCount}</span>
               <span className={styles.statLabel}>Achievements</span>
             </div>
             <div className={styles.stat}>
@@ -155,12 +291,12 @@ export default function GameDetailPage({
       </header>
 
       {/* Progress Bar */}
-      {isSignedIn && game.achievementCount > 0 && (
+      {isSignedIn && totalCount > 0 && (
         <section className={styles.progressSection}>
           <div className={styles.progressHeader}>
             <span className={styles.progressLabel}>Your Progress</span>
             <span className={styles.progressValue}>
-              {completedCount} / {game.achievementCount} ({progress}%)
+              {completedCount} / {totalCount} ({progress}%)
             </span>
           </div>
           <div className={styles.progressBar}>
@@ -177,36 +313,188 @@ export default function GameDetailPage({
         </section>
       )}
 
-      {/* Achievements */}
+      {/* Achievement Sets */}
       <section className={styles.achievementsSection}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Achievements</h2>
+          <h2 className={styles.sectionTitle}>Achievement Sets</h2>
         </div>
 
-        {game.achievements.length > 0 ? (
+        {game.achievementSets.length > 0 ? (
           <div className={styles.achievementList}>
-            {game.achievements.map((achievement: Achievement) => (
-              <AchievementCard
-                key={achievement.id}
-                id={achievement.id}
-                title={achievement.title}
-                description={achievement.description}
-                iconUrl={achievement.iconUrl}
-                isCompleted={achievement.isCompleted}
-                userCount={achievement.userCount}
-                onToggle={isSignedIn ? handleToggleAchievement : undefined}
-                loading={togglingId === achievement.id}
-              />
+            {game.achievementSets.map((set) => (
+              <div key={set.id} className={styles.setCard}>
+                <div className={styles.setHeader}>
+                  <div>
+                    <h3 className={styles.setTitle}>{set.title}</h3>
+                    <p className={styles.setMeta}>
+                      {set.type} · {set.visibility.toLowerCase()}
+                    </p>
+                  </div>
+                  {isSignedIn &&
+                    set.type === "CUSTOM" &&
+                    set.createdByUserId === me?.id &&
+                    set.visibility === "PRIVATE" && (
+                      <Button
+                        variant="secondary"
+                        onClick={() =>
+                          publishAchievementSet({ variables: { id: set.id } })
+                        }
+                        loading={publishingSet}
+                      >
+                        Publish
+                      </Button>
+                    )}
+                </div>
+
+                {set.achievements.length > 0 ? (
+                  <div className={styles.achievementList}>
+                    {set.achievements.map((achievement) => (
+                      <AchievementCard
+                        key={achievement.id}
+                        id={achievement.id}
+                        title={achievement.title}
+                        description={achievement.description}
+                        iconUrl={achievement.iconUrl}
+                        isCompleted={achievement.isCompleted}
+                        userCount={achievement.userCount}
+                        onToggle={isSignedIn ? handleToggleAchievement : undefined}
+                        loading={togglingId === achievement.id}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState
+                    icon="⭐"
+                    title="No achievements yet"
+                    description="Add achievements to this set."
+                  />
+                )}
+              </div>
             ))}
           </div>
         ) : (
           <EmptyState
             icon="⭐"
-            title="No achievements yet"
-            description="This game doesn't have any achievements defined yet."
+            title="No achievement sets yet"
+            description="This game doesn't have any achievement sets defined yet."
           />
         )}
       </section>
+
+      {isSignedIn && (
+        <section className={styles.createSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Create Your Custom Set</h2>
+          </div>
+
+          <form onSubmit={handleCreateCustomSet} className={styles.form}>
+            {setError && (
+              <div className={styles.error}>
+                <p>{setError}</p>
+              </div>
+            )}
+            <div className={styles.field}>
+              <label htmlFor="setTitle" className={styles.label}>
+                Set Title
+              </label>
+              <input
+                id="setTitle"
+                type="text"
+                value={newSetTitle}
+                onChange={(e) => setNewSetTitle(e.target.value)}
+                className={styles.input}
+                placeholder="e.g. Speedrunner Challenges"
+              />
+            </div>
+            <Button type="submit" loading={creatingSet}>
+              Create Custom Set
+            </Button>
+          </form>
+
+          {ownedCustomSets.length > 0 && (
+            <div className={styles.subSection}>
+              <h3 className={styles.subTitle}>Add Achievements</h3>
+              <form onSubmit={handleCreateAchievement} className={styles.form}>
+                {achievementError && (
+                  <div className={styles.error}>
+                    <p>{achievementError}</p>
+                  </div>
+                )}
+                <div className={styles.field}>
+                  <label htmlFor="achievementSet" className={styles.label}>
+                    Custom Set
+                  </label>
+                  <select
+                    id="achievementSet"
+                    className={styles.select}
+                    value={achievementSetId}
+                    onChange={(e) => setAchievementSetId(e.target.value)}
+                  >
+                    <option value="">Select a set</option>
+                    {ownedCustomSets.map((set) => (
+                      <option key={set.id} value={set.id}>
+                        {set.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="achievementTitle" className={styles.label}>
+                    Achievement Title
+                  </label>
+                  <input
+                    id="achievementTitle"
+                    type="text"
+                    value={achievementTitle}
+                    onChange={(e) => setAchievementTitle(e.target.value)}
+                    className={styles.input}
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="achievementDescription" className={styles.label}>
+                    Description
+                  </label>
+                  <textarea
+                    id="achievementDescription"
+                    value={achievementDescription}
+                    onChange={(e) => setAchievementDescription(e.target.value)}
+                    className={styles.textarea}
+                    rows={3}
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="achievementPoints" className={styles.label}>
+                    Points
+                  </label>
+                  <input
+                    id="achievementPoints"
+                    type="number"
+                    min="0"
+                    value={achievementPoints}
+                    onChange={(e) => setAchievementPoints(e.target.value)}
+                    className={styles.input}
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="achievementIconUrl" className={styles.label}>
+                    Icon URL
+                  </label>
+                  <input
+                    id="achievementIconUrl"
+                    type="url"
+                    value={achievementIconUrl}
+                    onChange={(e) => setAchievementIconUrl(e.target.value)}
+                    className={styles.input}
+                  />
+                </div>
+                <Button type="submit" loading={creatingAchievement}>
+                  Add Achievement
+                </Button>
+              </form>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Trophy Holders */}
       {game.trophies.length > 0 && (
