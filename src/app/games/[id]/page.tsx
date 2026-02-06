@@ -147,7 +147,9 @@ export default function GameDetailPage({
     if (!isSignedIn) return;
 
     setTogglingId(achievementId);
-    const achievement = game?.achievements.find((a: Achievement) => a.id === achievementId);
+    const achievement = game?.achievementSets
+      .flatMap((set) => set.achievements)
+      .find((a: Achievement) => a.id === achievementId);
 
     if (achievement?.isCompleted) {
       await unmarkComplete({ variables: { achievementId } });
