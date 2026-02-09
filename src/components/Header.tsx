@@ -10,7 +10,6 @@ import styles from "./Header.module.css";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/games", label: "Games" },
-  { href: "/dashboard", label: "Dashboard" },
 ];
 
 export function Header() {
@@ -39,6 +38,17 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <SignedIn>
+            <Link
+              href="/dashboard"
+              prefetch={false}
+              className={`${styles.navLink} ${
+                pathname === "/dashboard" ? styles.navLinkActive : ""
+              }`}
+            >
+              Dashboard
+            </Link>
+          </SignedIn>
           {isAdmin && (
             <Link
               href="/admin"
