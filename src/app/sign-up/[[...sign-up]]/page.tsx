@@ -11,6 +11,7 @@ export default function SignUpPage() {
           <p className={styles.subtitle}>Join Trophy Rooms and start tracking</p>
         </div>
         <SignUp
+          fallbackRedirectUrl="/dashboard"
           appearance={{
             elements: {
               rootBox: styles.clerkRoot,

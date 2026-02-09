@@ -11,6 +11,7 @@ export default function SignInPage() {
           <p className={styles.subtitle}>Sign in to continue to Trophy Rooms</p>
         </div>
         <SignIn
+          fallbackRedirectUrl="/dashboard"
           appearance={{
             elements: {
               rootBox: styles.clerkRoot,
