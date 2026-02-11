@@ -143,6 +143,21 @@ export default function GameDetailPage({
     }
   );
 
+  const game: Game | undefined = data?.game;
+  const me = meData?.me;
+
+  // Compute owned custom sets for useEffect dependency
+  const ownedCustomSets = game?.achievementSets.filter(
+    (set) => set.type === "CUSTOM" && set.createdByUserId === me?.id
+  ) ?? [];
+
+  // Set default achievement set - must be before any conditional returns
+  useEffect(() => {
+    if (!achievementSetId && ownedCustomSets.length > 0) {
+      setAchievementSetId(ownedCustomSets[0].id);
+    }
+  }, [achievementSetId, ownedCustomSets]);
+
   const handleToggleAchievement = async (achievementId: string) => {
     if (!isSignedIn) return;
 
@@ -179,9 +194,6 @@ export default function GameDetailPage({
     );
   }
 
-  const game: Game = data?.game;
-  const me = meData?.me;
-
   if (!game) {
     return (
       <div className={styles.container}>
@@ -201,16 +213,6 @@ export default function GameDetailPage({
   const completedCount = allAchievements.filter((a: Achievement) => a.isCompleted).length;
   const totalCount = allAchievements.length;
   const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-
-  const ownedCustomSets = game.achievementSets.filter(
-    (set) => set.type === "CUSTOM" && set.createdByUserId === me?.id
-  );
-
-  useEffect(() => {
-    if (!achievementSetId && ownedCustomSets.length > 0) {
-      setAchievementSetId(ownedCustomSets[0].id);
-    }
-  }, [achievementSetId, ownedCustomSets]);
 
   const handleCreateCustomSet = async (e: React.FormEvent) => {
     e.preventDefault();
