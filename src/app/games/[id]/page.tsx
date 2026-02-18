@@ -20,6 +20,7 @@ interface Achievement {
   title: string;
   description?: string | null;
   iconUrl?: string | null;
+  points?: number;
   tier?: AchievementTier;
   isCompleted?: boolean;
   userCount: number;
@@ -231,6 +232,11 @@ export default function GameDetailPage({
   const totalCount = allAchievements.length;
   const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
+  // Calculate total players for rarity (max userCount across all achievements)
+  const totalPlayers = allAchievements.length > 0
+    ? Math.max(...allAchievements.map((a) => a.userCount))
+    : 0;
+
   const handleCreateCustomSet = async (e: React.FormEvent) => {
     e.preventDefault();
     setSetError(null);
@@ -380,9 +386,11 @@ export default function GameDetailPage({
                         title={achievement.title}
                         description={achievement.description}
                         iconUrl={achievement.iconUrl}
+                        points={achievement.points}
                         tier={achievement.tier}
                         isCompleted={achievement.isCompleted}
                         userCount={achievement.userCount}
+                        totalPlayers={totalPlayers}
                         onToggle={isSignedIn ? handleToggleAchievement : undefined}
                         loading={togglingId === achievement.id}
                       />
