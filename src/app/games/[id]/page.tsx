@@ -12,6 +12,7 @@ import {
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
 import { AchievementCard, Button, LoadingSpinner, EmptyState } from "@/components";
+import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
 interface Achievement {
@@ -19,9 +20,25 @@ interface Achievement {
   title: string;
   description?: string | null;
   iconUrl?: string | null;
+  tier?: AchievementTier;
   isCompleted?: boolean;
   userCount: number;
   achievementSetId: string;
+}
+
+// Tier sort priority (higher = more rare = shown first)
+const tierPriority: Record<AchievementTier, number> = {
+  GOLD: 3,
+  SILVER: 2,
+  BRONZE: 1,
+};
+
+function sortByTier(achievements: Achievement[]): Achievement[] {
+  return [...achievements].sort((a, b) => {
+    const aTier = a.tier ?? "BRONZE";
+    const bTier = b.tier ?? "BRONZE";
+    return tierPriority[bTier] - tierPriority[aTier];
+  });
 }
 
 interface Trophy {
@@ -310,8 +327,12 @@ export default function GameDetailPage({
             />
           </div>
           {progress === 100 && (
-            <div className={styles.trophyEarned}>
-              <span>🏆</span> Trophy Earned!
+            <div className={styles.crimsonTrophy}>
+              <div className={styles.crimsonIcon}>🏆</div>
+              <div className={styles.crimsonContent}>
+                <span className={styles.crimsonTitle}>Crimson Trophy Earned!</span>
+                <span className={styles.crimsonSubtitle}>100% Completion Achieved</span>
+              </div>
             </div>
           )}
         </section>
@@ -352,13 +373,14 @@ export default function GameDetailPage({
 
                 {set.achievements.length > 0 ? (
                   <div className={styles.achievementList}>
-                    {set.achievements.map((achievement) => (
+                    {sortByTier(set.achievements).map((achievement) => (
                       <AchievementCard
                         key={achievement.id}
                         id={achievement.id}
                         title={achievement.title}
                         description={achievement.description}
                         iconUrl={achievement.iconUrl}
+                        tier={achievement.tier}
                         isCompleted={achievement.isCompleted}
                         userCount={achievement.userCount}
                         onToggle={isSignedIn ? handleToggleAchievement : undefined}

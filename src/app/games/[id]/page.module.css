@@ -118,28 +118,50 @@
   transition: width 0.5s ease;
 }
 
-.trophyEarned {
+/* Crimson Trophy - 100% Completion */
+.crimsonTrophy {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 16px;
   margin-top: 16px;
-  padding: 12px;
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.2) 100%);
-  border: 1px solid var(--switch-gold);
-  border-radius: var(--border-radius);
-  color: var(--switch-gold);
-  font-weight: 600;
-  font-size: 18px;
-  animation: trophyPulse 2s ease-in-out infinite;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, rgba(139, 0, 0, 0.1) 0%, rgba(220, 20, 60, 0.15) 100%);
+  border: 2px solid #dc143c;
+  border-radius: var(--border-radius-lg);
+  animation: crimsonPulse 2s ease-in-out infinite;
 }
 
-@keyframes trophyPulse {
+.crimsonIcon {
+  font-size: 36px;
+  filter: hue-rotate(-30deg) saturate(1.5);
+}
+
+.crimsonContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.crimsonTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #dc143c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.crimsonSubtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+@keyframes crimsonPulse {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 10px rgba(220, 20, 60, 0.3);
   }
   50% {
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+    box-shadow: 0 0 30px rgba(220, 20, 60, 0.5);
   }
 }
 
@@ -259,13 +281,15 @@
   align-items: center;
   gap: 16px;
   padding: 16px;
-  background: var(--bg-card);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(220, 20, 60, 0.05) 100%);
   border-radius: var(--border-radius);
-  border: 1px solid var(--switch-gold);
+  border: 1px solid #dc143c;
+  border-left: 4px solid #dc143c;
 }
 
 .trophyIcon {
   font-size: 28px;
+  filter: hue-rotate(-30deg) saturate(1.5);
 }
 
 .trophyInfo {
