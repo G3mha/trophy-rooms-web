@@ -52,6 +52,7 @@ export const GAME_WITH_ACHIEVEMENTS_FRAGMENT = gql`
         description
         iconUrl
         points
+        tier
         isCompleted
         userCount
         achievementSetId
@@ -69,6 +70,7 @@ export const ACHIEVEMENT_FRAGMENT = gql`
     description
     iconUrl
     points
+    tier
     achievementSetId
     isCompleted
     userCount
@@ -222,6 +224,7 @@ export const GET_MY_ACHIEVEMENTS = gql`
             description
             iconUrl
             points
+            tier
             achievementSet {
               id
               title
