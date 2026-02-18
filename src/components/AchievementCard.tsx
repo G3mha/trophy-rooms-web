@@ -2,11 +2,14 @@
 
 import styles from "./AchievementCard.module.css";
 
+export type AchievementTier = "BRONZE" | "SILVER" | "GOLD";
+
 interface AchievementCardProps {
   id: string;
   title: string;
   description?: string | null;
   iconUrl?: string | null;
+  tier?: AchievementTier;
   isCompleted?: boolean;
   userCount?: number;
   gameName?: string;
@@ -14,19 +17,28 @@ interface AchievementCardProps {
   loading?: boolean;
 }
 
+const tierConfig: Record<AchievementTier, { label: string; cardClass: string; badgeClass: string }> = {
+  BRONZE: { label: "Bronze", cardClass: styles.tierBronze, badgeClass: styles.badgeBronze },
+  SILVER: { label: "Silver", cardClass: styles.tierSilver, badgeClass: styles.badgeSilver },
+  GOLD: { label: "Gold", cardClass: styles.tierGold, badgeClass: styles.badgeGold },
+};
+
 export function AchievementCard({
   id,
   title,
   description,
   iconUrl,
+  tier = "BRONZE",
   isCompleted = false,
   userCount = 0,
   gameName,
   onToggle,
   loading = false,
 }: AchievementCardProps) {
+  const tierInfo = tierConfig[tier];
+
   return (
-    <div className={`${styles.card} ${isCompleted ? styles.completed : ""}`}>
+    <div className={`${styles.card} ${tierInfo.cardClass} ${isCompleted ? styles.completed : ""}`}>
       <div className={`${styles.icon} ${isCompleted ? styles.iconCompleted : ""}`}>
         {iconUrl ? (
           <img src={iconUrl} alt={title} className={styles.iconImage} />
@@ -40,6 +52,9 @@ export function AchievementCard({
           <p className={styles.description}>{description}</p>
         )}
         <div className={styles.meta}>
+          <span className={`${styles.tierBadge} ${tierInfo.badgeClass}`}>
+            {tierInfo.label}
+          </span>
           {gameName && <span className={styles.game}>{gameName}</span>}
           {userCount > 0 && (
             <span className={styles.userCount}>
