@@ -3,6 +3,12 @@
 import Link from "next/link";
 import styles from "./GameCard.module.css";
 
+interface Platform {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface GameCardProps {
   id: string;
   title: string;
@@ -10,6 +16,7 @@ interface GameCardProps {
   coverUrl?: string | null;
   achievementCount: number;
   trophyCount: number;
+  platform?: Platform | null;
 }
 
 export function GameCard({
@@ -19,6 +26,7 @@ export function GameCard({
   coverUrl,
   achievementCount,
   trophyCount,
+  platform,
 }: GameCardProps) {
   return (
     <Link href={`/games/${id}`} className={styles.card}>
@@ -47,6 +55,20 @@ export function GameCard({
             <span className={styles.statIcon}>⭐</span>
             <span>{achievementCount} achievements</span>
           </div>
+          {platform && (
+            <div className={styles.stat}>
+              <img
+                src={`/platforms/${platform.slug}.svg`}
+                alt={platform.name}
+                className={styles.platformIcon}
+                onError={(e) => {
+                  // Hide icon if image fails to load
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+              <span>{platform.name}</span>
+            </div>
+          )}
         </div>
       </div>
     </Link>
