@@ -50,7 +50,7 @@ export default function GamesPage() {
 
   const { data, loading, error, fetchMore } = useQuery(GET_GAMES, {
     variables: {
-      first: 12,
+      first: 24,
       filter,
       orderBy,
     },
