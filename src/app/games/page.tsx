@@ -8,6 +8,12 @@ import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import { GameCard, Button, LoadingSpinner, EmptyState } from "@/components";
 import styles from "./page.module.css";
 
+interface Platform {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface GameNode {
   id: string;
   title: string;
@@ -15,6 +21,7 @@ interface GameNode {
   coverUrl?: string | null;
   achievementCount: number;
   trophyCount: number;
+  platform?: Platform | null;
 }
 
 export default function GamesPage() {
@@ -179,6 +186,7 @@ export default function GamesPage() {
                 coverUrl={game.coverUrl}
                 achievementCount={game.achievementCount}
                 trophyCount={game.trophyCount}
+                platform={game.platform}
               />
             ))}
           </div>
