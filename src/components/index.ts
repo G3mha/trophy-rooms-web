@@ -10,3 +10,4 @@ export { RecentActivity } from "./RecentActivity";
 export { LeaderboardEntry, FastestCompletionEntry } from "./LeaderboardEntry";
 export { ActivityFeedEntry } from "./ActivityFeedEntry";
 export { GameProgressCard } from "./GameProgressCard";
+export { WishlistButton } from "./WishlistButton";
