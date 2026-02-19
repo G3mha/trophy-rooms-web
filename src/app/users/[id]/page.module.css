@@ -1,0 +1,305 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.headerContent {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 12px 0;
+  background: linear-gradient(135deg, var(--nintendo-red) 0%, #dc143c 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 18px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+/* Trophy Showcase */
+.trophyShowcase {
+  background: linear-gradient(135deg, rgba(220, 20, 60, 0.05) 0%, rgba(139, 0, 0, 0.1) 100%);
+  border: 2px solid #dc143c;
+  border-radius: var(--border-radius-lg);
+  padding: 32px;
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.crimsonIcon {
+  filter: hue-rotate(-30deg) saturate(1.5);
+}
+
+.sectionSubtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 24px 0;
+}
+
+.trophyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.trophyCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid #dc143c;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  animation: trophyGlow 3s ease-in-out infinite alternate;
+}
+
+.trophyCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(220, 20, 60, 0.2);
+}
+
+@keyframes trophyGlow {
+  from {
+    box-shadow: 0 0 10px rgba(220, 20, 60, 0.1);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(220, 20, 60, 0.25);
+  }
+}
+
+.trophyIconLarge {
+  font-size: 48px;
+  filter: hue-rotate(-30deg) saturate(1.5);
+}
+
+.trophyDetails {
+  flex: 1;
+}
+
+.trophyGameTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.trophyMeta {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0 0 4px 0;
+}
+
+.trophyDate {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Games Section */
+.gamesSection {
+  margin-bottom: 48px;
+}
+
+.gamesList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.gameCard {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+
+.gameCard:hover {
+  border-color: var(--border-color-hover, var(--border-color));
+}
+
+.gameCardCompleted {
+  border-color: #dc143c;
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(220, 20, 60, 0.03) 100%);
+}
+
+.gameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.gameLink {
+  text-decoration: none;
+}
+
+.gameTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gameTitle:hover {
+  color: var(--nintendo-red);
+}
+
+.trophyBadge {
+  filter: hue-rotate(-30deg) saturate(1.5);
+}
+
+.gameStats {
+  display: flex;
+  gap: 16px;
+}
+
+.achievementCount,
+.pointsCount {
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 4px 12px;
+  background: var(--bg-secondary);
+  border-radius: 20px;
+}
+
+/* Achievements Grid */
+.achievementsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.achievementPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.achievementPill:hover {
+  transform: scale(1.02);
+}
+
+.tierGOLD {
+  background: rgba(255, 215, 0, 0.1);
+  border-color: #ffd700;
+}
+
+.tierSILVER {
+  background: rgba(192, 192, 192, 0.1);
+  border-color: #c0c0c0;
+}
+
+.tierBRONZE {
+  background: rgba(205, 127, 50, 0.1);
+  border-color: #cd7f32;
+}
+
+.achievementIcon {
+  font-size: 14px;
+}
+
+.achievementName {
+  color: var(--text-primary);
+  font-weight: 500;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.achievementPoints {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .title {
+    font-size: 32px;
+  }
+
+  .gameHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .trophyShowcase {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .achievementPill {
+    width: 100%;
+  }
+
+  .achievementName {
+    max-width: none;
+    flex: 1;
+  }
+}
