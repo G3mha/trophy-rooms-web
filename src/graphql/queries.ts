@@ -375,3 +375,71 @@ export const GET_USER_TROPHIES = gql`
     }
   }
 `;
+
+// Leaderboard queries
+export const GET_LEADERBOARD_BY_TROPHIES = gql`
+  query GetLeaderboardByTrophies($limit: Int) {
+    leaderboardByTrophies(limit: $limit) {
+      rank
+      userId
+      userName
+      userEmail
+      value
+      secondaryValue
+    }
+  }
+`;
+
+export const GET_LEADERBOARD_BY_ACHIEVEMENTS = gql`
+  query GetLeaderboardByAchievements($limit: Int) {
+    leaderboardByAchievements(limit: $limit) {
+      rank
+      userId
+      userName
+      userEmail
+      value
+      secondaryValue
+    }
+  }
+`;
+
+export const GET_LEADERBOARD_BY_POINTS = gql`
+  query GetLeaderboardByPoints($limit: Int) {
+    leaderboardByPoints(limit: $limit) {
+      rank
+      userId
+      userName
+      userEmail
+      value
+      secondaryValue
+    }
+  }
+`;
+
+export const GET_LEADERBOARD_BY_GAMES = gql`
+  query GetLeaderboardByGames($limit: Int) {
+    leaderboardByGamesPlayed(limit: $limit) {
+      rank
+      userId
+      userName
+      userEmail
+      value
+      secondaryValue
+    }
+  }
+`;
+
+export const GET_FASTEST_COMPLETIONS = gql`
+  query GetFastestCompletions($limit: Int) {
+    fastestCompletions(limit: $limit) {
+      rank
+      userId
+      userName
+      userEmail
+      gameId
+      gameTitle
+      completionTimeHours
+      completedAt
+    }
+  }
+`;
