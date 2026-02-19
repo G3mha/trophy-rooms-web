@@ -532,3 +532,30 @@ export const GET_USER_GAME_PROGRESS = gql`
     }
   }
 `;
+
+// Wishlist queries
+export const GET_MY_WISHLIST = gql`
+  query GetMyWishlist {
+    myWishlist {
+      id
+      gameId
+      gameTitle
+      gameCoverUrl
+      gameDescription
+      achievementCount
+      addedAt
+    }
+  }
+`;
+
+export const IS_GAME_IN_WISHLIST = gql`
+  query IsGameInWishlist($gameId: ID!) {
+    isGameInWishlist(gameId: $gameId)
+  }
+`;
+
+export const GET_WISHLIST_COUNT = gql`
+  query GetWishlistCount {
+    wishlistCount
+  }
+`;
