@@ -8,7 +8,7 @@ import {
   GET_USER_ACHIEVEMENTS,
   GET_USER_TROPHIES,
 } from "@/graphql/queries";
-import { StatCard, LoadingSpinner, EmptyState, Button } from "@/components";
+import { LoadingSpinner, EmptyState, Button, ProfileHeader, RecentActivity } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
@@ -181,53 +181,23 @@ export default function PublicProfilePage({
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>{user.name || "Player"}&apos;s Trophy Room</h1>
-          <p className={styles.subtitle}>Public achievement showcase</p>
-        </div>
-      </header>
+      {/* Profile Header */}
+      <ProfileHeader
+        name={user.name}
+        email={user.email}
+        memberSince={user.createdAt || new Date().toISOString()}
+        achievementCount={user.achievementCount || 0}
+        trophyCount={trophyCount}
+        gamesPlayed={gameProgressList.length}
+        stats={user.stats}
+      />
 
-      {/* Stats Overview */}
-      <section className={styles.statsGrid}>
-        <StatCard
-          icon="🏆"
-          value={trophyCount}
-          label="Crimson Trophies"
-          variant="gold"
-        />
-        <StatCard
-          icon="🥇"
-          value={tierCounts.GOLD}
-          label="Gold"
-          variant="gold"
-        />
-        <StatCard
-          icon="🥈"
-          value={tierCounts.SILVER}
-          label="Silver"
-          variant="default"
-        />
-        <StatCard
-          icon="🥉"
-          value={tierCounts.BRONZE}
-          label="Bronze"
-          variant="red"
-        />
-        <StatCard
-          icon="⭐"
-          value={totalPoints}
-          label="Total Points"
-          variant="blue"
-        />
-        <StatCard
-          icon="🎮"
-          value={gameProgressList.length}
-          label="Games"
-          variant="default"
-        />
-      </section>
+      {/* Recent Activity */}
+      {user.recentAchievements && user.recentAchievements.length > 0 && (
+        <section className={styles.activitySection}>
+          <RecentActivity achievements={user.recentAchievements} />
+        </section>
+      )}
 
       {/* Trophy Showcase */}
       {trophyCount > 0 && (

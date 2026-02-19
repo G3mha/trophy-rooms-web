@@ -40,6 +40,11 @@
   margin-bottom: 48px;
 }
 
+/* Activity Section */
+.activitySection {
+  margin-bottom: 40px;
+}
+
 /* Trophy Showcase */
 .trophyShowcase {
   background: linear-gradient(135deg, rgba(220, 20, 60, 0.05) 0%, rgba(139, 0, 0, 0.1) 100%);
