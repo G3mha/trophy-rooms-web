@@ -1,0 +1,209 @@
+.entry {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.entry:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-color-hover, var(--border-color));
+}
+
+.highlight {
+  background: linear-gradient(135deg, rgba(230, 0, 18, 0.05) 0%, rgba(230, 0, 18, 0.1) 100%);
+  border-color: var(--nintendo-red);
+}
+
+/* Rank */
+.rank {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.rankIcon {
+  font-size: 28px;
+}
+
+.rankNumber {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.rankGold {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.25) 100%);
+}
+
+.rankSilver {
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.25) 100%);
+}
+
+.rankBronze {
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.25) 100%);
+}
+
+.rankDefault {
+  background: var(--bg-secondary);
+}
+
+/* User Link */
+.userLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar span {
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+}
+
+.userName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.userLink:hover .userName {
+  color: var(--nintendo-red);
+}
+
+/* Stats */
+.stats {
+  display: flex;
+  gap: 24px;
+  margin-left: auto;
+}
+
+.primaryStat,
+.secondaryStat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--nintendo-red);
+}
+
+.secondaryStat .statValue {
+  font-size: 16px;
+  color: var(--text-secondary);
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Game Info (for fastest completions) */
+.gameInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.gameLink {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gameLink:hover {
+  color: var(--nintendo-red);
+}
+
+.completedDate {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Completion Time */
+.completionTime {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.timeValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--nintendo-red);
+}
+
+.timeLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .entry {
+    flex-wrap: wrap;
+  }
+
+  .stats {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .userLink {
+    flex: 1;
+  }
+
+  .gameInfo {
+    width: 100%;
+    order: 3;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .completionTime {
+    margin-left: auto;
+  }
+}
