@@ -1,56 +1,23 @@
 "use client";
 
-import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
-import Link from "next/link";
-import { GET_ME, GET_MY_ACHIEVEMENTS, GET_MY_TROPHIES } from "@/graphql/queries";
-import { LoadingSpinner, EmptyState, Button, ProfileHeader } from "@/components";
-import type { AchievementTier } from "@/components/AchievementCard";
+import { GET_ME, GET_MY_TROPHIES, GET_MY_GAME_PROGRESS } from "@/graphql/queries";
+import { LoadingSpinner, EmptyState, Button, ProfileHeader, GameProgressCard } from "@/components";
 import styles from "./page.module.css";
 
-interface Achievement {
-  id: string;
-  title: string;
-  description?: string | null;
-  iconUrl?: string | null;
-  points?: number;
-  tier?: AchievementTier;
-}
-
-interface UserAchievementNode {
-  id: string;
-  createdAt: string;
-  achievement: Achievement & {
-    achievementSet: {
-      id: string;
-      title: string;
-      game: {
-        id: string;
-        title: string;
-      };
-    };
-  };
-}
-
-interface TrophyNode {
-  id: string;
-  createdAt: string;
-  game: {
-    id: string;
-    title: string;
-    coverUrl?: string | null;
-  };
-}
-
-interface GameProgress {
+interface GameProgressData {
   gameId: string;
   gameTitle: string;
-  achievements: Achievement[];
+  gameCoverUrl: string | null;
+  earnedCount: number;
+  totalCount: number;
+  earnedPoints: number;
   totalPoints: number;
-  earnedAt: string;
+  percentComplete: number;
   hasTrophy: boolean;
-  trophyEarnedAt?: string;
+  trophyEarnedAt: string | null;
+  lastActivityAt: string | null;
 }
 
 export default function TrophyRoom() {
@@ -60,14 +27,6 @@ export default function TrophyRoom() {
     skip: !isSignedIn,
   });
 
-  const { data: achievementsData, loading: achievementsLoading } = useQuery(
-    GET_MY_ACHIEVEMENTS,
-    {
-      variables: { first: 1000 }, // Get all achievements
-      skip: !isSignedIn,
-    }
-  );
-
   const { data: trophiesData, loading: trophiesLoading } = useQuery(
     GET_MY_TROPHIES,
     {
@@ -76,71 +35,12 @@ export default function TrophyRoom() {
     }
   );
 
-  // Group achievements by game
-  const gameProgressList = useMemo(() => {
-    if (!achievementsData?.myAchievements?.edges) return [];
-
-    const trophyMap = new Map<string, string>();
-    trophiesData?.myTrophies?.edges?.forEach(({ node }: { node: TrophyNode }) => {
-      trophyMap.set(node.game.id, node.createdAt);
-    });
-
-    const gameMap = new Map<string, GameProgress>();
-
-    achievementsData.myAchievements.edges.forEach(
-      ({ node }: { node: UserAchievementNode }) => {
-        const gameId = node.achievement.achievementSet.game.id;
-        const gameTitle = node.achievement.achievementSet.game.title;
-
-        if (!gameMap.has(gameId)) {
-          gameMap.set(gameId, {
-            gameId,
-            gameTitle,
-            achievements: [],
-            totalPoints: 0,
-            earnedAt: node.createdAt,
-            hasTrophy: trophyMap.has(gameId),
-            trophyEarnedAt: trophyMap.get(gameId),
-          });
-        }
-
-        const game = gameMap.get(gameId)!;
-        game.achievements.push({
-          id: node.achievement.id,
-          title: node.achievement.title,
-          description: node.achievement.description,
-          iconUrl: node.achievement.iconUrl,
-          points: node.achievement.points,
-          tier: node.achievement.tier,
-        });
-        game.totalPoints += node.achievement.points || 0;
-
-        // Update earnedAt to most recent
-        if (new Date(node.createdAt) > new Date(game.earnedAt)) {
-          game.earnedAt = node.createdAt;
-        }
-      }
-    );
-
-    // Sort by most recent activity, with trophy holders first
-    return Array.from(gameMap.values()).sort((a, b) => {
-      if (a.hasTrophy && !b.hasTrophy) return -1;
-      if (!a.hasTrophy && b.hasTrophy) return 1;
-      return new Date(b.earnedAt).getTime() - new Date(a.earnedAt).getTime();
-    });
-  }, [achievementsData, trophiesData]);
-
-  // Calculate tier counts
-  const tierCounts = useMemo(() => {
-    const counts = { GOLD: 0, SILVER: 0, BRONZE: 0 };
-    gameProgressList.forEach((game) => {
-      game.achievements.forEach((a) => {
-        const tier = a.tier || "BRONZE";
-        counts[tier]++;
-      });
-    });
-    return counts;
-  }, [gameProgressList]);
+  const { data: progressData, loading: progressLoading } = useQuery(
+    GET_MY_GAME_PROGRESS,
+    {
+      skip: !isSignedIn,
+    }
+  );
 
   if (!isLoaded) {
     return <LoadingSpinner text="Loading..." />;
@@ -150,10 +50,14 @@ export default function TrophyRoom() {
     return <RedirectToSignIn />;
   }
 
-  const loading = userLoading || achievementsLoading || trophiesLoading;
+  const loading = userLoading || trophiesLoading || progressLoading;
   const user = userData?.me;
   const trophyCount = trophiesData?.myTrophies?.totalCount || 0;
-  const totalPoints = gameProgressList.reduce((sum, g) => sum + g.totalPoints, 0);
+  const gameProgress: GameProgressData[] = progressData?.myGameProgress || [];
+
+  // Separate completed and in-progress games
+  const completedGames = gameProgress.filter((g) => g.hasTrophy);
+  const inProgressGames = gameProgress.filter((g) => !g.hasTrophy);
 
   if (loading) {
     return (
@@ -178,14 +82,14 @@ export default function TrophyRoom() {
         memberSince={user?.createdAt || new Date().toISOString()}
         achievementCount={user?.achievementCount || 0}
         trophyCount={trophyCount}
-        gamesPlayed={gameProgressList.length}
+        gamesPlayed={gameProgress.length}
         stats={user?.stats}
         isOwnProfile={true}
         onShare={handleShare}
       />
 
-      {/* Trophy Showcase */}
-      {trophyCount > 0 && (
+      {/* Completed Games - Crimson Trophy Holders */}
+      {completedGames.length > 0 && (
         <section className={styles.trophyShowcase}>
           <h2 className={styles.sectionTitle}>
             <span className={styles.crimsonIcon}>🏆</span> Crimson Trophy Collection
@@ -193,94 +97,64 @@ export default function TrophyRoom() {
           <p className={styles.sectionSubtitle}>
             100% completion achieved in these games
           </p>
-          <div className={styles.trophyGrid}>
-            {gameProgressList
-              .filter((g) => g.hasTrophy)
-              .map((game) => (
-                <Link
-                  key={game.gameId}
-                  href={`/games/${game.gameId}`}
-                  className={styles.trophyCard}
-                >
-                  <div className={styles.trophyIconLarge}>🏆</div>
-                  <div className={styles.trophyDetails}>
-                    <h3 className={styles.trophyGameTitle}>{game.gameTitle}</h3>
-                    <p className={styles.trophyMeta}>
-                      {game.achievements.length} achievements · {game.totalPoints} pts
-                    </p>
-                    <p className={styles.trophyDate}>
-                      Completed {new Date(game.trophyEarnedAt!).toLocaleDateString()}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+          <div className={styles.progressGrid}>
+            {completedGames.map((game) => (
+              <GameProgressCard
+                key={game.gameId}
+                gameId={game.gameId}
+                gameTitle={game.gameTitle}
+                gameCoverUrl={game.gameCoverUrl}
+                earnedCount={game.earnedCount}
+                totalCount={game.totalCount}
+                earnedPoints={game.earnedPoints}
+                totalPoints={game.totalPoints}
+                percentComplete={game.percentComplete}
+                hasTrophy={game.hasTrophy}
+                trophyEarnedAt={game.trophyEarnedAt}
+              />
+            ))}
           </div>
         </section>
       )}
 
       {/* Games In Progress */}
       <section className={styles.gamesSection}>
-        <h2 className={styles.sectionTitle}>Achievement Collection</h2>
+        <h2 className={styles.sectionTitle}>Games In Progress</h2>
         <p className={styles.sectionSubtitle}>
-          All your earned achievements organized by game
+          Keep earning achievements to unlock Crimson Trophies
         </p>
 
-        {gameProgressList.length > 0 ? (
-          <div className={styles.gamesList}>
-            {gameProgressList.map((game) => (
-              <div
+        {inProgressGames.length > 0 ? (
+          <div className={styles.progressGrid}>
+            {inProgressGames.map((game) => (
+              <GameProgressCard
                 key={game.gameId}
-                className={`${styles.gameCard} ${game.hasTrophy ? styles.gameCardCompleted : ""}`}
-              >
-                <div className={styles.gameHeader}>
-                  <Link href={`/games/${game.gameId}`} className={styles.gameLink}>
-                    <h3 className={styles.gameTitle}>
-                      {game.hasTrophy && <span className={styles.trophyBadge}>🏆</span>}
-                      {game.gameTitle}
-                    </h3>
-                  </Link>
-                  <div className={styles.gameStats}>
-                    <span className={styles.achievementCount}>
-                      {game.achievements.length} achievements
-                    </span>
-                    <span className={styles.pointsCount}>
-                      {game.totalPoints} pts
-                    </span>
-                  </div>
-                </div>
-
-                <div className={styles.achievementsGrid}>
-                  {game.achievements
-                    .sort((a, b) => {
-                      const tierOrder = { GOLD: 0, SILVER: 1, BRONZE: 2 };
-                      return (tierOrder[a.tier || "BRONZE"] || 2) - (tierOrder[b.tier || "BRONZE"] || 2);
-                    })
-                    .map((achievement) => (
-                      <div
-                        key={achievement.id}
-                        className={`${styles.achievementPill} ${styles[`tier${achievement.tier || "BRONZE"}`]}`}
-                        title={achievement.description || achievement.title}
-                      >
-                        <span className={styles.achievementIcon}>
-                          {achievement.tier === "GOLD" ? "🥇" : achievement.tier === "SILVER" ? "🥈" : "🥉"}
-                        </span>
-                        <span className={styles.achievementName}>{achievement.title}</span>
-                        {achievement.points && achievement.points > 0 && (
-                          <span className={styles.achievementPoints}>{achievement.points}</span>
-                        )}
-                      </div>
-                    ))}
-                </div>
-              </div>
+                gameId={game.gameId}
+                gameTitle={game.gameTitle}
+                gameCoverUrl={game.gameCoverUrl}
+                earnedCount={game.earnedCount}
+                totalCount={game.totalCount}
+                earnedPoints={game.earnedPoints}
+                totalPoints={game.totalPoints}
+                percentComplete={game.percentComplete}
+                hasTrophy={game.hasTrophy}
+                trophyEarnedAt={game.trophyEarnedAt}
+              />
             ))}
           </div>
-        ) : (
+        ) : gameProgress.length === 0 ? (
           <EmptyState
             icon="🎮"
             title="No achievements yet"
             description="Start playing games and marking your achievements to fill your trophy room!"
             action={<Button href="/games">Browse Games</Button>}
           />
+        ) : (
+          <div className={styles.allComplete}>
+            <span className={styles.allCompleteIcon}>🎉</span>
+            <p>You've completed all your games! Browse for more challenges.</p>
+            <Button href="/games">Browse Games</Button>
+          </div>
         )}
       </section>
     </div>
