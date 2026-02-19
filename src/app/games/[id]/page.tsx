@@ -11,7 +11,7 @@ import {
   CREATE_ACHIEVEMENT,
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
-import { AchievementCard, Button, LoadingSpinner, EmptyState } from "@/components";
+import { AchievementCard, Button, LoadingSpinner, EmptyState, WishlistButton } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
@@ -313,6 +313,9 @@ export default function GameDetailPage({
               <span className={styles.statValue}>{game.trophyCount}</span>
               <span className={styles.statLabel}>Trophies Earned</span>
             </div>
+          </div>
+          <div className={styles.headerActions}>
+            <WishlistButton gameId={id} />
           </div>
         </div>
       </header>

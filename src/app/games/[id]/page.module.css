@@ -77,6 +77,10 @@
   letter-spacing: 0.5px;
 }
 
+.headerActions {
+  margin-top: 20px;
+}
+
 /* Progress Section */
 .progressSection {
   background: var(--bg-card);
@@ -329,6 +333,11 @@
   }
 
   .stats {
+    justify-content: center;
+  }
+
+  .headerActions {
+    display: flex;
     justify-content: center;
   }
 
