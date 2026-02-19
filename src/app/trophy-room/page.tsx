@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import { GET_ME, GET_MY_ACHIEVEMENTS, GET_MY_TROPHIES } from "@/graphql/queries";
-import { StatCard, LoadingSpinner, EmptyState, Button } from "@/components";
+import { LoadingSpinner, EmptyState, Button, ProfileHeader } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
@@ -163,69 +163,26 @@ export default function TrophyRoom() {
     );
   }
 
+  const handleShare = () => {
+    const url = `${window.location.origin}/users/${user?.id}`;
+    navigator.clipboard.writeText(url);
+    alert("Profile link copied to clipboard!");
+  };
+
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>
-            {user?.name || "Player"}&apos;s Trophy Room
-          </h1>
-          <p className={styles.subtitle}>
-            Showcasing your gaming achievements
-          </p>
-          <button
-            className={styles.shareButton}
-            onClick={() => {
-              const url = `${window.location.origin}/users/${user?.id}`;
-              navigator.clipboard.writeText(url);
-              alert("Profile link copied to clipboard!");
-            }}
-          >
-            📤 Share Profile
-          </button>
-        </div>
-      </header>
-
-      {/* Stats Overview */}
-      <section className={styles.statsGrid}>
-        <StatCard
-          icon="🏆"
-          value={trophyCount}
-          label="Crimson Trophies"
-          variant="gold"
-        />
-        <StatCard
-          icon="🥇"
-          value={tierCounts.GOLD}
-          label="Gold Achievements"
-          variant="gold"
-        />
-        <StatCard
-          icon="🥈"
-          value={tierCounts.SILVER}
-          label="Silver Achievements"
-          variant="default"
-        />
-        <StatCard
-          icon="🥉"
-          value={tierCounts.BRONZE}
-          label="Bronze Achievements"
-          variant="red"
-        />
-        <StatCard
-          icon="⭐"
-          value={totalPoints}
-          label="Total Points"
-          variant="blue"
-        />
-        <StatCard
-          icon="🎮"
-          value={gameProgressList.length}
-          label="Games Played"
-          variant="default"
-        />
-      </section>
+      {/* Profile Header */}
+      <ProfileHeader
+        name={user?.name}
+        email={user?.email || ""}
+        memberSince={user?.createdAt || new Date().toISOString()}
+        achievementCount={user?.achievementCount || 0}
+        trophyCount={trophyCount}
+        gamesPlayed={gameProgressList.length}
+        stats={user?.stats}
+        isOwnProfile={true}
+        onShare={handleShare}
+      />
 
       {/* Trophy Showcase */}
       {trophyCount > 0 && (
