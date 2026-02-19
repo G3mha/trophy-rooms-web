@@ -268,3 +268,76 @@ export const GET_MY_TROPHIES = gql`
     }
   }
 `;
+
+// Public profile queries
+export const GET_USER = gql`
+  query GetUser($id: ID!) {
+    user(id: $id) {
+      id
+      name
+      email
+      achievementCount
+      trophyCount
+      gamesWithAchievementsCount
+    }
+  }
+`;
+
+export const GET_USER_ACHIEVEMENTS = gql`
+  query GetUserAchievements($userId: ID!, $first: Int, $after: String) {
+    userAchievements(userId: $userId, first: $first, after: $after) {
+      edges {
+        cursor
+        node {
+          id
+          createdAt
+          achievement {
+            id
+            title
+            description
+            iconUrl
+            points
+            tier
+            achievementSet {
+              id
+              title
+              game {
+                id
+                title
+              }
+            }
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
+    }
+  }
+`;
+
+export const GET_USER_TROPHIES = gql`
+  query GetUserTrophies($userId: ID!, $first: Int, $after: String) {
+    userTrophies(userId: $userId, first: $first, after: $after) {
+      edges {
+        cursor
+        node {
+          id
+          createdAt
+          game {
+            id
+            title
+            coverUrl
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
+    }
+  }
+`;
