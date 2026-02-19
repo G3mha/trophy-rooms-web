@@ -1,0 +1,170 @@
+.entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.entry:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-color-hover, var(--border-color));
+}
+
+.highlight {
+  background: linear-gradient(135deg, rgba(230, 0, 18, 0.05) 0%, rgba(230, 0, 18, 0.1) 100%);
+  border-color: var(--nintendo-red);
+}
+
+/* Avatar */
+.avatarLink {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.avatarLink:hover .avatar {
+  transform: scale(1.05);
+}
+
+.avatar span {
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+/* Content */
+.content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mainLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+.userName {
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.userName:hover {
+  color: var(--nintendo-red);
+}
+
+.action {
+  color: var(--text-muted);
+}
+
+/* Achievement Info */
+.achievementInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tierIcon {
+  font-size: 16px;
+}
+
+.achievementTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.points {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--nintendo-red);
+  background: rgba(230, 0, 18, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.gameName {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.gameName:hover {
+  color: var(--nintendo-red);
+}
+
+/* Trophy Info */
+.trophyInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trophyIcon {
+  font-size: 18px;
+}
+
+.gameLink {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.gameLink:hover {
+  color: var(--nintendo-red);
+}
+
+.trophyBadge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #b8860b;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.25) 100%);
+  padding: 3px 10px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Time */
+.time {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: auto;
+  padding-left: 12px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .entry {
+    flex-wrap: wrap;
+  }
+
+  .time {
+    width: 100%;
+    margin-top: 8px;
+    padding-left: 52px;
+    margin-left: 0;
+  }
+}
