@@ -100,6 +100,15 @@ export const USER_FRAGMENT = gql`
     achievementCount
     trophyCount
     gamesWithAchievementsCount
+    createdAt
+    stats {
+      totalPoints
+      goldCount
+      silverCount
+      bronzeCount
+      completionRate
+      averagePointsPerGame
+    }
   }
 `;
 
@@ -279,6 +288,31 @@ export const GET_USER = gql`
       achievementCount
       trophyCount
       gamesWithAchievementsCount
+      createdAt
+      stats {
+        totalPoints
+        goldCount
+        silverCount
+        bronzeCount
+        completionRate
+        averagePointsPerGame
+      }
+      recentAchievements {
+        id
+        createdAt
+        achievement {
+          id
+          title
+          tier
+          points
+          achievementSet {
+            game {
+              id
+              title
+            }
+          }
+        }
+      }
     }
   }
 `;
