@@ -39,18 +39,70 @@
   flex: 1;
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
 .title {
   font-size: 36px;
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 12px 0;
+  margin: 0;
+}
+
+.platformBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background: var(--nintendo-red);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .description {
   font-size: 16px;
   color: var(--text-secondary);
   line-height: 1.6;
-  margin: 0 0 24px 0;
+  margin: 0 0 20px 0;
+}
+
+/* Metadata */
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.metaIcon {
+  font-size: 16px;
+}
+
+.metaLabel {
+  color: var(--text-muted);
+}
+
+.metaValue {
+  color: var(--text-primary);
+  font-weight: 500;
 }
 
 .stats {
@@ -313,6 +365,127 @@
   color: var(--text-muted);
 }
 
+/* Screenshots Section */
+.screenshotsSection {
+  margin-bottom: 40px;
+}
+
+.screenshotsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.screenshotThumb {
+  position: relative;
+  padding: 0;
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  cursor: pointer;
+  background: none;
+  aspect-ratio: 16 / 9;
+  transition: all 0.2s ease;
+}
+
+.screenshotThumb:hover {
+  border-color: var(--nintendo-red);
+  transform: scale(1.02);
+}
+
+.screenshotThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Screenshot Modal */
+.screenshotModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 40px;
+}
+
+.modalClose {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalClose:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modalNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalNav:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modalPrev {
+  left: 20px;
+  border-radius: 8px;
+}
+
+.modalNext {
+  right: 20px;
+  border-radius: 8px;
+}
+
+.modalImage {
+  max-width: calc(100% - 160px);
+  max-height: calc(100% - 80px);
+  object-fit: contain;
+  border-radius: var(--border-radius-lg);
+}
+
+.modalCounter {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  font-size: 14px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 16px;
+  border-radius: 20px;
+}
+
 /* Error */
 .error {
   text-align: center;
@@ -332,12 +505,20 @@
     text-align: center;
   }
 
+  .titleRow {
+    justify-content: center;
+  }
+
   .stats {
     justify-content: center;
   }
 
   .headerActions {
     display: flex;
+    justify-content: center;
+  }
+
+  .metadata {
     justify-content: center;
   }
 
@@ -349,5 +530,27 @@
   .coverPlaceholder {
     width: 150px;
     height: 150px;
+  }
+
+  .screenshotsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modalImage {
+    max-width: calc(100% - 80px);
+  }
+
+  .modalNav {
+    width: 40px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  .modalPrev {
+    left: 10px;
+  }
+
+  .modalNext {
+    right: 10px;
   }
 }

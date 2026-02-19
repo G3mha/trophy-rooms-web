@@ -61,11 +61,24 @@ interface AchievementSet {
   achievements: Achievement[];
 }
 
+interface Platform {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface Game {
   id: string;
   title: string;
   description?: string | null;
   coverUrl?: string | null;
+  releaseDate?: string | null;
+  developer?: string | null;
+  publisher?: string | null;
+  genre?: string | null;
+  esrbRating?: string | null;
+  screenshots: string[];
+  platform?: Platform | null;
   achievementCount: number;
   trophyCount: number;
   achievementSets: AchievementSet[];
@@ -88,6 +101,7 @@ export default function GameDetailPage({
   const [achievementPoints, setAchievementPoints] = useState("0");
   const [achievementIconUrl, setAchievementIconUrl] = useState("");
   const [achievementError, setAchievementError] = useState<string | null>(null);
+  const [selectedScreenshot, setSelectedScreenshot] = useState<number | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_GAME, {
     variables: { id },
@@ -300,10 +314,61 @@ export default function GameDetailPage({
           )}
         </div>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>{game.title}</h1>
+          <div className={styles.titleRow}>
+            <h1 className={styles.title}>{game.title}</h1>
+            {game.platform && (
+              <span className={styles.platformBadge}>{game.platform.name}</span>
+            )}
+          </div>
           {game.description && (
             <p className={styles.description}>{game.description}</p>
           )}
+
+          {/* Game Metadata */}
+          <div className={styles.metadata}>
+            {game.releaseDate && (
+              <div className={styles.metaItem}>
+                <span className={styles.metaIcon}>📅</span>
+                <span className={styles.metaLabel}>Released</span>
+                <span className={styles.metaValue}>
+                  {new Date(game.releaseDate).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </span>
+              </div>
+            )}
+            {game.developer && (
+              <div className={styles.metaItem}>
+                <span className={styles.metaIcon}>👨‍💻</span>
+                <span className={styles.metaLabel}>Developer</span>
+                <span className={styles.metaValue}>{game.developer}</span>
+              </div>
+            )}
+            {game.publisher && (
+              <div className={styles.metaItem}>
+                <span className={styles.metaIcon}>🏢</span>
+                <span className={styles.metaLabel}>Publisher</span>
+                <span className={styles.metaValue}>{game.publisher}</span>
+              </div>
+            )}
+            {game.genre && (
+              <div className={styles.metaItem}>
+                <span className={styles.metaIcon}>🎯</span>
+                <span className={styles.metaLabel}>Genre</span>
+                <span className={styles.metaValue}>{game.genre}</span>
+              </div>
+            )}
+            {game.esrbRating && (
+              <div className={styles.metaItem}>
+                <span className={styles.metaIcon}>🔞</span>
+                <span className={styles.metaLabel}>Rating</span>
+                <span className={styles.metaValue}>{game.esrbRating}</span>
+              </div>
+            )}
+          </div>
+
           <div className={styles.stats}>
             <div className={styles.stat}>
               <span className={styles.statValue}>{totalCount}</span>
@@ -319,6 +384,76 @@ export default function GameDetailPage({
           </div>
         </div>
       </header>
+
+      {/* Screenshots Gallery */}
+      {game.screenshots && game.screenshots.length > 0 && (
+        <section className={styles.screenshotsSection}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Screenshots</h2>
+          </div>
+          <div className={styles.screenshotsGrid}>
+            {game.screenshots.map((screenshot, index) => (
+              <button
+                key={index}
+                className={styles.screenshotThumb}
+                onClick={() => setSelectedScreenshot(index)}
+              >
+                <img src={screenshot} alt={`Screenshot ${index + 1}`} />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Screenshot Modal */}
+      {selectedScreenshot !== null && game.screenshots && (
+        <div
+          className={styles.screenshotModal}
+          onClick={() => setSelectedScreenshot(null)}
+        >
+          <button
+            className={styles.modalClose}
+            onClick={() => setSelectedScreenshot(null)}
+          >
+            ✕
+          </button>
+          <button
+            className={styles.modalNav + " " + styles.modalPrev}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedScreenshot(
+                selectedScreenshot > 0
+                  ? selectedScreenshot - 1
+                  : game.screenshots.length - 1
+              );
+            }}
+          >
+            ‹
+          </button>
+          <img
+            src={game.screenshots[selectedScreenshot]}
+            alt={`Screenshot ${selectedScreenshot + 1}`}
+            className={styles.modalImage}
+            onClick={(e) => e.stopPropagation()}
+          />
+          <button
+            className={styles.modalNav + " " + styles.modalNext}
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedScreenshot(
+                selectedScreenshot < game.screenshots.length - 1
+                  ? selectedScreenshot + 1
+                  : 0
+              );
+            }}
+          >
+            ›
+          </button>
+          <div className={styles.modalCounter}>
+            {selectedScreenshot + 1} / {game.screenshots.length}
+          </div>
+        </div>
+      )}
 
       {/* Progress Bar */}
       {isSignedIn && totalCount > 0 && (
