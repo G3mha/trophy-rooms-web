@@ -10,6 +10,7 @@ import styles from "./Header.module.css";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/games", label: "Games" },
+  { href: "/leaderboards", label: "Leaderboards" },
 ];
 
 export function Header() {
