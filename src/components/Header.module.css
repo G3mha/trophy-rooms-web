@@ -67,6 +67,16 @@
   background: rgba(230, 0, 18, 0.15);
 }
 
+.trophyRoomLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trophyIcon {
+  font-size: 16px;
+}
+
 .actions {
   display: flex;
   align-items: center;

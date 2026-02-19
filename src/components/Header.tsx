@@ -48,6 +48,15 @@ export function Header() {
             >
               Dashboard
             </Link>
+            <Link
+              href="/trophy-room"
+              prefetch={false}
+              className={`${styles.navLink} ${styles.trophyRoomLink} ${
+                pathname === "/trophy-room" ? styles.navLinkActive : ""
+              }`}
+            >
+              <span className={styles.trophyIcon}>🏆</span> My Trophy Room
+            </Link>
           </SignedIn>
           {isAdmin && (
             <Link
