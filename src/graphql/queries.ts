@@ -7,6 +7,12 @@ export const GAME_FRAGMENT = gql`
     title
     description
     coverUrl
+    releaseDate
+    developer
+    publisher
+    genre
+    esrbRating
+    screenshots
     platform {
       id
       name
