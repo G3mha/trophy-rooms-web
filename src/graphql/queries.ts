@@ -495,3 +495,40 @@ export const GET_RECENT_TROPHY_ACTIVITY = gql`
     }
   }
 `;
+
+// Game progress queries
+export const GET_MY_GAME_PROGRESS = gql`
+  query GetMyGameProgress {
+    myGameProgress {
+      gameId
+      gameTitle
+      gameCoverUrl
+      earnedCount
+      totalCount
+      earnedPoints
+      totalPoints
+      percentComplete
+      hasTrophy
+      trophyEarnedAt
+      lastActivityAt
+    }
+  }
+`;
+
+export const GET_USER_GAME_PROGRESS = gql`
+  query GetUserGameProgress($userId: String!) {
+    userGameProgress(userId: $userId) {
+      gameId
+      gameTitle
+      gameCoverUrl
+      earnedCount
+      totalCount
+      earnedPoints
+      totalPoints
+      percentComplete
+      hasTrophy
+      trophyEarnedAt
+      lastActivityAt
+    }
+  }
+`;
