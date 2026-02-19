@@ -11,6 +11,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/games", label: "Games" },
   { href: "/leaderboards", label: "Leaderboards" },
+  { href: "/activity", label: "Activity" },
 ];
 
 export function Header() {
