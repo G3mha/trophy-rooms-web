@@ -443,3 +443,55 @@ export const GET_FASTEST_COMPLETIONS = gql`
     }
   }
 `;
+
+// Activity feed queries
+export const GET_ACTIVITY_FEED = gql`
+  query GetActivityFeed($limit: Int) {
+    activityFeed(limit: $limit) {
+      id
+      type
+      userId
+      userName
+      userEmail
+      achievementId
+      achievementTitle
+      achievementTier
+      achievementPoints
+      gameId
+      gameTitle
+      earnedAt
+    }
+  }
+`;
+
+export const GET_RECENT_ACHIEVEMENT_ACTIVITY = gql`
+  query GetRecentAchievementActivity($limit: Int) {
+    recentAchievementActivity(limit: $limit) {
+      id
+      userId
+      userName
+      userEmail
+      achievementId
+      achievementTitle
+      achievementTier
+      achievementPoints
+      gameId
+      gameTitle
+      earnedAt
+    }
+  }
+`;
+
+export const GET_RECENT_TROPHY_ACTIVITY = gql`
+  query GetRecentTrophyActivity($limit: Int) {
+    recentTrophyActivity(limit: $limit) {
+      id
+      userId
+      userName
+      userEmail
+      gameId
+      gameTitle
+      earnedAt
+    }
+  }
+`;
