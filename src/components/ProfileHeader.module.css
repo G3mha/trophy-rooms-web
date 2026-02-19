@@ -1,0 +1,243 @@
+.header {
+  margin-bottom: 40px;
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 32px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  margin-bottom: 24px;
+}
+
+/* Avatar */
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.initials {
+  font-size: 36px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.badge {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 32px;
+  height: 32px;
+  background: var(--bg-card);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border: 2px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile Info */
+.info {
+  flex: 1;
+}
+
+.name {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.memberSince {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 16px 0;
+}
+
+.quickStats {
+  display: flex;
+  gap: 24px;
+}
+
+.quickStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.quickStatValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--nintendo-red);
+}
+
+.quickStatLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Share Button */
+.shareButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.shareButton:hover {
+  background: var(--bg-card);
+  border-color: var(--nintendo-red);
+  color: var(--nintendo-red);
+}
+
+/* Tier Distribution */
+.tierDistribution {
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  padding: 24px;
+}
+
+.tierTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+}
+
+.tierBars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.tierBar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tierLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.tierIcon {
+  font-size: 16px;
+}
+
+.tierCount {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.barContainer {
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  min-width: 2px;
+}
+
+.barGold {
+  background: linear-gradient(90deg, #ffd700 0%, #daa520 100%);
+}
+
+.barSilver {
+  background: linear-gradient(90deg, #c0c0c0 0%, #a8a8a8 100%);
+}
+
+.barBronze {
+  background: linear-gradient(90deg, #cd7f32 0%, #8b4513 100%);
+}
+
+/* Extra Stats */
+.extraStats {
+  display: flex;
+  gap: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.extraStat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.extraStatValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.extraStatLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .profileCard {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+  }
+
+  .quickStats {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .name {
+    font-size: 24px;
+  }
+
+  .avatar {
+    width: 80px;
+    height: 80px;
+  }
+
+  .initials {
+    font-size: 28px;
+  }
+
+  .extraStats {
+    justify-content: center;
+  }
+}
