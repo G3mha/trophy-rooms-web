@@ -5,3 +5,5 @@ export { AchievementCard } from "./AchievementCard";
 export { EmptyState } from "./EmptyState";
 export { StatCard } from "./StatCard";
 export { Button } from "./Button";
+export { ProfileHeader } from "./ProfileHeader";
+export { RecentActivity } from "./RecentActivity";
