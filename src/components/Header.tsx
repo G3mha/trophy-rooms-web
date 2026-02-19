@@ -59,6 +59,15 @@ export function Header() {
             >
               <span className={styles.trophyIcon}>🏆</span> My Trophy Room
             </Link>
+            <Link
+              href="/wishlist"
+              prefetch={false}
+              className={`${styles.navLink} ${styles.wishlistLink} ${
+                pathname === "/wishlist" ? styles.navLinkActive : ""
+              }`}
+            >
+              <span className={styles.wishlistIcon}>❤️</span> Wishlist
+            </Link>
           </SignedIn>
           {isAdmin && (
             <Link

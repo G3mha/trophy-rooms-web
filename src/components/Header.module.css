@@ -77,6 +77,16 @@
   font-size: 16px;
 }
 
+.wishlistLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wishlistIcon {
+  font-size: 14px;
+}
+
 .actions {
   display: flex;
   align-items: center;
