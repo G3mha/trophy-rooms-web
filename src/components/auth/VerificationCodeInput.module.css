@@ -1,0 +1,58 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.input {
+  width: 48px;
+  height: 56px;
+  padding: 0;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--nintendo-red);
+  box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.2);
+}
+
+.input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.inputError {
+  border-color: var(--nintendo-red);
+}
+
+.error {
+  padding: 12px 16px;
+  background: rgba(230, 0, 18, 0.1);
+  border: 1px solid var(--nintendo-red);
+  border-radius: var(--border-radius);
+  color: var(--nintendo-red-light);
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 400px) {
+  .input {
+    width: 40px;
+    height: 48px;
+    font-size: 20px;
+  }
+}
