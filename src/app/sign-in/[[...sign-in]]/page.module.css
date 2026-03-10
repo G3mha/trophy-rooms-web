@@ -35,51 +35,48 @@
   margin: 0;
 }
 
-/* Clerk customizations */
-.clerkRoot {
-  width: 100%;
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  padding: 32px;
 }
 
-.clerkCard {
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border-color) !important;
-  box-shadow: none !important;
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0;
 }
 
-.clerkHeaderTitle {
-  display: none !important;
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
 }
 
-.clerkHeaderSubtitle {
-  display: none !important;
+.dividerText {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.clerkSocialButton {
-  background: var(--bg-secondary) !important;
-  border: 1px solid var(--border-color) !important;
+.footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 
-.clerkSocialButton:hover {
-  background: var(--bg-card-hover) !important;
+.link {
+  color: var(--nintendo-red);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
 }
 
-.clerkPrimaryButton {
-  background: var(--nintendo-red) !important;
-}
-
-.clerkPrimaryButton:hover {
-  background: var(--nintendo-red-dark) !important;
-}
-
-.clerkInput {
-  background: var(--bg-secondary) !important;
-  border: 2px solid var(--border-color) !important;
-}
-
-.clerkInput:focus {
-  border-color: var(--nintendo-red) !important;
-}
-
-.clerkLink {
-  color: var(--nintendo-red) !important;
+.link:hover {
+  color: var(--nintendo-red-light);
+  text-decoration: underline;
 }
