@@ -210,12 +210,13 @@ export const UNMARK_ACHIEVEMENT_COMPLETE = gql`
   }
 `;
 
-// Wishlist mutations
-export const ADD_TO_WISHLIST = gql`
-  mutation AddToWishlist($gameId: ID!) {
-    addToWishlist(gameId: $gameId) {
+// Game status / library mutations
+export const SET_GAME_STATUS = gql`
+  mutation SetGameStatus($gameId: ID!, $status: GameStatus!) {
+    setGameStatus(gameId: $gameId, status: $status) {
       success
-      wishlistId
+      userGameId
+      status
       error {
         code
         message
@@ -225,24 +226,10 @@ export const ADD_TO_WISHLIST = gql`
   }
 `;
 
-export const REMOVE_FROM_WISHLIST = gql`
-  mutation RemoveFromWishlist($gameId: ID!) {
-    removeFromWishlist(gameId: $gameId) {
+export const CLEAR_GAME_STATUS = gql`
+  mutation ClearGameStatus($gameId: ID!) {
+    clearGameStatus(gameId: $gameId) {
       success
-      error {
-        code
-        message
-        field
-      }
-    }
-  }
-`;
-
-export const TOGGLE_WISHLIST = gql`
-  mutation ToggleWishlist($gameId: ID!) {
-    toggleWishlist(gameId: $gameId) {
-      success
-      wishlistId
       error {
         code
         message

@@ -539,29 +539,37 @@ export const GET_USER_GAME_PROGRESS = gql`
   }
 `;
 
-// Wishlist queries
-export const GET_MY_WISHLIST = gql`
-  query GetMyWishlist {
-    myWishlist {
+// Game status / library queries
+export const GET_GAME_STATUS = gql`
+  query GetGameStatus($gameId: ID!) {
+    getGameStatus(gameId: $gameId)
+  }
+`;
+
+export const GET_MY_GAMES_BY_STATUS = gql`
+  query GetMyGamesByStatus($status: GameStatus) {
+    myGamesByStatus(status: $status) {
       id
       gameId
       gameTitle
       gameCoverUrl
       gameDescription
       achievementCount
+      status
       addedAt
+      updatedAt
     }
   }
 `;
 
-export const IS_GAME_IN_WISHLIST = gql`
-  query IsGameInWishlist($gameId: ID!) {
-    isGameInWishlist(gameId: $gameId)
+export const GET_LIBRARY_COUNT = gql`
+  query GetLibraryCount {
+    libraryCount
   }
 `;
 
-export const GET_WISHLIST_COUNT = gql`
-  query GetWishlistCount {
-    wishlistCount
+export const GET_LIBRARY_COUNT_BY_STATUS = gql`
+  query GetLibraryCountByStatus($status: GameStatus!) {
+    libraryCountByStatus(status: $status)
   }
 `;
