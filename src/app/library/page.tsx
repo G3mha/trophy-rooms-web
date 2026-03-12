@@ -1,0 +1,210 @@
+"use client";
+
+import { useState } from "react";
+import { useQuery, useMutation } from "@apollo/client";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import Link from "next/link";
+import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
+import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
+import { LoadingSpinner, EmptyState, Button } from "@/components";
+import type { GameStatus } from "@/components/GameStatusSelector";
+import styles from "./page.module.css";
+
+interface UserGameItem {
+  id: string;
+  gameId: string;
+  gameTitle: string;
+  gameCoverUrl: string | null;
+  gameDescription: string | null;
+  achievementCount: number;
+  status: GameStatus;
+  addedAt: string;
+  updatedAt: string;
+}
+
+type FilterStatus = GameStatus | "ALL";
+
+interface StatusTabConfig {
+  label: string;
+  icon: string;
+  value: FilterStatus;
+}
+
+const STATUS_TABS: StatusTabConfig[] = [
+  { label: "All", icon: "📚", value: "ALL" },
+  { label: "Wishlist", icon: "💖", value: "WISHLIST" },
+  { label: "Backlog", icon: "📚", value: "BACKLOG" },
+  { label: "Playing", icon: "🎮", value: "PLAYING" },
+  { label: "Paused", icon: "⏸️", value: "PAUSED" },
+  { label: "Completed", icon: "🏆", value: "COMPLETED" },
+  { label: "Dropped", icon: "❌", value: "DROPPED" },
+];
+
+const STATUS_COLORS: Record<GameStatus, string> = {
+  WISHLIST: "#ef4444",
+  BACKLOG: "#f97316",
+  PLAYING: "#22c55e",
+  PAUSED: "#a855f7",
+  COMPLETED: "#eab308",
+  DROPPED: "#6b7280",
+};
+
+export default function LibraryPage() {
+  const { isSignedIn, isLoaded } = useAuth();
+  const [activeFilter, setActiveFilter] = useState<FilterStatus>("ALL");
+
+  const { data, loading, refetch } = useQuery(GET_MY_GAMES_BY_STATUS, {
+    variables: activeFilter === "ALL" ? {} : { status: activeFilter },
+    skip: !isSignedIn,
+  });
+
+  const [clearGameStatus, { loading: removing }] = useMutation(
+    CLEAR_GAME_STATUS,
+    {
+      onCompleted: () => refetch(),
+    }
+  );
+
+  if (!isLoaded) {
+    return <LoadingSpinner text="Loading..." />;
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <LoadingSpinner text="Loading your library..." />
+      </div>
+    );
+  }
+
+  const games: UserGameItem[] = data?.myGamesByStatus || [];
+
+  const handleRemove = async (gameId: string) => {
+    await clearGameStatus({ variables: { gameId } });
+  };
+
+  const getStatusLabel = (status: GameStatus): string => {
+    const tab = STATUS_TABS.find((t) => t.value === status);
+    return tab?.label || status;
+  };
+
+  const getStatusIcon = (status: GameStatus): string => {
+    const tab = STATUS_TABS.find((t) => t.value === status);
+    return tab?.icon || "📋";
+  };
+
+  return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>My Library</h1>
+        <p className={styles.subtitle}>
+          Track and organize your gaming journey
+        </p>
+      </header>
+
+      {/* Status Filter Tabs */}
+      <div className={styles.tabs}>
+        {STATUS_TABS.map((tab) => (
+          <button
+            key={tab.value}
+            className={`${styles.tab} ${activeFilter === tab.value ? styles.tabActive : ""}`}
+            onClick={() => setActiveFilter(tab.value)}
+          >
+            <span className={styles.tabIcon}>{tab.icon}</span>
+            <span className={styles.tabLabel}>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {games.length > 0 ? (
+        <div className={styles.gamesGrid}>
+          {games.map((item) => (
+            <div key={item.id} className={styles.gameCard}>
+              <Link href={`/games/${item.gameId}`} className={styles.gameLink}>
+                <div className={styles.coverContainer}>
+                  {item.gameCoverUrl ? (
+                    <img
+                      src={item.gameCoverUrl}
+                      alt={item.gameTitle}
+                      className={styles.cover}
+                    />
+                  ) : (
+                    <div className={styles.coverPlaceholder}>
+                      <span>🎮</span>
+                    </div>
+                  )}
+                  <div
+                    className={styles.statusBadge}
+                    style={
+                      {
+                        "--badge-color": STATUS_COLORS[item.status],
+                      } as React.CSSProperties
+                    }
+                  >
+                    <span className={styles.statusIcon}>
+                      {getStatusIcon(item.status)}
+                    </span>
+                    <span className={styles.statusLabel}>
+                      {getStatusLabel(item.status)}
+                    </span>
+                  </div>
+                </div>
+                <div className={styles.cardContent}>
+                  <h3 className={styles.gameTitle}>{item.gameTitle}</h3>
+                  {item.gameDescription && (
+                    <p className={styles.gameDescription}>
+                      {item.gameDescription}
+                    </p>
+                  )}
+                  <div className={styles.gameMeta}>
+                    <span className={styles.achievementCount}>
+                      {item.achievementCount} achievements
+                    </span>
+                    <span className={styles.addedDate}>
+                      Added {new Date(item.addedAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+              <button
+                className={styles.removeButton}
+                onClick={() => handleRemove(item.gameId)}
+                disabled={removing}
+                title="Remove from library"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon={activeFilter === "ALL" ? "📚" : getStatusIcon(activeFilter as GameStatus)}
+          title={
+            activeFilter === "ALL"
+              ? "Your library is empty"
+              : `No ${getStatusLabel(activeFilter as GameStatus).toLowerCase()} games`
+          }
+          description={
+            activeFilter === "ALL"
+              ? "Browse games and add them to your library to track your gaming journey."
+              : `You don't have any games marked as ${getStatusLabel(activeFilter as GameStatus).toLowerCase()}.`
+          }
+          action={
+            activeFilter === "ALL" ? (
+              <Button href="/games">Browse Games</Button>
+            ) : (
+              <Button onClick={() => setActiveFilter("ALL")} variant="secondary">
+                View All Games
+              </Button>
+            )
+          }
+        />
+      )}
+    </div>
+  );
+}
