@@ -11,7 +11,7 @@ import {
   CREATE_ACHIEVEMENT,
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
-import { AchievementCard, Button, LoadingSpinner, EmptyState, WishlistButton } from "@/components";
+import { AchievementCard, Button, LoadingSpinner, EmptyState, GameStatusSelector } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
@@ -380,7 +380,7 @@ export default function GameDetailPage({
             </div>
           </div>
           <div className={styles.headerActions}>
-            <WishlistButton gameId={id} />
+            <GameStatusSelector gameId={id} />
           </div>
         </div>
       </header>
