@@ -1,14 +1,15 @@
+import { BookMarked } from "lucide-react";
 import styles from "./EmptyState.module.css";
 
 interface EmptyStateProps {
-  icon?: string;
+  icon?: React.ReactNode;
   title: string;
   description?: string;
   action?: React.ReactNode;
 }
 
 export function EmptyState({
-  icon = "📭",
+  icon = <BookMarked size={48} />,
   title,
   description,
   action,
