@@ -3,6 +3,19 @@
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
+import {
+  Heart,
+  BookMarked,
+  Gamepad2,
+  Pause,
+  Trophy,
+  XCircle,
+  Plus,
+  ChevronUp,
+  ChevronDown,
+  Check,
+  Trash2,
+} from "lucide-react";
 import { SET_GAME_STATUS, CLEAR_GAME_STATUS } from "@/graphql/mutations";
 import { GET_GAME_STATUS, GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import styles from "./GameStatusSelector.module.css";
@@ -17,17 +30,17 @@ export type GameStatus =
 
 interface StatusConfig {
   label: string;
-  icon: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
   color: string;
 }
 
 const STATUS_CONFIG: Record<GameStatus, StatusConfig> = {
-  WISHLIST: { label: "Wishlist", icon: "💖", color: "#ef4444" },
-  BACKLOG: { label: "Backlog", icon: "📚", color: "#f97316" },
-  PLAYING: { label: "Playing", icon: "🎮", color: "#22c55e" },
-  PAUSED: { label: "Paused", icon: "⏸️", color: "#a855f7" },
-  COMPLETED: { label: "Completed", icon: "🏆", color: "#eab308" },
-  DROPPED: { label: "Dropped", icon: "❌", color: "#6b7280" },
+  WISHLIST: { label: "Wishlist", icon: Heart, color: "#ef4444" },
+  BACKLOG: { label: "Backlog", icon: BookMarked, color: "#f97316" },
+  PLAYING: { label: "Playing", icon: Gamepad2, color: "#22c55e" },
+  PAUSED: { label: "Paused", icon: Pause, color: "#a855f7" },
+  COMPLETED: { label: "Completed", icon: Trophy, color: "#eab308" },
+  DROPPED: { label: "Dropped", icon: XCircle, color: "#6b7280" },
 };
 
 interface GameStatusSelectorProps {
@@ -137,12 +150,14 @@ export function GameStatusSelector({
         }
       >
         <span className={styles.icon}>
-          {statusConfig ? statusConfig.icon : "📋"}
+          {statusConfig ? <statusConfig.icon size={16} /> : <Plus size={16} />}
         </span>
         <span className={styles.label}>
           {statusConfig ? statusConfig.label : "Add to Library"}
         </span>
-        <span className={styles.chevron}>{isOpen ? "▲" : "▼"}</span>
+        <span className={styles.chevron}>
+          {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </span>
       </button>
 
       {isOpen && (
@@ -150,6 +165,7 @@ export function GameStatusSelector({
           {(Object.keys(STATUS_CONFIG) as GameStatus[]).map((status) => {
             const config = STATUS_CONFIG[status];
             const isSelected = currentStatus === status;
+            const IconComponent = config.icon;
 
             return (
               <button
@@ -161,9 +177,15 @@ export function GameStatusSelector({
                   { "--option-color": config.color } as React.CSSProperties
                 }
               >
-                <span className={styles.optionIcon}>{config.icon}</span>
+                <span className={styles.optionIcon}>
+                  <IconComponent size={16} />
+                </span>
                 <span className={styles.optionLabel}>{config.label}</span>
-                {isSelected && <span className={styles.checkmark}>✓</span>}
+                {isSelected && (
+                  <span className={styles.checkmark}>
+                    <Check size={14} />
+                  </span>
+                )}
               </button>
             );
           })}
@@ -176,7 +198,9 @@ export function GameStatusSelector({
                 onClick={handleRemove}
                 disabled={loading}
               >
-                <span className={styles.optionIcon}>🗑️</span>
+                <span className={styles.optionIcon}>
+                  <Trash2 size={16} />
+                </span>
                 <span className={styles.optionLabel}>Remove from Library</span>
               </button>
             </>
