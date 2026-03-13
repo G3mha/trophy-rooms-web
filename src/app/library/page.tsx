@@ -4,6 +4,17 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
+import {
+  Library,
+  Heart,
+  BookMarked,
+  Gamepad2,
+  Pause,
+  Trophy,
+  XCircle,
+  X,
+  Plus,
+} from "lucide-react";
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
 import { LoadingSpinner, EmptyState, Button } from "@/components";
@@ -24,20 +35,22 @@ interface UserGameItem {
 
 type FilterStatus = GameStatus | "ALL";
 
+type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
+
 interface StatusTabConfig {
   label: string;
-  icon: string;
+  icon: IconComponent;
   value: FilterStatus;
 }
 
 const STATUS_TABS: StatusTabConfig[] = [
-  { label: "All", icon: "📚", value: "ALL" },
-  { label: "Wishlist", icon: "💖", value: "WISHLIST" },
-  { label: "Backlog", icon: "📚", value: "BACKLOG" },
-  { label: "Playing", icon: "🎮", value: "PLAYING" },
-  { label: "Paused", icon: "⏸️", value: "PAUSED" },
-  { label: "Completed", icon: "🏆", value: "COMPLETED" },
-  { label: "Dropped", icon: "❌", value: "DROPPED" },
+  { label: "All", icon: Library, value: "ALL" },
+  { label: "Wishlist", icon: Heart, value: "WISHLIST" },
+  { label: "Backlog", icon: BookMarked, value: "BACKLOG" },
+  { label: "Playing", icon: Gamepad2, value: "PLAYING" },
+  { label: "Paused", icon: Pause, value: "PAUSED" },
+  { label: "Completed", icon: Trophy, value: "COMPLETED" },
+  { label: "Dropped", icon: XCircle, value: "DROPPED" },
 ];
 
 const STATUS_COLORS: Record<GameStatus, string> = {
@@ -92,9 +105,9 @@ export default function LibraryPage() {
     return tab?.label || status;
   };
 
-  const getStatusIcon = (status: GameStatus): string => {
+  const getStatusIcon = (status: GameStatus): IconComponent => {
     const tab = STATUS_TABS.find((t) => t.value === status);
-    return tab?.icon || "📋";
+    return tab?.icon || Plus;
   };
 
   return (
@@ -108,82 +121,96 @@ export default function LibraryPage() {
 
       {/* Status Filter Tabs */}
       <div className={styles.tabs}>
-        {STATUS_TABS.map((tab) => (
-          <button
-            key={tab.value}
-            className={`${styles.tab} ${activeFilter === tab.value ? styles.tabActive : ""}`}
-            onClick={() => setActiveFilter(tab.value)}
-          >
-            <span className={styles.tabIcon}>{tab.icon}</span>
-            <span className={styles.tabLabel}>{tab.label}</span>
-          </button>
-        ))}
+        {STATUS_TABS.map((tab) => {
+          const TabIcon = tab.icon;
+          return (
+            <button
+              key={tab.value}
+              className={`${styles.tab} ${activeFilter === tab.value ? styles.tabActive : ""}`}
+              onClick={() => setActiveFilter(tab.value)}
+            >
+              <span className={styles.tabIcon}>
+                <TabIcon size={16} />
+              </span>
+              <span className={styles.tabLabel}>{tab.label}</span>
+            </button>
+          );
+        })}
       </div>
 
       {games.length > 0 ? (
         <div className={styles.gamesGrid}>
-          {games.map((item) => (
-            <div key={item.id} className={styles.gameCard}>
-              <Link href={`/games/${item.gameId}`} className={styles.gameLink}>
-                <div className={styles.coverContainer}>
-                  {item.gameCoverUrl ? (
-                    <img
-                      src={item.gameCoverUrl}
-                      alt={item.gameTitle}
-                      className={styles.cover}
-                    />
-                  ) : (
-                    <div className={styles.coverPlaceholder}>
-                      <span>🎮</span>
+          {games.map((item) => {
+            const StatusIcon = getStatusIcon(item.status);
+            return (
+              <div key={item.id} className={styles.gameCard}>
+                <Link href={`/games/${item.gameId}`} className={styles.gameLink}>
+                  <div className={styles.coverContainer}>
+                    {item.gameCoverUrl ? (
+                      <img
+                        src={item.gameCoverUrl}
+                        alt={item.gameTitle}
+                        className={styles.cover}
+                      />
+                    ) : (
+                      <div className={styles.coverPlaceholder}>
+                        <Gamepad2 size={32} />
+                      </div>
+                    )}
+                    <div
+                      className={styles.statusBadge}
+                      style={
+                        {
+                          "--badge-color": STATUS_COLORS[item.status],
+                        } as React.CSSProperties
+                      }
+                    >
+                      <span className={styles.statusIcon}>
+                        <StatusIcon size={12} />
+                      </span>
+                      <span className={styles.statusLabel}>
+                        {getStatusLabel(item.status)}
+                      </span>
                     </div>
-                  )}
-                  <div
-                    className={styles.statusBadge}
-                    style={
-                      {
-                        "--badge-color": STATUS_COLORS[item.status],
-                      } as React.CSSProperties
-                    }
-                  >
-                    <span className={styles.statusIcon}>
-                      {getStatusIcon(item.status)}
-                    </span>
-                    <span className={styles.statusLabel}>
-                      {getStatusLabel(item.status)}
-                    </span>
                   </div>
-                </div>
-                <div className={styles.cardContent}>
-                  <h3 className={styles.gameTitle}>{item.gameTitle}</h3>
-                  {item.gameDescription && (
-                    <p className={styles.gameDescription}>
-                      {item.gameDescription}
-                    </p>
-                  )}
-                  <div className={styles.gameMeta}>
-                    <span className={styles.achievementCount}>
-                      {item.achievementCount} achievements
-                    </span>
-                    <span className={styles.addedDate}>
-                      Added {new Date(item.addedAt).toLocaleDateString()}
-                    </span>
+                  <div className={styles.cardContent}>
+                    <h3 className={styles.gameTitle}>{item.gameTitle}</h3>
+                    {item.gameDescription && (
+                      <p className={styles.gameDescription}>
+                        {item.gameDescription}
+                      </p>
+                    )}
+                    <div className={styles.gameMeta}>
+                      <span className={styles.achievementCount}>
+                        {item.achievementCount} achievements
+                      </span>
+                      <span className={styles.addedDate}>
+                        Added {new Date(item.addedAt).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-              <button
-                className={styles.removeButton}
-                onClick={() => handleRemove(item.gameId)}
-                disabled={removing}
-                title="Remove from library"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
+                </Link>
+                <button
+                  className={styles.removeButton}
+                  onClick={() => handleRemove(item.gameId)}
+                  disabled={removing}
+                  title="Remove from library"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            );
+          })}
         </div>
       ) : (
         <EmptyState
-          icon={activeFilter === "ALL" ? "📚" : getStatusIcon(activeFilter as GameStatus)}
+          icon={(() => {
+            const EmptyIcon =
+              activeFilter === "ALL"
+                ? Library
+                : getStatusIcon(activeFilter as GameStatus);
+            return <EmptyIcon size={48} />;
+          })()}
           title={
             activeFilter === "ALL"
               ? "Your library is empty"
