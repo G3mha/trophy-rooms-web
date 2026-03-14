@@ -573,3 +573,70 @@ export const GET_LIBRARY_COUNT_BY_STATUS = gql`
     libraryCountByStatus(status: $status)
   }
 `;
+
+// Collection fragments
+export const COLLECTION_ITEM_FRAGMENT = gql`
+  fragment CollectionItemFields on CollectionItem {
+    id
+    gameId
+    game {
+      id
+      title
+      coverUrl
+    }
+    platformId
+    platform {
+      id
+      name
+      slug
+    }
+    hasDisc
+    hasBox
+    hasManual
+    hasExtras
+    isSealed
+    region
+    notes
+    createdAt
+    updatedAt
+  }
+`;
+
+// Collection queries
+export const GET_MY_COLLECTION = gql`
+  query GetMyCollection($region: GameRegion, $isSealed: Boolean, $isComplete: Boolean) {
+    myCollection(region: $region, isSealed: $isSealed, isComplete: $isComplete) {
+      ...CollectionItemFields
+    }
+  }
+  ${COLLECTION_ITEM_FRAGMENT}
+`;
+
+export const GET_MY_COLLECTION_FOR_GAME = gql`
+  query GetMyCollectionForGame($gameId: ID!) {
+    myCollectionForGame(gameId: $gameId) {
+      ...CollectionItemFields
+    }
+  }
+  ${COLLECTION_ITEM_FRAGMENT}
+`;
+
+export const GET_COLLECTION_STATS = gql`
+  query GetCollectionStats {
+    collectionStats {
+      totalItems
+      sealedCount
+      completeCount
+      byRegion {
+        region
+        count
+      }
+    }
+  }
+`;
+
+export const GET_COLLECTION_COUNT = gql`
+  query GetCollectionCount {
+    collectionCount
+  }
+`;

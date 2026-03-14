@@ -238,3 +238,89 @@ export const CLEAR_GAME_STATUS = gql`
     }
   }
 `;
+
+// Collection mutations
+export const ADD_TO_COLLECTION = gql`
+  mutation AddToCollection($input: AddToCollectionInput!) {
+    addToCollection(input: $input) {
+      success
+      collectionItem {
+        id
+        gameId
+        game {
+          id
+          title
+          coverUrl
+        }
+        platformId
+        platform {
+          id
+          name
+          slug
+        }
+        hasDisc
+        hasBox
+        hasManual
+        hasExtras
+        isSealed
+        region
+        notes
+        createdAt
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const UPDATE_COLLECTION_ITEM = gql`
+  mutation UpdateCollectionItem($id: ID!, $input: UpdateCollectionItemInput!) {
+    updateCollectionItem(id: $id, input: $input) {
+      success
+      collectionItem {
+        id
+        gameId
+        game {
+          id
+          title
+          coverUrl
+        }
+        platformId
+        platform {
+          id
+          name
+          slug
+        }
+        hasDisc
+        hasBox
+        hasManual
+        hasExtras
+        isSealed
+        region
+        notes
+        updatedAt
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const REMOVE_FROM_COLLECTION = gql`
+  mutation RemoveFromCollection($id: ID!) {
+    removeFromCollection(id: $id) {
+      success
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
