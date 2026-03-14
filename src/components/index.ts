@@ -11,3 +11,5 @@ export { LeaderboardEntry, FastestCompletionEntry } from "./LeaderboardEntry";
 export { ActivityFeedEntry } from "./ActivityFeedEntry";
 export { GameProgressCard } from "./GameProgressCard";
 export { GameStatusSelector } from "./GameStatusSelector";
+export { CollectionItemCard } from "./CollectionItemCard";
+export { AddToCollectionModal } from "./AddToCollectionModal";
