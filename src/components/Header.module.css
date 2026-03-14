@@ -87,6 +87,16 @@
   font-size: 14px;
 }
 
+.collectionLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.collectionIcon {
+  font-size: 14px;
+}
+
 .actions {
   display: flex;
   align-items: center;

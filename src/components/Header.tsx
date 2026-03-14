@@ -68,6 +68,15 @@ export function Header() {
             >
               <span className={styles.libraryIcon}>📚</span> My Library
             </Link>
+            <Link
+              href="/collection"
+              prefetch={false}
+              className={`${styles.navLink} ${styles.collectionLink} ${
+                pathname === "/collection" ? styles.navLinkActive : ""
+              }`}
+            >
+              <span className={styles.collectionIcon}>📀</span> My Collection
+            </Link>
           </SignedIn>
           {isAdmin && (
             <Link
