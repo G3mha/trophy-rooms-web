@@ -1,0 +1,48 @@
+.footer {
+  border-top: 1px solid var(--border-color);
+  padding: 32px 24px;
+  margin-top: auto;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.copyright {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.link {
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--nintendo-red);
+}
+
+@media (max-width: 640px) {
+  .container {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .links {
+    gap: 16px;
+  }
+}
