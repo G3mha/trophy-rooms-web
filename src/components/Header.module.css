@@ -19,22 +19,13 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   text-decoration: none;
-  color: var(--text-primary);
-  font-weight: 700;
-  font-size: 20px;
 }
 
-.logoIcon {
-  font-size: 28px;
-}
-
-.logoText {
-  background: linear-gradient(90deg, var(--nintendo-red) 0%, var(--switch-neon-red) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.logoImage {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 
 .nav {

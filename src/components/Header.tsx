@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { useQuery } from "@apollo/client";
@@ -24,8 +25,14 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.container}>
         <Link href="/" className={styles.logo}>
-          <span className={styles.logoIcon}>🏆</span>
-          <span className={styles.logoText}>Trophy Rooms</span>
+          <Image
+            src="/logo.png"
+            alt="Trophy Rooms"
+            width={180}
+            height={40}
+            className={styles.logoImage}
+            priority
+          />
         </Link>
 
         <nav className={styles.nav}>
