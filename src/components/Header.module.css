@@ -58,34 +58,84 @@
   background: rgba(230, 0, 18, 0.15);
 }
 
-.trophyRoomLink {
+/* Dropdown styles */
+.dropdown {
+  position: relative;
+}
+
+.dropdownTrigger {
   display: flex;
   align-items: center;
   gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-.trophyIcon {
+.dropdownArrow {
+  transition: transform 0.2s ease;
+}
+
+.dropdown:hover .dropdownArrow {
+  transform: rotate(180deg);
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  min-width: 200px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 8px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-50%) translateY(-10px);
+  transition: all 0.2s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.dropdown:hover .dropdownMenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.dropdownItem:hover {
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+
+.dropdownItemActive {
+  color: var(--nintendo-red);
+  background: rgba(230, 0, 18, 0.1);
+}
+
+.dropdownItemActive:hover {
+  color: var(--nintendo-red);
+  background: rgba(230, 0, 18, 0.15);
+}
+
+.dropdownIcon {
   font-size: 16px;
-}
-
-.libraryLink {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.libraryIcon {
-  font-size: 14px;
-}
-
-.collectionLink {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.collectionIcon {
-  font-size: 14px;
 }
 
 .actions {

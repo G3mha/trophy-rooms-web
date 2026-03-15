@@ -15,11 +15,20 @@ const navLinks = [
   { href: "/activity", label: "Activity" },
 ];
 
+const myStuffLinks = [
+  { href: "/dashboard", label: "Dashboard", icon: "📊" },
+  { href: "/trophy-room", label: "My Trophy Room", icon: "🏆" },
+  { href: "/library", label: "My Library", icon: "📚" },
+  { href: "/collection", label: "My Collection", icon: "📀" },
+];
+
 export function Header() {
   const pathname = usePathname();
   const { data } = useQuery(GET_ME);
   const role = data?.me?.role;
   const isAdmin = role === "ADMIN" || role === "TRUSTED";
+
+  const isMyStuffActive = myStuffLinks.some((link) => pathname === link.href);
 
   return (
     <header className={styles.header}>
@@ -48,42 +57,45 @@ export function Header() {
             </Link>
           ))}
           <SignedIn>
-            <Link
-              href="/dashboard"
-              prefetch={false}
-              className={`${styles.navLink} ${
-                pathname === "/dashboard" ? styles.navLinkActive : ""
-              }`}
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/trophy-room"
-              prefetch={false}
-              className={`${styles.navLink} ${styles.trophyRoomLink} ${
-                pathname === "/trophy-room" ? styles.navLinkActive : ""
-              }`}
-            >
-              <span className={styles.trophyIcon}>🏆</span> My Trophy Room
-            </Link>
-            <Link
-              href="/library"
-              prefetch={false}
-              className={`${styles.navLink} ${styles.libraryLink} ${
-                pathname === "/library" ? styles.navLinkActive : ""
-              }`}
-            >
-              <span className={styles.libraryIcon}>📚</span> My Library
-            </Link>
-            <Link
-              href="/collection"
-              prefetch={false}
-              className={`${styles.navLink} ${styles.collectionLink} ${
-                pathname === "/collection" ? styles.navLinkActive : ""
-              }`}
-            >
-              <span className={styles.collectionIcon}>📀</span> My Collection
-            </Link>
+            <div className={styles.dropdown}>
+              <button
+                className={`${styles.navLink} ${styles.dropdownTrigger} ${
+                  isMyStuffActive ? styles.navLinkActive : ""
+                }`}
+              >
+                My Stuff
+                <svg
+                  className={styles.dropdownArrow}
+                  width="10"
+                  height="6"
+                  viewBox="0 0 10 6"
+                  fill="none"
+                >
+                  <path
+                    d="M1 1L5 5L9 1"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              <div className={styles.dropdownMenu}>
+                {myStuffLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    prefetch={false}
+                    className={`${styles.dropdownItem} ${
+                      pathname === link.href ? styles.dropdownItemActive : ""
+                    }`}
+                  >
+                    <span className={styles.dropdownIcon}>{link.icon}</span>
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </SignedIn>
           {isAdmin && (
             <Link
