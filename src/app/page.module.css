@@ -51,29 +51,11 @@
   justify-content: center;
 }
 
-.trophyDisplay {
-  width: 300px;
-  height: 300px;
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid var(--border-color);
-  animation: trophyGlow 3s ease-in-out infinite alternate;
-}
-
-.trophyIcon {
-  font-size: 120px;
-}
-
-@keyframes trophyGlow {
-  from {
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
-  }
-  to {
-    box-shadow: 0 0 60px rgba(255, 215, 0, 0.4);
-  }
+.heroImage {
+  max-width: 100%;
+  height: auto;
+  max-height: 400px;
+  object-fit: contain;
 }
 
 /* Features Section */
@@ -175,13 +157,8 @@
     font-size: 42px;
   }
 
-  .trophyDisplay {
-    width: 200px;
-    height: 200px;
-  }
-
-  .trophyIcon {
-    font-size: 80px;
+  .heroImage {
+    max-height: 300px;
   }
 }
 

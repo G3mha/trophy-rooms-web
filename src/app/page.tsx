@@ -63,9 +63,11 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.heroVisual}>
-          <div className={styles.trophyDisplay}>
-            <span className={styles.trophyIcon}>🏆</span>
-          </div>
+          <img
+            src="/hero-platforms.png"
+            alt="Trophy Rooms - Track achievements across Nintendo, PlayStation, Xbox, Steam, GOG, and RetroAchievements"
+            className={styles.heroImage}
+          />
         </div>
       </section>
 
