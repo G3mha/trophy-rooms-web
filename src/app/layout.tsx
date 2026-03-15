@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ApolloWrapper } from "@/lib/apollo-wrapper";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -17,10 +18,11 @@ export default function RootLayout({
   return (
     <ClerkProvider signInUrl="/sign-in" signUpUrl="/sign-up">
       <html lang="en">
-        <body>
+        <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
           <ApolloWrapper>
             <Header />
-            <main>{children}</main>
+            <main style={{ flex: 1 }}>{children}</main>
+            <Footer />
           </ApolloWrapper>
         </body>
       </html>
