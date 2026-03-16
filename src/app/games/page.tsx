@@ -6,6 +6,7 @@ import { useAuth } from "@clerk/nextjs";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import { GameCard, Button, LoadingSpinner, EmptyState } from "@/components";
+import { ChevronDown } from "lucide-react";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -98,41 +99,50 @@ export default function GamesPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className={styles.searchInput}
         />
-        <select
-          className={styles.filterSelect}
-          value={platformId}
-          onChange={(e) => setPlatformId(e.target.value)}
-        >
-          <option value="">All Platforms</option>
-          {platformsData?.platforms?.map((platform: any) => (
-            <option key={platform.id} value={platform.id}>
-              {platform.name}
-            </option>
-          ))}
-        </select>
-        <select
-          className={styles.filterSelect}
-          value={hasAchievements}
-          onChange={(e) =>
-            setHasAchievements(e.target.value as "all" | "with" | "without")
-          }
-        >
-          <option value="all">All</option>
-          <option value="with">With Achievements</option>
-          <option value="without">Without Achievements</option>
-        </select>
-        <select
-          className={styles.filterSelect}
-          value={orderBy}
-          onChange={(e) => setOrderBy(e.target.value)}
-        >
-          <option value="TITLE_ASC">Title (A → Z)</option>
-          <option value="TITLE_DESC">Title (Z → A)</option>
-          <option value="CREATED_AT_DESC">Newest</option>
-          <option value="CREATED_AT_ASC">Oldest</option>
-          <option value="ACHIEVEMENT_COUNT_DESC">Most Achievements</option>
-          <option value="TROPHY_COUNT_DESC">Most Trophies</option>
-        </select>
+        <div className={styles.selectWrapper}>
+          <select
+            className={styles.filterSelect}
+            value={platformId}
+            onChange={(e) => setPlatformId(e.target.value)}
+          >
+            <option value="">All Platforms</option>
+            {platformsData?.platforms?.map((platform: any) => (
+              <option key={platform.id} value={platform.id}>
+                {platform.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className={styles.selectIcon} size={16} />
+        </div>
+        <div className={styles.selectWrapper}>
+          <select
+            className={styles.filterSelect}
+            value={hasAchievements}
+            onChange={(e) =>
+              setHasAchievements(e.target.value as "all" | "with" | "without")
+            }
+          >
+            <option value="all">All</option>
+            <option value="with">With Achievements</option>
+            <option value="without">Without Achievements</option>
+          </select>
+          <ChevronDown className={styles.selectIcon} size={16} />
+        </div>
+        <div className={styles.selectWrapper}>
+          <select
+            className={styles.filterSelect}
+            value={orderBy}
+            onChange={(e) => setOrderBy(e.target.value)}
+          >
+            <option value="TITLE_ASC">Title (A → Z)</option>
+            <option value="TITLE_DESC">Title (Z → A)</option>
+            <option value="CREATED_AT_DESC">Newest</option>
+            <option value="CREATED_AT_ASC">Oldest</option>
+            <option value="ACHIEVEMENT_COUNT_DESC">Most Achievements</option>
+            <option value="TROPHY_COUNT_DESC">Most Trophies</option>
+          </select>
+          <ChevronDown className={styles.selectIcon} size={16} />
+        </div>
         {(searchQuery || platformId || hasAchievements !== "all") && (
           <button
             onClick={() => {

@@ -61,8 +61,14 @@
   color: var(--text-muted);
 }
 
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .filterSelect {
-  padding: 10px 32px 10px 14px;
+  padding: 10px 36px 10px 14px;
   font-size: 14px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
@@ -70,9 +76,6 @@
   color: var(--text-primary);
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%239ca3af' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
   min-width: 120px;
 }
 
@@ -80,6 +83,13 @@
   outline: none;
   border-color: var(--nintendo-red);
   box-shadow: 0 0 0 2px rgba(230, 0, 18, 0.15);
+}
+
+.selectIcon {
+  position: absolute;
+  right: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
 }
 
 .clearBtn {
