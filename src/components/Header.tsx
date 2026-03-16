@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { useQuery } from "@apollo/client";
+import { ChevronDown, LayoutDashboard, Trophy, Library, Disc } from "lucide-react";
 import { GET_ME } from "@/graphql/queries";
 import styles from "./Header.module.css";
 
@@ -15,10 +16,10 @@ const navLinks = [
 ];
 
 const myStuffLinks = [
-  { href: "/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/trophy-room", label: "My Trophy Room", icon: "🏆" },
-  { href: "/library", label: "My Library", icon: "📚" },
-  { href: "/collection", label: "My Collection", icon: "📀" },
+  { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
+  { href: "/trophy-room", label: "My Trophy Room", Icon: Trophy },
+  { href: "/library", label: "My Library", Icon: Library },
+  { href: "/collection", label: "My Collection", Icon: Disc },
 ];
 
 export function Header() {
@@ -63,21 +64,7 @@ export function Header() {
                 }`}
               >
                 My Stuff
-                <svg
-                  className={styles.dropdownArrow}
-                  width="10"
-                  height="6"
-                  viewBox="0 0 10 6"
-                  fill="none"
-                >
-                  <path
-                    d="M1 1L5 5L9 1"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <ChevronDown className={styles.dropdownArrow} size={14} />
               </button>
               <div className={styles.dropdownMenu}>
                 {myStuffLinks.map((link) => (
@@ -89,7 +76,7 @@ export function Header() {
                       pathname === link.href ? styles.dropdownItemActive : ""
                     }`}
                   >
-                    <span className={styles.dropdownIcon}>{link.icon}</span>
+                    <link.Icon className={styles.dropdownIcon} size={16} />
                     {link.label}
                   </Link>
                 ))}
