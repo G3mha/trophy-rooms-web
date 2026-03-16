@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Trophy } from "lucide-react";
 import { GoogleButton, EmailForm, VerificationCodeInput } from "@/components/auth";
 import styles from "./page.module.css";
 
@@ -110,7 +111,7 @@ export default function SignUpPage() {
       <div className={styles.container}>
         <div className={styles.content}>
           <div className={styles.header}>
-            <span className={styles.logo}>🏆</span>
+            <span className={styles.logo}><Trophy size={48} /></span>
             <h1 className={styles.title}>Verify Your Email</h1>
             <p className={styles.subtitle}>
               We sent a verification code to your email
@@ -152,7 +153,7 @@ export default function SignUpPage() {
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.header}>
-          <span className={styles.logo}>🏆</span>
+          <span className={styles.logo}><Trophy size={48} /></span>
           <h1 className={styles.title}>Create Account</h1>
           <p className={styles.subtitle}>Join Trophy Rooms and start tracking</p>
         </div>

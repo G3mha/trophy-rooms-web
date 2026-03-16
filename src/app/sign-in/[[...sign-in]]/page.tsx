@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Trophy } from "lucide-react";
 import { GoogleButton, EmailForm } from "@/components/auth";
 import styles from "./page.module.css";
 
@@ -64,7 +65,9 @@ export default function SignInPage() {
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.header}>
-          <span className={styles.logo}>🏆</span>
+          <span className={styles.logo}>
+            <Trophy size={48} />
+          </span>
           <h1 className={styles.title}>Welcome Back</h1>
           <p className={styles.subtitle}>Sign in to continue to Trophy Rooms</p>
         </div>
