@@ -9,7 +9,6 @@ import { GET_ME } from "@/graphql/queries";
 import styles from "./Header.module.css";
 
 const navLinks = [
-  { href: "/", label: "Home" },
   { href: "/games", label: "Games" },
   { href: "/leaderboards", label: "Leaderboards" },
   { href: "/activity", label: "Activity" },
