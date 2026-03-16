@@ -77,18 +77,20 @@ export default function GamesPage() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.headerContent}>
-          <h1 className={styles.title}>Games Library</h1>
-          <p className={styles.subtitle}>
-            {data?.games?.totalCount || 0} games available
-          </p>
+          <h1 className={styles.title}>
+            Games Library
+            <span className={styles.subtitle}>
+              {data?.games?.totalCount || 0} games
+            </span>
+          </h1>
         </div>
         {isSignedIn && isAdmin && (
           <Button href="/games/new">Add Game</Button>
         )}
       </header>
 
-      {/* Search */}
-      <div className={styles.searchBar}>
+      {/* Search and Filters */}
+      <div className={styles.filtersRow}>
         <input
           type="text"
           placeholder="Search games..."
@@ -96,6 +98,41 @@ export default function GamesPage() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className={styles.searchInput}
         />
+        <select
+          className={styles.filterSelect}
+          value={platformId}
+          onChange={(e) => setPlatformId(e.target.value)}
+        >
+          <option value="">All Platforms</option>
+          {platformsData?.platforms?.map((platform: any) => (
+            <option key={platform.id} value={platform.id}>
+              {platform.name}
+            </option>
+          ))}
+        </select>
+        <select
+          className={styles.filterSelect}
+          value={hasAchievements}
+          onChange={(e) =>
+            setHasAchievements(e.target.value as "all" | "with" | "without")
+          }
+        >
+          <option value="all">All</option>
+          <option value="with">With Achievements</option>
+          <option value="without">Without Achievements</option>
+        </select>
+        <select
+          className={styles.filterSelect}
+          value={orderBy}
+          onChange={(e) => setOrderBy(e.target.value)}
+        >
+          <option value="TITLE_ASC">Title (A → Z)</option>
+          <option value="TITLE_DESC">Title (Z → A)</option>
+          <option value="CREATED_AT_DESC">Newest</option>
+          <option value="CREATED_AT_ASC">Oldest</option>
+          <option value="ACHIEVEMENT_COUNT_DESC">Most Achievements</option>
+          <option value="TROPHY_COUNT_DESC">Most Trophies</option>
+        </select>
         {(searchQuery || platformId || hasAchievements !== "all") && (
           <button
             onClick={() => {
@@ -106,56 +143,9 @@ export default function GamesPage() {
             }}
             className={styles.clearBtn}
           >
-            Clear Filters
+            Clear
           </button>
         )}
-      </div>
-
-      <div className={styles.filterBar}>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Platform</label>
-          <select
-            className={styles.filterSelect}
-            value={platformId}
-            onChange={(e) => setPlatformId(e.target.value)}
-          >
-            <option value="">All Platforms</option>
-            {platformsData?.platforms?.map((platform: any) => (
-              <option key={platform.id} value={platform.id}>
-                {platform.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Achievements</label>
-          <select
-            className={styles.filterSelect}
-            value={hasAchievements}
-            onChange={(e) =>
-              setHasAchievements(e.target.value as "all" | "with" | "without")
-            }
-          >
-            <option value="all">All</option>
-            <option value="with">With Achievements</option>
-            <option value="without">Without Achievements</option>
-          </select>
-        </div>
-        <div className={styles.filterGroup}>
-          <label className={styles.filterLabel}>Sort</label>
-          <select
-            className={styles.filterSelect}
-            value={orderBy}
-            onChange={(e) => setOrderBy(e.target.value)}
-          >
-            <option value="TITLE_ASC">Title (A → Z)</option>
-            <option value="TITLE_DESC">Title (Z → A)</option>
-            <option value="CREATED_AT_DESC">Newest</option>
-            <option value="CREATED_AT_ASC">Oldest</option>
-            <option value="ACHIEVEMENT_COUNT_DESC">Most Achievements</option>
-            <option value="TROPHY_COUNT_DESC">Most Trophies</option>
-          </select>
-        </div>
       </div>
 
       {/* Loading */}
