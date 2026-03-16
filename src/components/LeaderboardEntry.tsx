@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Medal } from "lucide-react";
 import styles from "./LeaderboardEntry.module.css";
 
 interface LeaderboardEntryProps {
@@ -44,14 +45,14 @@ function getAvatarColor(name: string | null, email: string): string {
   return colors[Math.abs(hash) % colors.length];
 }
 
-function getRankDisplay(rank: number): { icon: string; className: string } {
+function getRankDisplay(rank: number): { icon: React.ReactNode; className: string } {
   switch (rank) {
     case 1:
-      return { icon: "🥇", className: styles.rankGold };
+      return { icon: <Medal size={20} color="#FFD700" />, className: styles.rankGold };
     case 2:
-      return { icon: "🥈", className: styles.rankSilver };
+      return { icon: <Medal size={20} color="#C0C0C0" />, className: styles.rankSilver };
     case 3:
-      return { icon: "🥉", className: styles.rankBronze };
+      return { icon: <Medal size={20} color="#CD7F32" />, className: styles.rankBronze };
     default:
       return { icon: `#${rank}`, className: styles.rankDefault };
   }

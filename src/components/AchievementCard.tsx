@@ -1,5 +1,6 @@
 "use client";
 
+import { Medal } from "lucide-react";
 import styles from "./AchievementCard.module.css";
 
 export type AchievementTier = "BRONZE" | "SILVER" | "GOLD";
@@ -19,32 +20,38 @@ interface AchievementCardProps {
   loading?: boolean;
 }
 
+const TIER_COLORS: Record<AchievementTier, string> = {
+  BRONZE: "#CD7F32",
+  SILVER: "#C0C0C0",
+  GOLD: "#FFD700",
+};
+
 const tierConfig: Record<AchievementTier, {
   label: string;
   cardClass: string;
   badgeClass: string;
-  icon: string;
+  color: string;
   iconClass: string;
 }> = {
   BRONZE: {
     label: "Bronze",
     cardClass: styles.tierBronze,
     badgeClass: styles.badgeBronze,
-    icon: "🥉",
+    color: TIER_COLORS.BRONZE,
     iconClass: styles.iconBronze,
   },
   SILVER: {
     label: "Silver",
     cardClass: styles.tierSilver,
     badgeClass: styles.badgeSilver,
-    icon: "🥈",
+    color: TIER_COLORS.SILVER,
     iconClass: styles.iconSilver,
   },
   GOLD: {
     label: "Gold",
     cardClass: styles.tierGold,
     badgeClass: styles.badgeGold,
-    icon: "🥇",
+    color: TIER_COLORS.GOLD,
     iconClass: styles.iconGold,
   },
 };
@@ -85,7 +92,7 @@ export function AchievementCard({
         {iconUrl ? (
           <img src={iconUrl} alt={title} className={styles.iconImage} />
         ) : (
-          <span className={styles.tierIcon}>{tierInfo.icon}</span>
+          <Medal className={styles.tierIcon} size={24} color={tierInfo.color} />
         )}
         {!isCompleted && <div className={styles.iconShade} />}
       </div>

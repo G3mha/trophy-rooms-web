@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Trophy, Medal } from "lucide-react";
 import styles from "./ActivityFeedEntry.module.css";
 
 type AchievementTier = "BRONZE" | "SILVER" | "GOLD";
@@ -68,15 +69,15 @@ function formatTimeAgo(dateString: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function getTierIcon(tier?: AchievementTier): string {
+function getTierColor(tier?: AchievementTier): string {
   switch (tier) {
     case "GOLD":
-      return "🥇";
+      return "#FFD700";
     case "SILVER":
-      return "🥈";
+      return "#C0C0C0";
     case "BRONZE":
     default:
-      return "🥉";
+      return "#CD7F32";
   }
 }
 
@@ -119,7 +120,7 @@ export function ActivityFeedEntry({
 
         {type === "trophy" ? (
           <div className={styles.trophyInfo}>
-            <span className={styles.trophyIcon}>🏆</span>
+            <Trophy className={styles.trophyIcon} size={16} />
             <Link href={`/games/${gameId}`} className={styles.gameLink}>
               {gameTitle}
             </Link>
@@ -127,7 +128,7 @@ export function ActivityFeedEntry({
           </div>
         ) : (
           <div className={styles.achievementInfo}>
-            <span className={styles.tierIcon}>{getTierIcon(achievementTier as AchievementTier)}</span>
+            <Medal className={styles.tierIcon} size={16} color={getTierColor(achievementTier)} />
             <span className={styles.achievementTitle}>{achievementTitle}</span>
             {achievementPoints && achievementPoints > 0 && (
               <span className={styles.points}>+{achievementPoints} pts</span>

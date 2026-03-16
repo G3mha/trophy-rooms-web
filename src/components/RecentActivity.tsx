@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Medal } from "lucide-react";
 import styles from "./RecentActivity.module.css";
 
 type AchievementTier = "BRONZE" | "SILVER" | "GOLD";
@@ -43,16 +44,14 @@ function formatTimeAgo(dateString: string): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function getTierIcon(tier?: AchievementTier): string {
-  switch (tier) {
-    case "GOLD":
-      return "🥇";
-    case "SILVER":
-      return "🥈";
-    case "BRONZE":
-    default:
-      return "🥉";
-  }
+function getTierIcon(tier?: AchievementTier): React.ReactNode {
+  const colors: Record<AchievementTier, string> = {
+    GOLD: "#FFD700",
+    SILVER: "#C0C0C0",
+    BRONZE: "#CD7F32",
+  };
+  const color = colors[tier || "BRONZE"];
+  return <Medal size={16} color={color} />;
 }
 
 export function RecentActivity({ achievements }: RecentActivityProps) {
@@ -68,7 +67,7 @@ export function RecentActivity({ achievements }: RecentActivityProps) {
           <div key={item.id} className={styles.timelineItem}>
             <div className={styles.timelineLine}>
               <div className={`${styles.timelineDot} ${styles[`dot${item.achievement.tier || "BRONZE"}`]}`}>
-                <span>{getTierIcon(item.achievement.tier)}</span>
+                {getTierIcon(item.achievement.tier)}
               </div>
               {index < achievements.length - 1 && <div className={styles.connector} />}
             </div>

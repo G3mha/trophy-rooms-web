@@ -68,7 +68,7 @@ export function CollectionItemCard({
           <img src={game.coverUrl} alt={game.title} className={styles.image} />
         ) : (
           <div className={styles.placeholder}>
-            <span>📀</span>
+            <Disc size={32} />
           </div>
         )}
         <div

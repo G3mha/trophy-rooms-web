@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Gamepad2, Trophy } from "lucide-react";
 import styles from "./GameProgressCard.module.css";
 
 interface GameProgressCardProps {
@@ -43,12 +44,12 @@ export function GameProgressCard({
           <img src={gameCoverUrl} alt={gameTitle} className={styles.cover} />
         ) : (
           <div className={styles.coverPlaceholder}>
-            <span>🎮</span>
+            <Gamepad2 size={32} />
           </div>
         )}
         {hasTrophy && (
           <div className={styles.trophyOverlay}>
-            <span className={styles.trophyIcon}>🏆</span>
+            <Trophy className={styles.trophyIcon} size={24} />
           </div>
         )}
       </div>

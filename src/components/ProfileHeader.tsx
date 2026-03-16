@@ -1,5 +1,6 @@
 "use client";
 
+import { Trophy, Share2, Medal } from "lucide-react";
 import styles from "./ProfileHeader.module.css";
 
 interface UserStats {
@@ -83,7 +84,9 @@ export function ProfileHeader({
         >
           <span className={styles.initials}>{initials}</span>
           {trophyCount >= 10 && (
-            <div className={styles.badge} title="Trophy Master">🏆</div>
+            <div className={styles.badge} title="Trophy Master">
+              <Trophy size={14} />
+            </div>
           )}
         </div>
 
@@ -118,7 +121,7 @@ export function ProfileHeader({
         {/* Actions */}
         {isOwnProfile && onShare && (
           <button className={styles.shareButton} onClick={onShare}>
-            📤 Share Profile
+            <Share2 size={16} /> Share Profile
           </button>
         )}
       </div>
@@ -130,7 +133,7 @@ export function ProfileHeader({
           <div className={styles.tierBars}>
             <div className={styles.tierBar}>
               <div className={styles.tierLabel}>
-                <span className={styles.tierIcon}>🥇</span>
+                <Medal className={styles.tierIcon} size={16} color="#FFD700" />
                 <span>Gold</span>
                 <span className={styles.tierCount}>{stats.goldCount}</span>
               </div>
@@ -145,7 +148,7 @@ export function ProfileHeader({
             </div>
             <div className={styles.tierBar}>
               <div className={styles.tierLabel}>
-                <span className={styles.tierIcon}>🥈</span>
+                <Medal className={styles.tierIcon} size={16} color="#C0C0C0" />
                 <span>Silver</span>
                 <span className={styles.tierCount}>{stats.silverCount}</span>
               </div>
@@ -160,7 +163,7 @@ export function ProfileHeader({
             </div>
             <div className={styles.tierBar}>
               <div className={styles.tierLabel}>
-                <span className={styles.tierIcon}>🥉</span>
+                <Medal className={styles.tierIcon} size={16} color="#CD7F32" />
                 <span>Bronze</span>
                 <span className={styles.tierCount}>{stats.bronzeCount}</span>
               </div>

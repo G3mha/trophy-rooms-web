@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Gamepad2, Trophy, Star } from "lucide-react";
 import styles from "./GameCard.module.css";
 
 interface Platform {
@@ -35,12 +36,12 @@ export function GameCard({
           <img src={coverUrl} alt={title} className={styles.image} />
         ) : (
           <div className={styles.placeholder}>
-            <span>🎮</span>
+            <Gamepad2 size={32} />
           </div>
         )}
         {trophyCount > 0 && (
           <div className={styles.trophyBadge}>
-            <span>🏆</span>
+            <Trophy size={14} />
             <span>{trophyCount}</span>
           </div>
         )}
@@ -52,7 +53,7 @@ export function GameCard({
         )}
         <div className={styles.stats}>
           <div className={styles.stat}>
-            <span className={styles.statIcon}>⭐</span>
+            <Star size={14} className={styles.statIcon} />
             <span>{achievementCount} achievements</span>
           </div>
           {platform && (
