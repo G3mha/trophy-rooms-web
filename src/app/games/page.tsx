@@ -6,7 +6,7 @@ import { useAuth } from "@clerk/nextjs";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import { GameCard, Button, LoadingSpinner, EmptyState } from "@/components";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Gamepad2 } from "lucide-react";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -208,7 +208,7 @@ export default function GamesPage() {
       {/* Empty State */}
       {!loading && games.length === 0 && (
         <EmptyState
-          icon="🎮"
+          icon={<Gamepad2 size={48} />}
           title={searchQuery ? "No games found" : "No games yet"}
           description={
             searchQuery

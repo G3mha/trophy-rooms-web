@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
+import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert } from "lucide-react";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
 import {
   MARK_ACHIEVEMENT_COMPLETE,
@@ -230,7 +231,7 @@ export default function GameDetailPage({
     return (
       <div className={styles.container}>
         <EmptyState
-          icon="🎮"
+          icon={<Gamepad2 size={48} />}
           title="Game not found"
           description="This game doesn't exist or has been removed."
           action={
@@ -309,7 +310,7 @@ export default function GameDetailPage({
             <img src={game.coverUrl} alt={game.title} className={styles.cover} />
           ) : (
             <div className={styles.coverPlaceholder}>
-              <span>🎮</span>
+              <Gamepad2 size={48} />
             </div>
           )}
         </div>
@@ -328,7 +329,7 @@ export default function GameDetailPage({
           <div className={styles.metadata}>
             {game.releaseDate && (
               <div className={styles.metaItem}>
-                <span className={styles.metaIcon}>📅</span>
+                <Calendar className={styles.metaIcon} size={16} />
                 <span className={styles.metaLabel}>Released</span>
                 <span className={styles.metaValue}>
                   {new Date(game.releaseDate).toLocaleDateString("en-US", {
@@ -341,28 +342,28 @@ export default function GameDetailPage({
             )}
             {game.developer && (
               <div className={styles.metaItem}>
-                <span className={styles.metaIcon}>👨‍💻</span>
+                <Code2 className={styles.metaIcon} size={16} />
                 <span className={styles.metaLabel}>Developer</span>
                 <span className={styles.metaValue}>{game.developer}</span>
               </div>
             )}
             {game.publisher && (
               <div className={styles.metaItem}>
-                <span className={styles.metaIcon}>🏢</span>
+                <Building2 className={styles.metaIcon} size={16} />
                 <span className={styles.metaLabel}>Publisher</span>
                 <span className={styles.metaValue}>{game.publisher}</span>
               </div>
             )}
             {game.genre && (
               <div className={styles.metaItem}>
-                <span className={styles.metaIcon}>🎯</span>
+                <Target className={styles.metaIcon} size={16} />
                 <span className={styles.metaLabel}>Genre</span>
                 <span className={styles.metaValue}>{game.genre}</span>
               </div>
             )}
             {game.esrbRating && (
               <div className={styles.metaItem}>
-                <span className={styles.metaIcon}>🔞</span>
+                <ShieldAlert className={styles.metaIcon} size={16} />
                 <span className={styles.metaLabel}>Rating</span>
                 <span className={styles.metaValue}>{game.esrbRating}</span>
               </div>
@@ -472,7 +473,9 @@ export default function GameDetailPage({
           </div>
           {progress === 100 && (
             <div className={styles.crimsonTrophy}>
-              <div className={styles.crimsonIcon}>🏆</div>
+              <div className={styles.crimsonIcon}>
+                <Trophy size={32} />
+              </div>
               <div className={styles.crimsonContent}>
                 <span className={styles.crimsonTitle}>Crimson Trophy Earned!</span>
                 <span className={styles.crimsonSubtitle}>100% Completion Achieved</span>
@@ -536,7 +539,7 @@ export default function GameDetailPage({
                   </div>
                 ) : (
                   <EmptyState
-                    icon="⭐"
+                    icon={<Star size={48} />}
                     title="No achievements yet"
                     description="Add achievements to this set."
                   />
@@ -546,7 +549,7 @@ export default function GameDetailPage({
           </div>
         ) : (
           <EmptyState
-            icon="⭐"
+            icon={<Star size={48} />}
             title="No achievement sets yet"
             description="This game doesn't have any achievement sets defined yet."
           />
@@ -677,7 +680,9 @@ export default function GameDetailPage({
           <div className={styles.trophyHolders}>
             {game.trophies.map((trophy: Trophy) => (
               <div key={trophy.id} className={styles.trophyHolder}>
-                <div className={styles.trophyIcon}>🏆</div>
+                <div className={styles.trophyIcon}>
+                  <Trophy size={24} />
+                </div>
                 <div className={styles.trophyInfo}>
                   <span className={styles.trophyName}>
                     {trophy.user.name || trophy.user.email}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { Lock } from "lucide-react";
 import { CREATE_GAME } from "@/graphql/mutations";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
@@ -81,9 +82,9 @@ export default function NewGamePage() {
     return (
       <div className={styles.container}>
         <EmptyState
-          icon="🔒"
+          icon={<Lock size={48} />}
           title="Admin Access Required"
-          description="You don’t have permission to add games yet."
+          description="You don't have permission to add games yet."
           action={<Button href="/games">Back to Games</Button>}
         />
       </div>
