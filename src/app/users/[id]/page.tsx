@@ -2,6 +2,7 @@
 
 import { use } from "react";
 import { useQuery } from "@apollo/client";
+import { Trophy, Gamepad2, PartyPopper, User } from "lucide-react";
 import {
   GET_USER,
   GET_USER_TROPHIES,
@@ -73,7 +74,7 @@ export default function PublicProfilePage({
     return (
       <div className={styles.container}>
         <EmptyState
-          icon="👤"
+          icon={<User size={48} />}
           title="User not found"
           description="This user doesn't exist or their profile is not available."
           action={<Button href="/games">Browse Games</Button>}
@@ -106,7 +107,7 @@ export default function PublicProfilePage({
       {completedGames.length > 0 && (
         <section className={styles.trophyShowcase}>
           <h2 className={styles.sectionTitle}>
-            <span className={styles.crimsonIcon}>🏆</span> Crimson Trophy Collection
+            <Trophy className={styles.crimsonIcon} size={24} /> Crimson Trophy Collection
           </h2>
           <p className={styles.sectionSubtitle}>
             100% completion achieved in these games
@@ -158,13 +159,13 @@ export default function PublicProfilePage({
           </div>
         ) : gameProgress.length === 0 ? (
           <EmptyState
-            icon="🎮"
+            icon={<Gamepad2 size={48} />}
             title="No achievements yet"
             description="This user hasn't earned any achievements yet."
           />
         ) : (
           <div className={styles.allComplete}>
-            <span className={styles.allCompleteIcon}>🎉</span>
+            <PartyPopper className={styles.allCompleteIcon} size={32} />
             <p>This user has completed all their games!</p>
           </div>
         )}

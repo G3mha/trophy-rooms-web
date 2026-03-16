@@ -27,6 +27,7 @@ import {
   SET_USER_ROLE,
   BULK_CREATE_ACHIEVEMENTS,
 } from "@/graphql/admin_mutations";
+import { Lock } from "lucide-react";
 import { Button, LoadingSpinner, EmptyState } from "@/components";
 
 export default function AdminPage() {
@@ -311,9 +312,9 @@ export default function AdminPage() {
     return (
       <div className="max-w-3xl mx-auto p-8">
         <EmptyState
-          icon="🔒"
+          icon={<Lock size={48} />}
           title="Admin Access Required"
-          description="You don’t have permission to access the admin dashboard."
+          description="You don't have permission to access the admin dashboard."
           action={<Button href="/">Back Home</Button>}
         />
       </div>
