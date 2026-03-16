@@ -18,6 +18,7 @@ interface GameCardProps {
   achievementCount: number;
   trophyCount: number;
   platform?: Platform | null;
+  compact?: boolean;
 }
 
 export function GameCard({
@@ -28,49 +29,52 @@ export function GameCard({
   achievementCount,
   trophyCount,
   platform,
+  compact = false,
 }: GameCardProps) {
   return (
-    <Link href={`/games/${id}`} className={styles.card}>
+    <Link href={`/games/${id}`} className={`${styles.card} ${compact ? styles.compact : ""}`}>
       <div className={styles.imageContainer}>
         {coverUrl ? (
           <img src={coverUrl} alt={title} className={styles.image} />
         ) : (
           <div className={styles.placeholder}>
-            <Gamepad2 size={32} />
+            <Gamepad2 size={compact ? 20 : 32} />
           </div>
         )}
         {trophyCount > 0 && (
           <div className={styles.trophyBadge}>
-            <Trophy size={14} />
+            <Trophy size={compact ? 10 : 14} />
             <span>{trophyCount}</span>
           </div>
         )}
       </div>
       <div className={styles.content}>
         <h3 className={styles.title}>{title}</h3>
-        {description && (
+        {!compact && description && (
           <p className={styles.description}>{description}</p>
         )}
-        <div className={styles.stats}>
-          <div className={styles.stat}>
-            <Star size={14} className={styles.statIcon} />
-            <span>{achievementCount} achievements</span>
-          </div>
-          {platform && (
+        {!compact && (
+          <div className={styles.stats}>
             <div className={styles.stat}>
-              <img
-                src={`/platforms/${platform.slug}.svg`}
-                alt={platform.name}
-                className={styles.platformIcon}
-                onError={(e) => {
-                  // Hide icon if image fails to load
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              <span>{platform.name}</span>
+              <Star size={14} className={styles.statIcon} />
+              <span>{achievementCount} achievements</span>
             </div>
-          )}
-        </div>
+            {platform && (
+              <div className={styles.stat}>
+                <img
+                  src={`/platforms/${platform.slug}.svg`}
+                  alt={platform.name}
+                  className={styles.platformIcon}
+                  onError={(e) => {
+                    // Hide icon if image fails to load
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                <span>{platform.name}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </Link>
   );

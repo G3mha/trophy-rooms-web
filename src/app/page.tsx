@@ -22,7 +22,7 @@ export default function Home() {
     skip: !isSignedIn,
   });
   const { data, loading, error } = useQuery(GET_GAMES, {
-    variables: { first: 6 },
+    variables: { first: 40 },
   });
 
   const isAdmin =
@@ -134,6 +134,7 @@ export default function Home() {
                 coverUrl={game.coverUrl}
                 achievementCount={game.achievementCount}
                 trophyCount={game.trophyCount}
+                compact
               />
             ))}
           </div>
