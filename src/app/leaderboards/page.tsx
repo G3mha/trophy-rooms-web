@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useAuth, useUser } from "@clerk/nextjs";
+import { Trophy, Star, Gem, Gamepad2, Zap, LucideIcon } from "lucide-react";
 import {
   GET_LEADERBOARD_BY_TROPHIES,
   GET_LEADERBOARD_BY_ACHIEVEMENTS,
@@ -35,12 +36,12 @@ interface FastestCompletionData {
   completedAt: string;
 }
 
-const TABS: { id: LeaderboardTab; label: string; icon: string; description: string }[] = [
-  { id: "trophies", label: "Top Completionists", icon: "🏆", description: "Most 100% game completions" },
-  { id: "achievements", label: "Achievement Hunters", icon: "⭐", description: "Most achievements earned" },
-  { id: "points", label: "Point Leaders", icon: "💎", description: "Highest total achievement points" },
-  { id: "games", label: "Game Explorers", icon: "🎮", description: "Most unique games played" },
-  { id: "fastest", label: "Speedrunners", icon: "⚡", description: "Fastest 100% completions" },
+const TABS: { id: LeaderboardTab; label: string; Icon: LucideIcon; description: string }[] = [
+  { id: "trophies", label: "Top Completionists", Icon: Trophy, description: "Most 100% game completions" },
+  { id: "achievements", label: "Achievement Hunters", Icon: Star, description: "Most achievements earned" },
+  { id: "points", label: "Point Leaders", Icon: Gem, description: "Highest total achievement points" },
+  { id: "games", label: "Game Explorers", Icon: Gamepad2, description: "Most unique games played" },
+  { id: "fastest", label: "Speedrunners", Icon: Zap, description: "Fastest 100% completions" },
 ];
 
 const VALUE_LABELS: Record<LeaderboardTab, string> = {
@@ -162,7 +163,7 @@ export default function LeaderboardsPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ""}`}
           >
-            <span className={styles.tabIcon}>{tab.icon}</span>
+            <tab.Icon className={styles.tabIcon} size={18} />
             <span className={styles.tabLabel}>{tab.label}</span>
           </button>
         ))}
@@ -170,7 +171,7 @@ export default function LeaderboardsPage() {
 
       {/* Tab Description */}
       <div className={styles.tabDescription}>
-        <span className={styles.descriptionIcon}>{currentTab.icon}</span>
+        <currentTab.Icon className={styles.descriptionIcon} size={18} />
         <span>{currentTab.description}</span>
       </div>
 
@@ -182,7 +183,7 @@ export default function LeaderboardsPage() {
           </div>
         ) : !leaderboardData || leaderboardData.length === 0 ? (
           <div className={styles.emptyState}>
-            <span className={styles.emptyIcon}>{currentTab.icon}</span>
+            <currentTab.Icon className={styles.emptyIcon} size={48} />
             <h3 className={styles.emptyTitle}>No entries yet</h3>
             <p className={styles.emptyText}>
               Be the first to climb this leaderboard!

@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { Trophy, Star, Gamepad2 } from "lucide-react";
 import { GET_ME, GET_MY_ACHIEVEMENTS, GET_MY_TROPHIES } from "@/graphql/queries";
 import {
   StatCard,
@@ -95,19 +96,19 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <section className={styles.stats}>
         <StatCard
-          icon="🏆"
+          icon={<Trophy size={24} />}
           value={user?.trophyCount || 0}
           label="Trophies"
           variant="gold"
         />
         <StatCard
-          icon="⭐"
+          icon={<Star size={24} />}
           value={user?.achievementCount || 0}
           label="Achievements"
           variant="red"
         />
         <StatCard
-          icon="🎮"
+          icon={<Gamepad2 size={24} />}
           value={user?.gamesWithAchievementsCount || 0}
           label="Games Completed"
           variant="blue"
@@ -138,7 +139,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <EmptyState
-              icon="⭐"
+              icon={<Star size={48} />}
               title="No achievements yet"
               description="Start playing games and mark your achievements!"
               action={<Button href="/games">Browse Games</Button>}
@@ -156,7 +157,9 @@ export default function Dashboard() {
             <div className={styles.trophyList}>
               {trophies.map(({ node }: { node: TrophyNode }) => (
                 <div key={node.id} className={styles.trophyCard}>
-                  <div className={styles.trophyIcon}>🏆</div>
+                  <div className={styles.trophyIcon}>
+                    <Trophy size={24} />
+                  </div>
                   <div className={styles.trophyInfo}>
                     <h4 className={styles.trophyGame}>{node.game.title}</h4>
                     <p className={styles.trophyDate}>
@@ -168,7 +171,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <EmptyState
-              icon="🏆"
+              icon={<Trophy size={48} />}
               title="No trophies yet"
               description="Complete all achievements in a game to earn a trophy!"
             />

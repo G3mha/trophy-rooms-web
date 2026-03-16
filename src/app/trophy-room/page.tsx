@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { Trophy, Gamepad2, PartyPopper } from "lucide-react";
 import { GET_ME, GET_MY_TROPHIES, GET_MY_GAME_PROGRESS } from "@/graphql/queries";
 import { LoadingSpinner, EmptyState, Button, ProfileHeader, GameProgressCard } from "@/components";
 import styles from "./page.module.css";
@@ -92,7 +93,7 @@ export default function TrophyRoom() {
       {completedGames.length > 0 && (
         <section className={styles.trophyShowcase}>
           <h2 className={styles.sectionTitle}>
-            <span className={styles.crimsonIcon}>🏆</span> Crimson Trophy Collection
+            <Trophy className={styles.crimsonIcon} size={24} /> Crimson Trophy Collection
           </h2>
           <p className={styles.sectionSubtitle}>
             100% completion achieved in these games
@@ -144,15 +145,15 @@ export default function TrophyRoom() {
           </div>
         ) : gameProgress.length === 0 ? (
           <EmptyState
-            icon="🎮"
+            icon={<Gamepad2 size={48} />}
             title="No achievements yet"
             description="Start playing games and marking your achievements to fill your trophy room!"
             action={<Button href="/games">Browse Games</Button>}
           />
         ) : (
           <div className={styles.allComplete}>
-            <span className={styles.allCompleteIcon}>🎉</span>
-            <p>You've completed all your games! Browse for more challenges.</p>
+            <PartyPopper className={styles.allCompleteIcon} size={32} />
+            <p>You&apos;ve completed all your games! Browse for more challenges.</p>
             <Button href="/games">Browse Games</Button>
           </div>
         )}

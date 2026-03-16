@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useUser } from "@clerk/nextjs";
+import { Gamepad2, Trophy, Inbox, Lightbulb } from "lucide-react";
 import {
   GET_ACTIVITY_FEED,
   GET_RECENT_TROPHY_ACTIVITY,
@@ -92,14 +93,14 @@ export default function ActivityPage() {
             onClick={() => setFilter("all")}
             className={`${styles.filterBtn} ${filter === "all" ? styles.filterActive : ""}`}
           >
-            <span className={styles.filterIcon}>🎮</span>
+            <Gamepad2 className={styles.filterIcon} size={16} />
             All Activity
           </button>
           <button
             onClick={() => setFilter("trophies")}
             className={`${styles.filterBtn} ${filter === "trophies" ? styles.filterActive : ""}`}
           >
-            <span className={styles.filterIcon}>🏆</span>
+            <Trophy className={styles.filterIcon} size={16} />
             Trophies Only
           </button>
         </div>
@@ -113,7 +114,7 @@ export default function ActivityPage() {
           </div>
         ) : activityData.length === 0 ? (
           <div className={styles.emptyState}>
-            <span className={styles.emptyIcon}>📭</span>
+            <Inbox className={styles.emptyIcon} size={48} />
             <h3 className={styles.emptyTitle}>No activity yet</h3>
             <p className={styles.emptyText}>
               Be the first to earn an achievement!
@@ -145,7 +146,7 @@ export default function ActivityPage() {
 
       {/* Info Banner */}
       <div className={styles.infoBanner}>
-        <span className={styles.infoIcon}>💡</span>
+        <Lightbulb className={styles.infoIcon} size={18} />
         <p>
           Activity shows the latest achievements and trophies earned by the community.
           Your own activity is highlighted!

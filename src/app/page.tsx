@@ -2,6 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
+import { Gamepad2, Star, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GameCard, Button, LoadingSpinner, EmptyState } from "@/components";
 import styles from "./page.module.css";
@@ -74,21 +75,27 @@ export default function Home() {
       {/* Features Section */}
       <section className={styles.features}>
         <div className={styles.feature}>
-          <div className={styles.featureIcon}>🎮</div>
+          <div className={styles.featureIcon}>
+            <Gamepad2 size={32} />
+          </div>
           <h3 className={styles.featureTitle}>Track Games</h3>
           <p className={styles.featureDescription}>
             Add your favorite games from any platform and organize your collection.
           </p>
         </div>
         <div className={styles.feature}>
-          <div className={styles.featureIcon}>⭐</div>
+          <div className={styles.featureIcon}>
+            <Star size={32} />
+          </div>
           <h3 className={styles.featureTitle}>Earn Achievements</h3>
           <p className={styles.featureDescription}>
             Complete in-game challenges and mark your achievements as done.
           </p>
         </div>
         <div className={styles.feature}>
-          <div className={styles.featureIcon}>🏆</div>
+          <div className={styles.featureIcon}>
+            <Trophy size={32} />
+          </div>
           <h3 className={styles.featureTitle}>Collect Trophies</h3>
           <p className={styles.featureDescription}>
             Get all achievements to earn the ultimate trophy for each game.
@@ -134,7 +141,7 @@ export default function Home() {
 
         {data?.games?.totalCount === 0 && (
           <EmptyState
-            icon="🎮"
+            icon={<Gamepad2 size={48} />}
             title="No games yet"
             description="Be the first to add a game to the collection!"
             action={
