@@ -37,8 +37,8 @@ export function Header() {
           <Image
             src="/logo.png"
             alt="Trophy Rooms"
-            width={180}
-            height={40}
+            width={220}
+            height={50}
             className={styles.logoImage}
             priority
           />
