@@ -14,6 +14,7 @@ import {
   XCircle,
   X,
   Plus,
+  Monitor,
 } from "lucide-react";
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
@@ -28,6 +29,9 @@ interface UserGameItem {
   gameCoverUrl: string | null;
   gameDescription: string | null;
   achievementCount: number;
+  platformId: string | null;
+  platformName: string | null;
+  platformSlug: string | null;
   status: GameStatus;
   addedAt: string;
   updatedAt: string;
@@ -175,6 +179,12 @@ export default function LibraryPage() {
                   </div>
                   <div className={styles.cardContent}>
                     <h3 className={styles.gameTitle}>{item.gameTitle}</h3>
+                    {item.platformName && (
+                      <div className={styles.platformBadge}>
+                        <Monitor size={12} />
+                        <span>{item.platformName}</span>
+                      </div>
+                    )}
                     {item.gameDescription && (
                       <p className={styles.gameDescription}>
                         {item.gameDescription}
