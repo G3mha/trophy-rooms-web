@@ -542,7 +542,10 @@ export const GET_USER_GAME_PROGRESS = gql`
 // Game status / library queries
 export const GET_GAME_STATUS = gql`
   query GetGameStatus($gameId: ID!) {
-    getGameStatus(gameId: $gameId)
+    getGameStatus(gameId: $gameId) {
+      status
+      platformId
+    }
   }
 `;
 
@@ -555,6 +558,9 @@ export const GET_MY_GAMES_BY_STATUS = gql`
       gameCoverUrl
       gameDescription
       achievementCount
+      platformId
+      platformName
+      platformSlug
       status
       addedAt
       updatedAt

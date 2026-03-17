@@ -212,11 +212,12 @@ export const UNMARK_ACHIEVEMENT_COMPLETE = gql`
 
 // Game status / library mutations
 export const SET_GAME_STATUS = gql`
-  mutation SetGameStatus($gameId: ID!, $status: GameStatus!) {
-    setGameStatus(gameId: $gameId, status: $status) {
+  mutation SetGameStatus($gameId: ID!, $status: GameStatus!, $platformId: ID) {
+    setGameStatus(gameId: $gameId, status: $status, platformId: $platformId) {
       success
       userGameId
       status
+      platformId
       error {
         code
         message
