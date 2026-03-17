@@ -15,9 +15,11 @@ import {
   ChevronDown,
   Check,
   Trash2,
+  Monitor,
 } from "lucide-react";
 import { SET_GAME_STATUS, CLEAR_GAME_STATUS } from "@/graphql/mutations";
 import { GET_GAME_STATUS, GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
+import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import styles from "./GameStatusSelector.module.css";
 
 export type GameStatus =
@@ -43,6 +45,12 @@ const STATUS_CONFIG: Record<GameStatus, StatusConfig> = {
   DROPPED: { label: "Dropped", icon: XCircle, color: "#6b7280" },
 };
 
+interface Platform {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface GameStatusSelectorProps {
   gameId: string;
   variant?: "default" | "compact";
@@ -57,12 +65,21 @@ export function GameStatusSelector({
   const { isSignedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [currentStatus, setCurrentStatus] = useState<GameStatus | null>(null);
+  const [selectedPlatformId, setSelectedPlatformId] = useState<string | null>(
+    null
+  );
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { data, loading: queryLoading } = useQuery(GET_GAME_STATUS, {
     variables: { gameId },
     skip: !isSignedIn,
   });
+
+  const { data: platformsData } = useQuery(GET_PLATFORMS, {
+    skip: !isSignedIn,
+  });
+
+  const platforms: Platform[] = platformsData?.platforms ?? [];
 
   const [setGameStatus, { loading: settingStatus }] = useMutation(
     SET_GAME_STATUS,
@@ -74,6 +91,7 @@ export function GameStatusSelector({
       onCompleted: (data) => {
         if (data.setGameStatus.success) {
           setCurrentStatus(data.setGameStatus.status);
+          setSelectedPlatformId(data.setGameStatus.platformId);
           setIsOpen(false);
         }
       },
@@ -90,6 +108,7 @@ export function GameStatusSelector({
       onCompleted: (data) => {
         if (data.clearGameStatus.success) {
           setCurrentStatus(null);
+          setSelectedPlatformId(null);
           setIsOpen(false);
         }
       },
@@ -97,8 +116,12 @@ export function GameStatusSelector({
   );
 
   useEffect(() => {
-    if (data?.getGameStatus !== undefined) {
-      setCurrentStatus(data.getGameStatus);
+    if (data?.getGameStatus) {
+      setCurrentStatus(data.getGameStatus.status);
+      setSelectedPlatformId(data.getGameStatus.platformId);
+    } else if (data?.getGameStatus === null) {
+      setCurrentStatus(null);
+      setSelectedPlatformId(null);
     }
   }, [data]);
 
@@ -119,7 +142,13 @@ export function GameStatusSelector({
 
   const handleStatusSelect = async (status: GameStatus) => {
     if (settingStatus || clearingStatus) return;
-    await setGameStatus({ variables: { gameId, status } });
+    await setGameStatus({
+      variables: { gameId, status, platformId: selectedPlatformId },
+    });
+  };
+
+  const handlePlatformChange = (platformId: string | null) => {
+    setSelectedPlatformId(platformId);
   };
 
   const handleRemove = async () => {
@@ -162,6 +191,32 @@ export function GameStatusSelector({
 
       {isOpen && (
         <div className={styles.dropdown}>
+          {/* Platform Picker */}
+          <div className={styles.platformSection}>
+            <label className={styles.platformLabel}>
+              <Monitor size={14} />
+              <span>Platform (optional)</span>
+            </label>
+            <select
+              className={styles.platformSelect}
+              value={selectedPlatformId || ""}
+              onChange={(e) =>
+                handlePlatformChange(e.target.value || null)
+              }
+              disabled={loading}
+            >
+              <option value="">No platform</option>
+              {platforms.map((platform) => (
+                <option key={platform.id} value={platform.id}>
+                  {platform.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.divider} />
+
+          {/* Status Options */}
           {(Object.keys(STATUS_CONFIG) as GameStatus[]).map((status) => {
             const config = STATUS_CONFIG[status];
             const isSelected = currentStatus === status;

@@ -151,6 +151,49 @@
   margin: 4px 0;
 }
 
+/* Platform Section */
+.platformSection {
+  padding: 10px 14px;
+}
+
+.platformLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.platformSelect {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--border-radius) - 2px);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.platformSelect:hover:not(:disabled) {
+  border-color: var(--border-color-hover, var(--border-color));
+}
+
+.platformSelect:focus {
+  outline: none;
+  border-color: var(--accent-color, #3b82f6);
+}
+
+.platformSelect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Remove option */
 .removeOption {
   color: var(--text-muted);
