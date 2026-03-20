@@ -10,6 +10,7 @@ import {
   GET_ACHIEVEMENT_SETS_ADMIN,
   GET_ACHIEVEMENTS_ADMIN,
   GET_USERS_ADMIN,
+  GET_GAME_VERSIONS,
 } from "@/graphql/admin_queries";
 import {
   CREATE_PLATFORM,
@@ -18,6 +19,11 @@ import {
   CREATE_GAME,
   UPDATE_GAME,
   DELETE_GAME,
+  CREATE_GAME_VERSION,
+  UPDATE_GAME_VERSION,
+  DELETE_GAME_VERSION,
+  SET_DEFAULT_VERSION,
+  BULK_DELETE_GAME_VERSIONS,
   CREATE_ACHIEVEMENT_SET,
   UPDATE_ACHIEVEMENT_SET,
   DELETE_ACHIEVEMENT_SET,
@@ -31,7 +37,7 @@ import {
   BULK_DELETE_ACHIEVEMENT_SETS,
   BULK_DELETE_ACHIEVEMENTS,
 } from "@/graphql/admin_mutations";
-import { Lock, Trash2 } from "lucide-react";
+import { Lock, Trash2, Star } from "lucide-react";
 import { Button, LoadingSpinner, EmptyState } from "@/components";
 
 export default function AdminPage() {
@@ -162,7 +168,37 @@ export default function AdminPage() {
     { onCompleted: () => { refetchAchievements(); setSelectedAchievementIds(new Set()); } }
   );
 
+  // Game Versions state and mutations
+  const [selectedVersionGameId, setSelectedVersionGameId] = useState<string>("");
+  const {
+    data: versionsData,
+    loading: versionsLoading,
+    refetch: refetchVersions,
+  } = useQuery(GET_GAME_VERSIONS, {
+    variables: { gameId: selectedVersionGameId },
+    skip: !selectedVersionGameId,
+  });
+
+  const [createVersion, { loading: creatingVersion }] = useMutation(
+    CREATE_GAME_VERSION,
+    { onCompleted: () => refetchVersions() }
+  );
+  const [updateVersion] = useMutation(UPDATE_GAME_VERSION, {
+    onCompleted: () => refetchVersions(),
+  });
+  const [deleteVersion] = useMutation(DELETE_GAME_VERSION, {
+    onCompleted: () => refetchVersions(),
+  });
+  const [setDefaultVersion] = useMutation(SET_DEFAULT_VERSION, {
+    onCompleted: () => refetchVersions(),
+  });
+  const [bulkDeleteVersions, { loading: bulkDeletingVersions }] = useMutation(
+    BULK_DELETE_GAME_VERSIONS,
+    { onCompleted: () => { refetchVersions(); setSelectedVersionIds(new Set()); } }
+  );
+
   // Bulk selection state
+  const [selectedVersionIds, setSelectedVersionIds] = useState<Set<string>>(new Set());
   const [selectedPlatformIds, setSelectedPlatformIds] = useState<Set<string>>(new Set());
   const [selectedGameIds, setSelectedGameIds] = useState<Set<string>>(new Set());
   const [selectedSetIds, setSelectedSetIds] = useState<Set<string>>(new Set());
@@ -187,9 +223,17 @@ export default function AdminPage() {
   const [newSetTitle, setNewSetTitle] = useState("");
   const [newSetType, setNewSetType] = useState("OFFICIAL");
   const [newSetGameId, setNewSetGameId] = useState("");
+  const [newSetVersionId, setNewSetVersionId] = useState("");
   const [editingSetId, setEditingSetId] = useState<string | null>(null);
   const [editingSetTitle, setEditingSetTitle] = useState("");
   const [editingSetVisibility, setEditingSetVisibility] = useState("PRIVATE");
+
+  // Fetch versions for the selected game in set form
+  const { data: setGameVersionsData } = useQuery(GET_GAME_VERSIONS, {
+    variables: { gameId: newSetGameId },
+    skip: !newSetGameId,
+  });
+  const setGameVersions = setGameVersionsData?.gameVersions ?? [];
 
   const [newAchievementSetId, setNewAchievementSetId] = useState("");
   const [newAchievementTitle, setNewAchievementTitle] = useState("");
@@ -205,6 +249,19 @@ export default function AdminPage() {
   const [editingAchievementPoints, setEditingAchievementPoints] = useState("0");
   const [editingAchievementIconUrl, setEditingAchievementIconUrl] =
     useState("");
+
+  // Game version form state
+  const [newVersionName, setNewVersionName] = useState("");
+  const [newVersionSlug, setNewVersionSlug] = useState("");
+  const [newVersionDescription, setNewVersionDescription] = useState("");
+  const [newVersionCoverUrl, setNewVersionCoverUrl] = useState("");
+  const [newVersionDlc, setNewVersionDlc] = useState("");
+  const [editingVersionId, setEditingVersionId] = useState<string | null>(null);
+  const [editingVersionName, setEditingVersionName] = useState("");
+  const [editingVersionSlug, setEditingVersionSlug] = useState("");
+  const [editingVersionDescription, setEditingVersionDescription] = useState("");
+  const [editingVersionCoverUrl, setEditingVersionCoverUrl] = useState("");
+  const [editingVersionDlc, setEditingVersionDlc] = useState("");
 
   const [csvSetId, setCsvSetId] = useState("");
   const [csvFileName, setCsvFileName] = useState("");
@@ -228,6 +285,7 @@ export default function AdminPage() {
     achievementsData?.achievements?.edges?.map((edge: any) => edge.node) ?? [];
   const users =
     usersData?.users?.edges?.map((edge: any) => edge.node) ?? [];
+  const versions = versionsData?.gameVersions ?? [];
 
   const parseCsv = (text: string) => {
     const rows: string[][] = [];
@@ -835,6 +893,297 @@ export default function AdminPage() {
       <section className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
+            <h2 className="text-xl font-semibold text-white">Game Versions</h2>
+            <p className="text-sm text-gray-400">
+              Create different editions of games (Standard, Deluxe, GOTY, etc.)
+            </p>
+          </div>
+          {selectedVersionIds.size > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkDeletingVersions}
+              onClick={async () => {
+                if (confirm(`Delete ${selectedVersionIds.size} version(s)?`)) {
+                  await bulkDeleteVersions({ variables: { ids: Array.from(selectedVersionIds) } });
+                }
+              }}
+            >
+              <Trash2 size={16} className="mr-2" />
+              Delete {selectedVersionIds.size} selected
+            </Button>
+          )}
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <select
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            value={selectedVersionGameId}
+            onChange={(event) => {
+              setSelectedVersionGameId(event.target.value);
+              setSelectedVersionIds(new Set());
+            }}
+          >
+            <option value="">Select a game to manage versions</option>
+            {games.map((game: any) => (
+              <option key={game.id} value={game.id}>
+                {game.title} {game.platform ? `(${game.platform.name})` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {selectedVersionGameId && (
+          <>
+            <form
+              onSubmit={async (event) => {
+                event.preventDefault();
+                if (!newVersionName || !newVersionSlug) return;
+                await createVersion({
+                  variables: {
+                    input: {
+                      gameId: selectedVersionGameId,
+                      name: newVersionName,
+                      slug: newVersionSlug,
+                      description: newVersionDescription || null,
+                      coverUrl: newVersionCoverUrl || null,
+                      includedDlc: newVersionDlc ? newVersionDlc.split(",").map(d => d.trim()) : [],
+                    },
+                  },
+                });
+                setNewVersionName("");
+                setNewVersionSlug("");
+                setNewVersionDescription("");
+                setNewVersionCoverUrl("");
+                setNewVersionDlc("");
+              }}
+              className="grid gap-4 md:grid-cols-2"
+            >
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+                placeholder="Version name (e.g., Deluxe Edition)"
+                value={newVersionName}
+                onChange={(event) => setNewVersionName(event.target.value)}
+              />
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+                placeholder="Slug (e.g., deluxe)"
+                value={newVersionSlug}
+                onChange={(event) => setNewVersionSlug(event.target.value)}
+              />
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm md:col-span-2"
+                placeholder="Description (optional)"
+                value={newVersionDescription}
+                onChange={(event) => setNewVersionDescription(event.target.value)}
+              />
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+                placeholder="Cover URL (optional)"
+                value={newVersionCoverUrl}
+                onChange={(event) => setNewVersionCoverUrl(event.target.value)}
+              />
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+                placeholder="Included DLC (comma separated)"
+                value={newVersionDlc}
+                onChange={(event) => setNewVersionDlc(event.target.value)}
+              />
+              <Button type="submit" loading={creatingVersion}>
+                Add Version
+              </Button>
+            </form>
+
+            {versionsLoading && <LoadingSpinner text="Loading versions..." />}
+
+            {!versionsLoading && versions.length > 0 && (
+              <div className="flex items-center gap-3 pb-2 border-b border-[#3D3D3D]">
+                <input
+                  type="checkbox"
+                  checked={selectedVersionIds.size === versions.filter((v: any) => !v.isDefault).length && versions.filter((v: any) => !v.isDefault).length > 0}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedVersionIds(new Set(versions.filter((v: any) => !v.isDefault).map((v: any) => v.id)));
+                    } else {
+                      setSelectedVersionIds(new Set());
+                    }
+                  }}
+                  className="w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+                />
+                <span className="text-sm text-gray-400">Select all non-default ({versions.filter((v: any) => !v.isDefault).length})</span>
+              </div>
+            )}
+
+            {!versionsLoading && (
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {versions.map((version: any) => (
+                  <div
+                    key={version.id}
+                    className={`border rounded-lg p-4 space-y-3 transition-colors ${
+                      selectedVersionIds.has(version.id)
+                        ? 'border-[#E60012] bg-[#E60012]/5'
+                        : version.isDefault
+                        ? 'border-yellow-500/50 bg-yellow-500/5'
+                        : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3D3D3D]'
+                    }`}
+                  >
+                    {editingVersionId === version.id ? (
+                      <div className="space-y-2">
+                        <input
+                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
+                          value={editingVersionName}
+                          onChange={(event) => setEditingVersionName(event.target.value)}
+                        />
+                        <input
+                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
+                          value={editingVersionSlug}
+                          onChange={(event) => setEditingVersionSlug(event.target.value)}
+                        />
+                        <textarea
+                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
+                          rows={2}
+                          value={editingVersionDescription}
+                          onChange={(event) => setEditingVersionDescription(event.target.value)}
+                        />
+                        <input
+                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
+                          placeholder="Cover URL"
+                          value={editingVersionCoverUrl}
+                          onChange={(event) => setEditingVersionCoverUrl(event.target.value)}
+                        />
+                        <input
+                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
+                          placeholder="Included DLC (comma separated)"
+                          value={editingVersionDlc}
+                          onChange={(event) => setEditingVersionDlc(event.target.value)}
+                        />
+                        <div className="flex gap-3">
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              await updateVersion({
+                                variables: {
+                                  id: version.id,
+                                  input: {
+                                    name: editingVersionName,
+                                    slug: editingVersionSlug,
+                                    description: editingVersionDescription || null,
+                                    coverUrl: editingVersionCoverUrl || null,
+                                    includedDlc: editingVersionDlc ? editingVersionDlc.split(",").map(d => d.trim()) : [],
+                                  },
+                                },
+                              });
+                              setEditingVersionId(null);
+                            }}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => setEditingVersionId(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-start gap-3">
+                          {!version.isDefault && (
+                            <input
+                              type="checkbox"
+                              checked={selectedVersionIds.has(version.id)}
+                              onChange={(e) => {
+                                const newSet = new Set(selectedVersionIds);
+                                if (e.target.checked) {
+                                  newSet.add(version.id);
+                                } else {
+                                  newSet.delete(version.id);
+                                }
+                                setSelectedVersionIds(newSet);
+                              }}
+                              className="mt-1 w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+                            />
+                          )}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-lg font-semibold text-white">
+                                {version.name}
+                              </h3>
+                              {version.isDefault && (
+                                <Star size={16} className="text-yellow-500 fill-yellow-500" />
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-400">{version.slug}</p>
+                            {version.description && (
+                              <p className="text-xs text-gray-500 mt-1">{version.description}</p>
+                            )}
+                            {version.includedDlc?.length > 0 && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                DLC: {version.includedDlc.join(", ")}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-3 flex-wrap">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => {
+                              setEditingVersionId(version.id);
+                              setEditingVersionName(version.name);
+                              setEditingVersionSlug(version.slug);
+                              setEditingVersionDescription(version.description || "");
+                              setEditingVersionCoverUrl(version.coverUrl || "");
+                              setEditingVersionDlc(version.includedDlc?.join(", ") || "");
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          {!version.isDefault && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={async () => {
+                                  await setDefaultVersion({ variables: { id: version.id } });
+                                }}
+                              >
+                                Set Default
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={async () => {
+                                  if (confirm("Delete this version?")) {
+                                    await deleteVersion({ variables: { id: version.id } });
+                                  }
+                                }}
+                              >
+                                Delete
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+                {versions.length === 0 && (
+                  <p className="text-sm text-gray-400 col-span-full">
+                    No versions for this game yet.
+                  </p>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
             <h2 className="text-xl font-semibold text-white">Achievement Sets</h2>
             <p className="text-sm text-gray-400">
               Create and manage official, completionist, and custom sets.
@@ -867,14 +1216,16 @@ export default function AdminPage() {
                   title: newSetTitle,
                   type: newSetType,
                   gameId: newSetGameId,
+                  gameVersionId: newSetVersionId || null,
                 },
               },
             });
             setNewSetTitle("");
             setNewSetGameId("");
+            setNewSetVersionId("");
             setNewSetType("OFFICIAL");
           }}
-          className="grid gap-4 md:grid-cols-3"
+          className="grid gap-4 md:grid-cols-2 lg:grid-cols-4"
         >
           <input
             className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
@@ -894,12 +1245,28 @@ export default function AdminPage() {
           <select
             className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
             value={newSetGameId}
-            onChange={(event) => setNewSetGameId(event.target.value)}
+            onChange={(event) => {
+              setNewSetGameId(event.target.value);
+              setNewSetVersionId("");
+            }}
           >
             <option value="">Select game</option>
             {games.map((game: any) => (
               <option key={game.id} value={game.id}>
                 {game.title}
+              </option>
+            ))}
+          </select>
+          <select
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            value={newSetVersionId}
+            onChange={(event) => setNewSetVersionId(event.target.value)}
+            disabled={!newSetGameId || setGameVersions.length <= 1}
+          >
+            <option value="">All versions</option>
+            {setGameVersions.map((version: any) => (
+              <option key={version.id} value={version.id}>
+                {version.name}
               </option>
             ))}
           </select>
