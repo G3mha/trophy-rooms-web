@@ -18,6 +18,29 @@ export const PLATFORM_FRAGMENT = gql`
   }
 `;
 
+// GameVersion fragments
+export const GAME_VERSION_FRAGMENT = gql`
+  fragment GameVersionFields on GameVersion {
+    id
+    name
+    slug
+    description
+    coverUrl
+    effectiveCoverUrl
+    releaseDate
+    includedDlc
+    isDefault
+    gameId
+    game {
+      id
+      title
+    }
+    achievementSetCount
+    createdAt
+    updatedAt
+  }
+`;
+
 // Queries
 export const GET_PLATFORMS = gql`
   query GetPlatforms {
@@ -93,4 +116,22 @@ export const GET_USERS_ADMIN = gql`
     }
   }
   ${USER_FRAGMENT}
+`;
+
+export const GET_GAME_VERSIONS = gql`
+  query GetGameVersions($gameId: ID!) {
+    gameVersions(gameId: $gameId) {
+      ...GameVersionFields
+    }
+  }
+  ${GAME_VERSION_FRAGMENT}
+`;
+
+export const GET_GAME_VERSION = gql`
+  query GetGameVersion($id: ID!) {
+    gameVersion(id: $id) {
+      ...GameVersionFields
+    }
+  }
+  ${GAME_VERSION_FRAGMENT}
 `;

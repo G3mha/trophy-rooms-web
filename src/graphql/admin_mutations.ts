@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { PLATFORM_FRAGMENT } from "./admin_queries";
+import { PLATFORM_FRAGMENT, GAME_VERSION_FRAGMENT } from "./admin_queries";
 import {
   GAME_FRAGMENT,
   ACHIEVEMENT_SET_FRAGMENT,
@@ -282,6 +282,86 @@ export const BULK_DELETE_ACHIEVEMENT_SETS = gql`
 export const BULK_DELETE_ACHIEVEMENTS = gql`
   mutation BulkDeleteAchievements($ids: [ID!]!) {
     bulkDeleteAchievements(ids: $ids) {
+      success
+      deletedCount
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+// Game Version mutations
+export const CREATE_GAME_VERSION = gql`
+  mutation CreateGameVersion($input: CreateGameVersionInput!) {
+    createGameVersion(input: $input) {
+      success
+      gameVersion {
+        ...GameVersionFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${GAME_VERSION_FRAGMENT}
+`;
+
+export const UPDATE_GAME_VERSION = gql`
+  mutation UpdateGameVersion($id: ID!, $input: UpdateGameVersionInput!) {
+    updateGameVersion(id: $id, input: $input) {
+      success
+      gameVersion {
+        ...GameVersionFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${GAME_VERSION_FRAGMENT}
+`;
+
+export const DELETE_GAME_VERSION = gql`
+  mutation DeleteGameVersion($id: ID!) {
+    deleteGameVersion(id: $id) {
+      success
+      deletedId
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const SET_DEFAULT_VERSION = gql`
+  mutation SetDefaultVersion($id: ID!) {
+    setDefaultVersion(id: $id) {
+      success
+      gameVersion {
+        ...GameVersionFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${GAME_VERSION_FRAGMENT}
+`;
+
+export const BULK_DELETE_GAME_VERSIONS = gql`
+  mutation BulkDeleteGameVersions($ids: [ID!]!) {
+    bulkDeleteGameVersions(ids: $ids) {
       success
       deletedCount
       error {
