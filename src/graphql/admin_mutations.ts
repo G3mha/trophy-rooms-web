@@ -236,3 +236,59 @@ export const BULK_CREATE_ACHIEVEMENTS = gql`
     }
   }
 `;
+
+export const BULK_DELETE_PLATFORMS = gql`
+  mutation BulkDeletePlatforms($ids: [ID!]!) {
+    bulkDeletePlatforms(ids: $ids) {
+      success
+      deletedCount
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const BULK_DELETE_GAMES = gql`
+  mutation BulkDeleteGames($ids: [ID!]!) {
+    bulkDeleteGames(ids: $ids) {
+      success
+      deletedCount
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const BULK_DELETE_ACHIEVEMENT_SETS = gql`
+  mutation BulkDeleteAchievementSets($ids: [ID!]!) {
+    bulkDeleteAchievementSets(ids: $ids) {
+      success
+      deletedCount
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const BULK_DELETE_ACHIEVEMENTS = gql`
+  mutation BulkDeleteAchievements($ids: [ID!]!) {
+    bulkDeleteAchievements(ids: $ids) {
+      success
+      deletedCount
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
