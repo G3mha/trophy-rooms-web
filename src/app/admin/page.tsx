@@ -26,8 +26,12 @@ import {
   DELETE_ACHIEVEMENT,
   SET_USER_ROLE,
   BULK_CREATE_ACHIEVEMENTS,
+  BULK_DELETE_PLATFORMS,
+  BULK_DELETE_GAMES,
+  BULK_DELETE_ACHIEVEMENT_SETS,
+  BULK_DELETE_ACHIEVEMENTS,
 } from "@/graphql/admin_mutations";
-import { Lock } from "lucide-react";
+import { Lock, Trash2 } from "lucide-react";
 import { Button, LoadingSpinner, EmptyState } from "@/components";
 
 export default function AdminPage() {
@@ -139,6 +143,30 @@ export default function AdminPage() {
   const [setUserRole, { loading: updatingRole }] = useMutation(SET_USER_ROLE, {
     onCompleted: () => refetchUsers(),
   });
+
+  // Bulk delete mutations
+  const [bulkDeletePlatforms, { loading: bulkDeletingPlatforms }] = useMutation(
+    BULK_DELETE_PLATFORMS,
+    { onCompleted: () => { refetchPlatforms(); setSelectedPlatformIds(new Set()); } }
+  );
+  const [bulkDeleteGames, { loading: bulkDeletingGames }] = useMutation(
+    BULK_DELETE_GAMES,
+    { onCompleted: () => { refetchGames(); setSelectedGameIds(new Set()); } }
+  );
+  const [bulkDeleteSets, { loading: bulkDeletingSets }] = useMutation(
+    BULK_DELETE_ACHIEVEMENT_SETS,
+    { onCompleted: () => { refetchSets(); setSelectedSetIds(new Set()); } }
+  );
+  const [bulkDeleteAchievements, { loading: bulkDeletingAchievements }] = useMutation(
+    BULK_DELETE_ACHIEVEMENTS,
+    { onCompleted: () => { refetchAchievements(); setSelectedAchievementIds(new Set()); } }
+  );
+
+  // Bulk selection state
+  const [selectedPlatformIds, setSelectedPlatformIds] = useState<Set<string>>(new Set());
+  const [selectedGameIds, setSelectedGameIds] = useState<Set<string>>(new Set());
+  const [selectedSetIds, setSelectedSetIds] = useState<Set<string>>(new Set());
+  const [selectedAchievementIds, setSelectedAchievementIds] = useState<Set<string>>(new Set());
 
   const [newPlatformName, setNewPlatformName] = useState("");
   const [newPlatformSlug, setNewPlatformSlug] = useState("");
@@ -326,7 +354,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-12">
+    <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
       <header className="space-y-2">
         <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
         <p className="text-sm text-gray-400">
@@ -334,10 +362,27 @@ export default function AdminPage() {
         </p>
       </header>
 
-      <section className="bg-[#1A1A1A] border border-[#3D3D3D] rounded-2xl p-6 space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold text-white">Platforms</h2>
-          <p className="text-sm text-gray-400">Create and manage platforms.</p>
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-white">Platforms</h2>
+            <p className="text-sm text-gray-400">Create and manage platforms.</p>
+          </div>
+          {selectedPlatformIds.size > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkDeletingPlatforms}
+              onClick={async () => {
+                if (confirm(`Delete ${selectedPlatformIds.size} platform(s)?`)) {
+                  await bulkDeletePlatforms({ variables: { ids: Array.from(selectedPlatformIds) } });
+                }
+              }}
+            >
+              <Trash2 size={16} className="mr-2" />
+              Delete {selectedPlatformIds.size} selected
+            </Button>
+          )}
         </div>
 
         <form
@@ -374,23 +419,45 @@ export default function AdminPage() {
           </Button>
         </form>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        {platforms.length > 0 && (
+          <div className="flex items-center gap-3 pb-2 border-b border-[#3D3D3D]">
+            <input
+              type="checkbox"
+              checked={selectedPlatformIds.size === platforms.length && platforms.length > 0}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedPlatformIds(new Set(platforms.map((p: any) => p.id)));
+                } else {
+                  setSelectedPlatformIds(new Set());
+                }
+              }}
+              className="w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+            />
+            <span className="text-sm text-gray-400">Select all ({platforms.length})</span>
+          </div>
+        )}
+
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {platforms.map((platform: any) => (
             <div
               key={platform.id}
-              className="border border-[#3D3D3D] rounded-xl p-4 bg-[#0E0E0E] space-y-3"
+              className={`border rounded-lg p-4 space-y-3 transition-colors ${
+                selectedPlatformIds.has(platform.id)
+                  ? 'border-[#E60012] bg-[#E60012]/5'
+                  : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3D3D3D]'
+              }`}
             >
               {editingPlatformId === platform.id ? (
                 <div className="space-y-2">
                   <input
-                    className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
                     value={editingPlatformName}
                     onChange={(event) =>
                       setEditingPlatformName(event.target.value)
                     }
                   />
                   <input
-                    className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
                     value={editingPlatformSlug}
                     onChange={(event) =>
                       setEditingPlatformSlug(event.target.value)
@@ -425,11 +492,27 @@ export default function AdminPage() {
                 </div>
               ) : (
                 <>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      {platform.name}
-                    </h3>
-                    <p className="text-xs text-gray-400">{platform.slug}</p>
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedPlatformIds.has(platform.id)}
+                      onChange={(e) => {
+                        const newSet = new Set(selectedPlatformIds);
+                        if (e.target.checked) {
+                          newSet.add(platform.id);
+                        } else {
+                          newSet.delete(platform.id);
+                        }
+                        setSelectedPlatformIds(newSet);
+                      }}
+                      className="mt-1 w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E] accent-[#E60012]"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-white">
+                        {platform.name}
+                      </h3>
+                      <p className="text-xs text-gray-400">{platform.slug}</p>
+                    </div>
                   </div>
                   <div className="flex gap-3">
                     <Button
@@ -460,7 +543,7 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <section className="bg-[#1A1A1A] border border-[#3D3D3D] rounded-2xl p-6 space-y-6">
+      <section className="space-y-6">
         <div>
           <h2 className="text-xl font-semibold text-white">Users & Roles</h2>
           <p className="text-sm text-gray-400">
@@ -468,20 +551,20 @@ export default function AdminPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="max-w-md">
           <input
-            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            className="w-full rounded-lg bg-[#1A1A1A] border border-[#2A2A2A] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
             placeholder="Search by name or email"
             value={userSearch}
             onChange={(event) => setUserSearch(event.target.value)}
           />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {users.map((user: any) => (
             <div
               key={user.id}
-              className="border border-[#3D3D3D] rounded-xl p-4 bg-[#0E0E0E] space-y-3"
+              className="border border-[#2A2A2A] rounded-lg p-4 bg-[#1A1A1A] hover:border-[#3D3D3D] transition-colors space-y-3"
             >
               <div>
                 <h3 className="text-lg font-semibold text-white">
@@ -491,7 +574,7 @@ export default function AdminPage() {
               </div>
               <div className="flex gap-3 items-center">
                 <select
-                  className="rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                  className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white focus:border-[#E60012] focus:outline-none"
                   value={user.role}
                   onChange={(event) =>
                     setUserRole({
@@ -504,26 +587,43 @@ export default function AdminPage() {
                   <option value="TRUSTED">Trusted</option>
                   <option value="ADMIN">Admin</option>
                 </select>
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-500">
                   Joined {new Date(user.createdAt).toLocaleDateString()}
                 </span>
               </div>
             </div>
           ))}
           {users.length === 0 && (
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-500 col-span-full">
               No users found for this search.
             </p>
           )}
         </div>
       </section>
 
-      <section className="bg-[#1A1A1A] border border-[#3D3D3D] rounded-2xl p-6 space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold text-white">Games</h2>
-          <p className="text-sm text-gray-400">
-            Create games and assign platforms.
-          </p>
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-white">Games</h2>
+            <p className="text-sm text-gray-400">
+              Create games and assign platforms.
+            </p>
+          </div>
+          {selectedGameIds.size > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkDeletingGames}
+              onClick={async () => {
+                if (confirm(`Delete ${selectedGameIds.size} game(s)? This will also delete all related achievement sets and achievements.`)) {
+                  await bulkDeleteGames({ variables: { ids: Array.from(selectedGameIds) } });
+                }
+              }}
+            >
+              <Trash2 size={16} className="mr-2" />
+              Delete {selectedGameIds.size} selected
+            </Button>
+          )}
         </div>
 
         <form
@@ -582,36 +682,58 @@ export default function AdminPage() {
           </Button>
         </form>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        {games.length > 0 && (
+          <div className="flex items-center gap-3 pb-2 border-b border-[#3D3D3D]">
+            <input
+              type="checkbox"
+              checked={selectedGameIds.size === games.length && games.length > 0}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedGameIds(new Set(games.map((g: any) => g.id)));
+                } else {
+                  setSelectedGameIds(new Set());
+                }
+              }}
+              className="w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+            />
+            <span className="text-sm text-gray-400">Select all ({games.length})</span>
+          </div>
+        )}
+
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {games.map((game: any) => (
             <div
               key={game.id}
-              className="border border-[#3D3D3D] rounded-xl p-4 bg-[#0E0E0E] space-y-3"
+              className={`border rounded-lg p-4 space-y-3 transition-colors ${
+                selectedGameIds.has(game.id)
+                  ? 'border-[#E60012] bg-[#E60012]/5'
+                  : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3D3D3D]'
+              }`}
             >
               {editingGameId === game.id ? (
                 <div className="space-y-2">
                   <input
-                    className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
                     value={editingGameTitle}
                     onChange={(event) => setEditingGameTitle(event.target.value)}
                   />
                   <textarea
-                    className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
-                    rows={3}
+                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
+                    rows={2}
                     value={editingGameDescription}
                     onChange={(event) =>
                       setEditingGameDescription(event.target.value)
                     }
                   />
                   <input
-                    className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
                     value={editingGameCoverUrl}
                     onChange={(event) =>
                       setEditingGameCoverUrl(event.target.value)
                     }
                   />
                   <select
-                    className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white focus:border-[#E60012] focus:outline-none"
                     value={editingGamePlatformId}
                     onChange={(event) =>
                       setEditingGamePlatformId(event.target.value)
@@ -655,13 +777,29 @@ export default function AdminPage() {
                 </div>
               ) : (
                 <>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      {game.title}
-                    </h3>
-                    <p className="text-xs text-gray-400">
-                      {game.platform?.name || "No platform"}
-                    </p>
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedGameIds.has(game.id)}
+                      onChange={(e) => {
+                        const newSet = new Set(selectedGameIds);
+                        if (e.target.checked) {
+                          newSet.add(game.id);
+                        } else {
+                          newSet.delete(game.id);
+                        }
+                        setSelectedGameIds(newSet);
+                      }}
+                      className="mt-1 w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-white">
+                        {game.title}
+                      </h3>
+                      <p className="text-xs text-gray-400">
+                        {game.platform?.name || "No platform"}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex gap-3">
                     <Button
@@ -694,12 +832,29 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <section className="bg-[#1A1A1A] border border-[#3D3D3D] rounded-2xl p-6 space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold text-white">Achievement Sets</h2>
-          <p className="text-sm text-gray-400">
-            Create and manage official, completionist, and custom sets.
-          </p>
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-white">Achievement Sets</h2>
+            <p className="text-sm text-gray-400">
+              Create and manage official, completionist, and custom sets.
+            </p>
+          </div>
+          {selectedSetIds.size > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkDeletingSets}
+              onClick={async () => {
+                if (confirm(`Delete ${selectedSetIds.size} achievement set(s)? This will also delete all achievements in these sets.`)) {
+                  await bulkDeleteSets({ variables: { ids: Array.from(selectedSetIds) } });
+                }
+              }}
+            >
+              <Trash2 size={16} className="mr-2" />
+              Delete {selectedSetIds.size} selected
+            </Button>
+          )}
         </div>
 
         <form
@@ -753,21 +908,43 @@ export default function AdminPage() {
           </Button>
         </form>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        {sets.length > 0 && (
+          <div className="flex items-center gap-3 pb-2 border-b border-[#3D3D3D]">
+            <input
+              type="checkbox"
+              checked={selectedSetIds.size === sets.length && sets.length > 0}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedSetIds(new Set(sets.map((s: any) => s.id)));
+                } else {
+                  setSelectedSetIds(new Set());
+                }
+              }}
+              className="w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+            />
+            <span className="text-sm text-gray-400">Select all ({sets.length})</span>
+          </div>
+        )}
+
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           {sets.map((set: any) => (
             <div
               key={set.id}
-              className="border border-[#3D3D3D] rounded-xl p-4 bg-[#0E0E0E] space-y-3"
+              className={`border rounded-lg p-4 space-y-3 transition-colors ${
+                selectedSetIds.has(set.id)
+                  ? 'border-[#E60012] bg-[#E60012]/5'
+                  : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3D3D3D]'
+              }`}
             >
               {editingSetId === set.id ? (
                 <div className="space-y-2">
                   <input
-                    className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
                     value={editingSetTitle}
                     onChange={(event) => setEditingSetTitle(event.target.value)}
                   />
                   <select
-                    className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white focus:border-[#E60012] focus:outline-none"
                     value={editingSetVisibility}
                     onChange={(event) =>
                       setEditingSetVisibility(event.target.value)
@@ -809,13 +986,29 @@ export default function AdminPage() {
                 </div>
               ) : (
                 <>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">
-                      {set.title}
-                    </h3>
-                    <p className="text-xs text-gray-400">
-                      {set.type} · {set.visibility.toLowerCase()} · {set.game.title}
-                    </p>
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedSetIds.has(set.id)}
+                      onChange={(e) => {
+                        const newSet = new Set(selectedSetIds);
+                        if (e.target.checked) {
+                          newSet.add(set.id);
+                        } else {
+                          newSet.delete(set.id);
+                        }
+                        setSelectedSetIds(newSet);
+                      }}
+                      className="mt-1 w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-white">
+                        {set.title}
+                      </h3>
+                      <p className="text-xs text-gray-400">
+                        {set.type} · {set.visibility.toLowerCase()} · {set.game.title}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex gap-3">
                     <Button
@@ -846,12 +1039,29 @@ export default function AdminPage() {
         </div>
       </section>
 
-      <section className="bg-[#1A1A1A] border border-[#3D3D3D] rounded-2xl p-6 space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold text-white">Achievements</h2>
-          <p className="text-sm text-gray-400">
-            Manage achievements within a set.
-          </p>
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-white">Achievements</h2>
+            <p className="text-sm text-gray-400">
+              Manage achievements within a set.
+            </p>
+          </div>
+          {selectedAchievementIds.size > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkDeletingAchievements}
+              onClick={async () => {
+                if (confirm(`Delete ${selectedAchievementIds.size} achievement(s)?`)) {
+                  await bulkDeleteAchievements({ variables: { ids: Array.from(selectedAchievementIds) } });
+                }
+              }}
+            >
+              <Trash2 size={16} className="mr-2" />
+              Delete {selectedAchievementIds.size} selected
+            </Button>
+          )}
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -876,16 +1086,16 @@ export default function AdminPage() {
         )}
 
         {sets.length > 0 && (
-          <div className="border border-dashed border-[#3D3D3D] rounded-xl p-4 bg-[#0E0E0E] space-y-3">
+          <div className="border border-dashed border-[#3D3D3D] rounded-lg p-4 bg-[#0E0E0E]/50 space-y-3">
             <div>
-              <h3 className="text-lg font-semibold text-white">Bulk Import (CSV)</h3>
-              <p className="text-xs text-gray-400">
+              <h3 className="text-base font-semibold text-white">Bulk Import (CSV)</h3>
+              <p className="text-xs text-gray-500">
                 Columns: title, description, points, iconUrl
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
               <select
-                className="rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                className="rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm text-white focus:border-[#E60012] focus:outline-none"
                 value={csvSetId}
                 onChange={(event) => setCsvSetId(event.target.value)}
               >
@@ -1024,31 +1234,54 @@ export default function AdminPage() {
         )}
 
         {selectedSetId && !achievementsLoading && (
-          <div className="grid gap-4 md:grid-cols-2">
-            {achievements.map((achievement: any) => (
-              <div
-                key={achievement.id}
-                className="border border-[#3D3D3D] rounded-xl p-4 bg-[#0E0E0E] space-y-3"
-              >
-                {editingAchievementId === achievement.id ? (
+          <>
+            {achievements.length > 0 && (
+              <div className="flex items-center gap-3 pb-2 border-b border-[#3D3D3D]">
+                <input
+                  type="checkbox"
+                  checked={selectedAchievementIds.size === achievements.length && achievements.length > 0}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedAchievementIds(new Set(achievements.map((a: any) => a.id)));
+                    } else {
+                      setSelectedAchievementIds(new Set());
+                    }
+                  }}
+                  className="w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+                />
+                <span className="text-sm text-gray-400">Select all ({achievements.length})</span>
+              </div>
+            )}
+
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {achievements.map((achievement: any) => (
+                <div
+                  key={achievement.id}
+                  className={`border rounded-lg p-4 space-y-3 transition-colors ${
+                    selectedAchievementIds.has(achievement.id)
+                      ? 'border-[#E60012] bg-[#E60012]/5'
+                      : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3D3D3D]'
+                  }`}
+                >
+                  {editingAchievementId === achievement.id ? (
                   <div className="space-y-2">
                     <input
-                      className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                      className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
                       value={editingAchievementTitle}
                       onChange={(event) =>
                         setEditingAchievementTitle(event.target.value)
                       }
                     />
                     <textarea
-                      className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
-                      rows={3}
+                      className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
+                      rows={2}
                       value={editingAchievementDescription}
                       onChange={(event) =>
                         setEditingAchievementDescription(event.target.value)
                       }
                     />
                     <input
-                      className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                      className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
                       value={editingAchievementPoints}
                       onChange={(event) =>
                         setEditingAchievementPoints(event.target.value)
@@ -1057,7 +1290,7 @@ export default function AdminPage() {
                       min="0"
                     />
                     <input
-                      className="w-full rounded-lg bg-[#1A1A1A] border border-[#3D3D3D] px-3 py-2 text-sm"
+                      className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
                       value={editingAchievementIconUrl}
                       onChange={(event) =>
                         setEditingAchievementIconUrl(event.target.value)
@@ -1096,13 +1329,29 @@ export default function AdminPage() {
                   </div>
                 ) : (
                   <>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">
-                        {achievement.title}
-                      </h3>
-                      <p className="text-xs text-gray-400">
-                        {achievement.points} points
-                      </p>
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedAchievementIds.has(achievement.id)}
+                        onChange={(e) => {
+                          const newSet = new Set(selectedAchievementIds);
+                          if (e.target.checked) {
+                            newSet.add(achievement.id);
+                          } else {
+                            newSet.delete(achievement.id);
+                          }
+                          setSelectedAchievementIds(newSet);
+                        }}
+                        className="mt-1 w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+                      />
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-white">
+                          {achievement.title}
+                        </h3>
+                        <p className="text-xs text-gray-400">
+                          {achievement.points} points
+                        </p>
+                      </div>
                     </div>
                     <div className="flex gap-3">
                       <Button
@@ -1145,7 +1394,8 @@ export default function AdminPage() {
                 No achievements in this set yet.
               </p>
             )}
-          </div>
+            </div>
+          </>
         )}
       </section>
     </div>
