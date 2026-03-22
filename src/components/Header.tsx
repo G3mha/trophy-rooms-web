@@ -11,6 +11,7 @@ import styles from "./Header.module.css";
 
 const navLinks = [
   { href: "/games", label: "Games" },
+  { href: "/bundles", label: "Bundles" },
   { href: "/leaderboards", label: "Leaderboards" },
   { href: "/activity", label: "Activity" },
 ];
