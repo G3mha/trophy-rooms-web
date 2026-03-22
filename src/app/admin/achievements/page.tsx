@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_ACHIEVEMENT_SETS_ADMIN, GET_ACHIEVEMENTS_ADMIN } from "@/graphql/admin_queries";
 import {
@@ -11,7 +11,7 @@ import {
   BULK_CREATE_ACHIEVEMENTS,
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Check, X, Upload } from "lucide-react";
-import { Button, LoadingSpinner } from "@/components";
+import { Button, LoadingSpinner, Pagination } from "@/components";
 import styles from "../page.module.css";
 
 interface AchievementSet {
@@ -28,6 +28,13 @@ interface Achievement {
   tier?: string | null;
 }
 
+interface PageInfo {
+  hasNextPage: boolean;
+  endCursor: string | null;
+}
+
+const DEFAULT_PAGE_SIZE = 20;
+
 export default function AdminAchievementsPage() {
   const [selectedSetId, setSelectedSetId] = useState("");
   const [newTitle, setNewTitle] = useState("");
@@ -40,6 +47,13 @@ export default function AdminAchievementsPage() {
   const [csvData, setCsvData] = useState("");
   const [showImport, setShowImport] = useState(false);
 
+  // Pagination state
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cursors, setCursors] = useState<Map<number, string | null>>(
+    new Map([[1, null]])
+  );
+
   const { data: setsData } = useQuery(GET_ACHIEVEMENT_SETS_ADMIN);
 
   const {
@@ -48,7 +62,8 @@ export default function AdminAchievementsPage() {
     refetch,
   } = useQuery(GET_ACHIEVEMENTS_ADMIN, {
     variables: {
-      first: 100,
+      first: pageSize,
+      after: cursors.get(currentPage) || null,
       filter: selectedSetId ? { achievementSetId: selectedSetId } : undefined,
       orderBy: "TITLE_ASC",
     },
@@ -56,7 +71,11 @@ export default function AdminAchievementsPage() {
   });
 
   const [createAchievement, { loading: creating }] = useMutation(CREATE_ACHIEVEMENT, {
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      setCurrentPage(1);
+      setCursors(new Map([[1, null]]));
+    },
   });
   const [updateAchievement] = useMutation(UPDATE_ACHIEVEMENT, {
     onCompleted: () => refetch(),
@@ -65,19 +84,69 @@ export default function AdminAchievementsPage() {
     onCompleted: () => refetch(),
   });
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_ACHIEVEMENTS, {
-    onCompleted: () => { refetch(); setSelectedIds(new Set()); },
+    onCompleted: () => {
+      refetch();
+      setSelectedIds(new Set());
+    },
   });
   const [bulkCreate, { loading: importing }] = useMutation(BULK_CREATE_ACHIEVEMENTS, {
-    onCompleted: () => { refetch(); setCsvData(""); setShowImport(false); },
+    onCompleted: () => {
+      refetch();
+      setCsvData("");
+      setShowImport(false);
+      setCurrentPage(1);
+      setCursors(new Map([[1, null]]));
+    },
   });
 
   const sets = setsData?.achievementSets || [];
-  const achievements = achievementsData?.achievements?.edges?.map((e: { node: Achievement }) => e.node) || [];
+  const achievements =
+    achievementsData?.achievements?.edges?.map(
+      (e: { node: Achievement }) => e.node
+    ) || [];
+  const pageInfo: PageInfo = achievementsData?.achievements?.pageInfo || {
+    hasNextPage: false,
+    endCursor: null,
+  };
+  const totalCount = achievementsData?.achievements?.totalCount || 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page < 1 || page > totalPages) return;
+
+      if (page === currentPage + 1 && pageInfo.endCursor) {
+        setCursors((prev) => new Map(prev).set(page, pageInfo.endCursor));
+      }
+
+      if (page === 1) {
+        setCursors(new Map([[1, null]]));
+      }
+
+      setCurrentPage(page);
+      setSelectedIds(new Set());
+    },
+    [currentPage, pageInfo.endCursor, totalPages]
+  );
+
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+    setCursors(new Map([[1, null]]));
+    setSelectedIds(new Set());
+  }, []);
+
+  const handleSetChange = (setId: string) => {
+    setSelectedSetId(setId);
+    setSelectedIds(new Set());
+    setCurrentPage(1);
+    setCursors(new Map([[1, null]]));
+  };
 
   const handleImport = async () => {
     if (!csvData || !selectedSetId) return;
     const lines = csvData.trim().split("\n");
-    const achievements = lines.map((line) => {
+    const achievementsToCreate = lines.map((line) => {
       const [title, description, points] = line.split(",").map((s) => s.trim());
       return {
         title,
@@ -86,7 +155,7 @@ export default function AdminAchievementsPage() {
         achievementSetId: selectedSetId,
       };
     });
-    await bulkCreate({ variables: { input: { achievements } } });
+    await bulkCreate({ variables: { input: { achievements: achievementsToCreate } } });
   };
 
   return (
@@ -98,7 +167,11 @@ export default function AdminAchievementsPage() {
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           {selectedSetId && (
-            <Button variant="secondary" size="sm" onClick={() => setShowImport(!showImport)}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowImport(!showImport)}
+            >
               <Upload size={14} />
               Import CSV
             </Button>
@@ -126,10 +199,7 @@ export default function AdminAchievementsPage() {
           className={styles.input}
           style={{ maxWidth: 400 }}
           value={selectedSetId}
-          onChange={(e) => {
-            setSelectedSetId(e.target.value);
-            setSelectedIds(new Set());
-          }}
+          onChange={(e) => handleSetChange(e.target.value)}
         >
           <option value="">Select an achievement set...</option>
           {sets.map((s: AchievementSet) => (
@@ -141,8 +211,21 @@ export default function AdminAchievementsPage() {
       </div>
 
       {showImport && selectedSetId && (
-        <div style={{ marginBottom: 20, padding: 16, background: "var(--bg-secondary)", borderRadius: 8 }}>
-          <p style={{ marginBottom: 8, fontSize: 13, color: "var(--text-secondary)" }}>
+        <div
+          style={{
+            marginBottom: 20,
+            padding: 16,
+            background: "var(--bg-secondary)",
+            borderRadius: 8,
+          }}
+        >
+          <p
+            style={{
+              marginBottom: 8,
+              fontSize: 13,
+              color: "var(--text-secondary)",
+            }}
+          >
             Paste CSV data (title,description,points per line):
           </p>
           <textarea
@@ -212,16 +295,23 @@ export default function AdminAchievementsPage() {
                 <div className={styles.selectAllBar}>
                   <input
                     type="checkbox"
-                    checked={selectedIds.size === achievements.length && achievements.length > 0}
+                    checked={
+                      selectedIds.size === achievements.length &&
+                      achievements.length > 0
+                    }
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedIds(new Set(achievements.map((a: Achievement) => a.id)));
+                        setSelectedIds(
+                          new Set(achievements.map((a: Achievement) => a.id))
+                        );
                       } else {
                         setSelectedIds(new Set());
                       }
                     }}
                   />
-                  <span className={styles.selectAllLabel}>Select all ({achievements.length})</span>
+                  <span className={styles.selectAllLabel}>
+                    Select all on this page ({achievements.length})
+                  </span>
                 </div>
               )}
 
@@ -229,7 +319,9 @@ export default function AdminAchievementsPage() {
                 {achievements.map((achievement: Achievement) => (
                   <div
                     key={achievement.id}
-                    className={`${styles.itemCard} ${selectedIds.has(achievement.id) ? styles.selected : ""}`}
+                    className={`${styles.itemCard} ${
+                      selectedIds.has(achievement.id) ? styles.selected : ""
+                    }`}
                   >
                     {editingId === achievement.id ? (
                       <div className={styles.editForm}>
@@ -263,7 +355,10 @@ export default function AdminAchievementsPage() {
                           >
                             <Check size={16} />
                           </button>
-                          <button className={styles.actionBtn} onClick={() => setEditingId(null)}>
+                          <button
+                            className={styles.actionBtn}
+                            onClick={() => setEditingId(null)}
+                          >
                             <X size={16} />
                           </button>
                         </div>
@@ -282,12 +377,18 @@ export default function AdminAchievementsPage() {
                           }}
                         />
                         <div className={styles.itemInfo}>
-                          <span className={styles.itemName}>{achievement.title}</span>
+                          <span className={styles.itemName}>
+                            {achievement.title}
+                          </span>
                           {achievement.description && (
-                            <span className={styles.itemMeta}>{achievement.description}</span>
+                            <span className={styles.itemMeta}>
+                              {achievement.description}
+                            </span>
                           )}
                         </div>
-                        <span className={styles.itemSlug}>{achievement.points || 0} pts</span>
+                        <span className={styles.itemSlug}>
+                          {achievement.points || 0} pts
+                        </span>
                         <div className={styles.itemActions}>
                           <button
                             className={styles.actionBtn}
@@ -304,7 +405,9 @@ export default function AdminAchievementsPage() {
                             className={`${styles.actionBtn} ${styles.danger}`}
                             onClick={async () => {
                               if (confirm(`Delete ${achievement.title}?`)) {
-                                await deleteAchievement({ variables: { id: achievement.id } });
+                                await deleteAchievement({
+                                  variables: { id: achievement.id },
+                                });
                               }
                             }}
                             title="Delete"
@@ -317,16 +420,32 @@ export default function AdminAchievementsPage() {
                   </div>
                 ))}
                 {achievements.length === 0 && (
-                  <p className={styles.itemMeta}>No achievements in this set yet.</p>
+                  <p className={styles.itemMeta}>
+                    No achievements in this set yet.
+                  </p>
                 )}
               </div>
+
+              {totalCount > 0 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  totalCount={totalCount}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  loading={loading}
+                />
+              )}
             </>
           )}
         </>
       )}
 
       {!selectedSetId && (
-        <p className={styles.itemMeta}>Select an achievement set to manage its achievements.</p>
+        <p className={styles.itemMeta}>
+          Select an achievement set to manage its achievements.
+        </p>
       )}
     </div>
   );
