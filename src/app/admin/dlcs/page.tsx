@@ -9,7 +9,7 @@ import {
   DELETE_DLC,
   BULK_DELETE_DLCS,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Check, X, ChevronDown, Puzzle } from "lucide-react";
+import { Trash2, Pencil, Check, X, Puzzle } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
 import styles from "../page.module.css";
 
@@ -93,22 +93,20 @@ export default function AdminDLCsPage() {
       </div>
 
       <div style={{ marginBottom: 20 }}>
-        <div className={styles.selectWrapper} style={{ maxWidth: 400 }}>
-          <select
-            className={styles.input}
-            value={selectedGameId}
-            onChange={(e) => {
-              setSelectedGameId(e.target.value);
-              setSelectedIds(new Set());
-            }}
-          >
-            <option value="">Select a game...</option>
-            {games.map((g: Game) => (
-              <option key={g.id} value={g.id}>{g.title}</option>
-            ))}
-          </select>
-          <ChevronDown size={14} className={styles.selectIcon} />
-        </div>
+        <select
+          className={styles.input}
+          style={{ maxWidth: 400 }}
+          value={selectedGameId}
+          onChange={(e) => {
+            setSelectedGameId(e.target.value);
+            setSelectedIds(new Set());
+          }}
+        >
+          <option value="">Select a game...</option>
+          {games.map((g: Game) => (
+            <option key={g.id} value={g.id}>{g.title}</option>
+          ))}
+        </select>
       </div>
 
       {selectedGameId && (
@@ -144,18 +142,15 @@ export default function AdminDLCsPage() {
               value={newSlug}
               onChange={(e) => setNewSlug(e.target.value)}
             />
-            <div className={styles.selectWrapper}>
-              <select
-                className={styles.input}
-                value={newType}
-                onChange={(e) => setNewType(e.target.value)}
-              >
-                <option value="DLC">DLC</option>
-                <option value="EXPANSION">Expansion</option>
-                <option value="FREE_UPDATE">Free Update</option>
-              </select>
-              <ChevronDown size={14} className={styles.selectIcon} />
-            </div>
+            <select
+              className={styles.input}
+              value={newType}
+              onChange={(e) => setNewType(e.target.value)}
+            >
+              <option value="DLC">DLC</option>
+              <option value="EXPANSION">Expansion</option>
+              <option value="FREE_UPDATE">Free Update</option>
+            </select>
             <Button type="submit" loading={creating}>
               Add DLC
             </Button>

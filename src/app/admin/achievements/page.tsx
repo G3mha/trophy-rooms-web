@@ -10,7 +10,7 @@ import {
   BULK_DELETE_ACHIEVEMENTS,
   BULK_CREATE_ACHIEVEMENTS,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Check, X, ChevronDown, Upload } from "lucide-react";
+import { Trash2, Pencil, Check, X, Upload } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
 import styles from "../page.module.css";
 
@@ -122,24 +122,22 @@ export default function AdminAchievementsPage() {
       </div>
 
       <div style={{ marginBottom: 20 }}>
-        <div className={styles.selectWrapper} style={{ maxWidth: 400 }}>
-          <select
-            className={styles.input}
-            value={selectedSetId}
-            onChange={(e) => {
-              setSelectedSetId(e.target.value);
-              setSelectedIds(new Set());
-            }}
-          >
-            <option value="">Select an achievement set...</option>
-            {sets.map((s: AchievementSet) => (
-              <option key={s.id} value={s.id}>
-                {s.title} ({s.game?.title || "No game"})
-              </option>
-            ))}
-          </select>
-          <ChevronDown size={14} className={styles.selectIcon} />
-        </div>
+        <select
+          className={styles.input}
+          style={{ maxWidth: 400 }}
+          value={selectedSetId}
+          onChange={(e) => {
+            setSelectedSetId(e.target.value);
+            setSelectedIds(new Set());
+          }}
+        >
+          <option value="">Select an achievement set...</option>
+          {sets.map((s: AchievementSet) => (
+            <option key={s.id} value={s.id}>
+              {s.title} ({s.game?.title || "No game"})
+            </option>
+          ))}
+        </select>
       </div>
 
       {showImport && selectedSetId && (

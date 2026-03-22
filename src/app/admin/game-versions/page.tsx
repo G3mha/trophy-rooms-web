@@ -10,7 +10,7 @@ import {
   SET_DEFAULT_VERSION,
   BULK_DELETE_GAME_VERSIONS,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Check, X, ChevronDown, Star } from "lucide-react";
+import { Trash2, Pencil, Check, X, Star } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
 import styles from "../page.module.css";
 
@@ -93,22 +93,20 @@ export default function AdminGameVersionsPage() {
       </div>
 
       <div style={{ marginBottom: 20 }}>
-        <div className={styles.selectWrapper} style={{ maxWidth: 400 }}>
-          <select
-            className={styles.input}
-            value={selectedGameId}
-            onChange={(e) => {
-              setSelectedGameId(e.target.value);
-              setSelectedIds(new Set());
-            }}
-          >
-            <option value="">Select a game...</option>
-            {games.map((g: Game) => (
-              <option key={g.id} value={g.id}>{g.title}</option>
-            ))}
-          </select>
-          <ChevronDown size={14} className={styles.selectIcon} />
-        </div>
+        <select
+          className={styles.input}
+          style={{ maxWidth: 400 }}
+          value={selectedGameId}
+          onChange={(e) => {
+            setSelectedGameId(e.target.value);
+            setSelectedIds(new Set());
+          }}
+        >
+          <option value="">Select a game...</option>
+          {games.map((g: Game) => (
+            <option key={g.id} value={g.id}>{g.title}</option>
+          ))}
+        </select>
       </div>
 
       {selectedGameId && (

@@ -9,7 +9,7 @@ import {
   DELETE_ACHIEVEMENT_SET,
   BULK_DELETE_ACHIEVEMENT_SETS,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Check, X, ChevronDown } from "lucide-react";
+import { Trash2, Pencil, Check, X } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
 import styles from "../page.module.css";
 
@@ -112,31 +112,25 @@ export default function AdminAchievementSetsPage() {
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
         />
-        <div className={styles.selectWrapper}>
-          <select
-            className={styles.input}
-            value={newType}
-            onChange={(e) => setNewType(e.target.value)}
-          >
-            <option value="OFFICIAL">Official</option>
-            <option value="COMPLETIONIST">Completionist</option>
-            <option value="CUSTOM">Custom</option>
-          </select>
-          <ChevronDown size={14} className={styles.selectIcon} />
-        </div>
-        <div className={styles.selectWrapper}>
-          <select
-            className={styles.input}
-            value={newGameId}
-            onChange={(e) => setNewGameId(e.target.value)}
-          >
-            <option value="">Select game</option>
-            {games.map((g: Game) => (
-              <option key={g.id} value={g.id}>{g.title}</option>
-            ))}
-          </select>
-          <ChevronDown size={14} className={styles.selectIcon} />
-        </div>
+        <select
+          className={styles.input}
+          value={newType}
+          onChange={(e) => setNewType(e.target.value)}
+        >
+          <option value="OFFICIAL">Official</option>
+          <option value="COMPLETIONIST">Completionist</option>
+          <option value="CUSTOM">Custom</option>
+        </select>
+        <select
+          className={styles.input}
+          value={newGameId}
+          onChange={(e) => setNewGameId(e.target.value)}
+        >
+          <option value="">Select game</option>
+          {games.map((g: Game) => (
+            <option key={g.id} value={g.id}>{g.title}</option>
+          ))}
+        </select>
         <Button type="submit" loading={creating}>
           Add Set
         </Button>

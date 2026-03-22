@@ -9,7 +9,7 @@ import {
   DELETE_BUNDLE,
   BULK_DELETE_BUNDLES,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Check, X, ChevronDown, Package } from "lucide-react";
+import { Trash2, Pencil, Check, X, Package } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
 import styles from "../page.module.css";
 
@@ -113,19 +113,16 @@ export default function AdminBundlesPage() {
           value={newSlug}
           onChange={(e) => setNewSlug(e.target.value)}
         />
-        <div className={styles.selectWrapper}>
-          <select
-            className={styles.input}
-            value={newType}
-            onChange={(e) => setNewType(e.target.value)}
-          >
-            <option value="BUNDLE">Bundle</option>
-            <option value="SEASON_PASS">Season Pass</option>
-            <option value="COLLECTION">Collection</option>
-            <option value="SUBSCRIPTION">Subscription</option>
-          </select>
-          <ChevronDown size={14} className={styles.selectIcon} />
-        </div>
+        <select
+          className={styles.input}
+          value={newType}
+          onChange={(e) => setNewType(e.target.value)}
+        >
+          <option value="BUNDLE">Bundle</option>
+          <option value="SEASON_PASS">Season Pass</option>
+          <option value="COLLECTION">Collection</option>
+          <option value="SUBSCRIPTION">Subscription</option>
+        </select>
         <Button type="submit" loading={creating}>
           Add Bundle
         </Button>

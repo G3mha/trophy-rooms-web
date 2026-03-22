@@ -395,27 +395,6 @@
   color: var(--text-primary);
 }
 
-/* Select Wrapper for dropdowns */
-.selectWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.selectWrapper select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  padding-right: 36px;
-  cursor: pointer;
-}
-
-.selectIcon {
-  position: absolute;
-  right: 12px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
 
 /* Responsive */
 @media (max-width: 768px) {

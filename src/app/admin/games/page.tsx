@@ -9,7 +9,7 @@ import {
   DELETE_GAME,
   BULK_DELETE_GAMES,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Check, X, ChevronDown } from "lucide-react";
+import { Trash2, Pencil, Check, X } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
 import styles from "../page.module.css";
 
@@ -119,19 +119,16 @@ export default function AdminGamesPage() {
           value={newSlug}
           onChange={(e) => setNewSlug(e.target.value)}
         />
-        <div className={styles.selectWrapper}>
-          <select
-            className={styles.input}
-            value={newPlatformId}
-            onChange={(e) => setNewPlatformId(e.target.value)}
-          >
-            <option value="">Select platform</option>
-            {platforms.map((p: Platform) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-          <ChevronDown size={14} className={styles.selectIcon} />
-        </div>
+        <select
+          className={styles.input}
+          value={newPlatformId}
+          onChange={(e) => setNewPlatformId(e.target.value)}
+        >
+          <option value="">Select platform</option>
+          {platforms.map((p: Platform) => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
         <Button type="submit" loading={creating}>
           Add Game
         </Button>
