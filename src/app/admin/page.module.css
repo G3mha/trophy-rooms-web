@@ -402,6 +402,14 @@
   align-items: center;
 }
 
+.selectWrapper select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
 .selectIcon {
   position: absolute;
   right: 12px;
