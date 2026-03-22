@@ -15,3 +15,4 @@ export { GameStatusSelector } from "./GameStatusSelector";
 export { CollectionItemCard } from "./CollectionItemCard";
 export { AddToCollectionModal } from "./AddToCollectionModal";
 export { BundleCard } from "./BundleCard";
+export { Pagination } from "./Pagination";
