@@ -47,8 +47,9 @@ import {
   DELETE_BUNDLE,
   BULK_DELETE_BUNDLES,
 } from "@/graphql/admin_mutations";
-import { Lock, Trash2, Star, Package, Puzzle } from "lucide-react";
+import { Lock, Trash2, Star, Package, Puzzle, Pencil, Check, X } from "lucide-react";
 import { Button, LoadingSpinner, EmptyState } from "@/components";
+import styles from "./page.module.css";
 
 export default function AdminPage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -518,19 +519,19 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-        <p className="text-sm text-gray-400">
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Admin Dashboard</h1>
+        <p className={styles.subtitle}>
           Manage platforms, games, achievement sets, and achievements.
         </p>
       </header>
 
-      <section className="space-y-6">
-        <div className="flex items-center justify-between">
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
           <div>
-            <h2 className="text-xl font-semibold text-white">Platforms</h2>
-            <p className="text-sm text-gray-400">Create and manage platforms.</p>
+            <h2 className={styles.sectionTitle}>Platforms</h2>
+            <p className={styles.sectionSubtitle}>Create and manage platforms.</p>
           </div>
           {selectedPlatformIds.size > 0 && (
             <Button
@@ -543,8 +544,8 @@ export default function AdminPage() {
                 }
               }}
             >
-              <Trash2 size={16} className="mr-2" />
-              Delete {selectedPlatformIds.size} selected
+              <Trash2 size={14} />
+              Delete {selectedPlatformIds.size}
             </Button>
           )}
         </div>
@@ -564,16 +565,16 @@ export default function AdminPage() {
             setNewPlatformName("");
             setNewPlatformSlug("");
           }}
-          className="grid gap-4 md:grid-cols-3"
+          className={`${styles.formRow} ${styles.formRow2Col}`}
         >
           <input
-            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            className={styles.input}
             placeholder="Platform name"
             value={newPlatformName}
             onChange={(event) => setNewPlatformName(event.target.value)}
           />
           <input
-            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            className={styles.input}
             placeholder="Platform slug"
             value={newPlatformSlug}
             onChange={(event) => setNewPlatformSlug(event.target.value)}
@@ -584,7 +585,7 @@ export default function AdminPage() {
         </form>
 
         {platforms.length > 0 && (
-          <div className="flex items-center gap-3 pb-2 border-b border-[#3D3D3D]">
+          <div className={styles.selectAllBar}>
             <input
               type="checkbox"
               checked={selectedPlatformIds.size === platforms.length && platforms.length > 0}
@@ -595,41 +596,34 @@ export default function AdminPage() {
                   setSelectedPlatformIds(new Set());
                 }
               }}
-              className="w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
             />
-            <span className="text-sm text-gray-400">Select all ({platforms.length})</span>
+            <span className={styles.selectAllLabel}>Select all ({platforms.length})</span>
           </div>
         )}
 
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className={styles.itemsGrid}>
           {platforms.map((platform: any) => (
             <div
               key={platform.id}
-              className={`border rounded-lg p-4 space-y-3 transition-colors ${
-                selectedPlatformIds.has(platform.id)
-                  ? 'border-[#E60012] bg-[#E60012]/5'
-                  : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3D3D3D]'
-              }`}
+              className={`${styles.itemCard} ${selectedPlatformIds.has(platform.id) ? styles.selected : ''}`}
             >
               {editingPlatformId === platform.id ? (
-                <div className="space-y-2">
+                <div className={styles.editForm}>
                   <input
-                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
+                    className={styles.editInput}
                     value={editingPlatformName}
-                    onChange={(event) =>
-                      setEditingPlatformName(event.target.value)
-                    }
+                    onChange={(event) => setEditingPlatformName(event.target.value)}
+                    placeholder="Name"
                   />
                   <input
-                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
+                    className={styles.editInput}
                     value={editingPlatformSlug}
-                    onChange={(event) =>
-                      setEditingPlatformSlug(event.target.value)
-                    }
+                    onChange={(event) => setEditingPlatformSlug(event.target.value)}
+                    placeholder="Slug"
                   />
-                  <div className="flex gap-3">
-                    <Button
-                      size="sm"
+                  <div className={styles.editActions}>
+                    <button
+                      className={styles.actionBtn}
                       onClick={async () => {
                         await updatePlatform({
                           variables: {
@@ -643,62 +637,59 @@ export default function AdminPage() {
                         setEditingPlatformId(null);
                       }}
                     >
-                      Save
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
+                      <Check size={16} />
+                    </button>
+                    <button
+                      className={styles.actionBtn}
                       onClick={() => setEditingPlatformId(null)}
                     >
-                      Cancel
-                    </Button>
+                      <X size={16} />
+                    </button>
                   </div>
                 </div>
               ) : (
                 <>
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedPlatformIds.has(platform.id)}
-                      onChange={(e) => {
-                        const newSet = new Set(selectedPlatformIds);
-                        if (e.target.checked) {
-                          newSet.add(platform.id);
-                        } else {
-                          newSet.delete(platform.id);
-                        }
-                        setSelectedPlatformIds(newSet);
-                      }}
-                      className="mt-1 w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E] accent-[#E60012]"
-                    />
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-white">
-                        {platform.name}
-                      </h3>
-                      <p className="text-xs text-gray-400">{platform.slug}</p>
-                    </div>
+                  <input
+                    type="checkbox"
+                    className={styles.itemCheckbox}
+                    checked={selectedPlatformIds.has(platform.id)}
+                    onChange={(e) => {
+                      const newSet = new Set(selectedPlatformIds);
+                      if (e.target.checked) {
+                        newSet.add(platform.id);
+                      } else {
+                        newSet.delete(platform.id);
+                      }
+                      setSelectedPlatformIds(newSet);
+                    }}
+                  />
+                  <div className={styles.itemInfo}>
+                    <span className={styles.itemName}>{platform.name}</span>
+                    <span className={styles.itemSlug}>{platform.slug}</span>
                   </div>
-                  <div className="flex gap-3">
-                    <Button
-                      size="sm"
-                      variant="secondary"
+                  <div className={styles.itemActions}>
+                    <button
+                      className={styles.actionBtn}
                       onClick={() => {
                         setEditingPlatformId(platform.id);
                         setEditingPlatformName(platform.name);
                         setEditingPlatformSlug(platform.slug);
                       }}
+                      title="Edit"
                     >
-                      Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={async () =>
-                        deletePlatform({ variables: { id: platform.id } })
-                      }
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      className={`${styles.actionBtn} ${styles.danger}`}
+                      onClick={async () => {
+                        if (confirm(`Delete ${platform.name}?`)) {
+                          await deletePlatform({ variables: { id: platform.id } });
+                        }
+                      }}
+                      title="Delete"
                     >
-                      Delete
-                    </Button>
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 </>
               )}
