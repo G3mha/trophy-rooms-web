@@ -11,6 +11,8 @@ import {
   GET_ACHIEVEMENTS_ADMIN,
   GET_USERS_ADMIN,
   GET_GAME_VERSIONS,
+  GET_DLCS,
+  GET_BUNDLES,
 } from "@/graphql/admin_queries";
 import {
   CREATE_PLATFORM,
@@ -36,8 +38,16 @@ import {
   BULK_DELETE_GAMES,
   BULK_DELETE_ACHIEVEMENT_SETS,
   BULK_DELETE_ACHIEVEMENTS,
+  CREATE_DLC,
+  UPDATE_DLC,
+  DELETE_DLC,
+  BULK_DELETE_DLCS,
+  CREATE_BUNDLE,
+  UPDATE_BUNDLE,
+  DELETE_BUNDLE,
+  BULK_DELETE_BUNDLES,
 } from "@/graphql/admin_mutations";
-import { Lock, Trash2, Star } from "lucide-react";
+import { Lock, Trash2, Star, Package, Puzzle } from "lucide-react";
 import { Button, LoadingSpinner, EmptyState } from "@/components";
 
 export default function AdminPage() {
@@ -197,12 +207,65 @@ export default function AdminPage() {
     { onCompleted: () => { refetchVersions(); setSelectedVersionIds(new Set()); } }
   );
 
+  // DLC state and mutations
+  const [selectedDlcGameId, setSelectedDlcGameId] = useState<string>("");
+  const {
+    data: dlcsData,
+    loading: dlcsLoading,
+    refetch: refetchDlcs,
+  } = useQuery(GET_DLCS, {
+    variables: { gameId: selectedDlcGameId },
+    skip: !selectedDlcGameId,
+  });
+
+  const [createDlc, { loading: creatingDlc }] = useMutation(
+    CREATE_DLC,
+    { onCompleted: () => refetchDlcs() }
+  );
+  const [updateDlc] = useMutation(UPDATE_DLC, {
+    onCompleted: () => refetchDlcs(),
+  });
+  const [deleteDlc] = useMutation(DELETE_DLC, {
+    onCompleted: () => refetchDlcs(),
+  });
+  const [bulkDeleteDlcs, { loading: bulkDeletingDlcs }] = useMutation(
+    BULK_DELETE_DLCS,
+    { onCompleted: () => { refetchDlcs(); setSelectedDlcIds(new Set()); } }
+  );
+
+  // Bundle state and mutations
+  const [bundleTypeFilter, setBundleTypeFilter] = useState<string>("");
+  const {
+    data: bundlesData,
+    loading: bundlesLoading,
+    refetch: refetchBundles,
+  } = useQuery(GET_BUNDLES, {
+    variables: bundleTypeFilter ? { type: bundleTypeFilter } : {},
+  });
+
+  const [createBundle, { loading: creatingBundle }] = useMutation(
+    CREATE_BUNDLE,
+    { onCompleted: () => refetchBundles() }
+  );
+  const [updateBundle] = useMutation(UPDATE_BUNDLE, {
+    onCompleted: () => refetchBundles(),
+  });
+  const [deleteBundle] = useMutation(DELETE_BUNDLE, {
+    onCompleted: () => refetchBundles(),
+  });
+  const [bulkDeleteBundles, { loading: bulkDeletingBundles }] = useMutation(
+    BULK_DELETE_BUNDLES,
+    { onCompleted: () => { refetchBundles(); setSelectedBundleIds(new Set()); } }
+  );
+
   // Bulk selection state
   const [selectedVersionIds, setSelectedVersionIds] = useState<Set<string>>(new Set());
   const [selectedPlatformIds, setSelectedPlatformIds] = useState<Set<string>>(new Set());
   const [selectedGameIds, setSelectedGameIds] = useState<Set<string>>(new Set());
   const [selectedSetIds, setSelectedSetIds] = useState<Set<string>>(new Set());
   const [selectedAchievementIds, setSelectedAchievementIds] = useState<Set<string>>(new Set());
+  const [selectedDlcIds, setSelectedDlcIds] = useState<Set<string>>(new Set());
+  const [selectedBundleIds, setSelectedBundleIds] = useState<Set<string>>(new Set());
 
   const [newPlatformName, setNewPlatformName] = useState("");
   const [newPlatformSlug, setNewPlatformSlug] = useState("");
@@ -214,11 +277,15 @@ export default function AdminPage() {
   const [newGameDescription, setNewGameDescription] = useState("");
   const [newGameCoverUrl, setNewGameCoverUrl] = useState("");
   const [newGamePlatformId, setNewGamePlatformId] = useState("");
+  const [newGameType, setNewGameType] = useState("BASE_GAME");
+  const [newGameBaseGameId, setNewGameBaseGameId] = useState("");
   const [editingGameId, setEditingGameId] = useState<string | null>(null);
   const [editingGameTitle, setEditingGameTitle] = useState("");
   const [editingGameDescription, setEditingGameDescription] = useState("");
   const [editingGameCoverUrl, setEditingGameCoverUrl] = useState("");
   const [editingGamePlatformId, setEditingGamePlatformId] = useState("");
+  const [editingGameType, setEditingGameType] = useState("BASE_GAME");
+  const [editingGameBaseGameId, setEditingGameBaseGameId] = useState("");
 
   const [newSetTitle, setNewSetTitle] = useState("");
   const [newSetType, setNewSetType] = useState("OFFICIAL");
@@ -255,13 +322,43 @@ export default function AdminPage() {
   const [newVersionSlug, setNewVersionSlug] = useState("");
   const [newVersionDescription, setNewVersionDescription] = useState("");
   const [newVersionCoverUrl, setNewVersionCoverUrl] = useState("");
-  const [newVersionDlc, setNewVersionDlc] = useState("");
+  const [newVersionDlcIds, setNewVersionDlcIds] = useState<string[]>([]);
   const [editingVersionId, setEditingVersionId] = useState<string | null>(null);
   const [editingVersionName, setEditingVersionName] = useState("");
   const [editingVersionSlug, setEditingVersionSlug] = useState("");
   const [editingVersionDescription, setEditingVersionDescription] = useState("");
   const [editingVersionCoverUrl, setEditingVersionCoverUrl] = useState("");
-  const [editingVersionDlc, setEditingVersionDlc] = useState("");
+  const [editingVersionDlcIds, setEditingVersionDlcIds] = useState<string[]>([]);
+
+  // DLC form state
+  const [newDlcName, setNewDlcName] = useState("");
+  const [newDlcSlug, setNewDlcSlug] = useState("");
+  const [newDlcType, setNewDlcType] = useState("DLC");
+  const [newDlcDescription, setNewDlcDescription] = useState("");
+  const [newDlcCoverUrl, setNewDlcCoverUrl] = useState("");
+  const [newDlcPrice, setNewDlcPrice] = useState("");
+  const [editingDlcId, setEditingDlcId] = useState<string | null>(null);
+  const [editingDlcName, setEditingDlcName] = useState("");
+  const [editingDlcSlug, setEditingDlcSlug] = useState("");
+  const [editingDlcType, setEditingDlcType] = useState("DLC");
+  const [editingDlcDescription, setEditingDlcDescription] = useState("");
+  const [editingDlcCoverUrl, setEditingDlcCoverUrl] = useState("");
+  const [editingDlcPrice, setEditingDlcPrice] = useState("");
+
+  // Bundle form state
+  const [newBundleName, setNewBundleName] = useState("");
+  const [newBundleSlug, setNewBundleSlug] = useState("");
+  const [newBundleType, setNewBundleType] = useState("BUNDLE");
+  const [newBundleDescription, setNewBundleDescription] = useState("");
+  const [newBundleCoverUrl, setNewBundleCoverUrl] = useState("");
+  const [newBundlePrice, setNewBundlePrice] = useState("");
+  const [editingBundleId, setEditingBundleId] = useState<string | null>(null);
+  const [editingBundleName, setEditingBundleName] = useState("");
+  const [editingBundleSlug, setEditingBundleSlug] = useState("");
+  const [editingBundleType, setEditingBundleType] = useState("BUNDLE");
+  const [editingBundleDescription, setEditingBundleDescription] = useState("");
+  const [editingBundleCoverUrl, setEditingBundleCoverUrl] = useState("");
+  const [editingBundlePrice, setEditingBundlePrice] = useState("");
 
   const [csvSetId, setCsvSetId] = useState("");
   const [csvFileName, setCsvFileName] = useState("");
@@ -286,6 +383,15 @@ export default function AdminPage() {
   const users =
     usersData?.users?.edges?.map((edge: any) => edge.node) ?? [];
   const versions = versionsData?.gameVersions ?? [];
+  const dlcs = dlcsData?.dlcs ?? [];
+  const bundles = bundlesData?.bundles ?? [];
+
+  // Fetch DLCs for the selected game in version form
+  const { data: versionGameDlcsData } = useQuery(GET_DLCS, {
+    variables: { gameId: selectedVersionGameId },
+    skip: !selectedVersionGameId,
+  });
+  const versionGameDlcs = versionGameDlcsData?.dlcs ?? [];
 
   const parseCsv = (text: string) => {
     const rows: string[][] = [];
@@ -695,6 +801,8 @@ export default function AdminPage() {
                   description: newGameDescription || null,
                   coverUrl: newGameCoverUrl || null,
                   platformId: newGamePlatformId || null,
+                  type: newGameType,
+                  baseGameId: newGameBaseGameId || null,
                 },
               },
             });
@@ -702,6 +810,8 @@ export default function AdminPage() {
             setNewGameDescription("");
             setNewGameCoverUrl("");
             setNewGamePlatformId("");
+            setNewGameType("BASE_GAME");
+            setNewGameBaseGameId("");
           }}
           className="grid gap-4 md:grid-cols-2"
         >
@@ -723,6 +833,34 @@ export default function AdminPage() {
               </option>
             ))}
           </select>
+          <select
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            value={newGameType}
+            onChange={(event) => {
+              setNewGameType(event.target.value);
+              if (event.target.value === "BASE_GAME") {
+                setNewGameBaseGameId("");
+              }
+            }}
+          >
+            <option value="BASE_GAME">Base Game</option>
+            <option value="FANGAME">Fangame</option>
+            <option value="ROM_HACK">ROM Hack</option>
+          </select>
+          {newGameType !== "BASE_GAME" && (
+            <select
+              className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+              value={newGameBaseGameId}
+              onChange={(event) => setNewGameBaseGameId(event.target.value)}
+            >
+              <option value="">No base game (optional)</option>
+              {games.filter((g: any) => g.type === "BASE_GAME" || !g.type).map((game: any) => (
+                <option key={game.id} value={game.id}>
+                  {game.title}
+                </option>
+              ))}
+            </select>
+          )}
           <input
             className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm md:col-span-2"
             placeholder="Description"
@@ -804,6 +942,34 @@ export default function AdminPage() {
                       </option>
                     ))}
                   </select>
+                  <select
+                    className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white focus:border-[#E60012] focus:outline-none"
+                    value={editingGameType}
+                    onChange={(event) => {
+                      setEditingGameType(event.target.value);
+                      if (event.target.value === "BASE_GAME") {
+                        setEditingGameBaseGameId("");
+                      }
+                    }}
+                  >
+                    <option value="BASE_GAME">Base Game</option>
+                    <option value="FANGAME">Fangame</option>
+                    <option value="ROM_HACK">ROM Hack</option>
+                  </select>
+                  {editingGameType !== "BASE_GAME" && (
+                    <select
+                      className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white focus:border-[#E60012] focus:outline-none"
+                      value={editingGameBaseGameId}
+                      onChange={(event) => setEditingGameBaseGameId(event.target.value)}
+                    >
+                      <option value="">No base game (optional)</option>
+                      {games.filter((g: any) => g.id !== game.id && (g.type === "BASE_GAME" || !g.type)).map((g: any) => (
+                        <option key={g.id} value={g.id}>
+                          {g.title}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                   <div className="flex gap-3">
                     <Button
                       size="sm"
@@ -816,6 +982,8 @@ export default function AdminPage() {
                               description: editingGameDescription || null,
                               coverUrl: editingGameCoverUrl || null,
                               platformId: editingGamePlatformId || null,
+                              type: editingGameType,
+                              baseGameId: editingGameBaseGameId || null,
                             },
                           },
                         });
@@ -851,11 +1019,24 @@ export default function AdminPage() {
                       className="mt-1 w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
                     />
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-white">
-                        {game.title}
-                      </h3>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-white">
+                          {game.title}
+                        </h3>
+                        {game.type === "FANGAME" && (
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-purple-900/50 text-purple-300">
+                            Fangame
+                          </span>
+                        )}
+                        {game.type === "ROM_HACK" && (
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-orange-900/50 text-orange-300">
+                            ROM Hack
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-400">
                         {game.platform?.name || "No platform"}
+                        {game.baseGame && ` · Based on ${game.baseGame.title}`}
                       </p>
                     </div>
                   </div>
@@ -869,6 +1050,8 @@ export default function AdminPage() {
                         setEditingGameDescription(game.description || "");
                         setEditingGameCoverUrl(game.coverUrl || "");
                         setEditingGamePlatformId(game.platform?.id || "");
+                        setEditingGameType(game.type || "BASE_GAME");
+                        setEditingGameBaseGameId(game.baseGameId || "");
                       }}
                     >
                       Edit
@@ -947,7 +1130,7 @@ export default function AdminPage() {
                       slug: newVersionSlug,
                       description: newVersionDescription || null,
                       coverUrl: newVersionCoverUrl || null,
-                      includedDlc: newVersionDlc ? newVersionDlc.split(",").map(d => d.trim()) : [],
+                      dlcIds: newVersionDlcIds.length > 0 ? newVersionDlcIds : undefined,
                     },
                   },
                 });
@@ -955,7 +1138,7 @@ export default function AdminPage() {
                 setNewVersionSlug("");
                 setNewVersionDescription("");
                 setNewVersionCoverUrl("");
-                setNewVersionDlc("");
+                setNewVersionDlcIds([]);
               }}
               className="grid gap-4 md:grid-cols-2"
             >
@@ -983,12 +1166,44 @@ export default function AdminPage() {
                 value={newVersionCoverUrl}
                 onChange={(event) => setNewVersionCoverUrl(event.target.value)}
               />
-              <input
-                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
-                placeholder="Included DLC (comma separated)"
-                value={newVersionDlc}
-                onChange={(event) => setNewVersionDlc(event.target.value)}
-              />
+              {versionGameDlcs.length > 0 && (
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-sm text-gray-400">Included DLCs</label>
+                  <div className="flex flex-wrap gap-2">
+                    {versionGameDlcs.map((dlc: any) => (
+                      <label
+                        key={dlc.id}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors ${
+                          newVersionDlcIds.includes(dlc.id)
+                            ? 'border-[#E60012] bg-[#E60012]/10'
+                            : 'border-[#3D3D3D] bg-[#0E0E0E] hover:border-[#4D4D4D]'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={newVersionDlcIds.includes(dlc.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setNewVersionDlcIds([...newVersionDlcIds, dlc.id]);
+                            } else {
+                              setNewVersionDlcIds(newVersionDlcIds.filter(id => id !== dlc.id));
+                            }
+                          }}
+                          className="hidden"
+                        />
+                        <span className="text-sm text-white">{dlc.name}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${
+                          dlc.type === 'EXPANSION' ? 'bg-purple-500/20 text-purple-400' :
+                          dlc.type === 'FREE_UPDATE' ? 'bg-green-500/20 text-green-400' :
+                          'bg-blue-500/20 text-blue-400'
+                        }`}>
+                          {dlc.type.replace('_', ' ')}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
               <Button type="submit" loading={creatingVersion}>
                 Add Version
               </Button>
@@ -1051,12 +1266,37 @@ export default function AdminPage() {
                           value={editingVersionCoverUrl}
                           onChange={(event) => setEditingVersionCoverUrl(event.target.value)}
                         />
-                        <input
-                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white placeholder-gray-500 focus:border-[#E60012] focus:outline-none"
-                          placeholder="Included DLC (comma separated)"
-                          value={editingVersionDlc}
-                          onChange={(event) => setEditingVersionDlc(event.target.value)}
-                        />
+                        {versionGameDlcs.length > 0 && (
+                          <div className="space-y-2">
+                            <label className="text-sm text-gray-400">Included DLCs</label>
+                            <div className="flex flex-wrap gap-2">
+                              {versionGameDlcs.map((dlc: any) => (
+                                <label
+                                  key={dlc.id}
+                                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border cursor-pointer transition-colors ${
+                                    editingVersionDlcIds.includes(dlc.id)
+                                      ? 'border-[#E60012] bg-[#E60012]/10'
+                                      : 'border-[#3D3D3D] bg-[#0E0E0E] hover:border-[#4D4D4D]'
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={editingVersionDlcIds.includes(dlc.id)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setEditingVersionDlcIds([...editingVersionDlcIds, dlc.id]);
+                                      } else {
+                                        setEditingVersionDlcIds(editingVersionDlcIds.filter(id => id !== dlc.id));
+                                      }
+                                    }}
+                                    className="hidden"
+                                  />
+                                  <span className="text-sm text-white">{dlc.name}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div className="flex gap-3">
                           <Button
                             size="sm"
@@ -1069,7 +1309,7 @@ export default function AdminPage() {
                                     slug: editingVersionSlug,
                                     description: editingVersionDescription || null,
                                     coverUrl: editingVersionCoverUrl || null,
-                                    includedDlc: editingVersionDlc ? editingVersionDlc.split(",").map(d => d.trim()) : [],
+                                    dlcIds: editingVersionDlcIds,
                                   },
                                 },
                               });
@@ -1119,9 +1359,9 @@ export default function AdminPage() {
                             {version.description && (
                               <p className="text-xs text-gray-500 mt-1">{version.description}</p>
                             )}
-                            {version.includedDlc?.length > 0 && (
+                            {version.dlcs?.length > 0 && (
                               <p className="text-xs text-gray-500 mt-1">
-                                DLC: {version.includedDlc.join(", ")}
+                                DLC: {version.dlcs.map((d: any) => d.name).join(", ")}
                               </p>
                             )}
                           </div>
@@ -1136,7 +1376,7 @@ export default function AdminPage() {
                               setEditingVersionSlug(version.slug);
                               setEditingVersionDescription(version.description || "");
                               setEditingVersionCoverUrl(version.coverUrl || "");
-                              setEditingVersionDlc(version.includedDlc?.join(", ") || "");
+                              setEditingVersionDlcIds(version.dlcs?.map((d: any) => d.id) || []);
                             }}
                           >
                             Edit
@@ -1763,6 +2003,573 @@ export default function AdminPage() {
             )}
             </div>
           </>
+        )}
+      </section>
+
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <Puzzle size={24} />
+              DLCs &amp; Expansions
+            </h2>
+            <p className="text-sm text-gray-400">
+              Create and manage downloadable content for games.
+            </p>
+          </div>
+          {selectedDlcIds.size > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkDeletingDlcs}
+              onClick={async () => {
+                if (confirm(`Delete ${selectedDlcIds.size} DLC(s)?`)) {
+                  await bulkDeleteDlcs({ variables: { ids: Array.from(selectedDlcIds) } });
+                }
+              }}
+            >
+              <Trash2 size={16} className="mr-2" />
+              Delete {selectedDlcIds.size} selected
+            </Button>
+          )}
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <select
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            value={selectedDlcGameId}
+            onChange={(event) => {
+              setSelectedDlcGameId(event.target.value);
+              setSelectedDlcIds(new Set());
+            }}
+          >
+            <option value="">Select a game to manage DLCs</option>
+            {games.map((game: any) => (
+              <option key={game.id} value={game.id}>
+                {game.title} {game.platform ? `(${game.platform.name})` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {selectedDlcGameId && (
+          <>
+            <form
+              onSubmit={async (event) => {
+                event.preventDefault();
+                if (!newDlcName || !newDlcSlug) return;
+                await createDlc({
+                  variables: {
+                    input: {
+                      gameId: selectedDlcGameId,
+                      name: newDlcName,
+                      slug: newDlcSlug,
+                      type: newDlcType,
+                      description: newDlcDescription || null,
+                      coverUrl: newDlcCoverUrl || null,
+                      price: newDlcPrice ? parseFloat(newDlcPrice) : null,
+                    },
+                  },
+                });
+                setNewDlcName("");
+                setNewDlcSlug("");
+                setNewDlcType("DLC");
+                setNewDlcDescription("");
+                setNewDlcCoverUrl("");
+                setNewDlcPrice("");
+              }}
+              className="grid gap-4 md:grid-cols-2"
+            >
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+                placeholder="DLC name (e.g., Shadow of the Erdtree)"
+                value={newDlcName}
+                onChange={(event) => setNewDlcName(event.target.value)}
+              />
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+                placeholder="Slug (e.g., shadow-of-the-erdtree)"
+                value={newDlcSlug}
+                onChange={(event) => setNewDlcSlug(event.target.value)}
+              />
+              <select
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+                value={newDlcType}
+                onChange={(event) => setNewDlcType(event.target.value)}
+              >
+                <option value="DLC">DLC</option>
+                <option value="EXPANSION">Expansion</option>
+                <option value="FREE_UPDATE">Free Update</option>
+              </select>
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+                placeholder="Price (optional)"
+                value={newDlcPrice}
+                onChange={(event) => setNewDlcPrice(event.target.value)}
+                type="number"
+                step="0.01"
+                min="0"
+              />
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm md:col-span-2"
+                placeholder="Description (optional)"
+                value={newDlcDescription}
+                onChange={(event) => setNewDlcDescription(event.target.value)}
+              />
+              <input
+                className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm md:col-span-2"
+                placeholder="Cover URL (optional)"
+                value={newDlcCoverUrl}
+                onChange={(event) => setNewDlcCoverUrl(event.target.value)}
+              />
+              <Button type="submit" loading={creatingDlc}>
+                Add DLC
+              </Button>
+            </form>
+
+            {dlcsLoading && <p className="text-sm text-gray-400">Loading DLCs...</p>}
+
+            {!dlcsLoading && dlcs.length > 0 && (
+              <div className="flex items-center gap-3 pb-2 border-b border-[#3D3D3D]">
+                <input
+                  type="checkbox"
+                  checked={selectedDlcIds.size === dlcs.length && dlcs.length > 0}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedDlcIds(new Set(dlcs.map((d: any) => d.id)));
+                    } else {
+                      setSelectedDlcIds(new Set());
+                    }
+                  }}
+                  className="w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+                />
+                <span className="text-sm text-gray-400">Select all ({dlcs.length})</span>
+              </div>
+            )}
+
+            {!dlcsLoading && (
+              <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                {dlcs.map((dlc: any) => (
+                  <div
+                    key={dlc.id}
+                    className={`border rounded-lg p-4 space-y-3 transition-colors ${
+                      selectedDlcIds.has(dlc.id)
+                        ? 'border-[#E60012] bg-[#E60012]/5'
+                        : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3D3D3D]'
+                    }`}
+                  >
+                    {editingDlcId === dlc.id ? (
+                      <div className="space-y-2">
+                        <input
+                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white"
+                          value={editingDlcName}
+                          onChange={(event) => setEditingDlcName(event.target.value)}
+                        />
+                        <input
+                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white"
+                          value={editingDlcSlug}
+                          onChange={(event) => setEditingDlcSlug(event.target.value)}
+                        />
+                        <select
+                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white"
+                          value={editingDlcType}
+                          onChange={(event) => setEditingDlcType(event.target.value)}
+                        >
+                          <option value="DLC">DLC</option>
+                          <option value="EXPANSION">Expansion</option>
+                          <option value="FREE_UPDATE">Free Update</option>
+                        </select>
+                        <input
+                          className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white"
+                          placeholder="Price"
+                          value={editingDlcPrice}
+                          onChange={(event) => setEditingDlcPrice(event.target.value)}
+                          type="number"
+                          step="0.01"
+                        />
+                        <div className="flex gap-3">
+                          <Button
+                            size="sm"
+                            onClick={async () => {
+                              await updateDlc({
+                                variables: {
+                                  id: dlc.id,
+                                  input: {
+                                    name: editingDlcName,
+                                    slug: editingDlcSlug,
+                                    type: editingDlcType,
+                                    price: editingDlcPrice ? parseFloat(editingDlcPrice) : null,
+                                  },
+                                },
+                              });
+                              setEditingDlcId(null);
+                            }}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => setEditingDlcId(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedDlcIds.has(dlc.id)}
+                            onChange={(e) => {
+                              const newSet = new Set(selectedDlcIds);
+                              if (e.target.checked) {
+                                newSet.add(dlc.id);
+                              } else {
+                                newSet.delete(dlc.id);
+                              }
+                              setSelectedDlcIds(newSet);
+                            }}
+                            className="mt-1 w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+                          />
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-white">
+                              {dlc.name}
+                            </h3>
+                            <p className="text-xs text-gray-400">{dlc.slug}</p>
+                            <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded ${
+                              dlc.type === 'EXPANSION' ? 'bg-purple-500/20 text-purple-400' :
+                              dlc.type === 'FREE_UPDATE' ? 'bg-green-500/20 text-green-400' :
+                              'bg-blue-500/20 text-blue-400'
+                            }`}>
+                              {dlc.type.replace('_', ' ')}
+                            </span>
+                            {dlc.price && (
+                              <p className="text-xs text-gray-500 mt-1">${dlc.price.toFixed(2)}</p>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            onClick={() => {
+                              setEditingDlcId(dlc.id);
+                              setEditingDlcName(dlc.name);
+                              setEditingDlcSlug(dlc.slug);
+                              setEditingDlcType(dlc.type);
+                              setEditingDlcPrice(dlc.price?.toString() || "");
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={async () => {
+                              if (confirm("Delete this DLC?")) {
+                                await deleteDlc({ variables: { id: dlc.id } });
+                              }
+                            }}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+                {dlcs.length === 0 && (
+                  <p className="text-sm text-gray-400 col-span-full">
+                    No DLCs for this game yet.
+                  </p>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </section>
+
+      <section className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <Package size={24} />
+              Bundles
+            </h2>
+            <p className="text-sm text-gray-400">
+              Create and manage game bundles, season passes, and collections.
+            </p>
+          </div>
+          {selectedBundleIds.size > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              loading={bulkDeletingBundles}
+              onClick={async () => {
+                if (confirm(`Delete ${selectedBundleIds.size} bundle(s)?`)) {
+                  await bulkDeleteBundles({ variables: { ids: Array.from(selectedBundleIds) } });
+                }
+              }}
+            >
+              <Trash2 size={16} className="mr-2" />
+              Delete {selectedBundleIds.size} selected
+            </Button>
+          )}
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <select
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            value={bundleTypeFilter}
+            onChange={(event) => setBundleTypeFilter(event.target.value)}
+          >
+            <option value="">All bundle types</option>
+            <option value="BUNDLE">Bundle</option>
+            <option value="SEASON_PASS">Season Pass</option>
+            <option value="COLLECTION">Collection</option>
+            <option value="SUBSCRIPTION">Subscription</option>
+          </select>
+        </div>
+
+        <form
+          onSubmit={async (event) => {
+            event.preventDefault();
+            if (!newBundleName || !newBundleSlug) return;
+            await createBundle({
+              variables: {
+                input: {
+                  name: newBundleName,
+                  slug: newBundleSlug,
+                  type: newBundleType,
+                  description: newBundleDescription || null,
+                  coverUrl: newBundleCoverUrl || null,
+                  price: newBundlePrice ? parseFloat(newBundlePrice) : null,
+                },
+              },
+            });
+            setNewBundleName("");
+            setNewBundleSlug("");
+            setNewBundleType("BUNDLE");
+            setNewBundleDescription("");
+            setNewBundleCoverUrl("");
+            setNewBundlePrice("");
+          }}
+          className="grid gap-4 md:grid-cols-2"
+        >
+          <input
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            placeholder="Bundle name"
+            value={newBundleName}
+            onChange={(event) => setNewBundleName(event.target.value)}
+          />
+          <input
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            placeholder="Slug"
+            value={newBundleSlug}
+            onChange={(event) => setNewBundleSlug(event.target.value)}
+          />
+          <select
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            value={newBundleType}
+            onChange={(event) => setNewBundleType(event.target.value)}
+          >
+            <option value="BUNDLE">Bundle</option>
+            <option value="SEASON_PASS">Season Pass</option>
+            <option value="COLLECTION">Collection</option>
+            <option value="SUBSCRIPTION">Subscription</option>
+          </select>
+          <input
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm"
+            placeholder="Price (optional)"
+            value={newBundlePrice}
+            onChange={(event) => setNewBundlePrice(event.target.value)}
+            type="number"
+            step="0.01"
+            min="0"
+          />
+          <input
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm md:col-span-2"
+            placeholder="Description (optional)"
+            value={newBundleDescription}
+            onChange={(event) => setNewBundleDescription(event.target.value)}
+          />
+          <input
+            className="rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm md:col-span-2"
+            placeholder="Cover URL (optional)"
+            value={newBundleCoverUrl}
+            onChange={(event) => setNewBundleCoverUrl(event.target.value)}
+          />
+          <Button type="submit" loading={creatingBundle}>
+            Add Bundle
+          </Button>
+        </form>
+
+        {bundlesLoading && <p className="text-sm text-gray-400">Loading bundles...</p>}
+
+        {!bundlesLoading && bundles.length > 0 && (
+          <div className="flex items-center gap-3 pb-2 border-b border-[#3D3D3D]">
+            <input
+              type="checkbox"
+              checked={selectedBundleIds.size === bundles.length && bundles.length > 0}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setSelectedBundleIds(new Set(bundles.map((b: any) => b.id)));
+                } else {
+                  setSelectedBundleIds(new Set());
+                }
+              }}
+              className="w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+            />
+            <span className="text-sm text-gray-400">Select all ({bundles.length})</span>
+          </div>
+        )}
+
+        {!bundlesLoading && (
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {bundles.map((bundle: any) => (
+              <div
+                key={bundle.id}
+                className={`border rounded-lg p-4 space-y-3 transition-colors ${
+                  selectedBundleIds.has(bundle.id)
+                    ? 'border-[#E60012] bg-[#E60012]/5'
+                    : 'border-[#2A2A2A] bg-[#1A1A1A] hover:border-[#3D3D3D]'
+                }`}
+              >
+                {editingBundleId === bundle.id ? (
+                  <div className="space-y-2">
+                    <input
+                      className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white"
+                      value={editingBundleName}
+                      onChange={(event) => setEditingBundleName(event.target.value)}
+                    />
+                    <input
+                      className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white"
+                      value={editingBundleSlug}
+                      onChange={(event) => setEditingBundleSlug(event.target.value)}
+                    />
+                    <select
+                      className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white"
+                      value={editingBundleType}
+                      onChange={(event) => setEditingBundleType(event.target.value)}
+                    >
+                      <option value="BUNDLE">Bundle</option>
+                      <option value="SEASON_PASS">Season Pass</option>
+                      <option value="COLLECTION">Collection</option>
+                      <option value="SUBSCRIPTION">Subscription</option>
+                    </select>
+                    <input
+                      className="w-full rounded-lg bg-[#0E0E0E] border border-[#3D3D3D] px-3 py-2 text-sm text-white"
+                      placeholder="Price"
+                      value={editingBundlePrice}
+                      onChange={(event) => setEditingBundlePrice(event.target.value)}
+                      type="number"
+                      step="0.01"
+                    />
+                    <div className="flex gap-3">
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          await updateBundle({
+                            variables: {
+                              id: bundle.id,
+                              input: {
+                                name: editingBundleName,
+                                slug: editingBundleSlug,
+                                type: editingBundleType,
+                                price: editingBundlePrice ? parseFloat(editingBundlePrice) : null,
+                              },
+                            },
+                          });
+                          setEditingBundleId(null);
+                        }}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => setEditingBundleId(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedBundleIds.has(bundle.id)}
+                        onChange={(e) => {
+                          const newSet = new Set(selectedBundleIds);
+                          if (e.target.checked) {
+                            newSet.add(bundle.id);
+                          } else {
+                            newSet.delete(bundle.id);
+                          }
+                          setSelectedBundleIds(newSet);
+                        }}
+                        className="mt-1 w-4 h-4 rounded border-[#3D3D3D] bg-[#0E0E0E]"
+                      />
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-white">
+                          {bundle.name}
+                        </h3>
+                        <p className="text-xs text-gray-400">{bundle.slug}</p>
+                        <span className={`inline-block mt-1 px-2 py-0.5 text-xs rounded ${
+                          bundle.type === 'SEASON_PASS' ? 'bg-purple-500/20 text-purple-400' :
+                          bundle.type === 'COLLECTION' ? 'bg-yellow-500/20 text-yellow-400' :
+                          bundle.type === 'SUBSCRIPTION' ? 'bg-green-500/20 text-green-400' :
+                          'bg-blue-500/20 text-blue-400'
+                        }`}>
+                          {bundle.type.replace('_', ' ')}
+                        </span>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {bundle.gameCount} game(s), {bundle.dlcCount} DLC(s)
+                        </p>
+                        {bundle.price && (
+                          <p className="text-xs text-gray-500">${bundle.price.toFixed(2)}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          setEditingBundleId(bundle.id);
+                          setEditingBundleName(bundle.name);
+                          setEditingBundleSlug(bundle.slug);
+                          setEditingBundleType(bundle.type);
+                          setEditingBundlePrice(bundle.price?.toString() || "");
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={async () => {
+                          if (confirm("Delete this bundle?")) {
+                            await deleteBundle({ variables: { id: bundle.id } });
+                          }
+                        }}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+            {bundles.length === 0 && (
+              <p className="text-sm text-gray-400 col-span-full">
+                No bundles found.
+              </p>
+            )}
+          </div>
         )}
       </section>
     </div>

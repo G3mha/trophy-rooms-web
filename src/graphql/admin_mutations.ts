@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { PLATFORM_FRAGMENT, GAME_VERSION_FRAGMENT } from "./admin_queries";
+import { PLATFORM_FRAGMENT, GAME_VERSION_FRAGMENT, DLC_FRAGMENT, BUNDLE_FRAGMENT } from "./admin_queries";
 import {
   GAME_FRAGMENT,
   ACHIEVEMENT_SET_FRAGMENT,
@@ -364,6 +364,234 @@ export const BULK_DELETE_GAME_VERSIONS = gql`
     bulkDeleteGameVersions(ids: $ids) {
       success
       deletedCount
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+// DLC mutations
+export const CREATE_DLC = gql`
+  mutation CreateDLC($input: CreateDLCInput!) {
+    createDLC(input: $input) {
+      success
+      dlc {
+        ...DLCFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${DLC_FRAGMENT}
+`;
+
+export const UPDATE_DLC = gql`
+  mutation UpdateDLC($id: ID!, $input: UpdateDLCInput!) {
+    updateDLC(id: $id, input: $input) {
+      success
+      dlc {
+        ...DLCFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${DLC_FRAGMENT}
+`;
+
+export const DELETE_DLC = gql`
+  mutation DeleteDLC($id: ID!) {
+    deleteDLC(id: $id) {
+      success
+      deletedId
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const BULK_DELETE_DLCS = gql`
+  mutation BulkDeleteDLCs($ids: [ID!]!) {
+    bulkDeleteDLCs(ids: $ids) {
+      success
+      deletedCount
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const ADD_DLC_TO_VERSION = gql`
+  mutation AddDLCToVersion($dlcId: ID!, $versionId: ID!) {
+    addDLCToVersion(dlcId: $dlcId, versionId: $versionId) {
+      success
+      dlc {
+        id
+        name
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const REMOVE_DLC_FROM_VERSION = gql`
+  mutation RemoveDLCFromVersion($dlcId: ID!, $versionId: ID!) {
+    removeDLCFromVersion(dlcId: $dlcId, versionId: $versionId) {
+      success
+      dlc {
+        id
+        name
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+// Bundle mutations
+export const CREATE_BUNDLE = gql`
+  mutation CreateBundle($input: CreateBundleInput!) {
+    createBundle(input: $input) {
+      success
+      bundle {
+        ...BundleFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${BUNDLE_FRAGMENT}
+`;
+
+export const UPDATE_BUNDLE = gql`
+  mutation UpdateBundle($id: ID!, $input: UpdateBundleInput!) {
+    updateBundle(id: $id, input: $input) {
+      success
+      bundle {
+        ...BundleFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${BUNDLE_FRAGMENT}
+`;
+
+export const DELETE_BUNDLE = gql`
+  mutation DeleteBundle($id: ID!) {
+    deleteBundle(id: $id) {
+      success
+      deletedId
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const BULK_DELETE_BUNDLES = gql`
+  mutation BulkDeleteBundles($ids: [ID!]!) {
+    bulkDeleteBundles(ids: $ids) {
+      success
+      deletedCount
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const ADD_GAME_TO_BUNDLE = gql`
+  mutation AddGameToBundle($gameId: ID!, $bundleId: ID!) {
+    addGameToBundle(gameId: $gameId, bundleId: $bundleId) {
+      success
+      bundle {
+        id
+        name
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const REMOVE_GAME_FROM_BUNDLE = gql`
+  mutation RemoveGameFromBundle($gameId: ID!, $bundleId: ID!) {
+    removeGameFromBundle(gameId: $gameId, bundleId: $bundleId) {
+      success
+      bundle {
+        id
+        name
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const ADD_DLC_TO_BUNDLE = gql`
+  mutation AddDLCToBundle($dlcId: ID!, $bundleId: ID!) {
+    addDLCToBundle(dlcId: $dlcId, bundleId: $bundleId) {
+      success
+      bundle {
+        id
+        name
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const REMOVE_DLC_FROM_BUNDLE = gql`
+  mutation RemoveDLCFromBundle($dlcId: ID!, $bundleId: ID!) {
+    removeDLCFromBundle(dlcId: $dlcId, bundleId: $bundleId) {
+      success
+      bundle {
+        id
+        name
+      }
       error {
         code
         message

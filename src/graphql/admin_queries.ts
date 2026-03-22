@@ -28,14 +28,73 @@ export const GAME_VERSION_FRAGMENT = gql`
     coverUrl
     effectiveCoverUrl
     releaseDate
-    includedDlc
     isDefault
     gameId
     game {
       id
       title
     }
+    dlcs {
+      id
+      name
+      slug
+      type
+    }
+    dlcCount
     achievementSetCount
+    createdAt
+    updatedAt
+  }
+`;
+
+// DLC fragments
+export const DLC_FRAGMENT = gql`
+  fragment DLCFields on DLC {
+    id
+    name
+    slug
+    type
+    description
+    coverUrl
+    effectiveCoverUrl
+    releaseDate
+    price
+    gameId
+    game {
+      id
+      title
+    }
+    achievementSetCount
+    createdAt
+    updatedAt
+  }
+`;
+
+// Bundle fragments
+export const BUNDLE_FRAGMENT = gql`
+  fragment BundleFields on Bundle {
+    id
+    name
+    slug
+    type
+    description
+    coverUrl
+    releaseDate
+    price
+    gameCount
+    dlcCount
+    games {
+      id
+      title
+    }
+    dlcs {
+      id
+      name
+      game {
+        id
+        title
+      }
+    }
     createdAt
     updatedAt
   }
@@ -134,4 +193,42 @@ export const GET_GAME_VERSION = gql`
     }
   }
   ${GAME_VERSION_FRAGMENT}
+`;
+
+// DLC queries
+export const GET_DLCS = gql`
+  query GetDLCs($gameId: ID!) {
+    dlcs(gameId: $gameId) {
+      ...DLCFields
+    }
+  }
+  ${DLC_FRAGMENT}
+`;
+
+export const GET_DLC = gql`
+  query GetDLC($id: ID!) {
+    dlc(id: $id) {
+      ...DLCFields
+    }
+  }
+  ${DLC_FRAGMENT}
+`;
+
+// Bundle queries
+export const GET_BUNDLES = gql`
+  query GetBundles($type: BundleType) {
+    bundles(type: $type) {
+      ...BundleFields
+    }
+  }
+  ${BUNDLE_FRAGMENT}
+`;
+
+export const GET_BUNDLE = gql`
+  query GetBundle($id: ID!) {
+    bundle(id: $id) {
+      ...BundleFields
+    }
+  }
+  ${BUNDLE_FRAGMENT}
 `;
