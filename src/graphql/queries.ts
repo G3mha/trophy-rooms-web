@@ -13,6 +13,13 @@ export const GAME_FRAGMENT = gql`
     genre
     esrbRating
     screenshots
+    type
+    baseGameId
+    baseGame {
+      id
+      title
+      coverUrl
+    }
     platform {
       id
       name
