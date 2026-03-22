@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
@@ -10,7 +10,7 @@ import {
   BULK_DELETE_GAMES,
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Check, X } from "lucide-react";
-import { Button, LoadingSpinner } from "@/components";
+import { Button, LoadingSpinner, Pagination } from "@/components";
 import styles from "../page.module.css";
 
 interface Platform {
@@ -27,6 +27,13 @@ interface Game {
   achievementCount: number;
 }
 
+interface PageInfo {
+  hasNextPage: boolean;
+  endCursor: string | null;
+}
+
+const DEFAULT_PAGE_SIZE = 20;
+
 export default function AdminGamesPage() {
   const [newTitle, setNewTitle] = useState("");
   const [newSlug, setNewSlug] = useState("");
@@ -36,17 +43,33 @@ export default function AdminGamesPage() {
   const [editingSlug, setEditingSlug] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  // Pagination state
+  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [cursors, setCursors] = useState<Map<number, string | null>>(
+    new Map([[1, null]])
+  );
+
   const { data: platformsData } = useQuery(GET_PLATFORMS);
   const {
     data: gamesData,
     loading,
     refetch,
   } = useQuery(GET_GAMES_ADMIN, {
-    variables: { first: 100, orderBy: "TITLE_ASC" },
+    variables: {
+      first: pageSize,
+      after: cursors.get(currentPage) || null,
+      orderBy: "TITLE_ASC",
+    },
   });
 
   const [createGame, { loading: creating }] = useMutation(CREATE_GAME, {
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      // Reset to first page after creating
+      setCurrentPage(1);
+      setCursors(new Map([[1, null]]));
+    },
   });
   const [updateGame] = useMutation(UPDATE_GAME, {
     onCompleted: () => refetch(),
@@ -55,11 +78,48 @@ export default function AdminGamesPage() {
     onCompleted: () => refetch(),
   });
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_GAMES, {
-    onCompleted: () => { refetch(); setSelectedIds(new Set()); },
+    onCompleted: () => {
+      refetch();
+      setSelectedIds(new Set());
+    },
   });
 
   const platforms = platformsData?.platforms || [];
-  const games = gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [];
+  const games =
+    gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [];
+  const pageInfo: PageInfo = gamesData?.games?.pageInfo || {
+    hasNextPage: false,
+    endCursor: null,
+  };
+  const totalCount = gamesData?.games?.totalCount || 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      if (page < 1 || page > totalPages) return;
+
+      // If going to next page and we have the cursor, store it
+      if (page === currentPage + 1 && pageInfo.endCursor) {
+        setCursors((prev) => new Map(prev).set(page, pageInfo.endCursor));
+      }
+
+      // If going to first page, reset cursors
+      if (page === 1) {
+        setCursors(new Map([[1, null]]));
+      }
+
+      setCurrentPage(page);
+      setSelectedIds(new Set()); // Clear selection on page change
+    },
+    [currentPage, pageInfo.endCursor, totalPages]
+  );
+
+  const handlePageSizeChange = useCallback((size: number) => {
+    setPageSize(size);
+    setCurrentPage(1);
+    setCursors(new Map([[1, null]]));
+    setSelectedIds(new Set());
+  }, []);
 
   if (loading && games.length === 0) {
     return <LoadingSpinner text="Loading games..." />;
@@ -126,7 +186,9 @@ export default function AdminGamesPage() {
         >
           <option value="">Select platform</option>
           {platforms.map((p: Platform) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
           ))}
         </select>
         <Button type="submit" loading={creating}>
@@ -147,7 +209,9 @@ export default function AdminGamesPage() {
               }
             }}
           />
-          <span className={styles.selectAllLabel}>Select all ({games.length})</span>
+          <span className={styles.selectAllLabel}>
+            Select all on this page ({games.length})
+          </span>
         </div>
       )}
 
@@ -155,7 +219,9 @@ export default function AdminGamesPage() {
         {games.map((game: Game) => (
           <div
             key={game.id}
-            className={`${styles.itemCard} ${selectedIds.has(game.id) ? styles.selected : ""}`}
+            className={`${styles.itemCard} ${
+              selectedIds.has(game.id) ? styles.selected : ""
+            }`}
           >
             {editingId === game.id ? (
               <div className={styles.editForm}>
@@ -186,7 +252,10 @@ export default function AdminGamesPage() {
                   >
                     <Check size={16} />
                   </button>
-                  <button className={styles.actionBtn} onClick={() => setEditingId(null)}>
+                  <button
+                    className={styles.actionBtn}
+                    onClick={() => setEditingId(null)}
+                  >
                     <X size={16} />
                   </button>
                 </div>
@@ -206,12 +275,18 @@ export default function AdminGamesPage() {
                 />
                 <div className={styles.itemInfo}>
                   <span className={styles.itemName}>{game.title}</span>
-                  <span className={styles.itemSlug}>{game.platform?.name || "No platform"}</span>
+                  <span className={styles.itemSlug}>
+                    {game.platform?.name || "No platform"}
+                  </span>
                   {game.type && game.type !== "BASE_GAME" && (
-                    <span className={styles.badge}>{game.type.replace("_", " ")}</span>
+                    <span className={styles.badge}>
+                      {game.type.replace("_", " ")}
+                    </span>
                   )}
                 </div>
-                <span className={styles.itemMeta}>{game.achievementCount} achievements</span>
+                <span className={styles.itemMeta}>
+                  {game.achievementCount} achievements
+                </span>
                 <div className={styles.itemActions}>
                   <button
                     className={styles.actionBtn}
@@ -241,6 +316,18 @@ export default function AdminGamesPage() {
           </div>
         ))}
       </div>
+
+      {totalCount > 0 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          loading={loading}
+        />
+      )}
     </div>
   );
 }
