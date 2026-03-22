@@ -43,6 +43,13 @@
   margin: 0;
 }
 
+.pageTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
 .sectionSubtitle {
   font-size: 13px;
   color: var(--text-muted);
@@ -289,6 +296,117 @@
   display: flex;
   justify-content: center;
   padding: 32px;
+}
+
+/* Stats Grid (Dashboard) */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg, 12px);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  border-color: var(--nintendo-red);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(230, 0, 18, 0.1);
+  border-radius: 12px;
+  color: var(--nintendo-red);
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statCount {
+  display: block;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.statTitle {
+  display: block;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.statArrow {
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.statCard:hover .statArrow {
+  opacity: 1;
+}
+
+/* Quick Links */
+.quickLinks {
+  margin-top: 32px;
+}
+
+.quickLinksGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.quickLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.15s ease;
+}
+
+.quickLink:hover {
+  background: var(--bg-card);
+  border-color: var(--nintendo-red);
+  color: var(--text-primary);
+}
+
+/* Select Wrapper for dropdowns */
+.selectWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.selectIcon {
+  position: absolute;
+  right: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
 }
 
 /* Responsive */
