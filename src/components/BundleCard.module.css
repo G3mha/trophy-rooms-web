@@ -1,0 +1,146 @@
+.card {
+  display: block;
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 20px rgba(230, 0, 18, 0.2);
+  border-color: var(--nintendo-red);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: var(--text-muted);
+}
+
+.typeBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.typeBadgeBundle {
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+}
+
+.typeBadgeSeasonPass {
+  background: rgba(168, 85, 247, 0.9);
+  color: white;
+}
+
+.typeBadgeCollection {
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+}
+
+.typeBadgeSubscription {
+  background: rgba(249, 115, 22, 0.9);
+  color: white;
+}
+
+.content {
+  padding: 12px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.description {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0 0 8px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.statIcon {
+  font-size: 12px;
+}
+
+/* Compact variant */
+.compact {
+  border-radius: 8px;
+}
+
+.compact .imageContainer {
+  aspect-ratio: 16/9;
+}
+
+.compact .placeholder {
+  font-size: 20px;
+}
+
+.compact .typeBadge {
+  top: 4px;
+  right: 4px;
+  padding: 2px 6px;
+  font-size: 9px;
+  border-radius: 8px;
+}
+
+.compact .content {
+  padding: 8px;
+}
+
+.compact .title {
+  font-size: 12px;
+  margin: 0;
+  -webkit-line-clamp: 1;
+}
