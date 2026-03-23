@@ -653,3 +653,91 @@ export const GET_COLLECTION_COUNT = gql`
     collectionCount
   }
 `;
+
+// Buylist fragments
+export const BUYLIST_ITEM_FRAGMENT = gql`
+  fragment BuylistItemFields on BuylistItem {
+    id
+    userId
+    gameId
+    game {
+      id
+      title
+      coverUrl
+      platform {
+        id
+        name
+        slug
+      }
+    }
+    gameVersionId
+    gameVersion {
+      id
+      name
+    }
+    dlcId
+    dlc {
+      id
+      name
+      effectiveCoverUrl
+      game {
+        id
+        title
+      }
+    }
+    bundleId
+    bundle {
+      id
+      name
+      coverUrl
+    }
+    priority
+    notes
+    estimatedPrice
+    itemType
+    displayTitle
+    displayCoverUrl
+    addedAt
+    updatedAt
+  }
+`;
+
+// Buylist queries
+export const GET_MY_BUYLIST = gql`
+  query GetMyBuylist($filter: BuylistFilterInput, $orderBy: BuylistOrderBy) {
+    myBuylist(filter: $filter, orderBy: $orderBy) {
+      ...BuylistItemFields
+    }
+  }
+  ${BUYLIST_ITEM_FRAGMENT}
+`;
+
+export const GET_USER_BUYLIST = gql`
+  query GetUserBuylist($userId: ID!, $filter: BuylistFilterInput, $orderBy: BuylistOrderBy) {
+    userBuylist(userId: $userId, filter: $filter, orderBy: $orderBy) {
+      ...BuylistItemFields
+    }
+  }
+  ${BUYLIST_ITEM_FRAGMENT}
+`;
+
+export const GET_BUYLIST_STATS = gql`
+  query GetBuylistStats {
+    buylistStats {
+      totalItems
+      totalEstimatedCost
+      highPriorityCount
+      mediumPriorityCount
+      lowPriorityCount
+      gameCount
+      dlcCount
+      bundleCount
+    }
+  }
+`;
+
+export const IS_IN_BUYLIST = gql`
+  query IsInBuylist($gameId: ID, $dlcId: ID, $bundleId: ID) {
+    isInBuylist(gameId: $gameId, dlcId: $dlcId, bundleId: $bundleId)
+  }
+`;
