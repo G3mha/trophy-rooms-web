@@ -325,3 +325,74 @@ export const REMOVE_FROM_COLLECTION = gql`
     }
   }
 `;
+
+// Buylist mutations
+export const ADD_TO_BUYLIST = gql`
+  mutation AddToBuylist($input: AddToBuylistInput!) {
+    addToBuylist(input: $input) {
+      success
+      buylistItem {
+        id
+        displayTitle
+        displayCoverUrl
+        priority
+        notes
+        estimatedPrice
+        itemType
+        addedAt
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const REMOVE_FROM_BUYLIST = gql`
+  mutation RemoveFromBuylist($id: ID!) {
+    removeFromBuylist(id: $id) {
+      success
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const UPDATE_BUYLIST_ITEM = gql`
+  mutation UpdateBuylistItem($id: ID!, $input: UpdateBuylistItemInput!) {
+    updateBuylistItem(id: $id, input: $input) {
+      success
+      buylistItem {
+        id
+        priority
+        notes
+        estimatedPrice
+        gameVersionId
+        updatedAt
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+export const MARK_AS_PURCHASED = gql`
+  mutation MarkAsPurchased($id: ID!, $platformId: ID) {
+    markAsPurchased(id: $id, platformId: $platformId) {
+      success
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
