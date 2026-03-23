@@ -517,6 +517,16 @@ body {
 }
 
 /* Input Focus - no outer glow */
-[data-slot="input"]:focus {
+[data-slot="input"]:focus,
+[data-slot="select-trigger"]:focus {
+  outline: none !important;
   box-shadow: inset 0 0 0 1px var(--nintendo-red) !important;
+}
+
+/* Ensure no focus rings leak outside in dialogs */
+[data-slot="dialog-content"] input:focus,
+[data-slot="dialog-content"] button:focus,
+[data-slot="dialog-content"] [data-slot="select-trigger"]:focus {
+  outline: none !important;
+  ring: none !important;
 }
