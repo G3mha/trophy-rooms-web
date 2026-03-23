@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { useQuery } from "@apollo/client";
-import { ChevronDown, LayoutDashboard, Trophy, Library, Disc } from "lucide-react";
+import { ChevronDown, LayoutDashboard, Trophy, Library, Disc, ShoppingCart } from "lucide-react";
 import { GET_ME } from "@/graphql/queries";
 import styles from "./Header.module.css";
 
@@ -20,6 +20,7 @@ const myStuffLinks = [
   { href: "/dashboard", label: "Dashboard", Icon: LayoutDashboard },
   { href: "/trophy-room", label: "My Trophy Room", Icon: Trophy },
   { href: "/library", label: "My Library", Icon: Library },
+  { href: "/buylist", label: "My Buylist", Icon: ShoppingCart },
   { href: "/collection", label: "My Collection", Icon: Disc },
 ];
 
