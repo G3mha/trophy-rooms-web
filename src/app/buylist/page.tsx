@@ -1,0 +1,443 @@
+"use client";
+
+import { useState } from "react";
+import { useQuery, useMutation } from "@apollo/client";
+import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import Link from "next/link";
+import {
+  ShoppingCart,
+  Gamepad2,
+  Package,
+  Box,
+  ArrowUp,
+  ArrowRight,
+  ArrowDown,
+  X,
+  Check,
+  Share2,
+  DollarSign,
+  StickyNote,
+} from "lucide-react";
+import { GET_MY_BUYLIST, GET_BUYLIST_STATS } from "@/graphql/queries";
+import { REMOVE_FROM_BUYLIST, MARK_AS_PURCHASED } from "@/graphql/mutations";
+import { LoadingSpinner, EmptyState, Button } from "@/components";
+import styles from "./page.module.css";
+
+interface BuylistItem {
+  id: string;
+  userId: string;
+  gameId: string | null;
+  dlcId: string | null;
+  bundleId: string | null;
+  priority: "HIGH" | "MEDIUM" | "LOW";
+  notes: string | null;
+  estimatedPrice: number | null;
+  itemType: "GAME" | "DLC" | "BUNDLE";
+  displayTitle: string;
+  displayCoverUrl: string | null;
+  addedAt: string;
+  updatedAt: string;
+}
+
+interface BuylistStats {
+  totalItems: number;
+  totalEstimatedCost: number;
+  highPriorityCount: number;
+  mediumPriorityCount: number;
+  lowPriorityCount: number;
+  gameCount: number;
+  dlcCount: number;
+  bundleCount: number;
+}
+
+type PriorityFilter = "HIGH" | "MEDIUM" | "LOW" | "ALL";
+type ItemTypeFilter = "GAME" | "DLC" | "BUNDLE" | "ALL";
+
+type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
+
+interface PriorityTabConfig {
+  label: string;
+  icon: IconComponent;
+  value: PriorityFilter;
+}
+
+interface ItemTypeTabConfig {
+  label: string;
+  icon: IconComponent;
+  value: ItemTypeFilter;
+}
+
+const PRIORITY_TABS: PriorityTabConfig[] = [
+  { label: "All Priorities", icon: ShoppingCart, value: "ALL" },
+  { label: "High", icon: ArrowUp, value: "HIGH" },
+  { label: "Medium", icon: ArrowRight, value: "MEDIUM" },
+  { label: "Low", icon: ArrowDown, value: "LOW" },
+];
+
+const ITEM_TYPE_TABS: ItemTypeTabConfig[] = [
+  { label: "All Types", icon: ShoppingCart, value: "ALL" },
+  { label: "Games", icon: Gamepad2, value: "GAME" },
+  { label: "DLCs", icon: Package, value: "DLC" },
+  { label: "Bundles", icon: Box, value: "BUNDLE" },
+];
+
+const PRIORITY_COLORS: Record<string, string> = {
+  HIGH: "#ef4444",
+  MEDIUM: "#f97316",
+  LOW: "#22c55e",
+};
+
+const ITEM_TYPE_COLORS: Record<string, string> = {
+  GAME: "#3b82f6",
+  DLC: "#8b5cf6",
+  BUNDLE: "#ec4899",
+};
+
+export default function BuylistPage() {
+  const { isSignedIn, isLoaded } = useAuth();
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
+  const [itemTypeFilter, setItemTypeFilter] = useState<ItemTypeFilter>("ALL");
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const queryVariables = {
+    filter: {
+      ...(priorityFilter !== "ALL" && { priority: priorityFilter }),
+      ...(itemTypeFilter !== "ALL" && { itemType: itemTypeFilter }),
+    },
+    orderBy: "ADDED_AT_DESC",
+  };
+
+  const { data, loading, refetch } = useQuery(GET_MY_BUYLIST, {
+    variables: queryVariables,
+    skip: !isSignedIn,
+  });
+
+  const { data: statsData } = useQuery(GET_BUYLIST_STATS, {
+    skip: !isSignedIn,
+  });
+
+  const [removeFromBuylist, { loading: removing }] = useMutation(
+    REMOVE_FROM_BUYLIST,
+    {
+      onCompleted: () => refetch(),
+    }
+  );
+
+  const [markAsPurchased, { loading: purchasing }] = useMutation(
+    MARK_AS_PURCHASED,
+    {
+      onCompleted: () => refetch(),
+    }
+  );
+
+  if (!isLoaded) {
+    return <LoadingSpinner text="Loading..." />;
+  }
+
+  if (!isSignedIn) {
+    return <RedirectToSignIn />;
+  }
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <LoadingSpinner text="Loading your buylist..." />
+      </div>
+    );
+  }
+
+  const items: BuylistItem[] = data?.myBuylist || [];
+  const stats: BuylistStats | null = statsData?.buylistStats || null;
+
+  const handleRemove = async (id: string) => {
+    await removeFromBuylist({ variables: { id } });
+  };
+
+  const handleMarkPurchased = async (id: string) => {
+    await markAsPurchased({ variables: { id } });
+  };
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/users/${data?.me?.id}/buylist`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch {
+      // Fallback for browsers that don't support clipboard API
+      console.error("Failed to copy link");
+    }
+  };
+
+  const getPriorityLabel = (priority: string): string => {
+    return priority.charAt(0) + priority.slice(1).toLowerCase();
+  };
+
+  const getPriorityIcon = (priority: string): IconComponent => {
+    switch (priority) {
+      case "HIGH":
+        return ArrowUp;
+      case "MEDIUM":
+        return ArrowRight;
+      case "LOW":
+        return ArrowDown;
+      default:
+        return ArrowRight;
+    }
+  };
+
+  const getItemTypeLabel = (type: string): string => {
+    switch (type) {
+      case "GAME":
+        return "Game";
+      case "DLC":
+        return "DLC";
+      case "BUNDLE":
+        return "Bundle";
+      default:
+        return type;
+    }
+  };
+
+  const getItemTypeIcon = (type: string): IconComponent => {
+    switch (type) {
+      case "GAME":
+        return Gamepad2;
+      case "DLC":
+        return Package;
+      case "BUNDLE":
+        return Box;
+      default:
+        return Gamepad2;
+    }
+  };
+
+  const getItemLink = (item: BuylistItem): string => {
+    if (item.gameId) return `/games/${item.gameId}`;
+    if (item.dlcId) return `/dlcs/${item.dlcId}`;
+    if (item.bundleId) return `/bundles/${item.bundleId}`;
+    return "#";
+  };
+
+  const formatPrice = (price: number | null): string => {
+    if (price === null) return "—";
+    return `$${price.toFixed(2)}`;
+  };
+
+  return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.headerContent}>
+          <div>
+            <h1 className={styles.title}>My Buylist</h1>
+            <p className={styles.subtitle}>
+              Track games, DLCs, and bundles you want to buy or receive as gifts
+            </p>
+          </div>
+          <button
+            className={styles.shareButton}
+            onClick={handleShare}
+            title="Share your buylist"
+          >
+            {copiedLink ? <Check size={16} /> : <Share2 size={16} />}
+            <span>{copiedLink ? "Copied!" : "Share"}</span>
+          </button>
+        </div>
+
+        {/* Stats Bar */}
+        {stats && stats.totalItems > 0 && (
+          <div className={styles.statsBar}>
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>{stats.totalItems}</span>
+              <span className={styles.statLabel}>Items</span>
+            </div>
+            <div className={styles.statDivider} />
+            <div className={styles.statItem}>
+              <span className={styles.statValue}>
+                ${stats.totalEstimatedCost.toFixed(2)}
+              </span>
+              <span className={styles.statLabel}>Est. Total</span>
+            </div>
+            <div className={styles.statDivider} />
+            <div className={styles.statItem}>
+              <span className={styles.statValue} style={{ color: PRIORITY_COLORS.HIGH }}>
+                {stats.highPriorityCount}
+              </span>
+              <span className={styles.statLabel}>High Priority</span>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* Priority Filter Tabs */}
+      <div className={styles.filters}>
+        <div className={styles.filterGroup}>
+          <span className={styles.filterLabel}>Priority:</span>
+          <div className={styles.tabs}>
+            {PRIORITY_TABS.map((tab) => {
+              const TabIcon = tab.icon;
+              return (
+                <button
+                  key={tab.value}
+                  className={`${styles.tab} ${priorityFilter === tab.value ? styles.tabActive : ""}`}
+                  onClick={() => setPriorityFilter(tab.value)}
+                >
+                  <span className={styles.tabIcon}>
+                    <TabIcon size={14} />
+                  </span>
+                  <span className={styles.tabLabel}>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className={styles.filterGroup}>
+          <span className={styles.filterLabel}>Type:</span>
+          <div className={styles.tabs}>
+            {ITEM_TYPE_TABS.map((tab) => {
+              const TabIcon = tab.icon;
+              return (
+                <button
+                  key={tab.value}
+                  className={`${styles.tab} ${itemTypeFilter === tab.value ? styles.tabActive : ""}`}
+                  onClick={() => setItemTypeFilter(tab.value)}
+                >
+                  <span className={styles.tabIcon}>
+                    <TabIcon size={14} />
+                  </span>
+                  <span className={styles.tabLabel}>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {items.length > 0 ? (
+        <div className={styles.itemsGrid}>
+          {items.map((item) => {
+            const PriorityIcon = getPriorityIcon(item.priority);
+            const ItemTypeIcon = getItemTypeIcon(item.itemType);
+            return (
+              <div key={item.id} className={styles.itemCard}>
+                <Link href={getItemLink(item)} className={styles.itemLink}>
+                  <div className={styles.coverContainer}>
+                    {item.displayCoverUrl ? (
+                      <img
+                        src={item.displayCoverUrl}
+                        alt={item.displayTitle}
+                        className={styles.cover}
+                      />
+                    ) : (
+                      <div className={styles.coverPlaceholder}>
+                        <ItemTypeIcon size={32} />
+                      </div>
+                    )}
+                    <div
+                      className={styles.priorityBadge}
+                      style={
+                        {
+                          "--badge-color": PRIORITY_COLORS[item.priority],
+                        } as React.CSSProperties
+                      }
+                    >
+                      <span className={styles.badgeIcon}>
+                        <PriorityIcon size={12} />
+                      </span>
+                      <span className={styles.badgeLabel}>
+                        {getPriorityLabel(item.priority)}
+                      </span>
+                    </div>
+                    <div
+                      className={styles.typeBadge}
+                      style={
+                        {
+                          "--badge-color": ITEM_TYPE_COLORS[item.itemType],
+                        } as React.CSSProperties
+                      }
+                    >
+                      <span className={styles.badgeIcon}>
+                        <ItemTypeIcon size={12} />
+                      </span>
+                      <span className={styles.badgeLabel}>
+                        {getItemTypeLabel(item.itemType)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.cardContent}>
+                    <h3 className={styles.itemTitle}>{item.displayTitle}</h3>
+                    {item.estimatedPrice !== null && (
+                      <div className={styles.priceBadge}>
+                        <DollarSign size={12} />
+                        <span>{formatPrice(item.estimatedPrice)}</span>
+                      </div>
+                    )}
+                    {item.notes && (
+                      <div className={styles.notes}>
+                        <StickyNote size={12} />
+                        <span>{item.notes}</span>
+                      </div>
+                    )}
+                    <div className={styles.itemMeta}>
+                      <span className={styles.addedDate}>
+                        Added {new Date(item.addedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+                <div className={styles.cardActions}>
+                  <button
+                    className={styles.purchasedButton}
+                    onClick={() => handleMarkPurchased(item.id)}
+                    disabled={purchasing}
+                    title="Mark as purchased"
+                  >
+                    <Check size={16} />
+                  </button>
+                  <button
+                    className={styles.removeButton}
+                    onClick={() => handleRemove(item.id)}
+                    disabled={removing}
+                    title="Remove from buylist"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <EmptyState
+          icon={<ShoppingCart size={48} />}
+          title={
+            priorityFilter === "ALL" && itemTypeFilter === "ALL"
+              ? "Your buylist is empty"
+              : "No items match your filters"
+          }
+          description={
+            priorityFilter === "ALL" && itemTypeFilter === "ALL"
+              ? "Browse games, DLCs, and bundles to add them to your buylist."
+              : "Try adjusting your filters to see more items."
+          }
+          action={
+            priorityFilter === "ALL" && itemTypeFilter === "ALL" ? (
+              <Button href="/games">Browse Games</Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  setPriorityFilter("ALL");
+                  setItemTypeFilter("ALL");
+                }}
+                variant="secondary"
+              >
+                Clear Filters
+              </Button>
+            )
+          }
+        />
+      )}
+    </div>
+  );
+}
