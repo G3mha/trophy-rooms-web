@@ -26,9 +26,9 @@ const buttonVariants = cva(
         link: "text-[var(--nintendo-red)] underline-offset-4 hover:underline",
       },
       size: {
-        sm: "h-10 px-6 text-sm rounded-[var(--border-radius)]",
-        md: "h-12 px-10 text-base rounded-[var(--border-radius)]",
-        lg: "h-14 px-12 text-lg rounded-[var(--border-radius)]",
+        sm: "h-9 px-4 text-sm rounded-[var(--border-radius)]",
+        md: "h-10 px-6 text-base rounded-[var(--border-radius)]",
+        lg: "h-12 px-8 text-lg rounded-[var(--border-radius)]",
         icon: "h-10 w-10 rounded-[var(--border-radius)]",
         "icon-sm": "h-7 w-7 rounded-md",
         "icon-xs": "h-6 w-6 rounded-md",
