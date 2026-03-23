@@ -112,7 +112,7 @@ export const GET_PLATFORMS = gql`
 
 export const GET_GAMES_ADMIN = gql`
   query GetGamesAdmin($first: Int, $after: String, $orderBy: GameOrderBy, $search: String) {
-    games(first: $first, after: $after, orderBy: $orderBy, search: $search) {
+    games(first: $first, after: $after, orderBy: $orderBy, filter: { search: $search }) {
       edges {
         cursor
         node {
