@@ -64,10 +64,9 @@
   --radius: 0.75rem;
 }
 
+/* Note: Tailwind Preflight handles most resets. Only add box-sizing here. */
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html,
