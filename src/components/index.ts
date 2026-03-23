@@ -12,6 +12,7 @@ export { LeaderboardEntry, FastestCompletionEntry } from "./LeaderboardEntry";
 export { ActivityFeedEntry } from "./ActivityFeedEntry";
 export { GameProgressCard } from "./GameProgressCard";
 export { GameStatusSelector } from "./GameStatusSelector";
+export { BuylistSelector } from "./BuylistSelector";
 export { CollectionItemCard } from "./CollectionItemCard";
 export { AddToCollectionModal } from "./AddToCollectionModal";
 export { BundleCard } from "./BundleCard";
