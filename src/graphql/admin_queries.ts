@@ -111,8 +111,8 @@ export const GET_PLATFORMS = gql`
 `;
 
 export const GET_GAMES_ADMIN = gql`
-  query GetGamesAdmin($first: Int, $after: String, $orderBy: GameOrderBy) {
-    games(first: $first, after: $after, orderBy: $orderBy) {
+  query GetGamesAdmin($first: Int, $after: String, $orderBy: GameOrderBy, $search: String) {
+    games(first: $first, after: $after, orderBy: $orderBy, search: $search) {
       edges {
         cursor
         node {
