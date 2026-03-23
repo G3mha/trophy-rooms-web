@@ -510,3 +510,13 @@ body {
     @apply border-border outline-ring/50;
   }
 }
+
+/* Dialog Content Padding */
+[data-slot="dialog-content"] {
+  padding: 24px 28px !important;
+}
+
+/* Input Focus - no outer glow */
+[data-slot="input"]:focus {
+  box-shadow: inset 0 0 0 1px var(--nintendo-red) !important;
+}
