@@ -64,11 +64,11 @@
 }
 
 .formRow2Col {
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr minmax(140px, auto);
 }
 
 .formRow3Col {
-  grid-template-columns: 1fr 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr minmax(140px, auto);
 }
 
 @media (max-width: 768px) {
