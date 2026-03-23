@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
 import {
-  Heart,
   BookMarked,
   Gamepad2,
   Pause,
@@ -23,7 +22,6 @@ import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import styles from "./GameStatusSelector.module.css";
 
 export type GameStatus =
-  | "WISHLIST"
   | "BACKLOG"
   | "PLAYING"
   | "PAUSED"
@@ -37,7 +35,6 @@ interface StatusConfig {
 }
 
 const STATUS_CONFIG: Record<GameStatus, StatusConfig> = {
-  WISHLIST: { label: "Wishlist", icon: Heart, color: "#ef4444" },
   BACKLOG: { label: "Backlog", icon: BookMarked, color: "#f97316" },
   PLAYING: { label: "Playing", icon: Gamepad2, color: "#22c55e" },
   PAUSED: { label: "Paused", icon: Pause, color: "#a855f7" },

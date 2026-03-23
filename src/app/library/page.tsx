@@ -6,7 +6,6 @@ import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import {
   Library,
-  Heart,
   BookMarked,
   Gamepad2,
   Pause,
@@ -49,7 +48,6 @@ interface StatusTabConfig {
 
 const STATUS_TABS: StatusTabConfig[] = [
   { label: "All", icon: Library, value: "ALL" },
-  { label: "Wishlist", icon: Heart, value: "WISHLIST" },
   { label: "Backlog", icon: BookMarked, value: "BACKLOG" },
   { label: "Playing", icon: Gamepad2, value: "PLAYING" },
   { label: "Paused", icon: Pause, value: "PAUSED" },
@@ -58,7 +56,6 @@ const STATUS_TABS: StatusTabConfig[] = [
 ];
 
 const STATUS_COLORS: Record<GameStatus, string> = {
-  WISHLIST: "#ef4444",
   BACKLOG: "#f97316",
   PLAYING: "#22c55e",
   PAUSED: "#a855f7",
