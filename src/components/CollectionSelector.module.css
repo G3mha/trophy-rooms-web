@@ -1,0 +1,204 @@
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Trigger Button */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.trigger:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--border-color-hover, var(--border-color));
+  color: var(--text-primary);
+}
+
+.trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Has status state (in collection) */
+.trigger.hasStatus {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--status-color) 10%, transparent) 0%,
+    color-mix(in srgb, var(--status-color) 15%, transparent) 100%
+  );
+  border-color: var(--status-color);
+  color: var(--status-color);
+}
+
+.trigger.hasStatus:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--status-color) 15%, transparent) 0%,
+    color-mix(in srgb, var(--status-color) 20%, transparent) 100%
+  );
+}
+
+/* Loading state */
+.trigger.loading {
+  opacity: 0.7;
+}
+
+/* Icon */
+.icon {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Label */
+.label {
+  white-space: nowrap;
+}
+
+/* Chevron */
+.chevron {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 220px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* In Collection Message */
+.inCollectionMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  color: #10b981;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Option */
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.option:hover:not(:disabled) {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.optionIcon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.optionLabel {
+  flex: 1;
+}
+
+/* Add option */
+.addOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #10b981;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.addOption:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.addOption:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: 0;
+}
+
+/* Compact variant */
+.compact .trigger {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.compact .icon {
+  font-size: 16px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .default .trigger {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .default .icon {
+    font-size: 16px;
+  }
+
+  .dropdown {
+    min-width: 200px;
+  }
+}
