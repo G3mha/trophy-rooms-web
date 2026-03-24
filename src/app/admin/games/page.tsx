@@ -20,6 +20,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -37,9 +38,11 @@ interface Platform {
 interface Game {
   id: string;
   title: string;
-  slug: string;
+  description?: string | null;
+  coverUrl?: string | null;
   platform?: Platform | null;
   type?: string;
+  baseGame?: { id: string; title: string } | null;
   achievementCount: number;
 }
 
@@ -58,13 +61,16 @@ export default function AdminGamesPage() {
   // Modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
-  const [newSlug, setNewSlug] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newCoverUrl, setNewCoverUrl] = useState("");
   const [newPlatformId, setNewPlatformId] = useState("");
+  const [newType, setNewType] = useState<string>("BASE_GAME");
+  const [newBaseGameId, setNewBaseGameId] = useState("");
+  const [baseGameSearch, setBaseGameSearch] = useState("");
 
   // Edit state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
-  const [editingSlug, setEditingSlug] = useState("");
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -85,18 +91,6 @@ export default function AdminGamesPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-
-  // Auto-generate slug from title
-  useEffect(() => {
-    if (newTitle && !newSlug) {
-      setNewSlug(
-        newTitle
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-|-$/g, "")
-      );
-    }
-  }, [newTitle, newSlug]);
 
   const { data: platformsData } = useQuery(GET_PLATFORMS);
   const {
@@ -146,22 +140,36 @@ export default function AdminGamesPage() {
 
   const resetForm = () => {
     setNewTitle("");
-    setNewSlug("");
+    setNewDescription("");
+    setNewCoverUrl("");
     setNewPlatformId("");
+    setNewType("BASE_GAME");
+    setNewBaseGameId("");
+    setBaseGameSearch("");
   };
 
   const handleCreateGame = async () => {
-    if (!newTitle || !newSlug || !newPlatformId) return;
+    if (!newTitle || !newPlatformId) return;
     await createGame({
       variables: {
         input: {
           title: newTitle,
-          slug: newSlug,
+          description: newDescription || null,
+          coverUrl: newCoverUrl || null,
           platformId: newPlatformId,
+          type: newType,
+          baseGameId: newType !== "BASE_GAME" && newBaseGameId ? newBaseGameId : null,
         },
       },
     });
   };
+
+  // Filter base games for the picker
+  const baseGameOptions = games.filter(
+    (g: Game) => g.type === "BASE_GAME" || !g.type
+  ).filter(
+    (g: Game) => baseGameSearch === "" || g.title.toLowerCase().includes(baseGameSearch.toLowerCase())
+  );
 
   const handlePageChange = useCallback(
     (page: number) => {
@@ -248,29 +256,8 @@ export default function AdminGamesPage() {
               <Input
                 placeholder="Enter game title"
                 value={newTitle}
-                onChange={(e) => {
-                  setNewTitle(e.target.value);
-                  // Auto-generate slug when title changes
-                  setNewSlug(
-                    e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9]+/g, "-")
-                      .replace(/^-|-$/g, "")
-                  );
-                }}
+                onChange={(e) => setNewTitle(e.target.value)}
               />
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Slug</label>
-              <Input
-                placeholder="game-slug"
-                value={newSlug}
-                onChange={(e) => setNewSlug(e.target.value)}
-              />
-              <span className={styles.formHint}>
-                URL-friendly identifier (auto-generated from title)
-              </span>
             </div>
 
             <div className={styles.formField}>
@@ -288,6 +275,75 @@ export default function AdminGamesPage() {
                 </SelectContent>
               </Select>
             </div>
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Type</label>
+              <Select value={newType} onValueChange={(value) => setNewType(value || "BASE_GAME")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="BASE_GAME">Base Game</SelectItem>
+                  <SelectItem value="FANGAME">Fangame</SelectItem>
+                  <SelectItem value="ROM_HACK">ROM Hack</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {newType !== "BASE_GAME" && (
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Based On (Original Game)</label>
+                <Select value={newBaseGameId} onValueChange={(value) => setNewBaseGameId(value || "")}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select base game" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {baseGameOptions.map((g: Game) => (
+                      <SelectItem key={g.id} value={g.id}>
+                        {g.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className={styles.formHint}>
+                  Link this {newType === "FANGAME" ? "fangame" : "ROM hack"} to its original game
+                </span>
+              </div>
+            )}
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Description</label>
+              <Textarea
+                placeholder="Enter game description (optional)"
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Cover URL</label>
+              <Input
+                placeholder="https://example.com/cover.jpg"
+                value={newCoverUrl}
+                onChange={(e) => setNewCoverUrl(e.target.value)}
+              />
+            </div>
+
+            {newCoverUrl && (
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Cover Preview</label>
+                <div className={styles.coverPreview}>
+                  <img
+                    src={newCoverUrl}
+                    alt="Cover preview"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <DialogFooter>
@@ -303,7 +359,7 @@ export default function AdminGamesPage() {
             <Button
               onClick={handleCreateGame}
               loading={creating}
-              disabled={!newTitle || !newSlug || !newPlatformId}
+              disabled={!newTitle || !newPlatformId}
             >
               Create Game
             </Button>
@@ -350,12 +406,6 @@ export default function AdminGamesPage() {
                       onChange={(e) => setEditingTitle(e.target.value)}
                       placeholder="Title"
                     />
-                    <input
-                      className={styles.editInput}
-                      value={editingSlug}
-                      onChange={(e) => setEditingSlug(e.target.value)}
-                      placeholder="Slug"
-                    />
                     <div className={styles.editActions}>
                       <button
                         className={styles.actionBtn}
@@ -363,7 +413,7 @@ export default function AdminGamesPage() {
                           await updateGame({
                             variables: {
                               id: game.id,
-                              input: { title: editingTitle, slug: editingSlug },
+                              input: { title: editingTitle },
                             },
                           });
                           setEditingId(null);
@@ -412,7 +462,6 @@ export default function AdminGamesPage() {
                         onClick={() => {
                           setEditingId(game.id);
                           setEditingTitle(game.title);
-                          setEditingSlug(game.slug);
                         }}
                         title="Edit"
                       >
