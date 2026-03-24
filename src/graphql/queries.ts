@@ -741,3 +741,22 @@ export const IS_IN_BUYLIST = gql`
     isInBuylist(gameId: $gameId, dlcId: $dlcId, bundleId: $bundleId)
   }
 `;
+
+// Games by title query - for game family page
+export const GET_GAMES_BY_TITLE = gql`
+  query GetGamesByTitle($title: String!) {
+    gamesByTitle(title: $title) {
+      id
+      title
+      description
+      coverUrl
+      achievementCount
+      trophyCount
+      platform {
+        id
+        name
+        slug
+      }
+    }
+  }
+`;

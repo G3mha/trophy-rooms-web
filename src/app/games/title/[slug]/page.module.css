@@ -1,0 +1,209 @@
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.coverContainer {
+  flex-shrink: 0;
+}
+
+.cover {
+  width: 200px;
+  height: 267px;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+  border: 2px solid var(--border-color);
+}
+
+.coverPlaceholder {
+  width: 200px;
+  height: 267px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 16px 0;
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 16px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--nintendo-red);
+}
+
+.statLabel {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.platformCount {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* Platform Versions Section */
+.versionsSection {
+  margin-bottom: 40px;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+}
+
+.versionsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.versionCard {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.versionCard:hover {
+  border-color: var(--nintendo-red);
+  box-shadow: 0 0 15px rgba(230, 0, 18, 0.15);
+}
+
+.platformInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.platformIcon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.platformName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.versionStats {
+  display: flex;
+  gap: 20px;
+}
+
+.versionStat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.versionStatIcon {
+  color: var(--text-muted);
+}
+
+/* Error */
+.error {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.error p {
+  color: var(--nintendo-red);
+  margin-bottom: 20px;
+}
+
+/* Back Link */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 14px;
+  margin-bottom: 24px;
+  transition: color 0.2s ease;
+}
+
+.backLink:hover {
+  color: var(--nintendo-red);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .cover,
+  .coverPlaceholder {
+    width: 150px;
+    height: 200px;
+  }
+
+  .versionCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .versionStats {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
