@@ -14,6 +14,7 @@ export { ActivityFeedEntry } from "./ActivityFeedEntry";
 export { GameProgressCard } from "./GameProgressCard";
 export { GameStatusSelector } from "./GameStatusSelector";
 export { BuylistSelector } from "./BuylistSelector";
+export { CollectionSelector } from "./CollectionSelector";
 export { CollectionItemCard } from "./CollectionItemCard";
 export { AddToCollectionModal } from "./AddToCollectionModal";
 export { BundleCard } from "./BundleCard";
