@@ -6,7 +6,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
 import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
-import { Button, LoadingSpinner, EmptyState, GameCard } from "@/components";
+import { Button, LoadingSpinner, EmptyState, GameCard, BuylistSelector } from "@/components";
 import styles from "./page.module.css";
 
 const GET_BUNDLE_DETAIL = gql`
@@ -316,6 +316,7 @@ export default function BundleDetailPage({
                   </>
                 )}
               </Button>
+              <BuylistSelector bundleId={id} />
             </div>
           )}
         </div>
