@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
-import { GameCard, Button, LoadingSpinner, EmptyState } from "@/components";
+import { GameCard, GroupedGameCard, Button, LoadingSpinner, EmptyState } from "@/components";
 import { ChevronDown, Gamepad2 } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -23,6 +23,39 @@ interface GameNode {
   achievementCount: number;
   trophyCount: number;
   platform?: Platform | null;
+}
+
+interface GameGroup {
+  title: string;
+  slug: string;
+  games: GameNode[];
+  platforms: Platform[];
+  coverUrl: string | null;
+  totalAchievementCount: number;
+  totalTrophyCount: number;
+}
+
+function groupGamesByTitle(games: GameNode[]): GameGroup[] {
+  const groups = new Map<string, GameNode[]>();
+
+  for (const game of games) {
+    const key = game.title.trim().toLowerCase();
+    const existing = groups.get(key) || [];
+    existing.push(game);
+    groups.set(key, existing);
+  }
+
+  return Array.from(groups.values()).map((gameList) => ({
+    title: gameList[0].title,
+    slug: encodeURIComponent(gameList[0].title.toLowerCase().replace(/\s+/g, "-")),
+    games: gameList,
+    platforms: gameList
+      .map((g) => g.platform)
+      .filter((p): p is Platform => p !== null && p !== undefined),
+    coverUrl: gameList.find((g) => g.coverUrl)?.coverUrl ?? null,
+    totalAchievementCount: gameList.reduce((sum, g) => sum + g.achievementCount, 0),
+    totalTrophyCount: gameList.reduce((sum, g) => sum + g.trophyCount, 0),
+  }));
 }
 
 export default function GamesPage() {
@@ -60,9 +93,16 @@ export default function GamesPage() {
   const isAdmin =
     meData?.me?.role === "ADMIN" || meData?.me?.role === "TRUSTED";
 
-  const games = data?.games?.edges || [];
+  const rawGames = data?.games?.edges;
   const hasMore = data?.games?.pageInfo?.hasNextPage || false;
   const endCursor = data?.games?.pageInfo?.endCursor;
+
+  // Group games by title for consolidated display
+  const gameGroups = useMemo(() => {
+    if (!rawGames) return [];
+    const gameNodes = rawGames.map(({ node }: { node: GameNode }) => node);
+    return groupGamesByTitle(gameNodes);
+  }, [rawGames]);
 
   const handleLoadMore = () => {
     fetchMore({
@@ -159,7 +199,7 @@ export default function GamesPage() {
       </div>
 
       {/* Loading */}
-      {loading && games.length === 0 && (
+      {loading && (!rawGames || rawGames.length === 0) && (
         <LoadingSpinner text="Loading games..." />
       )}
 
@@ -174,21 +214,33 @@ export default function GamesPage() {
       )}
 
       {/* Games Grid */}
-      {games.length > 0 && (
+      {gameGroups.length > 0 && (
         <>
           <div className={styles.gamesGrid}>
-            {games.map(({ node: game }: { node: GameNode }) => (
-              <GameCard
-                key={game.id}
-                id={game.id}
-                title={game.title}
-                description={game.description}
-                coverUrl={game.coverUrl}
-                achievementCount={game.achievementCount}
-                trophyCount={game.trophyCount}
-                platform={game.platform}
-              />
-            ))}
+            {gameGroups.map((group) =>
+              group.games.length === 1 ? (
+                <GameCard
+                  key={group.games[0].id}
+                  id={group.games[0].id}
+                  title={group.games[0].title}
+                  description={group.games[0].description}
+                  coverUrl={group.games[0].coverUrl}
+                  achievementCount={group.games[0].achievementCount}
+                  trophyCount={group.games[0].trophyCount}
+                  platform={group.games[0].platform}
+                />
+              ) : (
+                <GroupedGameCard
+                  key={group.slug}
+                  title={group.title}
+                  slug={group.slug}
+                  coverUrl={group.coverUrl}
+                  platforms={group.platforms}
+                  totalAchievementCount={group.totalAchievementCount}
+                  totalTrophyCount={group.totalTrophyCount}
+                />
+              )
+            )}
           </div>
 
           {hasMore && (
@@ -206,7 +258,7 @@ export default function GamesPage() {
       )}
 
       {/* Empty State */}
-      {!loading && games.length === 0 && (
+      {!loading && (!rawGames || rawGames.length === 0) && (
         <EmptyState
           icon={<Gamepad2 size={48} />}
           title={searchQuery ? "No games found" : "No games yet"}
