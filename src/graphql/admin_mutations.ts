@@ -265,6 +265,22 @@ export const BULK_DELETE_GAMES = gql`
   }
 `;
 
+export const CLONE_GAME_TO_PLATFORM = gql`
+  mutation CloneGameToPlatform($gameId: ID!, $targetPlatformId: ID!, $copyAchievementSets: Boolean) {
+    cloneGameToPlatform(gameId: $gameId, targetPlatformId: $targetPlatformId, copyAchievementSets: $copyAchievementSets) {
+      success
+      game {
+        id
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
 export const BULK_DELETE_ACHIEVEMENT_SETS = gql`
   mutation BulkDeleteAchievementSets($ids: [ID!]!) {
     bulkDeleteAchievementSets(ids: $ids) {
