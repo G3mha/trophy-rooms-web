@@ -76,14 +76,15 @@
 .dropdown {
   position: absolute;
   top: calc(100% + 4px);
-  left: 0;
-  min-width: 220px;
+  right: 0;
+  min-width: 300px;
+  max-height: 80vh;
+  overflow-y: auto;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 100;
-  overflow: hidden;
   animation: fadeIn 0.15s ease;
 }
 
@@ -109,63 +110,269 @@
   font-weight: 500;
 }
 
-/* Option */
-.option {
+/* Collection Item Row */
+.collectionItemRow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 10px 14px;
+  justify-content: space-between;
+  padding: 8px 14px;
+  gap: 8px;
+}
+
+.collectionItemInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.regionBadge {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  color: var(--text-muted);
+}
+
+.removeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
   background: transparent;
   border: none;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
-  color: var(--text-secondary);
-  text-align: left;
+  color: var(--text-muted);
   transition: all 0.15s ease;
 }
 
-.option:hover:not(:disabled) {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+.removeButton:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
 }
 
-.option:disabled {
+.removeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Form Header */
+.formHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #10b981;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Section */
+.section {
+  padding: 10px 14px;
+}
+
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Select */
+.select {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--border-radius) - 2px);
+  color: var(--text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.select:hover:not(:disabled) {
+  border-color: var(--border-color-hover, var(--border-color));
+}
+
+.select:focus {
+  outline: none;
+  border-color: #10b981;
+}
+
+.select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.optionIcon {
-  font-size: 16px;
-  width: 20px;
-  text-align: center;
+/* Component Grid */
+.componentGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 
-.optionLabel {
-  flex: 1;
-}
-
-/* Add option */
-.addOption {
+.componentButton {
   display: flex;
   align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 10px 14px;
-  background: transparent;
-  border: none;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--border-radius) - 2px);
   cursor: pointer;
-  font-size: 14px;
-  color: #10b981;
-  text-align: left;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
   transition: all 0.15s ease;
 }
 
-.addOption:hover:not(:disabled) {
-  background: rgba(16, 185, 129, 0.1);
+.componentButton:hover:not(:disabled) {
+  border-color: #10b981;
+  color: #10b981;
 }
 
-.addOption:disabled {
+.componentButton.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.componentButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sealed Button */
+.sealedButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--border-radius) - 2px);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.sealedButton:hover:not(:disabled) {
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.sealedButton.active {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.sealedButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Region Options */
+.regionOptions {
+  display: flex;
+  gap: 6px;
+}
+
+.regionOption {
+  flex: 1;
+  padding: 8px 4px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--border-radius) - 2px);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
+}
+
+.regionOption:hover:not(:disabled) {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.regionOption.selected {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.regionOption:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Textarea */
+.textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--border-radius) - 2px);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.15s ease;
+}
+
+.textarea:hover:not(:disabled) {
+  border-color: var(--border-color-hover, var(--border-color));
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #10b981;
+}
+
+.textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Add Button */
+.addButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 14px;
+  background: #10b981;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  transition: all 0.15s ease;
+}
+
+.addButton:hover:not(:disabled) {
+  background: #059669;
+}
+
+.addButton:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
@@ -199,6 +406,7 @@
   }
 
   .dropdown {
-    min-width: 200px;
+    min-width: 280px;
+    right: -50px;
   }
 }
