@@ -8,8 +8,9 @@ import {
   UPDATE_GAME,
   DELETE_GAME,
   BULK_DELETE_GAMES,
+  CLONE_GAME_TO_PLATFORM,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Check, X, Plus, Search } from "lucide-react";
+import { Trash2, Pencil, Check, X, Plus, Search, Copy } from "lucide-react";
 import { Button, LoadingSpinner, Pagination } from "@/components";
 import {
   Dialog,
@@ -72,6 +73,13 @@ export default function AdminGamesPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
 
+  // Clone modal state
+  const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
+  const [cloneGameId, setCloneGameId] = useState<string | null>(null);
+  const [cloneGameTitle, setCloneGameTitle] = useState("");
+  const [cloneTargetPlatformId, setCloneTargetPlatformId] = useState("");
+  const [cloneCopyAchievements, setCloneCopyAchievements] = useState(false);
+
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -127,6 +135,15 @@ export default function AdminGamesPage() {
       setSelectedIds(new Set());
     },
   });
+  const [cloneGame, { loading: cloning }] = useMutation(CLONE_GAME_TO_PLATFORM, {
+    onCompleted: (data) => {
+      if (data.cloneGameToPlatform.success) {
+        refetch();
+        setIsCloneModalOpen(false);
+        resetCloneForm();
+      }
+    },
+  });
 
   const platforms = platformsData?.platforms || [];
   const games =
@@ -146,6 +163,30 @@ export default function AdminGamesPage() {
     setNewType("BASE_GAME");
     setNewBaseGameId("");
     setBaseGameSearch("");
+  };
+
+  const resetCloneForm = () => {
+    setCloneGameId(null);
+    setCloneGameTitle("");
+    setCloneTargetPlatformId("");
+    setCloneCopyAchievements(false);
+  };
+
+  const handleCloneGame = async () => {
+    if (!cloneGameId || !cloneTargetPlatformId) return;
+    await cloneGame({
+      variables: {
+        gameId: cloneGameId,
+        targetPlatformId: cloneTargetPlatformId,
+        copyAchievementSets: cloneCopyAchievements,
+      },
+    });
+  };
+
+  const openCloneModal = (game: Game) => {
+    setCloneGameId(game.id);
+    setCloneGameTitle(game.title);
+    setIsCloneModalOpen(true);
   };
 
   const handleCreateGame = async () => {
@@ -367,6 +408,72 @@ export default function AdminGamesPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Clone to Platform Modal */}
+      <Dialog open={isCloneModalOpen} onOpenChange={(open) => {
+        setIsCloneModalOpen(open);
+        if (!open) resetCloneForm();
+      }}>
+        <DialogContent className="sm:max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle>Clone to Platform</DialogTitle>
+            <DialogDescription>
+              Create a copy of &quot;{cloneGameTitle}&quot; on another platform.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className={styles.modalForm}>
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Target Platform</label>
+              <Select value={cloneTargetPlatformId} onValueChange={(value) => value && setCloneTargetPlatformId(value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select target platform" />
+                </SelectTrigger>
+                <SelectContent>
+                  {platforms.map((p: Platform) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className={styles.formField}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={cloneCopyAchievements}
+                  onChange={(e) => setCloneCopyAchievements(e.target.checked)}
+                />
+                <span>Copy achievement sets</span>
+              </label>
+              <span className={styles.formHint}>
+                If checked, all achievement sets and achievements will be copied to the new game.
+              </span>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsCloneModalOpen(false);
+                resetCloneForm();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCloneGame}
+              loading={cloning}
+              disabled={!cloneTargetPlatformId}
+            >
+              Clone Game
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {loading && games.length === 0 ? (
         <LoadingSpinner text="Loading games..." />
       ) : (
@@ -457,6 +564,13 @@ export default function AdminGamesPage() {
                       {game.achievementCount} achievements
                     </span>
                     <div className={styles.itemActions}>
+                      <button
+                        className={styles.actionBtn}
+                        onClick={() => openCloneModal(game)}
+                        title="Clone to Platform"
+                      >
+                        <Copy size={14} />
+                      </button>
                       <button
                         className={styles.actionBtn}
                         onClick={() => {
