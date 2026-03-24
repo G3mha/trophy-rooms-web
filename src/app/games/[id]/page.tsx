@@ -3,7 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
-import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert } from "lucide-react";
+import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, Package } from "lucide-react";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
 import {
   MARK_ACHIEVEMENT_COMPLETE,
@@ -12,7 +12,7 @@ import {
   CREATE_ACHIEVEMENT,
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
-import { AchievementCard, Button, LoadingSpinner, EmptyState, GameStatusSelector, BuylistSelector } from "@/components";
+import { AchievementCard, Button, LoadingSpinner, EmptyState, GameStatusSelector, BuylistSelector, AddToCollectionModal } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
@@ -103,6 +103,7 @@ export default function GameDetailPage({
   const [achievementIconUrl, setAchievementIconUrl] = useState("");
   const [achievementError, setAchievementError] = useState<string | null>(null);
   const [selectedScreenshot, setSelectedScreenshot] = useState<number | null>(null);
+  const [isCollectionModalOpen, setIsCollectionModalOpen] = useState(false);
 
   const { data, loading, error, refetch } = useQuery(GET_GAME, {
     variables: { id },
@@ -383,6 +384,15 @@ export default function GameDetailPage({
           <div className={styles.headerActions}>
             <GameStatusSelector gameId={id} />
             <BuylistSelector gameId={id} />
+            {isSignedIn && (
+              <Button
+                variant="secondary"
+                onClick={() => setIsCollectionModalOpen(true)}
+              >
+                <Package size={16} />
+                Add to Collection
+              </Button>
+            )}
           </div>
         </div>
       </header>
@@ -697,6 +707,17 @@ export default function GameDetailPage({
           </div>
         </section>
       )}
+
+      {/* Add to Collection Modal */}
+      <AddToCollectionModal
+        isOpen={isCollectionModalOpen}
+        onClose={() => setIsCollectionModalOpen(false)}
+        game={{
+          id: game.id,
+          title: game.title,
+          coverUrl: game.coverUrl,
+        }}
+      />
     </div>
   );
 }
