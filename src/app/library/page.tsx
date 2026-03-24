@@ -14,10 +14,21 @@ import {
   X,
   Plus,
   Monitor,
+  AlertTriangle,
 } from "lucide-react";
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
 import { LoadingSpinner, EmptyState, Button } from "@/components";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button as ShadcnButton } from "@/components/ui/button";
 import type { GameStatus } from "@/components/GameStatusSelector";
 import styles from "./page.module.css";
 
@@ -66,6 +77,7 @@ const STATUS_COLORS: Record<GameStatus, string> = {
 export default function LibraryPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const [activeFilter, setActiveFilter] = useState<FilterStatus>("ALL");
+  const [gameToRemove, setGameToRemove] = useState<UserGameItem | null>(null);
 
   const { data, loading, refetch } = useQuery(GET_MY_GAMES_BY_STATUS, {
     variables: activeFilter === "ALL" ? {} : { status: activeFilter },
@@ -97,8 +109,10 @@ export default function LibraryPage() {
 
   const games: UserGameItem[] = data?.myGamesByStatus || [];
 
-  const handleRemove = async (gameId: string) => {
-    await clearGameStatus({ variables: { gameId } });
+  const handleRemove = async () => {
+    if (!gameToRemove) return;
+    await clearGameStatus({ variables: { gameId: gameToRemove.gameId } });
+    setGameToRemove(null);
   };
 
   const getStatusLabel = (status: GameStatus): string => {
@@ -210,7 +224,7 @@ export default function LibraryPage() {
                 </Link>
                 <button
                   className={styles.removeButton}
-                  onClick={() => handleRemove(item.gameId)}
+                  onClick={() => setGameToRemove(item)}
                   disabled={removing}
                   title="Remove from library"
                 >
@@ -250,6 +264,33 @@ export default function LibraryPage() {
           }
         />
       )}
+
+      {/* Remove Confirmation Dialog */}
+      <Dialog open={!!gameToRemove} onOpenChange={(open) => !open && setGameToRemove(null)}>
+        <DialogContent showCloseButton={false}>
+          <DialogHeader>
+            <div className={styles.dialogIcon}>
+              <AlertTriangle size={24} />
+            </div>
+            <DialogTitle>Remove from Library?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to remove <strong>{gameToRemove?.gameTitle}</strong> from your library? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose render={<ShadcnButton variant="secondary" />}>
+              Cancel
+            </DialogClose>
+            <ShadcnButton
+              variant="destructive"
+              onClick={handleRemove}
+              disabled={removing}
+            >
+              {removing ? "Removing..." : "Remove"}
+            </ShadcnButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
