@@ -178,7 +178,18 @@ export default function LibraryPage() {
                     <h3 className={styles.gameTitle}>{item.gameTitle}</h3>
                     {item.platformName && (
                       <div className={styles.platformBadge}>
-                        <Monitor size={12} />
+                        {item.platformSlug ? (
+                          <img
+                            src={`/platforms/${item.platformSlug}.svg`}
+                            alt={item.platformName}
+                            className={styles.platformIcon}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                            }}
+                          />
+                        ) : (
+                          <Monitor size={12} />
+                        )}
                         <span>{item.platformName}</span>
                       </div>
                     )}

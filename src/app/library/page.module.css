@@ -176,6 +176,12 @@
   margin-bottom: 8px;
 }
 
+.platformIcon {
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
 .gameDescription {
   font-size: 14px;
   color: var(--text-secondary);
