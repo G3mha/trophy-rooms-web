@@ -35,16 +35,20 @@ const PRIORITY_CONFIG: Record<BuylistPriority, PriorityConfig> = {
 };
 
 interface BuylistSelectorProps {
-  gameId: string;
+  gameId?: string;
+  bundleId?: string;
   variant?: "default" | "compact";
   className?: string;
 }
 
 export function BuylistSelector({
   gameId,
+  bundleId,
   variant = "default",
   className = "",
 }: BuylistSelectorProps) {
+  const itemId = gameId || bundleId;
+  const itemType = gameId ? "game" : "bundle";
   const { isSignedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isInBuylist, setIsInBuylist] = useState(false);
@@ -55,8 +59,8 @@ export function BuylistSelector({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { data, loading: queryLoading, refetch } = useQuery(IS_IN_BUYLIST, {
-    variables: { gameId },
-    skip: !isSignedIn,
+    variables: { gameId, bundleId },
+    skip: !isSignedIn || !itemId,
   });
 
   // Also fetch the buylist to get the item ID if it exists
@@ -66,7 +70,7 @@ export function BuylistSelector({
 
   const [addToBuylist, { loading: adding }] = useMutation(ADD_TO_BUYLIST, {
     refetchQueries: [
-      { query: IS_IN_BUYLIST, variables: { gameId } },
+      { query: IS_IN_BUYLIST, variables: { gameId, bundleId } },
       { query: GET_MY_BUYLIST },
     ],
     onCompleted: (result) => {
@@ -84,7 +88,7 @@ export function BuylistSelector({
 
   const [removeFromBuylist, { loading: removing }] = useMutation(REMOVE_FROM_BUYLIST, {
     refetchQueries: [
-      { query: IS_IN_BUYLIST, variables: { gameId } },
+      { query: IS_IN_BUYLIST, variables: { gameId, bundleId } },
       { query: GET_MY_BUYLIST },
     ],
     onCompleted: (result) => {
@@ -105,13 +109,14 @@ export function BuylistSelector({
   useEffect(() => {
     if (buylistData?.myBuylist && isInBuylist) {
       const item = buylistData.myBuylist.find(
-        (item: { gameId: string; id: string }) => item.gameId === gameId
+        (item: { gameId?: string; bundleId?: string; id: string }) =>
+          (gameId && item.gameId === gameId) || (bundleId && item.bundleId === bundleId)
       );
       if (item) {
         setBuylistItemId(item.id);
       }
     }
-  }, [buylistData, gameId, isInBuylist]);
+  }, [buylistData, gameId, bundleId, isInBuylist]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -129,17 +134,23 @@ export function BuylistSelector({
   }, []);
 
   const handleAdd = async () => {
-    if (adding || removing) return;
+    if (adding || removing || !itemId) return;
 
     const input: {
-      gameId: string;
+      gameId?: string;
+      bundleId?: string;
       priority: BuylistPriority;
       estimatedPrice?: number;
       notes?: string;
     } = {
-      gameId,
       priority: selectedPriority,
     };
+
+    if (gameId) {
+      input.gameId = gameId;
+    } else if (bundleId) {
+      input.bundleId = bundleId;
+    }
 
     if (estimatedPrice && parseFloat(estimatedPrice) > 0) {
       input.estimatedPrice = parseFloat(estimatedPrice);
@@ -157,7 +168,7 @@ export function BuylistSelector({
     await removeFromBuylist({ variables: { id: buylistItemId } });
   };
 
-  if (!isSignedIn) {
+  if (!isSignedIn || !itemId) {
     return null;
   }
 
@@ -279,7 +290,7 @@ export function BuylistSelector({
             <>
               <div className={styles.inBuylistMessage}>
                 <Check size={16} />
-                <span>This game is in your buylist</span>
+                <span>This {itemType} is in your buylist</span>
               </div>
               <div className={styles.divider} />
               <button
