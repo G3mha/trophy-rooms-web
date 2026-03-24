@@ -2,6 +2,7 @@ export { Header } from "./Header";
 export { Footer } from "./Footer";
 export { LoadingSpinner } from "./LoadingSpinner";
 export { GameCard } from "./GameCard";
+export { GroupedGameCard } from "./GroupedGameCard";
 export { AchievementCard } from "./AchievementCard";
 export { EmptyState } from "./EmptyState";
 export { StatCard } from "./StatCard";
