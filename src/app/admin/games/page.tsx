@@ -29,7 +29,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GameCombobox } from "@/components/ui/game-combobox";
 import styles from "../page.module.css";
+
+const GAME_TYPE_LABELS: Record<string, string> = {
+  BASE_GAME: "Base Game",
+  FANGAME: "Fangame",
+  ROM_HACK: "ROM Hack",
+  DLC: "DLC",
+  EXPANSION: "Expansion",
+};
 
 interface Platform {
   id: string;
@@ -68,7 +77,6 @@ export default function AdminGamesPage() {
   const [newPlatformId, setNewPlatformId] = useState("");
   const [newType, setNewType] = useState<string>("BASE_GAME");
   const [newBaseGameId, setNewBaseGameId] = useState("");
-  const [baseGameSearch, setBaseGameSearch] = useState("");
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -79,7 +87,6 @@ export default function AdminGamesPage() {
   const [editPlatformId, setEditPlatformId] = useState("");
   const [editType, setEditType] = useState<string>("BASE_GAME");
   const [editBaseGameId, setEditBaseGameId] = useState("");
-  const [editBaseGameSearch, setEditBaseGameSearch] = useState("");
 
   // Clone modal state
   const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
@@ -174,7 +181,6 @@ export default function AdminGamesPage() {
     setNewPlatformId("");
     setNewType("BASE_GAME");
     setNewBaseGameId("");
-    setBaseGameSearch("");
   };
 
   const resetEditForm = () => {
@@ -185,7 +191,6 @@ export default function AdminGamesPage() {
     setEditPlatformId("");
     setEditType("BASE_GAME");
     setEditBaseGameId("");
-    setEditBaseGameSearch("");
   };
 
   const openEditModal = (game: Game) => {
@@ -259,14 +264,10 @@ export default function AdminGamesPage() {
   // Filter base games for the pickers
   const baseGameOptions = games.filter(
     (g: Game) => g.type === "BASE_GAME" || !g.type
-  ).filter(
-    (g: Game) => baseGameSearch === "" || g.title.toLowerCase().includes(baseGameSearch.toLowerCase())
   );
 
   const editBaseGameOptions = games.filter(
     (g: Game) => (g.type === "BASE_GAME" || !g.type) && g.id !== editingGame?.id
-  ).filter(
-    (g: Game) => editBaseGameSearch === "" || g.title.toLowerCase().includes(editBaseGameSearch.toLowerCase())
   );
 
   const handlePageChange = useCallback(
@@ -378,7 +379,9 @@ export default function AdminGamesPage() {
               <label className={styles.formLabel}>Type</label>
               <Select value={newType} onValueChange={(value) => setNewType(value || "BASE_GAME")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <span className={newType ? "" : "text-[var(--text-muted)]"}>
+                    {GAME_TYPE_LABELS[newType] || "Select type"}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BASE_GAME">Base Game</SelectItem>
@@ -393,20 +396,14 @@ export default function AdminGamesPage() {
             {newType !== "BASE_GAME" && (
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Based On (Original Game)</label>
-                <Select value={newBaseGameId} onValueChange={(value) => setNewBaseGameId(value || "")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select base game" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {baseGameOptions.map((g: Game) => (
-                      <SelectItem key={g.id} value={g.id}>
-                        {g.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <GameCombobox
+                  games={baseGameOptions}
+                  value={newBaseGameId}
+                  onChange={setNewBaseGameId}
+                  placeholder="Search for base game..."
+                />
                 <span className={styles.formHint}>
-                  Link this {newType === "FANGAME" ? "fangame" : newType === "ROM_HACK" ? "ROM hack" : newType === "DLC" ? "DLC" : "expansion"} to its original game
+                  Link this {GAME_TYPE_LABELS[newType]?.toLowerCase() || "game"} to its original game
                 </span>
               </div>
             )}
@@ -560,9 +557,9 @@ export default function AdminGamesPage() {
               <label className={styles.formLabel}>Platform</label>
               <Select value={editPlatformId} onValueChange={(value) => setEditPlatformId(value || "")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a platform">
+                  <span className={editPlatformId ? "" : "text-[var(--text-muted)]"}>
                     {platforms.find((p: Platform) => p.id === editPlatformId)?.name || "Select a platform"}
-                  </SelectValue>
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {platforms.map((p: Platform) => (
@@ -578,13 +575,9 @@ export default function AdminGamesPage() {
               <label className={styles.formLabel}>Type</label>
               <Select value={editType} onValueChange={(value) => setEditType(value || "BASE_GAME")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type">
-                    {editType === "BASE_GAME" ? "Base Game" :
-                     editType === "FANGAME" ? "Fangame" :
-                     editType === "ROM_HACK" ? "ROM Hack" :
-                     editType === "DLC" ? "DLC" :
-                     editType === "EXPANSION" ? "Expansion" : "Select type"}
-                  </SelectValue>
+                  <span className={editType ? "" : "text-[var(--text-muted)]"}>
+                    {GAME_TYPE_LABELS[editType] || "Select type"}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BASE_GAME">Base Game</SelectItem>
@@ -599,26 +592,15 @@ export default function AdminGamesPage() {
             {editType !== "BASE_GAME" && (
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Based On (Original Game)</label>
-                <Select value={editBaseGameId} onValueChange={(value) => setEditBaseGameId(value || "")}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select base game">
-                      {editBaseGameId
-                        ? (editBaseGameOptions.find((g: Game) => g.id === editBaseGameId)?.title ||
-                           editingGame?.baseGame?.title ||
-                           "Select base game")
-                        : "Select base game"}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {editBaseGameOptions.map((g: Game) => (
-                      <SelectItem key={g.id} value={g.id}>
-                        {g.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <GameCombobox
+                  games={editBaseGameOptions}
+                  value={editBaseGameId}
+                  onChange={setEditBaseGameId}
+                  placeholder="Search for base game..."
+                  excludeIds={editingGame ? [editingGame.id] : []}
+                />
                 <span className={styles.formHint}>
-                  Link this {editType === "FANGAME" ? "fangame" : editType === "ROM_HACK" ? "ROM hack" : editType === "DLC" ? "DLC" : "expansion"} to its original game
+                  Link this {GAME_TYPE_LABELS[editType]?.toLowerCase() || "game"} to its original game
                 </span>
               </div>
             )}
