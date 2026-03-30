@@ -302,6 +302,17 @@
   opacity: 1;
 }
 
+/* Group Header - for expandable groups */
+.groupHeader {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+.groupHeader:hover {
+  background: var(--bg-card);
+  border-color: var(--border-color-hover, #444);
+}
+
 /* Action Buttons - Icon style */
 .actionBtn {
   display: flex;

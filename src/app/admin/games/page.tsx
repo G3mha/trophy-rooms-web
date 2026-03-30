@@ -10,7 +10,7 @@ import {
   BULK_DELETE_GAMES,
   CLONE_GAME_TO_PLATFORM,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Plus, Search, Copy } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, Copy, ChevronRight, ChevronDown, Layers } from "lucide-react";
 import { Button, LoadingSpinner, Pagination } from "@/components";
 import {
   Dialog,
@@ -99,6 +99,10 @@ export default function AdminGamesPage() {
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
+  // Grouping state
+  const [groupByTitle, setGroupByTitle] = useState(true);
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
   // Pagination state
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
@@ -174,6 +178,40 @@ export default function AdminGamesPage() {
   };
   const totalCount = gamesData?.games?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Group games by title
+  interface GameGroup {
+    title: string;
+    games: Game[];
+    totalAchievements: number;
+  }
+
+  const groupedGames: GameGroup[] = (() => {
+    if (!groupByTitle) return [];
+    const groups = new Map<string, Game[]>();
+    games.forEach((game: Game) => {
+      const existing = groups.get(game.title) || [];
+      existing.push(game);
+      groups.set(game.title, existing);
+    });
+    return Array.from(groups.entries()).map(([title, gameList]) => ({
+      title,
+      games: gameList,
+      totalAchievements: gameList.reduce((sum, g) => sum + g.achievementCount, 0),
+    }));
+  })();
+
+  const toggleGroupExpanded = (title: string) => {
+    setExpandedGroups((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(title)) {
+        newSet.delete(title);
+      } else {
+        newSet.add(title);
+      }
+      return newSet;
+    });
+  };
 
   const resetForm = () => {
     setNewTitle("");
@@ -334,6 +372,15 @@ export default function AdminGamesPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        <Button
+          variant={groupByTitle ? "default" : "outline"}
+          size="sm"
+          onClick={() => setGroupByTitle(!groupByTitle)}
+          title="Group games by title"
+        >
+          <Layers size={16} />
+          Group
+        </Button>
         <Button onClick={() => setIsAddModalOpen(true)}>
           <Plus size={18} />
           Add Game
@@ -686,67 +733,237 @@ export default function AdminGamesPage() {
           )}
 
           <div className={styles.itemsGrid}>
-            {games.map((game: Game) => (
-              <div
-                key={game.id}
-                className={`${styles.itemCard} ${
-                  selectedIds.has(game.id) ? styles.selected : ""
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  className={styles.itemCheckbox}
-                  checked={selectedIds.has(game.id)}
-                  onChange={(e) => {
-                    const newSet = new Set(selectedIds);
-                    if (e.target.checked) newSet.add(game.id);
-                    else newSet.delete(game.id);
-                    setSelectedIds(newSet);
-                  }}
-                />
-                <div className={styles.itemInfo}>
-                  <span className={styles.itemName}>{game.title}</span>
-                  <span className={styles.itemSlug}>
-                    {game.platform?.name || "No platform"}
-                  </span>
-                  {game.type && game.type !== "BASE_GAME" && (
-                    <span className={styles.badge}>
-                      {game.type.replace("_", " ")}
-                    </span>
-                  )}
-                </div>
-                <span className={styles.itemMeta}>
-                  {game.achievementCount} achievements
-                </span>
-                <div className={styles.itemActions}>
-                  <button
-                    className={styles.actionBtn}
-                    onClick={() => openCloneModal(game)}
-                    title="Clone to Platform"
-                  >
-                    <Copy size={14} />
-                  </button>
-                  <button
-                    className={styles.actionBtn}
-                    onClick={() => openEditModal(game)}
-                    title="Edit"
-                  >
-                    <Pencil size={14} />
-                  </button>
-                  <button
-                    className={`${styles.actionBtn} ${styles.danger}`}
-                    onClick={async () => {
-                      if (confirm(`Delete ${game.title}?`)) {
-                        await deleteGame({ variables: { id: game.id } });
-                      }
+            {groupByTitle ? (
+              // Grouped view
+              <>
+                {groupedGames.map((group) => (
+                  <div key={group.title}>
+                    {group.games.length === 1 ? (
+                      // Single game - render normally
+                      <div
+                        className={`${styles.itemCard} ${
+                          selectedIds.has(group.games[0].id) ? styles.selected : ""
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          className={styles.itemCheckbox}
+                          checked={selectedIds.has(group.games[0].id)}
+                          onChange={(e) => {
+                            const newSet = new Set(selectedIds);
+                            if (e.target.checked) newSet.add(group.games[0].id);
+                            else newSet.delete(group.games[0].id);
+                            setSelectedIds(newSet);
+                          }}
+                        />
+                        <div className={styles.itemInfo}>
+                          <span className={styles.itemName}>{group.games[0].title}</span>
+                          <span className={styles.itemSlug}>
+                            {group.games[0].platform?.name || "No platform"}
+                          </span>
+                          {group.games[0].type && group.games[0].type !== "BASE_GAME" && (
+                            <span className={styles.badge}>
+                              {group.games[0].type.replace("_", " ")}
+                            </span>
+                          )}
+                        </div>
+                        <span className={styles.itemMeta}>
+                          {group.games[0].achievementCount} achievements
+                        </span>
+                        <div className={styles.itemActions}>
+                          <button
+                            className={styles.actionBtn}
+                            onClick={() => openCloneModal(group.games[0])}
+                            title="Clone to Platform"
+                          >
+                            <Copy size={14} />
+                          </button>
+                          <button
+                            className={styles.actionBtn}
+                            onClick={() => openEditModal(group.games[0])}
+                            title="Edit"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            className={`${styles.actionBtn} ${styles.danger}`}
+                            onClick={async () => {
+                              if (confirm(`Delete ${group.games[0].title}?`)) {
+                                await deleteGame({ variables: { id: group.games[0].id } });
+                              }
+                            }}
+                            title="Delete"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      // Multiple platforms - render as expandable group
+                      <>
+                        <div
+                          className={`${styles.itemCard} ${styles.groupHeader}`}
+                          onClick={() => toggleGroupExpanded(group.title)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            {expandedGroups.has(group.title) ? (
+                              <ChevronDown size={18} style={{ color: "var(--text-muted)" }} />
+                            ) : (
+                              <ChevronRight size={18} style={{ color: "var(--text-muted)" }} />
+                            )}
+                          </div>
+                          <div className={styles.itemInfo}>
+                            <span className={styles.itemName}>{group.title}</span>
+                            <span className={styles.itemSlug}>
+                              {group.games.length} platforms: {group.games.map(g => g.platform?.name).filter(Boolean).join(", ")}
+                            </span>
+                          </div>
+                          <span className={styles.itemMeta}>
+                            {group.totalAchievements} achievements total
+                          </span>
+                        </div>
+                        {expandedGroups.has(group.title) && (
+                          <div style={{ marginLeft: 24, borderLeft: "2px solid var(--border-color)", paddingLeft: 8 }}>
+                            {group.games.map((game) => (
+                              <div
+                                key={game.id}
+                                className={`${styles.itemCard} ${
+                                  selectedIds.has(game.id) ? styles.selected : ""
+                                }`}
+                                style={{ marginTop: 4 }}
+                              >
+                                <input
+                                  type="checkbox"
+                                  className={styles.itemCheckbox}
+                                  checked={selectedIds.has(game.id)}
+                                  onChange={(e) => {
+                                    const newSet = new Set(selectedIds);
+                                    if (e.target.checked) newSet.add(game.id);
+                                    else newSet.delete(game.id);
+                                    setSelectedIds(newSet);
+                                  }}
+                                />
+                                <div className={styles.itemInfo}>
+                                  <span className={styles.itemSlug} style={{ fontWeight: 500 }}>
+                                    {game.platform?.name || "No platform"}
+                                  </span>
+                                  {game.type && game.type !== "BASE_GAME" && (
+                                    <span className={styles.badge}>
+                                      {game.type.replace("_", " ")}
+                                    </span>
+                                  )}
+                                </div>
+                                <span className={styles.itemMeta}>
+                                  {game.achievementCount} achievements
+                                </span>
+                                <div className={styles.itemActions}>
+                                  <button
+                                    className={styles.actionBtn}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openCloneModal(game);
+                                    }}
+                                    title="Clone to Platform"
+                                  >
+                                    <Copy size={14} />
+                                  </button>
+                                  <button
+                                    className={styles.actionBtn}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openEditModal(game);
+                                    }}
+                                    title="Edit"
+                                  >
+                                    <Pencil size={14} />
+                                  </button>
+                                  <button
+                                    className={`${styles.actionBtn} ${styles.danger}`}
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      if (confirm(`Delete ${game.title} (${game.platform?.name})?`)) {
+                                        await deleteGame({ variables: { id: game.id } });
+                                      }
+                                    }}
+                                    title="Delete"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ))}
+              </>
+            ) : (
+              // Flat view (ungrouped)
+              games.map((game: Game) => (
+                <div
+                  key={game.id}
+                  className={`${styles.itemCard} ${
+                    selectedIds.has(game.id) ? styles.selected : ""
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className={styles.itemCheckbox}
+                    checked={selectedIds.has(game.id)}
+                    onChange={(e) => {
+                      const newSet = new Set(selectedIds);
+                      if (e.target.checked) newSet.add(game.id);
+                      else newSet.delete(game.id);
+                      setSelectedIds(newSet);
                     }}
-                    title="Delete"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  />
+                  <div className={styles.itemInfo}>
+                    <span className={styles.itemName}>{game.title}</span>
+                    <span className={styles.itemSlug}>
+                      {game.platform?.name || "No platform"}
+                    </span>
+                    {game.type && game.type !== "BASE_GAME" && (
+                      <span className={styles.badge}>
+                        {game.type.replace("_", " ")}
+                      </span>
+                    )}
+                  </div>
+                  <span className={styles.itemMeta}>
+                    {game.achievementCount} achievements
+                  </span>
+                  <div className={styles.itemActions}>
+                    <button
+                      className={styles.actionBtn}
+                      onClick={() => openCloneModal(game)}
+                      title="Clone to Platform"
+                    >
+                      <Copy size={14} />
+                    </button>
+                    <button
+                      className={styles.actionBtn}
+                      onClick={() => openEditModal(game)}
+                      title="Edit"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      className={`${styles.actionBtn} ${styles.danger}`}
+                      onClick={async () => {
+                        if (confirm(`Delete ${game.title}?`)) {
+                          await deleteGame({ variables: { id: game.id } });
+                        }
+                      }}
+                      title="Delete"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
             {games.length === 0 && !loading && (
               <p className={styles.emptyState}>
                 {searchQuery
