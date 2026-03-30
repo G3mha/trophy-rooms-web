@@ -37,3 +37,6 @@ next-env.d.ts
 
 # generated
 src/generated/graphql.ts
+
+# clerk configuration (can include secrets)
+/.clerk/
