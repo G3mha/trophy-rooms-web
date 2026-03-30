@@ -373,7 +373,7 @@ export default function AdminGamesPage() {
           />
         </div>
         <Button
-          variant={groupByTitle ? "default" : "outline"}
+          variant={groupByTitle ? "primary" : "outline"}
           size="sm"
           onClick={() => setGroupByTitle(!groupByTitle)}
           title="Group games by title"
