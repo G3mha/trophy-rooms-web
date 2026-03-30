@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
-import { GET_BUNDLES, GET_GAMES_ADMIN } from "@/graphql/admin_queries";
+import { GET_BUNDLES, GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
   CREATE_BUNDLE,
   UPDATE_BUNDLE,
@@ -29,6 +29,11 @@ import {
 } from "@/components/ui/select";
 import styles from "../page.module.css";
 
+interface Platform {
+  id: string;
+  name: string;
+}
+
 interface Game {
   id: string;
   title: string;
@@ -50,6 +55,8 @@ interface Bundle {
   coverUrl?: string | null;
   releaseDate?: string | null;
   price?: number | null;
+  platform?: Platform | null;
+  platformId?: string | null;
   games?: Game[];
   dlcs?: DLC[];
   gameCount: number;
@@ -76,6 +83,7 @@ export default function AdminBundlesPage() {
   const [newCoverUrl, setNewCoverUrl] = useState("");
   const [newReleaseDate, setNewReleaseDate] = useState("");
   const [newPrice, setNewPrice] = useState("");
+  const [newPlatformId, setNewPlatformId] = useState("");
   const [newGameIds, setNewGameIds] = useState<string[]>([]);
 
   // Edit modal state
@@ -88,6 +96,7 @@ export default function AdminBundlesPage() {
   const [editCoverUrl, setEditCoverUrl] = useState("");
   const [editReleaseDate, setEditReleaseDate] = useState("");
   const [editPrice, setEditPrice] = useState("");
+  const [editPlatformId, setEditPlatformId] = useState("");
   const [editGameIds, setEditGameIds] = useState<string[]>([]);
 
   // Game search state
@@ -106,6 +115,8 @@ export default function AdminBundlesPage() {
   const { data: gamesData } = useQuery(GET_GAMES_ADMIN, {
     variables: { first: 100, orderBy: "TITLE_ASC" },
   });
+
+  const { data: platformsData } = useQuery(GET_PLATFORMS);
 
   const [createBundle, { loading: creating }] = useMutation(CREATE_BUNDLE, {
     onCompleted: () => {
@@ -133,6 +144,7 @@ export default function AdminBundlesPage() {
 
   const bundles = bundlesData?.bundles || [];
   const allGames = gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [];
+  const platforms = platformsData?.platforms || [];
 
   const filteredBundles = bundles.filter((b: Bundle) =>
     searchQuery === "" ||
@@ -152,6 +164,7 @@ export default function AdminBundlesPage() {
     setNewCoverUrl("");
     setNewReleaseDate("");
     setNewPrice("");
+    setNewPlatformId("");
     setNewGameIds([]);
     setGameSearch("");
   };
@@ -165,6 +178,7 @@ export default function AdminBundlesPage() {
     setEditCoverUrl("");
     setEditReleaseDate("");
     setEditPrice("");
+    setEditPlatformId("");
     setEditGameIds([]);
     setGameSearch("");
   };
@@ -178,6 +192,7 @@ export default function AdminBundlesPage() {
     setEditCoverUrl(bundle.coverUrl || "");
     setEditReleaseDate(bundle.releaseDate ? bundle.releaseDate.split("T")[0] : "");
     setEditPrice(bundle.price?.toString() || "");
+    setEditPlatformId(bundle.platformId || "");
     setEditGameIds(bundle.games?.map((g) => g.id) || []);
     setIsEditModalOpen(true);
   };
@@ -194,6 +209,7 @@ export default function AdminBundlesPage() {
           coverUrl: newCoverUrl || null,
           releaseDate: newReleaseDate || null,
           price: newPrice ? parseFloat(newPrice) : null,
+          platformId: newPlatformId || null,
           gameIds: newGameIds.length > 0 ? newGameIds : null,
         },
       },
@@ -213,6 +229,7 @@ export default function AdminBundlesPage() {
           coverUrl: editCoverUrl || null,
           releaseDate: editReleaseDate || null,
           price: editPrice ? parseFloat(editPrice) : null,
+          platformId: editPlatformId || null,
           gameIds: editGameIds,
         },
       },
@@ -456,6 +473,24 @@ export default function AdminBundlesPage() {
             </div>
 
             <div className={styles.formField}>
+              <label className={styles.formLabel}>Platform</label>
+              <Select value={newPlatformId} onValueChange={(value) => setNewPlatformId(value || "")}>
+                <SelectTrigger>
+                  <span className={newPlatformId ? "" : "text-[var(--text-muted)]"}>
+                    {platforms.find((p: Platform) => p.id === newPlatformId)?.name || "Select a platform"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {platforms.map((p: Platform) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className={styles.formField}>
               <label className={styles.formLabel}>Description</label>
               <Textarea
                 placeholder="Enter bundle description (optional)"
@@ -587,6 +622,24 @@ export default function AdminBundlesPage() {
             </div>
 
             <div className={styles.formField}>
+              <label className={styles.formLabel}>Platform</label>
+              <Select value={editPlatformId} onValueChange={(value) => setEditPlatformId(value || "")}>
+                <SelectTrigger>
+                  <span className={editPlatformId ? "" : "text-[var(--text-muted)]"}>
+                    {platforms.find((p: Platform) => p.id === editPlatformId)?.name || "Select a platform"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {platforms.map((p: Platform) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className={styles.formField}>
               <label className={styles.formLabel}>Description</label>
               <Textarea
                 placeholder="Enter bundle description (optional)"
@@ -706,7 +759,9 @@ export default function AdminBundlesPage() {
             />
             <div className={styles.itemInfo}>
               <span className={styles.itemName}>{bundle.name}</span>
-              <span className={styles.itemSlug}>{bundle.slug}</span>
+              <span className={styles.itemSlug}>
+                {bundle.platform?.name || "No platform"} • {bundle.slug}
+              </span>
               <span className={`${styles.badge} ${styles.badgeCount}`}>
                 {bundle.type.replace("_", " ")}
               </span>
