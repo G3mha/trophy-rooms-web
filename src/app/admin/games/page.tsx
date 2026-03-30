@@ -10,7 +10,7 @@ import {
   BULK_DELETE_GAMES,
   CLONE_GAME_TO_PLATFORM,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Check, X, Plus, Search, Copy } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, Copy } from "lucide-react";
 import { Button, LoadingSpinner, Pagination } from "@/components";
 import {
   Dialog,
@@ -44,6 +44,7 @@ interface Game {
   platform?: Platform | null;
   type?: string;
   baseGame?: { id: string; title: string } | null;
+  baseGameId?: string | null;
   achievementCount: number;
 }
 
@@ -69,9 +70,16 @@ export default function AdminGamesPage() {
   const [newBaseGameId, setNewBaseGameId] = useState("");
   const [baseGameSearch, setBaseGameSearch] = useState("");
 
-  // Edit state
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState("");
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingGame, setEditingGame] = useState<Game | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCoverUrl, setEditCoverUrl] = useState("");
+  const [editPlatformId, setEditPlatformId] = useState("");
+  const [editType, setEditType] = useState<string>("BASE_GAME");
+  const [editBaseGameId, setEditBaseGameId] = useState("");
+  const [editBaseGameSearch, setEditBaseGameSearch] = useState("");
 
   // Clone modal state
   const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
@@ -123,8 +131,12 @@ export default function AdminGamesPage() {
       resetForm();
     },
   });
-  const [updateGame] = useMutation(UPDATE_GAME, {
-    onCompleted: () => refetch(),
+  const [updateGame, { loading: updating }] = useMutation(UPDATE_GAME, {
+    onCompleted: () => {
+      refetch();
+      setIsEditModalOpen(false);
+      resetEditForm();
+    },
   });
   const [deleteGame] = useMutation(DELETE_GAME, {
     onCompleted: () => refetch(),
@@ -163,6 +175,45 @@ export default function AdminGamesPage() {
     setNewType("BASE_GAME");
     setNewBaseGameId("");
     setBaseGameSearch("");
+  };
+
+  const resetEditForm = () => {
+    setEditingGame(null);
+    setEditTitle("");
+    setEditDescription("");
+    setEditCoverUrl("");
+    setEditPlatformId("");
+    setEditType("BASE_GAME");
+    setEditBaseGameId("");
+    setEditBaseGameSearch("");
+  };
+
+  const openEditModal = (game: Game) => {
+    setEditingGame(game);
+    setEditTitle(game.title);
+    setEditDescription(game.description || "");
+    setEditCoverUrl(game.coverUrl || "");
+    setEditPlatformId(game.platform?.id || "");
+    setEditType(game.type || "BASE_GAME");
+    setEditBaseGameId(game.baseGame?.id || "");
+    setIsEditModalOpen(true);
+  };
+
+  const handleUpdateGame = async () => {
+    if (!editingGame || !editTitle || !editPlatformId) return;
+    await updateGame({
+      variables: {
+        id: editingGame.id,
+        input: {
+          title: editTitle,
+          description: editDescription || null,
+          coverUrl: editCoverUrl || null,
+          platformId: editPlatformId,
+          type: editType,
+          baseGameId: editType !== "BASE_GAME" && editBaseGameId ? editBaseGameId : null,
+        },
+      },
+    });
   };
 
   const resetCloneForm = () => {
@@ -205,11 +256,17 @@ export default function AdminGamesPage() {
     });
   };
 
-  // Filter base games for the picker
+  // Filter base games for the pickers
   const baseGameOptions = games.filter(
     (g: Game) => g.type === "BASE_GAME" || !g.type
   ).filter(
     (g: Game) => baseGameSearch === "" || g.title.toLowerCase().includes(baseGameSearch.toLowerCase())
+  );
+
+  const editBaseGameOptions = games.filter(
+    (g: Game) => (g.type === "BASE_GAME" || !g.type) && g.id !== editingGame?.id
+  ).filter(
+    (g: Game) => editBaseGameSearch === "" || g.title.toLowerCase().includes(editBaseGameSearch.toLowerCase())
   );
 
   const handlePageChange = useCallback(
@@ -327,6 +384,8 @@ export default function AdminGamesPage() {
                   <SelectItem value="BASE_GAME">Base Game</SelectItem>
                   <SelectItem value="FANGAME">Fangame</SelectItem>
                   <SelectItem value="ROM_HACK">ROM Hack</SelectItem>
+                  <SelectItem value="DLC">DLC</SelectItem>
+                  <SelectItem value="EXPANSION">Expansion</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -347,7 +406,7 @@ export default function AdminGamesPage() {
                   </SelectContent>
                 </Select>
                 <span className={styles.formHint}>
-                  Link this {newType === "FANGAME" ? "fangame" : "ROM hack"} to its original game
+                  Link this {newType === "FANGAME" ? "fangame" : newType === "ROM_HACK" ? "ROM hack" : newType === "DLC" ? "DLC" : "expansion"} to its original game
                 </span>
               </div>
             )}
@@ -474,6 +533,138 @@ export default function AdminGamesPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Game Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={(open) => {
+        setIsEditModalOpen(open);
+        if (!open) resetEditForm();
+      }}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Edit Game</DialogTitle>
+            <DialogDescription>
+              Update game details.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className={styles.modalForm}>
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Game Title</label>
+              <Input
+                placeholder="Enter game title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Platform</label>
+              <Select value={editPlatformId} onValueChange={(value) => setEditPlatformId(value || "")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a platform" />
+                </SelectTrigger>
+                <SelectContent>
+                  {platforms.map((p: Platform) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Type</label>
+              <Select value={editType} onValueChange={(value) => setEditType(value || "BASE_GAME")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="BASE_GAME">Base Game</SelectItem>
+                  <SelectItem value="FANGAME">Fangame</SelectItem>
+                  <SelectItem value="ROM_HACK">ROM Hack</SelectItem>
+                  <SelectItem value="DLC">DLC</SelectItem>
+                  <SelectItem value="EXPANSION">Expansion</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {editType !== "BASE_GAME" && (
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Based On (Original Game)</label>
+                <Select value={editBaseGameId} onValueChange={(value) => setEditBaseGameId(value || "")}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select base game" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {editBaseGameOptions.map((g: Game) => (
+                      <SelectItem key={g.id} value={g.id}>
+                        {g.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <span className={styles.formHint}>
+                  Link this {editType === "FANGAME" ? "fangame" : editType === "ROM_HACK" ? "ROM hack" : editType === "DLC" ? "DLC" : "expansion"} to its original game
+                </span>
+              </div>
+            )}
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Description</label>
+              <Textarea
+                placeholder="Enter game description (optional)"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Cover URL</label>
+              <Input
+                placeholder="https://example.com/cover.jpg"
+                value={editCoverUrl}
+                onChange={(e) => setEditCoverUrl(e.target.value)}
+              />
+            </div>
+
+            {editCoverUrl && (
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Cover Preview</label>
+                <div className={styles.coverPreview}>
+                  <img
+                    src={editCoverUrl}
+                    alt="Cover preview"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsEditModalOpen(false);
+                resetEditForm();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateGame}
+              loading={updating}
+              disabled={!editTitle || !editPlatformId}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {loading && games.length === 0 ? (
         <LoadingSpinner text="Loading games..." />
       ) : (
@@ -505,96 +696,58 @@ export default function AdminGamesPage() {
                   selectedIds.has(game.id) ? styles.selected : ""
                 }`}
               >
-                {editingId === game.id ? (
-                  <div className={styles.editForm}>
-                    <input
-                      className={styles.editInput}
-                      value={editingTitle}
-                      onChange={(e) => setEditingTitle(e.target.value)}
-                      placeholder="Title"
-                    />
-                    <div className={styles.editActions}>
-                      <button
-                        className={styles.actionBtn}
-                        onClick={async () => {
-                          await updateGame({
-                            variables: {
-                              id: game.id,
-                              input: { title: editingTitle },
-                            },
-                          });
-                          setEditingId(null);
-                        }}
-                      >
-                        <Check size={16} />
-                      </button>
-                      <button
-                        className={styles.actionBtn}
-                        onClick={() => setEditingId(null)}
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <input
-                      type="checkbox"
-                      className={styles.itemCheckbox}
-                      checked={selectedIds.has(game.id)}
-                      onChange={(e) => {
-                        const newSet = new Set(selectedIds);
-                        if (e.target.checked) newSet.add(game.id);
-                        else newSet.delete(game.id);
-                        setSelectedIds(newSet);
-                      }}
-                    />
-                    <div className={styles.itemInfo}>
-                      <span className={styles.itemName}>{game.title}</span>
-                      <span className={styles.itemSlug}>
-                        {game.platform?.name || "No platform"}
-                      </span>
-                      {game.type && game.type !== "BASE_GAME" && (
-                        <span className={styles.badge}>
-                          {game.type.replace("_", " ")}
-                        </span>
-                      )}
-                    </div>
-                    <span className={styles.itemMeta}>
-                      {game.achievementCount} achievements
+                <input
+                  type="checkbox"
+                  className={styles.itemCheckbox}
+                  checked={selectedIds.has(game.id)}
+                  onChange={(e) => {
+                    const newSet = new Set(selectedIds);
+                    if (e.target.checked) newSet.add(game.id);
+                    else newSet.delete(game.id);
+                    setSelectedIds(newSet);
+                  }}
+                />
+                <div className={styles.itemInfo}>
+                  <span className={styles.itemName}>{game.title}</span>
+                  <span className={styles.itemSlug}>
+                    {game.platform?.name || "No platform"}
+                  </span>
+                  {game.type && game.type !== "BASE_GAME" && (
+                    <span className={styles.badge}>
+                      {game.type.replace("_", " ")}
                     </span>
-                    <div className={styles.itemActions}>
-                      <button
-                        className={styles.actionBtn}
-                        onClick={() => openCloneModal(game)}
-                        title="Clone to Platform"
-                      >
-                        <Copy size={14} />
-                      </button>
-                      <button
-                        className={styles.actionBtn}
-                        onClick={() => {
-                          setEditingId(game.id);
-                          setEditingTitle(game.title);
-                        }}
-                        title="Edit"
-                      >
-                        <Pencil size={14} />
-                      </button>
-                      <button
-                        className={`${styles.actionBtn} ${styles.danger}`}
-                        onClick={async () => {
-                          if (confirm(`Delete ${game.title}?`)) {
-                            await deleteGame({ variables: { id: game.id } });
-                          }
-                        }}
-                        title="Delete"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </>
-                )}
+                  )}
+                </div>
+                <span className={styles.itemMeta}>
+                  {game.achievementCount} achievements
+                </span>
+                <div className={styles.itemActions}>
+                  <button
+                    className={styles.actionBtn}
+                    onClick={() => openCloneModal(game)}
+                    title="Clone to Platform"
+                  >
+                    <Copy size={14} />
+                  </button>
+                  <button
+                    className={styles.actionBtn}
+                    onClick={() => openEditModal(game)}
+                    title="Edit"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    className={`${styles.actionBtn} ${styles.danger}`}
+                    onClick={async () => {
+                      if (confirm(`Delete ${game.title}?`)) {
+                        await deleteGame({ variables: { id: game.id } });
+                      }
+                    }}
+                    title="Delete"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </div>
             ))}
             {games.length === 0 && !loading && (
