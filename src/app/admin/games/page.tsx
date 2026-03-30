@@ -14,6 +14,7 @@ import { Trash2, Pencil, Plus, Search, Copy } from "lucide-react";
 import { Button, LoadingSpinner, Pagination } from "@/components";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -349,7 +350,7 @@ export default function AdminGamesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className={styles.modalForm}>
+          <DialogBody className={styles.modalForm}>
             <div className={styles.formField}>
               <label className={styles.formLabel}>Game Title</label>
               <Input
@@ -441,7 +442,7 @@ export default function AdminGamesPage() {
                 </div>
               </div>
             )}
-          </div>
+          </DialogBody>
 
           <DialogFooter>
             <Button
@@ -477,7 +478,7 @@ export default function AdminGamesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className={styles.modalForm}>
+          <DialogBody className={styles.modalForm}>
             <div className={styles.formField}>
               <label className={styles.formLabel}>Target Platform</label>
               <Select value={cloneTargetPlatformId} onValueChange={(value) => value && setCloneTargetPlatformId(value)}>
@@ -507,7 +508,7 @@ export default function AdminGamesPage() {
                 If checked, all achievement sets and achievements will be copied to the new game.
               </span>
             </div>
-          </div>
+          </DialogBody>
 
           <DialogFooter>
             <Button
@@ -543,7 +544,7 @@ export default function AdminGamesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className={styles.modalForm}>
+          <DialogBody className={styles.modalForm}>
             <div className={styles.formField}>
               <label className={styles.formLabel}>Game Title</label>
               <Input
@@ -638,7 +639,7 @@ export default function AdminGamesPage() {
                 </div>
               </div>
             )}
-          </div>
+          </DialogBody>
 
           <DialogFooter>
             <Button

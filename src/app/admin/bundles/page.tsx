@@ -13,6 +13,7 @@ import { Trash2, Pencil, Package, Plus, Search, X } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -433,7 +434,7 @@ export default function AdminBundlesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className={styles.modalForm}>
+          <DialogBody className={styles.modalForm}>
             <div className={styles.formField}>
               <label className={styles.formLabel}>Bundle Name *</label>
               <Input
@@ -551,7 +552,7 @@ export default function AdminBundlesPage() {
               onSelect={(id) => setNewGameIds([...newGameIds, id])}
               onRemove={(id) => setNewGameIds(newGameIds.filter((gid) => gid !== id))}
             />
-          </div>
+          </DialogBody>
 
           <DialogFooter>
             <Button
@@ -587,7 +588,7 @@ export default function AdminBundlesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className={styles.modalForm}>
+          <DialogBody className={styles.modalForm}>
             <div className={styles.formField}>
               <label className={styles.formLabel}>Bundle Name *</label>
               <Input
@@ -700,7 +701,7 @@ export default function AdminBundlesPage() {
               onSelect={(id) => setEditGameIds([...editGameIds, id])}
               onRemove={(id) => setEditGameIds(editGameIds.filter((gid) => gid !== id))}
             />
-          </div>
+          </DialogBody>
 
           <DialogFooter>
             <Button
