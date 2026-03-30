@@ -560,7 +560,9 @@ export default function AdminGamesPage() {
               <label className={styles.formLabel}>Platform</label>
               <Select value={editPlatformId} onValueChange={(value) => setEditPlatformId(value || "")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a platform" />
+                  <SelectValue placeholder="Select a platform">
+                    {platforms.find((p: Platform) => p.id === editPlatformId)?.name || "Select a platform"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {platforms.map((p: Platform) => (
@@ -576,7 +578,13 @@ export default function AdminGamesPage() {
               <label className={styles.formLabel}>Type</label>
               <Select value={editType} onValueChange={(value) => setEditType(value || "BASE_GAME")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder="Select type">
+                    {editType === "BASE_GAME" ? "Base Game" :
+                     editType === "FANGAME" ? "Fangame" :
+                     editType === "ROM_HACK" ? "ROM Hack" :
+                     editType === "DLC" ? "DLC" :
+                     editType === "EXPANSION" ? "Expansion" : "Select type"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="BASE_GAME">Base Game</SelectItem>
@@ -593,7 +601,13 @@ export default function AdminGamesPage() {
                 <label className={styles.formLabel}>Based On (Original Game)</label>
                 <Select value={editBaseGameId} onValueChange={(value) => setEditBaseGameId(value || "")}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select base game" />
+                    <SelectValue placeholder="Select base game">
+                      {editBaseGameId
+                        ? (editBaseGameOptions.find((g: Game) => g.id === editBaseGameId)?.title ||
+                           editingGame?.baseGame?.title ||
+                           "Select base game")
+                        : "Select base game"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {editBaseGameOptions.map((g: Game) => (
