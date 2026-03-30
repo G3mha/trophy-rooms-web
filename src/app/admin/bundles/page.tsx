@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_BUNDLES, GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
@@ -71,6 +71,158 @@ const BUNDLE_TYPE_LABELS: Record<string, string> = {
   SUBSCRIPTION: "Subscription",
 };
 
+function BundleGameSelector({
+  allGames,
+  selectedIds,
+  onSelect,
+  onRemove,
+}: {
+  allGames: Game[];
+  selectedIds: string[];
+  onSelect: (id: string) => void;
+  onRemove: (id: string) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedGames = allGames.filter((g) => selectedIds.includes(g.id));
+  const availableGames = allGames.filter(
+    (g) =>
+      !selectedIds.includes(g.id) &&
+      (search === "" || g.title.toLowerCase().includes(search.toLowerCase()))
+  );
+
+  return (
+    <div className={styles.formField}>
+      <label className={styles.formLabel}>Games</label>
+
+      {selectedGames.length > 0 && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
+          {selectedGames.map((game: Game) => (
+            <span
+              key={game.id}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "4px 8px",
+                backgroundColor: "var(--bg-card)",
+                borderRadius: "var(--border-radius)",
+                fontSize: 14,
+              }}
+            >
+              {game.title}
+              <button
+                type="button"
+                onClick={() => onRemove(game.id)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                  color: "var(--text-muted)",
+                }}
+              >
+                <X size={14} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div ref={containerRef} style={{ position: "relative" }}>
+        <div style={{ position: "relative" }}>
+          <Search
+            size={16}
+            style={{
+              position: "absolute",
+              left: 12,
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "var(--text-muted)",
+            }}
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setIsDropdownOpen(true);
+            }}
+            onFocus={() => setIsDropdownOpen(true)}
+            placeholder="Search games to add..."
+            style={{
+              width: "100%",
+              padding: "10px 12px 10px 36px",
+              border: "2px solid var(--border-color)",
+              borderRadius: "var(--border-radius)",
+              backgroundColor: "var(--bg-secondary)",
+              color: "var(--text-primary)",
+              fontSize: 14,
+            }}
+          />
+        </div>
+
+        {isDropdownOpen && availableGames.length > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: 0,
+              right: 0,
+              maxHeight: 200,
+              overflowY: "auto",
+              backgroundColor: "var(--bg-card)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "var(--border-radius)",
+              marginTop: 4,
+              zIndex: 50,
+            }}
+          >
+            {availableGames.slice(0, 20).map((game: Game) => (
+              <div
+                key={game.id}
+                onClick={() => {
+                  onSelect(game.id);
+                  setSearch("");
+                }}
+                style={{
+                  padding: "8px 12px",
+                  cursor: "pointer",
+                  fontSize: 14,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "var(--bg-card-hover)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                }}
+              >
+                {game.title}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminBundlesPage() {
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -99,10 +251,6 @@ export default function AdminBundlesPage() {
   const [editPrice, setEditPrice] = useState("");
   const [editPlatformId, setEditPlatformId] = useState("");
   const [editGameIds, setEditGameIds] = useState<string[]>([]);
-
-  // Game search state
-  const [gameSearch, setGameSearch] = useState("");
-  const [isGameDropdownOpen, setIsGameDropdownOpen] = useState(false);
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -153,10 +301,6 @@ export default function AdminBundlesPage() {
     b.slug.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const filteredGames = allGames.filter((g: Game) =>
-    gameSearch === "" || g.title.toLowerCase().includes(gameSearch.toLowerCase())
-  );
-
   const resetAddForm = () => {
     setNewName("");
     setNewSlug("");
@@ -167,7 +311,6 @@ export default function AdminBundlesPage() {
     setNewPrice("");
     setNewPlatformId("");
     setNewGameIds([]);
-    setGameSearch("");
   };
 
   const resetEditForm = () => {
@@ -181,7 +324,6 @@ export default function AdminBundlesPage() {
     setEditPrice("");
     setEditPlatformId("");
     setEditGameIds([]);
-    setGameSearch("");
   };
 
   const openEditModal = (bundle: Bundle) => {
@@ -244,143 +386,12 @@ export default function AdminBundlesPage() {
       .replace(/(^-|-$)/g, "");
   };
 
-  // Game selector component
-  const GameSelector = ({
-    selectedIds,
-    onSelect,
-    onRemove,
-  }: {
-    selectedIds: string[];
-    onSelect: (id: string) => void;
-    onRemove: (id: string) => void;
-  }) => {
-    const selectedGames = allGames.filter((g: Game) => selectedIds.includes(g.id));
-    const availableGames = filteredGames.filter((g: Game) => !selectedIds.includes(g.id));
-
-    return (
-      <div className={styles.formField}>
-        <label className={styles.formLabel}>Games</label>
-
-        {/* Selected games */}
-        {selectedGames.length > 0 && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
-            {selectedGames.map((game: Game) => (
-              <span
-                key={game.id}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "4px 8px",
-                  backgroundColor: "var(--bg-card)",
-                  borderRadius: "var(--border-radius)",
-                  fontSize: 14,
-                }}
-              >
-                {game.title}
-                <button
-                  type="button"
-                  onClick={() => onRemove(game.id)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 0,
-                    color: "var(--text-muted)",
-                  }}
-                >
-                  <X size={14} />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Search and dropdown */}
-        <div style={{ position: "relative" }}>
-          <div style={{ position: "relative" }}>
-            <Search
-              size={16}
-              style={{
-                position: "absolute",
-                left: 12,
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "var(--text-muted)",
-              }}
-            />
-            <input
-              type="text"
-              value={gameSearch}
-              onChange={(e) => {
-                setGameSearch(e.target.value);
-                setIsGameDropdownOpen(true);
-              }}
-              onFocus={() => setIsGameDropdownOpen(true)}
-              placeholder="Search games to add..."
-              style={{
-                width: "100%",
-                padding: "10px 12px 10px 36px",
-                border: "2px solid var(--border-color)",
-                borderRadius: "var(--border-radius)",
-                backgroundColor: "var(--bg-secondary)",
-                color: "var(--text-primary)",
-                fontSize: 14,
-              }}
-            />
-          </div>
-
-          {isGameDropdownOpen && availableGames.length > 0 && (
-            <div
-              style={{
-                position: "absolute",
-                top: "100%",
-                left: 0,
-                right: 0,
-                maxHeight: 200,
-                overflowY: "auto",
-                backgroundColor: "var(--bg-card)",
-                border: "1px solid var(--border-color)",
-                borderRadius: "var(--border-radius)",
-                marginTop: 4,
-                zIndex: 50,
-              }}
-            >
-              {availableGames.slice(0, 20).map((game: Game) => (
-                <div
-                  key={game.id}
-                  onClick={() => {
-                    onSelect(game.id);
-                    setGameSearch("");
-                  }}
-                  style={{
-                    padding: "8px 12px",
-                    cursor: "pointer",
-                    fontSize: 14,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--bg-card-hover)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                  }}
-                >
-                  {game.title}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
-
   if (loading && bundles.length === 0) {
     return <LoadingSpinner text="Loading bundles..." />;
   }
 
   return (
-    <div onClick={() => setIsGameDropdownOpen(false)}>
+    <div>
       <div className={styles.sectionHeader}>
         <div>
           <h1 className={styles.pageTitle}>
@@ -547,7 +558,8 @@ export default function AdminBundlesPage() {
               </div>
             )}
 
-            <GameSelector
+            <BundleGameSelector
+              allGames={allGames}
               selectedIds={newGameIds}
               onSelect={(id) => setNewGameIds([...newGameIds, id])}
               onRemove={(id) => setNewGameIds(newGameIds.filter((gid) => gid !== id))}
@@ -696,7 +708,8 @@ export default function AdminBundlesPage() {
               </div>
             )}
 
-            <GameSelector
+            <BundleGameSelector
+              allGames={allGames}
               selectedIds={editGameIds}
               onSelect={(id) => setEditGameIds([...editGameIds, id])}
               onRemove={(id) => setEditGameIds(editGameIds.filter((gid) => gid !== id))}
