@@ -707,7 +707,9 @@ export default function AdminGamesPage() {
                     <SelectTrigger
                       className={getFieldErrorClass(Boolean(newErrors.platformId))}
                     >
-                      <SelectValue placeholder="Select a platform" />
+                      <span>
+                        {platforms.find((p: Platform) => p.id === newPlatformId)?.name || "Select a platform"}
+                      </span>
                     </SelectTrigger>
                     <SelectContent>
                       {platforms.map((platform: Platform) => (
@@ -868,7 +870,9 @@ export default function AdminGamesPage() {
                 <SelectTrigger
                   className={getFieldErrorClass(Boolean(cloneError))}
                 >
-                  <SelectValue placeholder="Select target platform" />
+                  <span>
+                    {platforms.find((p: Platform) => p.id === cloneTargetPlatformId)?.name || "Select target platform"}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {platforms.map((platform: Platform) => (
@@ -976,7 +980,9 @@ export default function AdminGamesPage() {
                     <SelectTrigger
                       className={getFieldErrorClass(Boolean(editErrors.platformId))}
                     >
-                      <SelectValue placeholder="Select a platform" />
+                      <span>
+                        {platforms.find((p: Platform) => p.id === editPlatformId)?.name || "Select a platform"}
+                      </span>
                     </SelectTrigger>
                     <SelectContent>
                       {platforms.map((platform: Platform) => (
