@@ -3,6 +3,7 @@
 import { use } from "react";
 import Link from "next/link";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
@@ -176,12 +177,20 @@ export default function BundleDetailPage({
 
   const [addToOwned, { loading: addingToOwned }] = useMutation(ADD_BUNDLE_TO_OWNED, {
     variables: { bundleId: id },
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      toast.success("Bundle added to owned.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to add bundle."),
   });
 
   const [removeFromOwned, { loading: removingFromOwned }] = useMutation(REMOVE_BUNDLE_FROM_OWNED, {
     variables: { bundleId: id },
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      toast.success("Bundle removed from owned.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to remove bundle."),
   });
 
   const bundle: Bundle | undefined = data?.bundle;

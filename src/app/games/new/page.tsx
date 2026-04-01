@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import { Lock } from "lucide-react";
 import { CREATE_GAME } from "@/graphql/mutations";
@@ -35,13 +36,17 @@ export default function NewGamePage() {
     refetchQueries: [{ query: GET_GAMES, variables: { first: 12 } }],
     onCompleted: (data) => {
       if (data.createGame.success) {
+        toast.success("Game created successfully.");
         router.push(`/games/${data.createGame.game.id}`);
       } else {
-        setError(data.createGame.error?.message || "Failed to create game");
+        const errorMsg = data.createGame.error?.message || "Failed to create game";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     },
     onError: (err) => {
       setError(err.message);
+      toast.error(err.message);
     },
   });
 

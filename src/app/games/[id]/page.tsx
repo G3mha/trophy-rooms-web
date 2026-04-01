@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert } from "lucide-react";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
@@ -116,16 +117,24 @@ export default function GameDetailPage({
     onCompleted: () => {
       refetch();
       setTogglingId(null);
+      toast.success("Achievement marked complete.");
     },
-    onError: () => setTogglingId(null),
+    onError: (error) => {
+      setTogglingId(null);
+      toast.error(error.message || "Failed to mark achievement.");
+    },
   });
 
   const [unmarkComplete] = useMutation(UNMARK_ACHIEVEMENT_COMPLETE, {
     onCompleted: () => {
       refetch();
       setTogglingId(null);
+      toast.success("Achievement unmarked.");
     },
-    onError: () => setTogglingId(null),
+    onError: (error) => {
+      setTogglingId(null);
+      toast.error(error.message || "Failed to unmark achievement.");
+    },
   });
 
   const [createAchievementSet, { loading: creatingSet }] = useMutation(
@@ -136,14 +145,17 @@ export default function GameDetailPage({
           setNewSetTitle("");
           setSetError(null);
           refetch();
+          toast.success("Achievement set created.");
         } else {
-          setSetError(
-            result.createAchievementSet.error?.message ||
-              "Failed to create achievement set"
-          );
+          const errorMsg = result.createAchievementSet.error?.message || "Failed to create achievement set";
+          setSetError(errorMsg);
+          toast.error(errorMsg);
         }
       },
-      onError: (err) => setSetError(err.message),
+      onError: (err) => {
+        setSetError(err.message);
+        toast.error(err.message);
+      },
     }
   );
 
@@ -158,21 +170,28 @@ export default function GameDetailPage({
           setAchievementIconUrl("");
           setAchievementError(null);
           refetch();
+          toast.success("Achievement created.");
         } else {
-          setAchievementError(
-            result.createAchievement.error?.message ||
-              "Failed to create achievement"
-          );
+          const errorMsg = result.createAchievement.error?.message || "Failed to create achievement";
+          setAchievementError(errorMsg);
+          toast.error(errorMsg);
         }
       },
-      onError: (err) => setAchievementError(err.message),
+      onError: (err) => {
+        setAchievementError(err.message);
+        toast.error(err.message);
+      },
     }
   );
 
   const [publishAchievementSet, { loading: publishingSet }] = useMutation(
     PUBLISH_ACHIEVEMENT_SET,
     {
-      onCompleted: () => refetch(),
+      onCompleted: () => {
+        refetch();
+        toast.success("Achievement set published.");
+      },
+      onError: (error) => toast.error(error.message || "Failed to publish achievement set."),
     }
   );
 

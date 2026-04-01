@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import {
   Package,
@@ -116,6 +117,8 @@ export default function CollectionPage() {
         { query: GET_MY_COLLECTION },
         { query: GET_COLLECTION_STATS },
       ],
+      onCompleted: () => toast.success("Item removed from collection."),
+      onError: (error) => toast.error(error.message || "Failed to remove item."),
     }
   );
 

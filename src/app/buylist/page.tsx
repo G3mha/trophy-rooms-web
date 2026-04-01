@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import {
@@ -119,14 +120,22 @@ export default function BuylistPage() {
   const [removeFromBuylist, { loading: removing }] = useMutation(
     REMOVE_FROM_BUYLIST,
     {
-      onCompleted: () => refetch(),
+      onCompleted: () => {
+        refetch();
+        toast.success("Item removed from buylist.");
+      },
+      onError: (error) => toast.error(error.message || "Failed to remove item."),
     }
   );
 
   const [markAsPurchased, { loading: purchasing }] = useMutation(
     MARK_AS_PURCHASED,
     {
-      onCompleted: () => refetch(),
+      onCompleted: () => {
+        refetch();
+        toast.success("Item marked as purchased.");
+      },
+      onError: (error) => toast.error(error.message || "Failed to mark as purchased."),
     }
   );
 
@@ -163,9 +172,9 @@ export default function BuylistPage() {
       await navigator.clipboard.writeText(shareUrl);
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2000);
+      toast.success("Buylist link copied to clipboard!");
     } catch {
-      // Fallback for browsers that don't support clipboard API
-      console.error("Failed to copy link");
+      toast.error("Failed to copy link.");
     }
   };
 

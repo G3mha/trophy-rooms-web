@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import { Trophy, Gamepad2, PartyPopper } from "lucide-react";
 import { GET_ME, GET_MY_TROPHIES, GET_MY_GAME_PROGRESS } from "@/graphql/queries";
@@ -71,7 +72,7 @@ export default function TrophyRoom() {
   const handleShare = () => {
     const url = `${window.location.origin}/users/${user?.id}`;
     navigator.clipboard.writeText(url);
-    alert("Profile link copied to clipboard!");
+    toast.success("Profile link copied to clipboard!");
   };
 
   return (

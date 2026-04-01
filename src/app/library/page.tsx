@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import Link from "next/link";
 import {
@@ -87,7 +88,11 @@ export default function LibraryPage() {
   const [clearGameStatus, { loading: removing }] = useMutation(
     CLEAR_GAME_STATUS,
     {
-      onCompleted: () => refetch(),
+      onCompleted: () => {
+        refetch();
+        toast.success("Game removed from library.");
+      },
+      onError: (error) => toast.error(error.message || "Failed to remove game."),
     }
   );
 
