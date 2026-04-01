@@ -13,9 +13,9 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { toast } from "sonner";
 import {
   AdminConfirmDialog,
-  AdminFeedback,
   CoverPreview,
   GameSearchPicker,
   type SearchableGame,
@@ -76,11 +76,6 @@ interface Game {
 interface PageInfo {
   hasNextPage: boolean;
   endCursor: string | null;
-}
-
-interface FeedbackState {
-  tone: "success" | "error" | "info";
-  message: string;
 }
 
 interface ConfirmState {
@@ -152,8 +147,6 @@ function validateGameForm(input: {
 }
 
 export default function AdminGamesPage() {
-  const [feedback, setFeedback] = useState<FeedbackState | null>(null);
-
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -296,7 +289,7 @@ export default function AdminGamesPage() {
     setErrors?: (errors: GameFormErrors) => void,
     field?: string | null
   ) => {
-    setFeedback({ tone: "error", message });
+    toast.error(message);
 
     if (!setErrors || !field) return;
 
@@ -322,8 +315,6 @@ export default function AdminGamesPage() {
 
     setNewErrors(errors);
     if (Object.keys(errors).length > 0) return;
-
-    setFeedback(null);
 
     try {
       const { data } = await createGame({
@@ -352,16 +343,11 @@ export default function AdminGamesPage() {
       await refetch();
       setIsAddModalOpen(false);
       resetForm();
-      setFeedback({
-        tone: "success",
-        message: `Created ${payload.game.title}.`,
-      });
+      toast.success(`Created ${payload.game.title}.`);
     } catch (error) {
-      setFeedback({
-        tone: "error",
-        message:
-          error instanceof Error ? error.message : "Unable to create game.",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Unable to create game."
+      );
     }
   };
 
@@ -378,8 +364,6 @@ export default function AdminGamesPage() {
 
     setEditErrors(errors);
     if (Object.keys(errors).length > 0) return;
-
-    setFeedback(null);
 
     try {
       const { data } = await updateGame({
@@ -409,16 +393,11 @@ export default function AdminGamesPage() {
       await refetch();
       setIsEditModalOpen(false);
       resetEditForm();
-      setFeedback({
-        tone: "success",
-        message: `Saved changes to ${payload.game.title}.`,
-      });
+      toast.success(`Saved changes to ${payload.game.title}.`);
     } catch (error) {
-      setFeedback({
-        tone: "error",
-        message:
-          error instanceof Error ? error.message : "Unable to update game.",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Unable to update game."
+      );
     }
   };
 
@@ -434,7 +413,6 @@ export default function AdminGamesPage() {
     }
 
     setCloneError(null);
-    setFeedback(null);
 
     try {
       const { data } = await cloneGame({
@@ -454,10 +432,7 @@ export default function AdminGamesPage() {
       await refetch();
       setIsCloneModalOpen(false);
       resetCloneForm();
-      setFeedback({
-        tone: "success",
-        message: `Cloned ${cloneGameTitle} to the selected platform.`,
-      });
+      toast.success(`Cloned ${cloneGameTitle} to the selected platform.`);
     } catch (error) {
       setCloneError(
         error instanceof Error ? error.message : "Unable to clone game."
@@ -466,7 +441,6 @@ export default function AdminGamesPage() {
   };
 
   const openEditModal = (game: Game) => {
-    setFeedback(null);
     setEditingGame(game);
     setEditTitle(game.title);
     setEditDescription(game.description || "");
@@ -479,7 +453,6 @@ export default function AdminGamesPage() {
   };
 
   const openCloneModal = (game: Game) => {
-    setFeedback(null);
     setCloneGameId(game.id);
     setCloneGameTitle(game.title);
     setCloneSourcePlatformId(game.platform?.id || "");
@@ -492,8 +465,6 @@ export default function AdminGamesPage() {
   const handleSingleDelete = async () => {
     if (!confirmState?.gameId) return;
 
-    setFeedback(null);
-
     try {
       const { data } = await deleteGame({
         variables: { id: confirmState.gameId },
@@ -501,10 +472,7 @@ export default function AdminGamesPage() {
 
       const payload = data?.deleteGame;
       if (!payload?.success) {
-        setFeedback({
-          tone: "error",
-          message: getMutationMessage(payload?.error),
-        });
+        toast.error(getMutationMessage(payload?.error));
         return;
       }
 
@@ -515,20 +483,16 @@ export default function AdminGamesPage() {
         next.delete(confirmState.gameId!);
         return next;
       });
-      setFeedback({ tone: "success", message: "Game deleted." });
+      toast.success("Game deleted.");
     } catch (error) {
-      setFeedback({
-        tone: "error",
-        message:
-          error instanceof Error ? error.message : "Unable to delete game.",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Unable to delete game."
+      );
     }
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-
-    setFeedback(null);
 
     try {
       const { data } = await bulkDelete({
@@ -537,26 +501,18 @@ export default function AdminGamesPage() {
 
       const payload = data?.bulkDeleteGames;
       if (!payload?.success) {
-        setFeedback({
-          tone: "error",
-          message: getMutationMessage(payload?.error),
-        });
+        toast.error(getMutationMessage(payload?.error));
         return;
       }
 
       await refetch();
       setSelectedIds(new Set());
       setConfirmState(null);
-      setFeedback({
-        tone: "success",
-        message: `Deleted ${payload.deletedCount} game(s).`,
-      });
+      toast.success(`Deleted ${payload.deletedCount} game(s).`);
     } catch (error) {
-      setFeedback({
-        tone: "error",
-        message:
-          error instanceof Error ? error.message : "Unable to delete games.",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Unable to delete games."
+      );
     }
   };
 
@@ -617,10 +573,6 @@ export default function AdminGamesPage() {
         </div>
       </div>
 
-      {feedback && (
-        <AdminFeedback tone={feedback.tone} message={feedback.message} />
-      )}
-
       <div className={styles.searchBar}>
         <div className={styles.searchInputWrapper}>
           <Search size={18} className={styles.searchIcon} />
@@ -643,7 +595,6 @@ export default function AdminGamesPage() {
         </Button>
         <Button
           onClick={() => {
-            setFeedback(null);
             resetForm();
             setIsAddModalOpen(true);
           }}
