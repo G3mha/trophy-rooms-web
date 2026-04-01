@@ -541,7 +541,10 @@ export default function AdminGamesPage() {
     setSelectedIds(new Set());
   }, []);
 
-  if (loading && games.length === 0) {
+  // Only show full-page spinner on initial load (no data and no search)
+  const isInitialLoad = loading && games.length === 0 && !debouncedSearch;
+
+  if (isInitialLoad) {
     return <LoadingSpinner text="Loading games..." />;
   }
 
@@ -575,7 +578,7 @@ export default function AdminGamesPage() {
 
       <div className={styles.searchBar}>
         <div className={styles.searchInputWrapper}>
-          <Search size={18} className={styles.searchIcon} />
+          <Search size={18} className={`${styles.searchIcon} ${loading ? styles.searching : ""}`} />
           <input
             type="text"
             className={styles.searchInput}
@@ -583,6 +586,9 @@ export default function AdminGamesPage() {
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
           />
+          {loading && (
+            <div className={styles.searchSpinner} />
+          )}
         </div>
         <Button
           variant={groupByTitle ? "primary" : "outline"}
