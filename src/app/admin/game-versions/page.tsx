@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_GAMES_ADMIN, GET_GAME_VERSIONS } from "@/graphql/admin_queries";
 import {
@@ -10,13 +10,27 @@ import {
   SET_DEFAULT_VERSION,
   BULK_DELETE_GAME_VERSIONS,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Check, X, Star } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, Star } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
+import { AdminConfirmDialog } from "@/components/admin";
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { GameCombobox } from "@/components/ui/game-combobox";
 import styles from "../page.module.css";
 
 interface Game {
   id: string;
   title: string;
+  coverUrl?: string | null;
+  platform?: { name: string } | null;
 }
 
 interface GameVersion {
@@ -28,13 +42,31 @@ interface GameVersion {
 }
 
 export default function AdminGameVersionsPage() {
+  // Game filter state
   const [selectedGameId, setSelectedGameId] = useState("");
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredVersions, setFilteredVersions] = useState<GameVersion[]>([]);
+
+  // Add modal state
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingName, setEditingName] = useState("");
-  const [editingSlug, setEditingSlug] = useState("");
+
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingVersion, setEditingVersion] = useState<GameVersion | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editSlug, setEditSlug] = useState("");
+
+  // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Confirm dialog state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"single" | "bulk">("single");
+  const [versionToDelete, setVersionToDelete] = useState<GameVersion | null>(null);
 
   const { data: gamesData } = useQuery(GET_GAMES_ADMIN, {
     variables: { first: 500, orderBy: "TITLE_ASC" },
@@ -50,23 +82,129 @@ export default function AdminGameVersionsPage() {
   });
 
   const [createVersion, { loading: creating }] = useMutation(CREATE_GAME_VERSION, {
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      setIsAddModalOpen(false);
+      resetAddForm();
+    },
   });
-  const [updateVersion] = useMutation(UPDATE_GAME_VERSION, {
-    onCompleted: () => refetch(),
+
+  const [updateVersion, { loading: updating }] = useMutation(UPDATE_GAME_VERSION, {
+    onCompleted: () => {
+      refetch();
+      setIsEditModalOpen(false);
+      resetEditForm();
+    },
   });
+
   const [deleteVersion] = useMutation(DELETE_GAME_VERSION, {
     onCompleted: () => refetch(),
   });
+
   const [setDefaultVersion] = useMutation(SET_DEFAULT_VERSION, {
     onCompleted: () => refetch(),
   });
+
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_GAME_VERSIONS, {
-    onCompleted: () => { refetch(); setSelectedIds(new Set()); },
+    onCompleted: () => {
+      refetch();
+      setSelectedIds(new Set());
+    },
   });
 
-  const games = gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [];
-  const versions = versionsData?.gameVersions || [];
+  const games: Game[] = gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [];
+  const versions: GameVersion[] = versionsData?.gameVersions || [];
+
+  // Filter versions based on search
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredVersions(versions);
+    } else {
+      const query = searchQuery.toLowerCase();
+      setFilteredVersions(
+        versions.filter(
+          (v) =>
+            v.name.toLowerCase().includes(query) ||
+            v.slug.toLowerCase().includes(query)
+        )
+      );
+    }
+  }, [searchQuery, versions]);
+
+  // Auto-generate slug from name
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .trim();
+  };
+
+  const resetAddForm = () => {
+    setNewName("");
+    setNewSlug("");
+  };
+
+  const resetEditForm = () => {
+    setEditingVersion(null);
+    setEditName("");
+    setEditSlug("");
+  };
+
+  const openEditModal = (version: GameVersion) => {
+    setEditingVersion(version);
+    setEditName(version.name);
+    setEditSlug(version.slug);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCreateVersion = async () => {
+    if (!newName || !newSlug || !selectedGameId) return;
+    await createVersion({
+      variables: {
+        input: {
+          name: newName,
+          slug: newSlug,
+          gameId: selectedGameId,
+        },
+      },
+    });
+  };
+
+  const handleUpdateVersion = async () => {
+    if (!editingVersion || !editName || !editSlug) return;
+    await updateVersion({
+      variables: {
+        id: editingVersion.id,
+        input: {
+          name: editName,
+          slug: editSlug,
+        },
+      },
+    });
+  };
+
+  const openDeleteConfirm = (version: GameVersion) => {
+    setVersionToDelete(version);
+    setConfirmAction("single");
+    setConfirmOpen(true);
+  };
+
+  const openBulkDeleteConfirm = () => {
+    setConfirmAction("bulk");
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (confirmAction === "bulk") {
+      await bulkDelete({ variables: { ids: Array.from(selectedIds) } });
+    } else if (versionToDelete) {
+      await deleteVersion({ variables: { id: versionToDelete.id } });
+    }
+    setConfirmOpen(false);
+    setVersionToDelete(null);
+  };
 
   return (
     <div>
@@ -75,197 +213,255 @@ export default function AdminGameVersionsPage() {
           <h1 className={styles.pageTitle}>Game Versions</h1>
           <p className={styles.sectionSubtitle}>Manage different versions/editions of games.</p>
         </div>
-        {selectedIds.size > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            loading={bulkDeleting}
-            onClick={async () => {
-              if (confirm(`Delete ${selectedIds.size} version(s)?`)) {
-                await bulkDelete({ variables: { ids: Array.from(selectedIds) } });
-              }
-            }}
-          >
-            <Trash2 size={14} />
-            Delete {selectedIds.size}
-          </Button>
-        )}
+        <div style={{ display: "flex", gap: 8 }}>
+          {selectedIds.size > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={openBulkDeleteConfirm}
+            >
+              <Trash2 size={14} />
+              Delete {selectedIds.size}
+            </Button>
+          )}
+        </div>
       </div>
 
+      {/* Game Filter */}
       <div style={{ marginBottom: 20 }}>
-        <select
-          className={styles.input}
-          style={{ maxWidth: 400 }}
+        <label className={styles.formLabel}>Select a game to manage its versions</label>
+        <GameCombobox
+          games={games}
           value={selectedGameId}
-          onChange={(e) => {
-            setSelectedGameId(e.target.value);
+          onChange={(gameId) => {
+            setSelectedGameId(gameId);
             setSelectedIds(new Set());
+            setSearchQuery("");
           }}
-        >
-          <option value="">Select a game...</option>
-          {games.map((g: Game) => (
-            <option key={g.id} value={g.id}>{g.title}</option>
-          ))}
-        </select>
+          placeholder="Search for a game..."
+        />
       </div>
 
       {selectedGameId && (
         <>
-          <form
-            onSubmit={async (event) => {
-              event.preventDefault();
-              if (!newName || !newSlug) return;
-              await createVersion({
-                variables: {
-                  input: {
-                    name: newName,
-                    slug: newSlug,
-                    gameId: selectedGameId,
-                  },
-                },
-              });
-              setNewName("");
-              setNewSlug("");
-            }}
-            className={`${styles.formRow} ${styles.formRow2Col}`}
-          >
-            <input
-              className={styles.input}
-              placeholder="Version name (e.g. Deluxe Edition)"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-            />
-            <input
-              className={styles.input}
-              placeholder="Slug"
-              value={newSlug}
-              onChange={(e) => setNewSlug(e.target.value)}
-            />
-            <Button type="submit" loading={creating}>
+          {/* Search and Add Bar */}
+          <div className={styles.searchBar}>
+            <div className={styles.searchInputWrapper}>
+              <Search size={18} className={styles.searchIcon} />
+              <input
+                type="text"
+                className={styles.searchInput}
+                placeholder="Search versions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button onClick={() => setIsAddModalOpen(true)}>
+              <Plus size={18} />
               Add Version
             </Button>
-          </form>
+          </div>
+
+          {/* Add Version Modal */}
+          <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+            <DialogContent className="sm:max-w-[420px]" onEnterKeySubmit={handleCreateVersion}>
+              <DialogHeader>
+                <DialogTitle>Add New Version</DialogTitle>
+                <DialogDescription>
+                  Create a new version or edition for the selected game.
+                </DialogDescription>
+              </DialogHeader>
+
+              <DialogBody className={styles.modalForm}>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Name *</label>
+                  <Input
+                    placeholder="e.g. Deluxe Edition"
+                    value={newName}
+                    onChange={(e) => {
+                      setNewName(e.target.value);
+                      if (!newSlug || newSlug === generateSlug(newName)) {
+                        setNewSlug(generateSlug(e.target.value));
+                      }
+                    }}
+                  />
+                </div>
+
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Slug *</label>
+                  <Input
+                    placeholder="e.g. deluxe-edition"
+                    value={newSlug}
+                    onChange={(e) => setNewSlug(e.target.value)}
+                  />
+                  <span className={styles.formHint}>
+                    URL-friendly identifier (lowercase, no spaces)
+                  </span>
+                </div>
+              </DialogBody>
+
+              <DialogFooter>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setIsAddModalOpen(false);
+                    resetAddForm();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleCreateVersion}
+                  loading={creating}
+                  disabled={!newName || !newSlug}
+                >
+                  Create Version
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Edit Version Modal */}
+          <Dialog open={isEditModalOpen} onOpenChange={(open) => {
+            setIsEditModalOpen(open);
+            if (!open) resetEditForm();
+          }}>
+            <DialogContent className="sm:max-w-[420px]" onEnterKeySubmit={handleUpdateVersion}>
+              <DialogHeader>
+                <DialogTitle>Edit Version</DialogTitle>
+                <DialogDescription>
+                  Update version details.
+                </DialogDescription>
+              </DialogHeader>
+
+              <DialogBody className={styles.modalForm}>
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Name *</label>
+                  <Input
+                    placeholder="e.g. Deluxe Edition"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                  />
+                </div>
+
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Slug *</label>
+                  <Input
+                    placeholder="e.g. deluxe-edition"
+                    value={editSlug}
+                    onChange={(e) => setEditSlug(e.target.value)}
+                  />
+                  <span className={styles.formHint}>
+                    URL-friendly identifier (lowercase, no spaces)
+                  </span>
+                </div>
+              </DialogBody>
+
+              <DialogFooter>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setIsEditModalOpen(false);
+                    resetEditForm();
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleUpdateVersion}
+                  loading={updating}
+                  disabled={!editName || !editSlug}
+                >
+                  Save Changes
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {loading ? (
             <LoadingSpinner text="Loading versions..." />
           ) : (
             <>
-              {versions.length > 0 && (
+              {/* Select All Bar */}
+              {filteredVersions.length > 0 && (
                 <div className={styles.selectAllBar}>
                   <input
                     type="checkbox"
-                    checked={selectedIds.size === versions.length && versions.length > 0}
+                    checked={selectedIds.size === filteredVersions.length && filteredVersions.length > 0}
                     onChange={(e) => {
                       if (e.target.checked) {
-                        setSelectedIds(new Set(versions.map((v: GameVersion) => v.id)));
+                        setSelectedIds(new Set(filteredVersions.map((v) => v.id)));
                       } else {
                         setSelectedIds(new Set());
                       }
                     }}
                   />
-                  <span className={styles.selectAllLabel}>Select all ({versions.length})</span>
+                  <span className={styles.selectAllLabel}>
+                    Select all ({filteredVersions.length})
+                  </span>
                 </div>
               )}
 
+              {/* Versions List */}
               <div className={styles.itemsGrid}>
-                {versions.map((version: GameVersion) => (
+                {filteredVersions.map((version) => (
                   <div
                     key={version.id}
-                    className={`${styles.itemCard} ${selectedIds.has(version.id) ? styles.selected : ""}`}
+                    className={`${styles.itemCard} ${
+                      selectedIds.has(version.id) ? styles.selected : ""
+                    }`}
                   >
-                    {editingId === version.id ? (
-                      <div className={styles.editForm}>
-                        <input
-                          className={styles.editInput}
-                          value={editingName}
-                          onChange={(e) => setEditingName(e.target.value)}
-                          placeholder="Name"
-                        />
-                        <input
-                          className={styles.editInput}
-                          value={editingSlug}
-                          onChange={(e) => setEditingSlug(e.target.value)}
-                          placeholder="Slug"
-                        />
-                        <div className={styles.editActions}>
-                          <button
-                            className={styles.actionBtn}
-                            onClick={async () => {
-                              await updateVersion({
-                                variables: {
-                                  id: version.id,
-                                  input: { name: editingName, slug: editingSlug },
-                                },
-                              });
-                              setEditingId(null);
-                            }}
-                          >
-                            <Check size={16} />
-                          </button>
-                          <button className={styles.actionBtn} onClick={() => setEditingId(null)}>
-                            <X size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <input
-                          type="checkbox"
-                          className={styles.itemCheckbox}
-                          checked={selectedIds.has(version.id)}
-                          onChange={(e) => {
-                            const newSet = new Set(selectedIds);
-                            if (e.target.checked) newSet.add(version.id);
-                            else newSet.delete(version.id);
-                            setSelectedIds(newSet);
-                          }}
-                        />
-                        <div className={styles.itemInfo}>
-                          <span className={styles.itemName}>{version.name}</span>
-                          <span className={styles.itemSlug}>{version.slug}</span>
-                          {version.isDefault && (
-                            <span className={`${styles.badge} ${styles.badgeDefault}`}>Default</span>
-                          )}
-                        </div>
-                        <div className={styles.itemActions}>
-                          {!version.isDefault && (
-                            <button
-                              className={styles.actionBtn}
-                              onClick={() => setDefaultVersion({ variables: { id: version.id } })}
-                              title="Set as default"
-                            >
-                              <Star size={14} />
-                            </button>
-                          )}
-                          <button
-                            className={styles.actionBtn}
-                            onClick={() => {
-                              setEditingId(version.id);
-                              setEditingName(version.name);
-                              setEditingSlug(version.slug);
-                            }}
-                            title="Edit"
-                          >
-                            <Pencil size={14} />
-                          </button>
-                          <button
-                            className={`${styles.actionBtn} ${styles.danger}`}
-                            onClick={async () => {
-                              if (confirm(`Delete ${version.name}?`)) {
-                                await deleteVersion({ variables: { id: version.id } });
-                              }
-                            }}
-                            title="Delete"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      </>
-                    )}
+                    <input
+                      type="checkbox"
+                      className={styles.itemCheckbox}
+                      checked={selectedIds.has(version.id)}
+                      onChange={(e) => {
+                        const newSet = new Set(selectedIds);
+                        if (e.target.checked) newSet.add(version.id);
+                        else newSet.delete(version.id);
+                        setSelectedIds(newSet);
+                      }}
+                    />
+                    <div className={styles.itemInfo}>
+                      <span className={styles.itemName}>{version.name}</span>
+                      <span className={styles.itemSlug}>{version.slug}</span>
+                      {version.isDefault && (
+                        <span className={`${styles.badge} ${styles.badgeDefault}`}>Default</span>
+                      )}
+                    </div>
+                    <div className={styles.itemActions}>
+                      {!version.isDefault && (
+                        <button
+                          className={styles.actionBtn}
+                          onClick={() => setDefaultVersion({ variables: { id: version.id } })}
+                          title="Set as default"
+                        >
+                          <Star size={14} />
+                        </button>
+                      )}
+                      <button
+                        className={styles.actionBtn}
+                        onClick={() => openEditModal(version)}
+                        title="Edit"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        className={`${styles.actionBtn} ${styles.danger}`}
+                        onClick={() => openDeleteConfirm(version)}
+                        title="Delete"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 ))}
-                {versions.length === 0 && (
-                  <p className={styles.itemMeta}>No versions for this game yet.</p>
+                {filteredVersions.length === 0 && !loading && (
+                  <p className={styles.emptyState}>
+                    {searchQuery
+                      ? `No versions found matching "${searchQuery}"`
+                      : "No versions for this game yet. Click Add Version to create one."}
+                  </p>
                 )}
               </div>
             </>
@@ -274,8 +470,27 @@ export default function AdminGameVersionsPage() {
       )}
 
       {!selectedGameId && (
-        <p className={styles.itemMeta}>Select a game to manage its versions.</p>
+        <p className={styles.emptyState}>Select a game above to manage its versions.</p>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <AdminConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleConfirmDelete}
+        loading={bulkDeleting}
+        title={
+          confirmAction === "bulk"
+            ? `Delete ${selectedIds.size} version(s)?`
+            : `Delete ${versionToDelete?.name}?`
+        }
+        description={
+          confirmAction === "bulk"
+            ? "All selected versions will be permanently deleted."
+            : "This version will be permanently deleted."
+        }
+        confirmLabel="Delete"
+      />
     </div>
   );
 }
