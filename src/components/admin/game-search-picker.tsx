@@ -67,6 +67,9 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
+  const selectedSingle = props.mode === "single" ? props.value : null;
+  const selectedMultiple = props.mode === "multiple" ? props.value : [];
+
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
       setDebouncedSearch(search.trim());
@@ -89,6 +92,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Main search query
   const { data, loading } = useQuery(GET_GAMES_ADMIN, {
     variables: {
       first: 50,
@@ -98,8 +102,34 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
     notifyOnNetworkStatusChange: true,
   });
 
+  // Query for sibling platforms (games with same title as selected)
+  const { data: siblingsData } = useQuery(GET_GAMES_ADMIN, {
+    variables: {
+      first: 20,
+      orderBy: "TITLE_ASC",
+      search: selectedSingle?.title || undefined,
+    },
+    skip: !selectedSingle || props.mode !== "single",
+  });
+
   const results: SearchableGame[] =
     data?.games?.edges?.map((edge: { node: SearchableGame }) => edge.node) || [];
+
+  // Get sibling games (same title, different platforms)
+  const siblingGames = React.useMemo(() => {
+    if (!selectedSingle || !siblingsData?.games?.edges) return [];
+
+    const allSiblings: SearchableGame[] = siblingsData.games.edges
+      .map((edge: { node: SearchableGame }) => edge.node)
+      .filter((game: SearchableGame) => game.title === selectedSingle.title)
+      .filter((game: SearchableGame) => filterOption ? filterOption(game) : true)
+      .filter((game: SearchableGame) => game.id !== selectedSingle.id);
+
+    // Sort alphabetically by platform name
+    return allSiblings.sort((a: SearchableGame, b: SearchableGame) =>
+      (a.platform?.name || "").localeCompare(b.platform?.name || "")
+    );
+  }, [selectedSingle, siblingsData, filterOption]);
 
   const selectedIds =
     props.mode === "multiple"
@@ -183,9 +213,6 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
     }
   };
 
-  const selectedSingle = props.mode === "single" ? props.value : null;
-  const selectedMultiple = props.mode === "multiple" ? props.value : [];
-
   return (
     <div ref={containerRef} className="space-y-2">
       {props.mode === "multiple" && selectedMultiple.length > 0 && (
@@ -226,14 +253,32 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
         >
           <Search className="size-4 shrink-0 text-[var(--text-muted)]" />
           {props.mode === "single" && !isOpen ? (
-            <span
-              className={cn(
-                "flex-1 truncate",
-                !selectedSingle && "text-[var(--text-muted)]"
-              )}
-            >
-              {selectedSingle ? selectedSingle.title : placeholder}
-            </span>
+            selectedSingle ? (
+              <div className="flex flex-1 items-center gap-2 truncate">
+                {selectedSingle.platform?.slug && (
+                  <img
+                    src={`/platforms/${selectedSingle.platform.slug}.svg`}
+                    alt=""
+                    className="size-4 shrink-0"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                )}
+                <span className="truncate">
+                  {selectedSingle.title}
+                  {selectedSingle.platform?.name && (
+                    <span className="text-[var(--text-muted)]">
+                      {" "}• {selectedSingle.platform.name}
+                    </span>
+                  )}
+                </span>
+              </div>
+            ) : (
+              <span className="flex-1 truncate text-[var(--text-muted)]">
+                {placeholder}
+              </span>
+            )
           ) : (
             <input
               ref={inputRef}
@@ -261,6 +306,34 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
             <ChevronDown className="size-4 shrink-0 text-[var(--text-muted)]" />
           )}
         </div>
+
+        {/* Platform Switcher - shown when a game is selected and has siblings */}
+        {props.mode === "single" && selectedSingle && siblingGames.length > 0 && !isOpen && (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="text-xs text-[var(--text-muted)]">Switch platform:</span>
+            {siblingGames.map((game) => (
+              <button
+                key={game.id}
+                type="button"
+                onClick={() => handleSelect(game)}
+                disabled={disabled}
+                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-color)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-card-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {game.platform?.slug && (
+                  <img
+                    src={`/platforms/${game.platform.slug}.svg`}
+                    alt=""
+                    className="size-3.5"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                )}
+                <span>{game.platform?.name || "Unknown"}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         {isOpen && (
           <div className="absolute z-50 mt-1 max-h-80 w-full overflow-auto rounded-[var(--border-radius)] border border-[var(--border-color)] bg-[var(--bg-card)] p-1 shadow-lg">
