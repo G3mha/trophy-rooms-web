@@ -53,8 +53,6 @@ const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
   FANGAME: "Fangame",
   ROM_HACK: "ROM Hack",
-  DLC: "DLC",
-  EXPANSION: "Expansion",
 };
 
 interface Platform {
@@ -228,7 +226,10 @@ export default function AdminGamesPage() {
 
   const platforms = useMemo(() => platformsData?.platforms || [], [platformsData]);
   const games = useMemo<Game[]>(
-    () => gamesData?.games?.edges?.map((edge: { node: Game }) => edge.node) || [],
+    () =>
+      (gamesData?.games?.edges?.map((edge: { node: Game }) => edge.node) || []).filter(
+        (game: Game) => game.type !== "DLC" && game.type !== "EXPANSION"
+      ),
     [gamesData]
   );
   const pageInfo: PageInfo = gamesData?.games?.pageInfo || {
