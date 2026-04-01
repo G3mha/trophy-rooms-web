@@ -43,10 +43,31 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  onEnterKeySubmit,
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean;
+  onEnterKeySubmit?: () => void;
 }) {
+  const handleKeyDown = React.useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && onEnterKeySubmit) {
+        // Don't submit if focus is on a button (let button handle its own click)
+        // or in a textarea (allow newlines)
+        const target = e.target as HTMLElement;
+        if (
+          target.tagName !== "BUTTON" &&
+          target.tagName !== "TEXTAREA" &&
+          !target.closest("button")
+        ) {
+          e.preventDefault();
+          onEnterKeySubmit();
+        }
+      }
+    },
+    [onEnterKeySubmit]
+  );
+
   return (
     <DialogPortal>
       <DialogOverlay />
@@ -56,6 +77,7 @@ function DialogContent({
           "fixed top-1/2 left-1/2 z-50 flex w-full max-w-md -translate-x-1/2 -translate-y-1/2 flex-col max-h-[90vh] rounded-[var(--border-radius-lg)] border border-[var(--border-color)] bg-[var(--bg-card)] shadow-xl duration-200 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
+        onKeyDown={handleKeyDown}
         {...props}
       >
         {children}
