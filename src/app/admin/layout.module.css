@@ -111,6 +111,48 @@
   padding: 32px;
 }
 
+/* Mobile Header - hidden on desktop */
+.mobileHeader {
+  display: none;
+}
+
+.mobileTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.mobileTitle:hover {
+  color: var(--nintendo-red);
+}
+
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.menuButton:hover {
+  background: var(--bg-secondary);
+}
+
+/* Overlay - hidden by default */
+.overlay {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .sidebar {
@@ -123,48 +165,88 @@
     flex-direction: column;
   }
 
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    top: 0;
-    border-right: none;
+  /* Mobile Header */
+  .mobileHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--bg-card);
     border-bottom: 1px solid var(--border-color);
-    padding: 16px 0;
+    position: sticky;
+    top: 64px;
+    z-index: 40;
+  }
+
+  /* Overlay */
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    top: 64px;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 45;
+    animation: fadeIn 0.2s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Sidebar - slide in from left */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 64px;
+    bottom: 0;
+    width: 280px;
+    height: calc(100vh - 64px);
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    border-right: 1px solid var(--border-color);
+    padding: 24px 0;
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
   }
 
   .sidebarHeader {
-    padding: 0 16px 16px;
+    padding: 0 20px 20px;
+    margin-bottom: 8px;
   }
 
   .nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 0 16px;
+    padding: 0 12px;
+    display: block;
   }
 
   .navGroup {
-    margin-bottom: 0;
+    margin-bottom: 24px;
   }
 
   .navGroupTitle {
-    display: none;
+    display: block;
   }
 
   .navList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    display: block;
   }
 
   .navLink {
-    padding: 8px 12px;
-    background: var(--bg-secondary);
+    padding: 10px 12px;
+    background: transparent;
   }
 
   .navArrow {
-    display: none;
+    display: block;
   }
 
   .main {

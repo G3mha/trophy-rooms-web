@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
@@ -17,6 +18,8 @@ import {
   LayoutDashboard,
   Lock,
   ChevronRight,
+  Menu,
+  X,
 } from "lucide-react";
 import styles from "./layout.module.css";
 
@@ -48,6 +51,7 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const { isSignedIn, isLoaded } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const { data: meData, loading: meLoading } = useQuery(GET_ME, {
     skip: !isSignedIn,
@@ -55,6 +59,23 @@ export default function AdminLayout({
 
   const isAdmin =
     meData?.me?.role === "ADMIN" || meData?.me?.role === "TRUSTED";
+
+  // Close sidebar when navigating on mobile
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen]);
 
   if (!isLoaded || meLoading) {
     return <LoadingSpinner text="Checking access..." />;
@@ -79,7 +100,31 @@ export default function AdminLayout({
 
   return (
     <div className={styles.layout}>
-      <aside className={styles.sidebar}>
+      {/* Mobile Header */}
+      <div className={styles.mobileHeader}>
+        <Link href="/admin" className={styles.mobileTitle}>
+          <LayoutDashboard size={20} />
+          <span>Admin Dashboard</span>
+        </Link>
+        <button
+          className={styles.menuButton}
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label={sidebarOpen ? "Close menu" : "Open menu"}
+        >
+          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </div>
+
+      {/* Overlay */}
+      {sidebarOpen && (
+        <div
+          className={styles.overlay}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ""}`}>
         <Link href="/admin" className={styles.sidebarHeader}>
           <LayoutDashboard size={20} />
           <span>Admin Dashboard</span>
