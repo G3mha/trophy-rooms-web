@@ -7,6 +7,14 @@ import * as React from "react";
 import { GET_GAMES_ADMIN } from "@/graphql/admin_queries";
 import { cn } from "@/lib/utils";
 
+const GAME_TYPE_LABELS: Record<string, string> = {
+  BASE_GAME: "Base Game",
+  FANGAME: "Fangame",
+  ROM_HACK: "ROM Hack",
+  DLC: "DLC",
+  EXPANSION: "Expansion",
+};
+
 export interface SearchableGame {
   id: string;
   title: string;
@@ -235,7 +243,10 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                       {game.title}
                     </div>
                     <div className="truncate text-xs text-[var(--text-muted)]">
-                      {[game.platform?.name, game.type]
+                      {[
+                        game.platform?.name,
+                        game.type ? GAME_TYPE_LABELS[game.type] || game.type : null,
+                      ]
                         .filter(Boolean)
                         .join(" • ")}
                     </div>
