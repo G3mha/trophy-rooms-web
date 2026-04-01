@@ -30,7 +30,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  
 } from "@/components/ui/select";
 import styles from "../page.module.css";
 
@@ -352,7 +352,14 @@ export default function AdminAchievementsPage() {
       <div style={{ marginBottom: 20, maxWidth: 500 }}>
         <Select value={selectedSetId} onValueChange={handleSetChange}>
           <SelectTrigger>
-            <SelectValue placeholder="Select an achievement set..." />
+            <span>
+              {(() => {
+                const selectedSet = sets.find((s) => s.id === selectedSetId);
+                return selectedSet
+                  ? `${selectedSet.title} (${selectedSet.game?.title || "No game"})`
+                  : "Select an achievement set...";
+              })()}
+            </span>
           </SelectTrigger>
           <SelectContent>
             {sets.map((s) => (

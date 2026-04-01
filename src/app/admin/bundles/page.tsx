@@ -34,7 +34,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import styles from "../page.module.css";
@@ -621,7 +621,9 @@ export default function AdminBundlesPage() {
                   onValueChange={(value) => setNewPlatformId(value || "")}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a platform" />
+                    <span>
+                      {platforms.find((p: Platform) => p.id === newPlatformId)?.name || "Select a platform"}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     {platforms.map((platform: Platform) => (
@@ -836,7 +838,9 @@ export default function AdminBundlesPage() {
                   onValueChange={(value) => setEditPlatformId(value || "")}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a platform" />
+                    <span>
+                      {platforms.find((p: Platform) => p.id === editPlatformId)?.name || "Select a platform"}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     {platforms.map((platform: Platform) => (
