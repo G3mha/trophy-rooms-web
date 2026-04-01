@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import {
   Package,
@@ -106,8 +107,12 @@ export function CollectionSelector({
       if (result.addToCollection.success) {
         setIsOpen(false);
         resetForm();
+        toast.success("Added to collection.");
+      } else {
+        toast.error(result.addToCollection.error?.message || "Failed to add to collection.");
       }
     },
+    onError: (error) => toast.error(error.message || "Failed to add to collection."),
   });
 
   const [removeFromCollection, { loading: removing }] = useMutation(
@@ -118,6 +123,8 @@ export function CollectionSelector({
         { query: GET_MY_COLLECTION },
         { query: GET_COLLECTION_STATS },
       ],
+      onCompleted: () => toast.success("Removed from collection."),
+      onError: (error) => toast.error(error.message || "Failed to remove from collection."),
     }
   );
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import {
   BookMarked,
@@ -90,8 +91,12 @@ export function GameStatusSelector({
           setCurrentStatus(data.setGameStatus.status);
           setSelectedPlatformId(data.setGameStatus.platformId);
           setIsOpen(false);
+          toast.success("Game status updated.");
+        } else {
+          toast.error(data.setGameStatus.error?.message || "Failed to update status.");
         }
       },
+      onError: (error) => toast.error(error.message || "Failed to update status."),
     }
   );
 
@@ -107,8 +112,12 @@ export function GameStatusSelector({
           setCurrentStatus(null);
           setSelectedPlatformId(null);
           setIsOpen(false);
+          toast.success("Game removed from library.");
+        } else {
+          toast.error(data.clearGameStatus.error?.message || "Failed to remove game.");
         }
       },
+      onError: (error) => toast.error(error.message || "Failed to remove game."),
     }
   );
 

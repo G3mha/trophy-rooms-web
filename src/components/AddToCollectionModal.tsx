@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@apollo/client";
+import { toast } from "sonner";
 import { X, Disc, Package, BookOpen, Gift, Lock } from "lucide-react";
 import { ADD_TO_COLLECTION, UPDATE_COLLECTION_ITEM } from "@/graphql/mutations";
 import { GET_MY_COLLECTION, GET_COLLECTION_STATS } from "@/graphql/queries";
@@ -76,8 +77,12 @@ export function AddToCollectionModal({
       if (data.addToCollection.success) {
         onClose();
         resetForm();
+        toast.success("Added to collection.");
+      } else {
+        toast.error(data.addToCollection.error?.message || "Failed to add to collection.");
       }
     },
+    onError: (error) => toast.error(error.message || "Failed to add to collection."),
   });
 
   const [updateCollectionItem, { loading: updating }] = useMutation(
@@ -90,8 +95,12 @@ export function AddToCollectionModal({
       onCompleted: (data) => {
         if (data.updateCollectionItem.success) {
           onClose();
+          toast.success("Collection item updated.");
+        } else {
+          toast.error(data.updateCollectionItem.error?.message || "Failed to update item.");
         }
       },
+      onError: (error) => toast.error(error.message || "Failed to update item."),
     }
   );
 

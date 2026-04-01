@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "@apollo/client";
+import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import {
   ShoppingCart,
@@ -82,8 +83,12 @@ export function BuylistSelector({
         setEstimatedPrice("");
         setNotes("");
         setSelectedPriority("MEDIUM");
+        toast.success("Added to buylist.");
+      } else {
+        toast.error(result.addToBuylist.error?.message || "Failed to add to buylist.");
       }
     },
+    onError: (error) => toast.error(error.message || "Failed to add to buylist."),
   });
 
   const [removeFromBuylist, { loading: removing }] = useMutation(REMOVE_FROM_BUYLIST, {
@@ -96,8 +101,12 @@ export function BuylistSelector({
         setIsInBuylist(false);
         setBuylistItemId(null);
         setIsOpen(false);
+        toast.success("Removed from buylist.");
+      } else {
+        toast.error(result.removeFromBuylist.error?.message || "Failed to remove from buylist.");
       }
     },
+    onError: (error) => toast.error(error.message || "Failed to remove from buylist."),
   });
 
   useEffect(() => {
