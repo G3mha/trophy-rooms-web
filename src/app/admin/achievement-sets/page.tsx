@@ -9,8 +9,10 @@ import {
   DELETE_ACHIEVEMENT_SET,
   BULK_DELETE_ACHIEVEMENT_SETS,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Plus, Search } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, ExternalLink } from "lucide-react";
+import Link from "next/link";
 import { Button, LoadingSpinner } from "@/components";
+import { AdminConfirmDialog } from "@/components/admin";
 import {
   Dialog,
   DialogBody,
@@ -72,6 +74,11 @@ export default function AdminAchievementSetsPage() {
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Confirm dialog state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"single" | "bulk">("single");
+  const [setToDelete, setSetToDelete] = useState<AchievementSet | null>(null);
 
   const { data: gamesData } = useQuery(GET_GAMES_ADMIN, {
     variables: { first: 500, orderBy: "TITLE_ASC" },
@@ -178,6 +185,27 @@ export default function AdminAchievementSetsPage() {
     });
   };
 
+  const openDeleteConfirm = (set: AchievementSet) => {
+    setSetToDelete(set);
+    setConfirmAction("single");
+    setConfirmOpen(true);
+  };
+
+  const openBulkDeleteConfirm = () => {
+    setConfirmAction("bulk");
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (confirmAction === "bulk") {
+      await bulkDelete({ variables: { ids: Array.from(selectedIds) } });
+    } else if (setToDelete) {
+      await deleteSet({ variables: { id: setToDelete.id } });
+    }
+    setConfirmOpen(false);
+    setSetToDelete(null);
+  };
+
   if (loading && sets.length === 0) {
     return <LoadingSpinner text="Loading achievement sets..." />;
   }
@@ -194,12 +222,7 @@ export default function AdminAchievementSetsPage() {
             <Button
               variant="outline"
               size="sm"
-              loading={bulkDeleting}
-              onClick={async () => {
-                if (confirm(`Delete ${selectedIds.size} set(s)?`)) {
-                  await bulkDelete({ variables: { ids: Array.from(selectedIds) } });
-                }
-              }}
+              onClick={openBulkDeleteConfirm}
             >
               <Trash2 size={14} />
               Delete {selectedIds.size}
@@ -228,7 +251,7 @@ export default function AdminAchievementSetsPage() {
 
       {/* Add Achievement Set Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[480px]">
+        <DialogContent className="sm:max-w-[480px]" onEnterKeySubmit={handleCreateSet}>
           <DialogHeader>
             <DialogTitle>Add New Achievement Set</DialogTitle>
             <DialogDescription>
@@ -297,7 +320,7 @@ export default function AdminAchievementSetsPage() {
         setIsEditModalOpen(open);
         if (!open) resetEditForm();
       }}>
-        <DialogContent className="sm:max-w-[480px]">
+        <DialogContent className="sm:max-w-[480px]" onEnterKeySubmit={handleUpdateSet}>
           <DialogHeader>
             <DialogTitle>Edit Achievement Set</DialogTitle>
             <DialogDescription>
@@ -408,6 +431,13 @@ export default function AdminAchievementSetsPage() {
               {set.achievementCount} {set.achievementCount === 1 ? "achievement" : "achievements"}
             </span>
             <div className={styles.itemActions}>
+              <Link
+                href={`/admin/achievements?setId=${set.id}`}
+                className={styles.actionBtn}
+                title="View Achievements"
+              >
+                <ExternalLink size={14} />
+              </Link>
               <button
                 className={styles.actionBtn}
                 onClick={() => openEditModal(set)}
@@ -417,11 +447,7 @@ export default function AdminAchievementSetsPage() {
               </button>
               <button
                 className={`${styles.actionBtn} ${styles.danger}`}
-                onClick={async () => {
-                  if (confirm(`Delete ${set.title}?`)) {
-                    await deleteSet({ variables: { id: set.id } });
-                  }
-                }}
+                onClick={() => openDeleteConfirm(set)}
                 title="Delete"
               >
                 <Trash2 size={14} />
@@ -437,6 +463,25 @@ export default function AdminAchievementSetsPage() {
           </p>
         )}
       </div>
+
+      {/* Confirm Delete Dialog */}
+      <AdminConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleConfirmDelete}
+        loading={bulkDeleting}
+        title={
+          confirmAction === "bulk"
+            ? `Delete ${selectedIds.size} set(s)?`
+            : `Delete ${setToDelete?.title}?`
+        }
+        description={
+          confirmAction === "bulk"
+            ? "All selected achievement sets and their achievements will be permanently deleted."
+            : "This achievement set and all its achievements will be permanently deleted."
+        }
+        confirmLabel="Delete"
+      />
     </div>
   );
 }
