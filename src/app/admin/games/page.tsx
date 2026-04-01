@@ -1168,7 +1168,7 @@ export default function AdminGamesPage() {
                       {group.games[0].type &&
                         group.games[0].type !== "BASE_GAME" && (
                           <span className={styles.badge}>
-                            {group.games[0].type.replace("_", " ")}
+                            {GAME_TYPE_LABELS[group.games[0].type]}
                           </span>
                         )}
                     </div>
@@ -1284,7 +1284,7 @@ export default function AdminGamesPage() {
                               </span>
                               {game.type && game.type !== "BASE_GAME" && (
                                 <span className={styles.badge}>
-                                  {game.type.replace("_", " ")}
+                                  {GAME_TYPE_LABELS[game.type]}
                                 </span>
                               )}
                             </div>
@@ -1363,7 +1363,7 @@ export default function AdminGamesPage() {
                 </span>
                 {game.type && game.type !== "BASE_GAME" && (
                   <span className={styles.badge}>
-                    {game.type.replace("_", " ")}
+                    {GAME_TYPE_LABELS[game.type]}
                   </span>
                 )}
               </div>
