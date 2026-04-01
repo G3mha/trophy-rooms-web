@@ -4,9 +4,9 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { Package, Pencil, Plus, Search, Trash2 } from "lucide-react";
 
+import { toast } from "sonner";
 import {
   AdminConfirmDialog,
-  AdminFeedback,
   CoverPreview,
   GameSearchPicker,
   type SearchableGame,
@@ -65,11 +65,6 @@ interface Bundle {
   games?: SearchableGame[];
   gameCount: number;
   dlcCount: number;
-}
-
-interface FeedbackState {
-  tone: "success" | "error" | "info";
-  message: string;
 }
 
 interface ConfirmState {
@@ -150,7 +145,6 @@ function validateBundleForm(input: {
 }
 
 export default function AdminBundlesPage() {
-  const [feedback, setFeedback] = useState<FeedbackState | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -251,7 +245,7 @@ export default function AdminBundlesPage() {
     setErrors?: (errors: BundleFormErrors) => void,
     field?: string | null
   ) => {
-    setFeedback({ tone: "error", message });
+    toast.error(message);
 
     if (!setErrors || !field) return;
 
@@ -276,8 +270,6 @@ export default function AdminBundlesPage() {
 
     setNewErrors(errors);
     if (Object.keys(errors).length > 0) return;
-
-    setFeedback(null);
 
     try {
       const { data } = await createBundle({
@@ -309,16 +301,11 @@ export default function AdminBundlesPage() {
       await refetch();
       setIsAddModalOpen(false);
       resetAddForm();
-      setFeedback({
-        tone: "success",
-        message: `Created ${payload.bundle.name}.`,
-      });
+      toast.success(`Created ${payload.bundle.name}.`);
     } catch (error) {
-      setFeedback({
-        tone: "error",
-        message:
-          error instanceof Error ? error.message : "Unable to create bundle.",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Unable to create bundle."
+      );
     }
   };
 
@@ -334,8 +321,6 @@ export default function AdminBundlesPage() {
 
     setEditErrors(errors);
     if (Object.keys(errors).length > 0) return;
-
-    setFeedback(null);
 
     try {
       const { data } = await updateBundle({
@@ -368,23 +353,16 @@ export default function AdminBundlesPage() {
       await refetch();
       setIsEditModalOpen(false);
       resetEditForm();
-      setFeedback({
-        tone: "success",
-        message: `Saved changes to ${payload.bundle.name}.`,
-      });
+      toast.success(`Saved changes to ${payload.bundle.name}.`);
     } catch (error) {
-      setFeedback({
-        tone: "error",
-        message:
-          error instanceof Error ? error.message : "Unable to update bundle.",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Unable to update bundle."
+      );
     }
   };
 
   const handleSingleDelete = async () => {
     if (!confirmState?.bundleId) return;
-
-    setFeedback(null);
 
     try {
       const { data } = await deleteBundle({
@@ -393,10 +371,7 @@ export default function AdminBundlesPage() {
 
       const payload = data?.deleteBundle;
       if (!payload?.success) {
-        setFeedback({
-          tone: "error",
-          message: getMutationMessage(payload?.error),
-        });
+        toast.error(getMutationMessage(payload?.error));
         return;
       }
 
@@ -407,20 +382,16 @@ export default function AdminBundlesPage() {
         next.delete(confirmState.bundleId!);
         return next;
       });
-      setFeedback({ tone: "success", message: "Bundle deleted." });
+      toast.success("Bundle deleted.");
     } catch (error) {
-      setFeedback({
-        tone: "error",
-        message:
-          error instanceof Error ? error.message : "Unable to delete bundle.",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Unable to delete bundle."
+      );
     }
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-
-    setFeedback(null);
 
     try {
       const { data } = await bulkDelete({
@@ -429,31 +400,22 @@ export default function AdminBundlesPage() {
 
       const payload = data?.bulkDeleteBundles;
       if (!payload?.success) {
-        setFeedback({
-          tone: "error",
-          message: getMutationMessage(payload?.error),
-        });
+        toast.error(getMutationMessage(payload?.error));
         return;
       }
 
       await refetch();
       setSelectedIds(new Set());
       setConfirmState(null);
-      setFeedback({
-        tone: "success",
-        message: `Deleted ${payload.deletedCount} bundle(s).`,
-      });
+      toast.success(`Deleted ${payload.deletedCount} bundle(s).`);
     } catch (error) {
-      setFeedback({
-        tone: "error",
-        message:
-          error instanceof Error ? error.message : "Unable to delete bundles.",
-      });
+      toast.error(
+        error instanceof Error ? error.message : "Unable to delete bundles."
+      );
     }
   };
 
   const openEditModal = (bundle: Bundle) => {
-    setFeedback(null);
     setEditingBundle(bundle);
     setEditName(bundle.name);
     setEditSlug(bundle.slug);
@@ -505,10 +467,6 @@ export default function AdminBundlesPage() {
         )}
       </div>
 
-      {feedback && (
-        <AdminFeedback tone={feedback.tone} message={feedback.message} />
-      )}
-
       <div className={styles.searchBar}>
         <div className={styles.searchInputWrapper}>
           <Search size={18} className={styles.searchIcon} />
@@ -522,7 +480,6 @@ export default function AdminBundlesPage() {
         </div>
         <Button
           onClick={() => {
-            setFeedback(null);
             resetAddForm();
             setIsAddModalOpen(true);
           }}
