@@ -23,9 +23,9 @@ export interface SearchableGame {
   platform?: { name: string; slug: string } | null;
 }
 
-interface PlatformGroup {
-  platformName: string;
-  platformSlug: string | null;
+interface GameGroup {
+  title: string;
+  coverUrl: string | null;
   games: SearchableGame[];
 }
 
@@ -63,7 +63,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
-  const [collapsedPlatforms, setCollapsedPlatforms] = React.useState<Set<string>>(new Set());
+  const [collapsedGames, setCollapsedGames] = React.useState<Set<string>>(new Set());
   const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -113,38 +113,45 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
       props.mode === "multiple" ? !selectedIds.has(game.id) : true
     );
 
-  // Group games by platform
-  const groupedByPlatform = React.useMemo(() => {
-    const groups: Map<string, PlatformGroup> = new Map();
+  // Group games by title
+  const groupedByTitle = React.useMemo(() => {
+    const groups: Map<string, GameGroup> = new Map();
 
     for (const game of options) {
-      const platformKey = game.platform?.name || "Unknown Platform";
+      const titleKey = game.title;
 
-      if (!groups.has(platformKey)) {
-        groups.set(platformKey, {
-          platformName: platformKey,
-          platformSlug: game.platform?.slug || null,
+      if (!groups.has(titleKey)) {
+        groups.set(titleKey, {
+          title: titleKey,
+          coverUrl: game.coverUrl || null,
           games: [],
         });
       }
 
-      groups.get(platformKey)!.games.push(game);
+      groups.get(titleKey)!.games.push(game);
     }
 
-    // Sort groups alphabetically by platform name
+    // Sort platforms within each group alphabetically
+    for (const group of groups.values()) {
+      group.games.sort((a, b) =>
+        (a.platform?.name || "").localeCompare(b.platform?.name || "")
+      );
+    }
+
+    // Return groups sorted by title
     return Array.from(groups.values()).sort((a, b) =>
-      a.platformName.localeCompare(b.platformName)
+      a.title.localeCompare(b.title)
     );
   }, [options]);
 
-  const togglePlatformCollapse = (platformName: string, event: React.MouseEvent) => {
+  const toggleGameCollapse = (title: string, event: React.MouseEvent) => {
     event.stopPropagation();
-    setCollapsedPlatforms((prev) => {
+    setCollapsedGames((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(platformName)) {
-        newSet.delete(platformName);
+      if (newSet.has(title)) {
+        newSet.delete(title);
       } else {
-        newSet.add(platformName);
+        newSet.add(title);
       }
       return newSet;
     });
@@ -266,71 +273,131 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                 {emptyText}
               </div>
             ) : (
-              groupedByPlatform.map((group) => {
-                const isCollapsed = collapsedPlatforms.has(group.platformName);
+              groupedByTitle.map((group) => {
+                const isCollapsed = collapsedGames.has(group.title);
+                const hasMultiplePlatforms = group.games.length > 1;
 
+                // If only one platform, render as a simple selectable item
+                if (!hasMultiplePlatforms) {
+                  const game = group.games[0];
+                  return (
+                    <button
+                      key={game.id}
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-card-hover)]"
+                      onClick={() => handleSelect(game)}
+                    >
+                      {game.coverUrl ? (
+                        <img
+                          src={game.coverUrl}
+                          alt=""
+                          className="size-10 shrink-0 rounded object-cover"
+                        />
+                      ) : (
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded bg-[var(--bg-secondary)]">
+                          <Gamepad2 className="size-5 text-[var(--text-muted)]" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-[var(--text-primary)]">
+                          {game.title}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
+                          {game.platform?.slug && (
+                            <img
+                              src={`/platforms/${game.platform.slug}.svg`}
+                              alt=""
+                              className="size-3.5"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          )}
+                          <span>
+                            {[
+                              game.platform?.name,
+                              game.type && game.type !== "BASE_GAME"
+                                ? GAME_TYPE_LABELS[game.type] || game.type
+                                : null,
+                            ]
+                              .filter(Boolean)
+                              .join(" • ")}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                }
+
+                // Multiple platforms - render as collapsible group
                 return (
-                  <div key={group.platformName} className="mb-1">
-                    {/* Platform Header */}
+                  <div key={group.title} className="mb-1">
+                    {/* Game Title Header */}
                     <button
                       type="button"
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-secondary)]"
-                      onClick={(e) => togglePlatformCollapse(group.platformName, e)}
+                      className="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-secondary)]"
+                      onClick={(e) => toggleGameCollapse(group.title, e)}
                     >
                       {isCollapsed ? (
                         <ChevronRight className="size-4 shrink-0 text-[var(--text-muted)]" />
                       ) : (
                         <ChevronDown className="size-4 shrink-0 text-[var(--text-muted)]" />
                       )}
-                      {group.platformSlug ? (
+                      {group.coverUrl ? (
                         <img
-                          src={`/platforms/${group.platformSlug}.svg`}
+                          src={group.coverUrl}
                           alt=""
-                          className="size-4 shrink-0"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                          }}
+                          className="size-10 shrink-0 rounded object-cover"
                         />
-                      ) : null}
-                      <Gamepad2 className={cn("size-4 shrink-0 text-[var(--text-muted)]", group.platformSlug && "hidden")} />
-                      <span className="flex-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
-                        {group.platformName}
-                      </span>
-                      <span className="text-xs text-[var(--text-muted)]">
-                        {group.games.length}
-                      </span>
+                      ) : (
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded bg-[var(--bg-secondary)]">
+                          <Gamepad2 className="size-5 text-[var(--text-muted)]" />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-medium text-[var(--text-primary)]">
+                          {group.title}
+                        </div>
+                        <div className="text-xs text-[var(--text-muted)]">
+                          {group.games.length} platforms
+                        </div>
+                      </div>
                     </button>
 
-                    {/* Games in Platform */}
+                    {/* Platform Options */}
                     {!isCollapsed && (
-                      <div className="ml-2 border-l border-[var(--border-color)] pl-2">
+                      <div className="ml-6 border-l border-[var(--border-color)] pl-3">
                         {group.games.map((game) => (
                           <button
                             key={game.id}
                             type="button"
-                            className="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-card-hover)]"
+                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-card-hover)]"
                             onClick={() => handleSelect(game)}
                           >
-                            {game.coverUrl ? (
+                            {game.platform?.slug ? (
                               <img
-                                src={game.coverUrl}
+                                src={`/platforms/${game.platform.slug}.svg`}
                                 alt=""
-                                className="size-8 shrink-0 rounded object-cover"
+                                className="size-4 shrink-0"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = 'none';
+                                  const fallback = (e.target as HTMLImageElement).nextElementSibling;
+                                  if (fallback) fallback.classList.remove('hidden');
+                                }}
                               />
-                            ) : (
-                              <div className="size-8 shrink-0 rounded bg-[var(--bg-secondary)]" />
+                            ) : null}
+                            <Gamepad2 className={cn(
+                              "size-4 shrink-0 text-[var(--text-muted)]",
+                              game.platform?.slug && "hidden"
+                            )} />
+                            <span className="flex-1 truncate text-sm text-[var(--text-primary)]">
+                              {game.platform?.name || "Unknown Platform"}
+                            </span>
+                            {game.type && game.type !== "BASE_GAME" && (
+                              <span className="text-xs text-[var(--text-muted)]">
+                                {GAME_TYPE_LABELS[game.type] || game.type}
+                              </span>
                             )}
-                            <div className="min-w-0 flex-1">
-                              <div className="truncate text-sm font-medium text-[var(--text-primary)]">
-                                {game.title}
-                              </div>
-                              {game.type && game.type !== "BASE_GAME" && (
-                                <div className="truncate text-xs text-[var(--text-muted)]">
-                                  {GAME_TYPE_LABELS[game.type] || game.type}
-                                </div>
-                              )}
-                            </div>
                           </button>
                         ))}
                       </div>
