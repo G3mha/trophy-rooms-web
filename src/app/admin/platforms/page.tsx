@@ -11,6 +11,7 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
+import { AdminConfirmDialog } from "@/components/admin";
 import {
   Dialog,
   DialogBody,
@@ -48,6 +49,11 @@ export default function AdminPlatformsPage() {
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Confirm dialog state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"single" | "bulk">("single");
+  const [platformToDelete, setPlatformToDelete] = useState<Platform | null>(null);
 
   const {
     data: platformsData,
@@ -143,6 +149,27 @@ export default function AdminPlatformsPage() {
     });
   };
 
+  const openDeleteConfirm = (platform: Platform) => {
+    setPlatformToDelete(platform);
+    setConfirmAction("single");
+    setConfirmOpen(true);
+  };
+
+  const openBulkDeleteConfirm = () => {
+    setConfirmAction("bulk");
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (confirmAction === "bulk") {
+      await bulkDelete({ variables: { ids: Array.from(selectedIds) } });
+    } else if (platformToDelete) {
+      await deletePlatform({ variables: { id: platformToDelete.id } });
+    }
+    setConfirmOpen(false);
+    setPlatformToDelete(null);
+  };
+
   // Auto-generate slug from name
   const generateSlug = (name: string) => {
     return name
@@ -169,12 +196,7 @@ export default function AdminPlatformsPage() {
             <Button
               variant="outline"
               size="sm"
-              loading={bulkDeleting}
-              onClick={async () => {
-                if (confirm(`Delete ${selectedIds.size} platform(s)?`)) {
-                  await bulkDelete({ variables: { ids: Array.from(selectedIds) } });
-                }
-              }}
+              onClick={openBulkDeleteConfirm}
             >
               <Trash2 size={14} />
               Delete {selectedIds.size}
@@ -203,7 +225,7 @@ export default function AdminPlatformsPage() {
 
       {/* Add Platform Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[420px]">
+        <DialogContent className="sm:max-w-[420px]" onEnterKeySubmit={handleCreatePlatform}>
           <DialogHeader>
             <DialogTitle>Add New Platform</DialogTitle>
             <DialogDescription>
@@ -265,7 +287,7 @@ export default function AdminPlatformsPage() {
         setIsEditModalOpen(open);
         if (!open) resetEditForm();
       }}>
-        <DialogContent className="sm:max-w-[420px]">
+        <DialogContent className="sm:max-w-[420px]" onEnterKeySubmit={handleUpdatePlatform}>
           <DialogHeader>
             <DialogTitle>Edit Platform</DialogTitle>
             <DialogDescription>
@@ -374,11 +396,7 @@ export default function AdminPlatformsPage() {
               </button>
               <button
                 className={`${styles.actionBtn} ${styles.danger}`}
-                onClick={async () => {
-                  if (confirm(`Delete ${platform.name}?`)) {
-                    await deletePlatform({ variables: { id: platform.id } });
-                  }
-                }}
+                onClick={() => openDeleteConfirm(platform)}
                 title="Delete"
               >
                 <Trash2 size={14} />
@@ -394,6 +412,25 @@ export default function AdminPlatformsPage() {
           </p>
         )}
       </div>
+
+      {/* Confirm Delete Dialog */}
+      <AdminConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleConfirmDelete}
+        loading={bulkDeleting}
+        title={
+          confirmAction === "bulk"
+            ? `Delete ${selectedIds.size} platform(s)?`
+            : `Delete ${platformToDelete?.name}?`
+        }
+        description={
+          confirmAction === "bulk"
+            ? "All selected platforms will be permanently deleted."
+            : "This platform will be permanently deleted."
+        }
+        confirmLabel="Delete"
+      />
     </div>
   );
 }
