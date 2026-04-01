@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client";
 import { GET_ACHIEVEMENT_SETS_ADMIN, GET_ACHIEVEMENTS_ADMIN } from "@/graphql/admin_queries";
 import {
@@ -12,6 +13,7 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Upload } from "lucide-react";
 import { Button, LoadingSpinner, Pagination } from "@/components";
+import { AdminConfirmDialog } from "@/components/admin";
 import {
   Dialog,
   DialogBody,
@@ -55,10 +57,20 @@ interface PageInfo {
 const DEFAULT_PAGE_SIZE = 20;
 
 export default function AdminAchievementsPage() {
+  const searchParams = useSearchParams();
+
   // Filter state
   const [selectedSetId, setSelectedSetId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  // Read setId from URL params on mount
+  useEffect(() => {
+    const setIdParam = searchParams.get("setId");
+    if (setIdParam) {
+      setSelectedSetId(setIdParam);
+    }
+  }, [searchParams]);
 
   // Add modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -77,6 +89,11 @@ export default function AdminAchievementsPage() {
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Confirm dialog state
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<"single" | "bulk">("single");
+  const [achievementToDelete, setAchievementToDelete] = useState<Achievement | null>(null);
 
   // Import state
   const [showImport, setShowImport] = useState(false);
@@ -252,6 +269,27 @@ export default function AdminAchievementsPage() {
     setCursors(new Map([[1, null]]));
   };
 
+  const openDeleteConfirm = (achievement: Achievement) => {
+    setAchievementToDelete(achievement);
+    setConfirmAction("single");
+    setConfirmOpen(true);
+  };
+
+  const openBulkDeleteConfirm = () => {
+    setConfirmAction("bulk");
+    setConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (confirmAction === "bulk") {
+      await bulkDelete({ variables: { ids: Array.from(selectedIds) } });
+    } else if (achievementToDelete) {
+      await deleteAchievement({ variables: { id: achievementToDelete.id } });
+    }
+    setConfirmOpen(false);
+    setAchievementToDelete(null);
+  };
+
   const handlePageChange = useCallback(
     (page: number) => {
       if (page < 1 || page > totalPages) return;
@@ -301,12 +339,7 @@ export default function AdminAchievementsPage() {
             <Button
               variant="outline"
               size="sm"
-              loading={bulkDeleting}
-              onClick={async () => {
-                if (confirm(`Delete ${selectedIds.size} achievement(s)?`)) {
-                  await bulkDelete({ variables: { ids: Array.from(selectedIds) } });
-                }
-              }}
+              onClick={openBulkDeleteConfirm}
             >
               <Trash2 size={14} />
               Delete {selectedIds.size}
@@ -605,13 +638,7 @@ export default function AdminAchievementsPage() {
                       </button>
                       <button
                         className={`${styles.actionBtn} ${styles.danger}`}
-                        onClick={async () => {
-                          if (confirm(`Delete ${achievement.title}?`)) {
-                            await deleteAchievement({
-                              variables: { id: achievement.id },
-                            });
-                          }
-                        }}
+                        onClick={() => openDeleteConfirm(achievement)}
                         title="Delete"
                       >
                         <Trash2 size={14} />
@@ -649,6 +676,25 @@ export default function AdminAchievementsPage() {
           Select an achievement set above to manage its achievements.
         </p>
       )}
+
+      {/* Confirm Delete Dialog */}
+      <AdminConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        onConfirm={handleConfirmDelete}
+        loading={bulkDeleting}
+        title={
+          confirmAction === "bulk"
+            ? `Delete ${selectedIds.size} achievement(s)?`
+            : `Delete ${achievementToDelete?.title}?`
+        }
+        description={
+          confirmAction === "bulk"
+            ? "All selected achievements will be permanently deleted."
+            : "This achievement will be permanently deleted."
+        }
+        confirmLabel="Delete"
+      />
     </div>
   );
 }
