@@ -262,6 +262,7 @@ export default function AdminDLCsPage() {
           }}
           placeholder="Search the full game catalog..."
           emptyText="No matching games found."
+          filterOption={(game) => game.type !== "DLC" && game.type !== "EXPANSION"}
         />
       </div>
 
