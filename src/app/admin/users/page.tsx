@@ -5,6 +5,13 @@ import { useQuery, useMutation } from "@apollo/client";
 import { GET_USERS_ADMIN } from "@/graphql/admin_queries";
 import { SET_USER_ROLE } from "@/graphql/admin_mutations";
 import { LoadingSpinner, Pagination } from "@/components";
+import { Search } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
 import styles from "../page.module.css";
 
 interface User {
@@ -19,6 +26,12 @@ interface PageInfo {
   hasNextPage: boolean;
   endCursor: string | null;
 }
+
+const ROLE_LABELS: Record<string, string> = {
+  USER: "User",
+  TRUSTED: "Trusted",
+  ADMIN: "Admin",
+};
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -92,6 +105,14 @@ export default function AdminUsersPage() {
     setCursors(new Map([[1, null]]));
   }, []);
 
+  const handleRoleChange = (userId: string, role: string | null) => {
+    if (role) {
+      setUserRole({
+        variables: { userId, role },
+      });
+    }
+  };
+
   if (usersLoading && users.length === 0) {
     return <LoadingSpinner text="Loading users..." />;
   }
@@ -107,15 +128,21 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      <div style={{ maxWidth: 400, marginBottom: 20 }}>
-        <input
-          className={styles.input}
-          placeholder="Search by name or email"
-          value={userSearch}
-          onChange={(event) => setUserSearch(event.target.value)}
-        />
+      {/* Search Bar */}
+      <div className={styles.searchBar}>
+        <div className={styles.searchInputWrapper}>
+          <Search size={18} className={styles.searchIcon} />
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Search by name or email..."
+            value={userSearch}
+            onChange={(event) => setUserSearch(event.target.value)}
+          />
+        </div>
       </div>
 
+      {/* Users List */}
       <div className={styles.itemsGrid}>
         {users.map((user: User) => (
           <div key={user.id} className={styles.itemCard}>
@@ -125,7 +152,7 @@ export default function AdminUsersPage() {
                   {user.name || "Unnamed User"}
                 </span>
                 <span
-                  className={styles.itemMeta}
+                  className={styles.itemSlug}
                   style={{ display: "block", marginTop: 2 }}
                 >
                   {user.email}
@@ -133,21 +160,22 @@ export default function AdminUsersPage() {
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <select
-                className={styles.input}
-                style={{ width: 120, padding: "6px 10px" }}
-                value={user.role}
-                onChange={(event) =>
-                  setUserRole({
-                    variables: { userId: user.id, role: event.target.value },
-                  })
-                }
-                disabled={updatingRole}
-              >
-                <option value="USER">User</option>
-                <option value="TRUSTED">Trusted</option>
-                <option value="ADMIN">Admin</option>
-              </select>
+              <div style={{ width: 120 }}>
+                <Select
+                  value={user.role}
+                  onValueChange={(value) => handleRoleChange(user.id, value)}
+                  disabled={updatingRole}
+                >
+                  <SelectTrigger>
+                    <span>{ROLE_LABELS[user.role] || user.role}</span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USER">User</SelectItem>
+                    <SelectItem value="TRUSTED">Trusted</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <span className={styles.itemMeta}>
                 {new Date(user.createdAt).toLocaleDateString()}
               </span>
@@ -155,7 +183,11 @@ export default function AdminUsersPage() {
           </div>
         ))}
         {users.length === 0 && (
-          <p className={styles.itemMeta}>No users found.</p>
+          <p className={styles.emptyState}>
+            {userSearch
+              ? `No users found matching "${userSearch}"`
+              : "No users found."}
+          </p>
         )}
       </div>
 
