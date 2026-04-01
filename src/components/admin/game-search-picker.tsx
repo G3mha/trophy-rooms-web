@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@apollo/client";
-import { ChevronDown, Search, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, X, Gamepad2 } from "lucide-react";
 import * as React from "react";
 
 import { GET_GAMES_ADMIN } from "@/graphql/admin_queries";
@@ -20,7 +20,13 @@ export interface SearchableGame {
   title: string;
   type?: string | null;
   coverUrl?: string | null;
-  platform?: { name: string } | null;
+  platform?: { name: string; slug: string } | null;
+}
+
+interface PlatformGroup {
+  platformName: string;
+  platformSlug: string | null;
+  games: SearchableGame[];
 }
 
 type SharedPickerProps = {
@@ -57,6 +63,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const [debouncedSearch, setDebouncedSearch] = React.useState("");
+  const [collapsedPlatforms, setCollapsedPlatforms] = React.useState<Set<string>>(new Set());
   const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -84,7 +91,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
 
   const { data, loading } = useQuery(GET_GAMES_ADMIN, {
     variables: {
-      first: 20,
+      first: 50,
       orderBy: "TITLE_ASC",
       search: debouncedSearch || undefined,
     },
@@ -105,6 +112,43 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
     .filter((game) =>
       props.mode === "multiple" ? !selectedIds.has(game.id) : true
     );
+
+  // Group games by platform
+  const groupedByPlatform = React.useMemo(() => {
+    const groups: Map<string, PlatformGroup> = new Map();
+
+    for (const game of options) {
+      const platformKey = game.platform?.name || "Unknown Platform";
+
+      if (!groups.has(platformKey)) {
+        groups.set(platformKey, {
+          platformName: platformKey,
+          platformSlug: game.platform?.slug || null,
+          games: [],
+        });
+      }
+
+      groups.get(platformKey)!.games.push(game);
+    }
+
+    // Sort groups alphabetically by platform name
+    return Array.from(groups.values()).sort((a, b) =>
+      a.platformName.localeCompare(b.platformName)
+    );
+  }, [options]);
+
+  const togglePlatformCollapse = (platformName: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setCollapsedPlatforms((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(platformName)) {
+        newSet.delete(platformName);
+      } else {
+        newSet.add(platformName);
+      }
+      return newSet;
+    });
+  };
 
   const handleSelect = (game: SearchableGame) => {
     if (props.mode === "multiple") {
@@ -212,7 +256,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
         </div>
 
         {isOpen && (
-          <div className="absolute z-50 mt-1 max-h-72 w-full overflow-auto rounded-[var(--border-radius)] border border-[var(--border-color)] bg-[var(--bg-card)] p-1 shadow-lg">
+          <div className="absolute z-50 mt-1 max-h-80 w-full overflow-auto rounded-[var(--border-radius)] border border-[var(--border-color)] bg-[var(--bg-card)] p-1 shadow-lg">
             {loading ? (
               <div className="px-3 py-6 text-center text-sm text-[var(--text-muted)]">
                 Searching games...
@@ -222,37 +266,78 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                 {emptyText}
               </div>
             ) : (
-              options.map((game) => (
-                <button
-                  key={game.id}
-                  type="button"
-                  className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left transition-colors hover:bg-[var(--bg-card-hover)]"
-                  onClick={() => handleSelect(game)}
-                >
-                  {game.coverUrl ? (
-                    <img
-                      src={game.coverUrl}
-                      alt=""
-                      className="size-8 shrink-0 rounded object-cover"
-                    />
-                  ) : (
-                    <div className="size-8 shrink-0 rounded bg-[var(--bg-secondary)]" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-[var(--text-primary)]">
-                      {game.title}
-                    </div>
-                    <div className="truncate text-xs text-[var(--text-muted)]">
-                      {[
-                        game.platform?.name,
-                        game.type ? GAME_TYPE_LABELS[game.type] || game.type : null,
-                      ]
-                        .filter(Boolean)
-                        .join(" • ")}
-                    </div>
+              groupedByPlatform.map((group) => {
+                const isCollapsed = collapsedPlatforms.has(group.platformName);
+
+                return (
+                  <div key={group.platformName} className="mb-1">
+                    {/* Platform Header */}
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-secondary)]"
+                      onClick={(e) => togglePlatformCollapse(group.platformName, e)}
+                    >
+                      {isCollapsed ? (
+                        <ChevronRight className="size-4 shrink-0 text-[var(--text-muted)]" />
+                      ) : (
+                        <ChevronDown className="size-4 shrink-0 text-[var(--text-muted)]" />
+                      )}
+                      {group.platformSlug ? (
+                        <img
+                          src={`/platforms/${group.platformSlug}.svg`}
+                          alt=""
+                          className="size-4 shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                          }}
+                        />
+                      ) : null}
+                      <Gamepad2 className={cn("size-4 shrink-0 text-[var(--text-muted)]", group.platformSlug && "hidden")} />
+                      <span className="flex-1 text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                        {group.platformName}
+                      </span>
+                      <span className="text-xs text-[var(--text-muted)]">
+                        {group.games.length}
+                      </span>
+                    </button>
+
+                    {/* Games in Platform */}
+                    {!isCollapsed && (
+                      <div className="ml-2 border-l border-[var(--border-color)] pl-2">
+                        {group.games.map((game) => (
+                          <button
+                            key={game.id}
+                            type="button"
+                            className="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-card-hover)]"
+                            onClick={() => handleSelect(game)}
+                          >
+                            {game.coverUrl ? (
+                              <img
+                                src={game.coverUrl}
+                                alt=""
+                                className="size-8 shrink-0 rounded object-cover"
+                              />
+                            ) : (
+                              <div className="size-8 shrink-0 rounded bg-[var(--bg-secondary)]" />
+                            )}
+                            <div className="min-w-0 flex-1">
+                              <div className="truncate text-sm font-medium text-[var(--text-primary)]">
+                                {game.title}
+                              </div>
+                              {game.type && game.type !== "BASE_GAME" && (
+                                <div className="truncate text-xs text-[var(--text-muted)]">
+                                  {GAME_TYPE_LABELS[game.type] || game.type}
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </button>
-              ))
+                );
+              })
             )}
           </div>
         )}
