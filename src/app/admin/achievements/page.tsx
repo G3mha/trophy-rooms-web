@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { GET_ACHIEVEMENT_SETS_ADMIN, GET_ACHIEVEMENTS_ADMIN } from "@/graphql/admin_queries";
 import {
   CREATE_ACHIEVEMENT,
@@ -139,7 +140,9 @@ export default function AdminAchievementsPage() {
       setCursors(new Map([[1, null]]));
       setIsAddModalOpen(false);
       resetAddForm();
+      toast.success("Achievement created.");
     },
+    onError: (error) => toast.error(error.message || "Failed to create achievement."),
   });
 
   const [updateAchievement, { loading: updating }] = useMutation(UPDATE_ACHIEVEMENT, {
@@ -147,28 +150,38 @@ export default function AdminAchievementsPage() {
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
+      toast.success("Achievement updated.");
     },
+    onError: (error) => toast.error(error.message || "Failed to update achievement."),
   });
 
   const [deleteAchievement] = useMutation(DELETE_ACHIEVEMENT, {
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      toast.success("Achievement deleted.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to delete achievement."),
   });
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_ACHIEVEMENTS, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       refetch();
       setSelectedIds(new Set());
+      toast.success(`Deleted ${data?.bulkDeleteAchievements?.deletedCount || 0} achievement(s).`);
     },
+    onError: (error) => toast.error(error.message || "Failed to delete achievements."),
   });
 
   const [bulkCreate, { loading: importing }] = useMutation(BULK_CREATE_ACHIEVEMENTS, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       refetch();
       setCsvData("");
       setShowImport(false);
       setCurrentPage(1);
       setCursors(new Map([[1, null]]));
+      toast.success(`Imported ${data?.bulkCreateAchievements?.createdCount || 0} achievement(s).`);
     },
+    onError: (error) => toast.error(error.message || "Failed to import achievements."),
   });
 
   const sets: AchievementSet[] = setsData?.achievementSets || [];

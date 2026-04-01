@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { GET_GAMES_ADMIN, GET_GAME_VERSIONS } from "@/graphql/admin_queries";
 import {
   CREATE_GAME_VERSION,
@@ -86,7 +87,9 @@ export default function AdminGameVersionsPage() {
       refetch();
       setIsAddModalOpen(false);
       resetAddForm();
+      toast.success("Version created.");
     },
+    onError: (error) => toast.error(error.message || "Failed to create version."),
   });
 
   const [updateVersion, { loading: updating }] = useMutation(UPDATE_GAME_VERSION, {
@@ -94,22 +97,34 @@ export default function AdminGameVersionsPage() {
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
+      toast.success("Version updated.");
     },
+    onError: (error) => toast.error(error.message || "Failed to update version."),
   });
 
   const [deleteVersion] = useMutation(DELETE_GAME_VERSION, {
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      toast.success("Version deleted.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to delete version."),
   });
 
   const [setDefaultVersion] = useMutation(SET_DEFAULT_VERSION, {
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      toast.success("Default version updated.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to set default version."),
   });
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_GAME_VERSIONS, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       refetch();
       setSelectedIds(new Set());
+      toast.success(`Deleted ${data?.bulkDeleteGameVersions?.deletedCount || 0} version(s).`);
     },
+    onError: (error) => toast.error(error.message || "Failed to delete versions."),
   });
 
   const games: Game[] = gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [];

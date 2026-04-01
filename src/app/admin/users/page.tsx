@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { GET_USERS_ADMIN } from "@/graphql/admin_queries";
 import { SET_USER_ROLE } from "@/graphql/admin_mutations";
 import { LoadingSpinner, Pagination } from "@/components";
@@ -70,7 +71,11 @@ export default function AdminUsersPage() {
   });
 
   const [setUserRole, { loading: updatingRole }] = useMutation(SET_USER_ROLE, {
-    onCompleted: () => refetchUsers(),
+    onCompleted: () => {
+      refetchUsers();
+      toast.success("User role updated.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to update user role."),
   });
 
   const users =

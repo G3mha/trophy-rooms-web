@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
   CREATE_PLATFORM,
@@ -66,7 +67,9 @@ export default function AdminPlatformsPage() {
       refetch();
       setIsAddModalOpen(false);
       resetAddForm();
+      toast.success("Platform created.");
     },
+    onError: (error) => toast.error(error.message || "Failed to create platform."),
   });
 
   const [updatePlatform, { loading: updating }] = useMutation(UPDATE_PLATFORM, {
@@ -74,18 +77,26 @@ export default function AdminPlatformsPage() {
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
+      toast.success("Platform updated.");
     },
+    onError: (error) => toast.error(error.message || "Failed to update platform."),
   });
 
   const [deletePlatform] = useMutation(DELETE_PLATFORM, {
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      toast.success("Platform deleted.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to delete platform."),
   });
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_PLATFORMS, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       refetch();
       setSelectedIds(new Set());
+      toast.success(`Deleted ${data?.bulkDeletePlatforms?.deletedCount || 0} platform(s).`);
     },
+    onError: (error) => toast.error(error.message || "Failed to delete platforms."),
   });
 
   const platforms: Platform[] = platformsData?.platforms || [];

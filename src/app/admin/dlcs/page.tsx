@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { GET_DLCS } from "@/graphql/admin_queries";
 import {
   CREATE_DLC,
@@ -92,7 +93,9 @@ export default function AdminDLCsPage() {
       refetch();
       setIsAddModalOpen(false);
       resetAddForm();
+      toast.success("DLC created.");
     },
+    onError: (error) => toast.error(error.message || "Failed to create DLC."),
   });
 
   const [updateDLC, { loading: updating }] = useMutation(UPDATE_DLC, {
@@ -100,18 +103,26 @@ export default function AdminDLCsPage() {
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
+      toast.success("DLC updated.");
     },
+    onError: (error) => toast.error(error.message || "Failed to update DLC."),
   });
 
   const [deleteDLC, { loading: deleting }] = useMutation(DELETE_DLC, {
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      toast.success("DLC deleted.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to delete DLC."),
   });
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_DLCS, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       refetch();
       setSelectedIds(new Set());
+      toast.success(`Deleted ${data?.bulkDeleteDLCs?.deletedCount || 0} DLC(s).`);
     },
+    onError: (error) => toast.error(error.message || "Failed to delete DLCs."),
   });
 
   const dlcs: DLC[] = dlcsData?.dlcs || [];

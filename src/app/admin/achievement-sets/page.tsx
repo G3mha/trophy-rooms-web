@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
+import { toast } from "sonner";
 import { GET_GAMES_ADMIN, GET_ACHIEVEMENT_SETS_ADMIN } from "@/graphql/admin_queries";
 import {
   CREATE_ACHIEVEMENT_SET,
@@ -95,7 +96,9 @@ export default function AdminAchievementSetsPage() {
       refetch();
       setIsAddModalOpen(false);
       resetAddForm();
+      toast.success("Achievement set created.");
     },
+    onError: (error) => toast.error(error.message || "Failed to create achievement set."),
   });
 
   const [updateSet, { loading: updating }] = useMutation(UPDATE_ACHIEVEMENT_SET, {
@@ -103,18 +106,26 @@ export default function AdminAchievementSetsPage() {
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
+      toast.success("Achievement set updated.");
     },
+    onError: (error) => toast.error(error.message || "Failed to update achievement set."),
   });
 
   const [deleteSet] = useMutation(DELETE_ACHIEVEMENT_SET, {
-    onCompleted: () => refetch(),
+    onCompleted: () => {
+      refetch();
+      toast.success("Achievement set deleted.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to delete achievement set."),
   });
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_ACHIEVEMENT_SETS, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       refetch();
       setSelectedIds(new Set());
+      toast.success(`Deleted ${data?.bulkDeleteAchievementSets?.deletedCount || 0} set(s).`);
     },
+    onError: (error) => toast.error(error.message || "Failed to delete achievement sets."),
   });
 
   const games: Game[] = gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [];
