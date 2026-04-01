@@ -244,7 +244,8 @@ export default function AdminAchievementsPage() {
     await bulkCreate({ variables: { input: { achievements: achievementsToCreate } } });
   };
 
-  const handleSetChange = (setId: string) => {
+  const handleSetChange = (setId: string | null) => {
+    if (!setId) return;
     setSelectedSetId(setId);
     setSelectedIds(new Set());
     setCurrentPage(1);

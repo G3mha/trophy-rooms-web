@@ -248,7 +248,7 @@ export default function AdminAchievementSetsPage() {
 
             <div className={styles.formField}>
               <label className={styles.formLabel}>Type *</label>
-              <Select value={newType} onValueChange={setNewType}>
+              <Select value={newType} onValueChange={(value) => value && setNewType(value)}>
                 <SelectTrigger>
                   <span>{SET_TYPE_LABELS[newType] || "Select type"}</span>
                 </SelectTrigger>
@@ -317,7 +317,7 @@ export default function AdminAchievementSetsPage() {
 
             <div className={styles.formField}>
               <label className={styles.formLabel}>Type *</label>
-              <Select value={editType} onValueChange={setEditType}>
+              <Select value={editType} onValueChange={(value) => value && setEditType(value)}>
                 <SelectTrigger>
                   <span>{SET_TYPE_LABELS[editType] || "Select type"}</span>
                 </SelectTrigger>
