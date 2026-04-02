@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
-import { GET_DLCS } from "@/graphql/admin_queries";
+import { GET_DLCS, GET_GAMES_ADMIN } from "@/graphql/admin_queries";
 import {
   CREATE_DLC,
   UPDATE_DLC,
   DELETE_DLC,
   BULK_DELETE_DLCS,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Plus, Search, Puzzle } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, Puzzle, Check } from "lucide-react";
 import { Button, LoadingSpinner } from "@/components";
 import {
   AdminConfirmDialog,
@@ -63,6 +63,7 @@ export default function AdminDLCsPage() {
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
   const [newType, setNewType] = useState("DLC");
+  const [additionalPlatformIds, setAdditionalPlatformIds] = useState<Set<string>>(new Set());
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -88,15 +89,31 @@ export default function AdminDLCsPage() {
     skip: !selectedGameId,
   });
 
-  const [createDLC, { loading: creating }] = useMutation(CREATE_DLC, {
-    onCompleted: () => {
-      refetch();
-      setIsAddModalOpen(false);
-      resetAddForm();
-      toast.success("DLC created.");
+  // Query for sibling games (same title, different platforms)
+  const { data: siblingsData } = useQuery(GET_GAMES_ADMIN, {
+    variables: {
+      first: 20,
+      orderBy: "TITLE_ASC",
+      search: selectedGame?.title || undefined,
     },
-    onError: (error) => toast.error(error.message || "Failed to create DLC."),
+    skip: !selectedGame?.title,
   });
+
+  // Filter to only show siblings with exact title match and different platform
+  const siblingGames = useMemo(() => {
+    if (!siblingsData?.games?.edges || !selectedGame) return [];
+    return siblingsData.games.edges
+      .map((edge: { node: SearchableGame }) => edge.node)
+      .filter(
+        (game: SearchableGame) =>
+          game.title === selectedGame.title &&
+          game.id !== selectedGame.id &&
+          game.type !== "DLC" &&
+          game.type !== "EXPANSION"
+      );
+  }, [siblingsData, selectedGame]);
+
+  const [createDLC, { loading: creating }] = useMutation(CREATE_DLC);
 
   const [updateDLC, { loading: updating }] = useMutation(UPDATE_DLC, {
     onCompleted: () => {
@@ -158,6 +175,7 @@ export default function AdminDLCsPage() {
     setNewName("");
     setNewSlug("");
     setNewType("DLC");
+    setAdditionalPlatformIds(new Set());
   };
 
   const resetEditForm = () => {
@@ -177,16 +195,52 @@ export default function AdminDLCsPage() {
 
   const handleCreateDLC = async () => {
     if (!newName || !newSlug || !selectedGameId) return;
-    await createDLC({
-      variables: {
-        input: {
-          name: newName,
-          slug: newSlug,
-          type: newType,
-          gameId: selectedGameId,
-        },
-      },
-    });
+
+    // Collect all game IDs to create DLC for
+    const allGameIds = [selectedGameId, ...Array.from(additionalPlatformIds)];
+    let successCount = 0;
+    let errorCount = 0;
+
+    try {
+      // Create DLC for each selected platform
+      for (const gameId of allGameIds) {
+        try {
+          await createDLC({
+            variables: {
+              input: {
+                name: newName,
+                slug: newSlug,
+                type: newType,
+                gameId,
+              },
+            },
+          });
+          successCount++;
+        } catch {
+          errorCount++;
+        }
+      }
+
+      // Close modal and reset form
+      setIsAddModalOpen(false);
+      resetAddForm();
+      refetch();
+
+      // Show appropriate toast message
+      if (errorCount === 0) {
+        if (successCount === 1) {
+          toast.success("DLC created.");
+        } else {
+          toast.success(`DLC created for ${successCount} platforms.`);
+        }
+      } else if (successCount > 0) {
+        toast.warning(`Created ${successCount} DLC(s), ${errorCount} failed.`);
+      } else {
+        toast.error("Failed to create DLC.");
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to create DLC.");
+    }
   };
 
   const handleUpdateDLC = async () => {
@@ -336,6 +390,67 @@ export default function AdminDLCsPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Multi-platform selection */}
+                {siblingGames.length > 0 && (
+                  <div className={styles.formField}>
+                    <label className={styles.formLabel}>Also create for other platforms</label>
+                    <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
+                      Create this DLC for multiple platform versions at once.
+                    </span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {siblingGames.map((game: SearchableGame) => (
+                        <button
+                          key={game.id}
+                          type="button"
+                          onClick={() => {
+                            setAdditionalPlatformIds((prev) => {
+                              const next = new Set(prev);
+                              if (next.has(game.id)) {
+                                next.delete(game.id);
+                              } else {
+                                next.add(game.id);
+                              }
+                              return next;
+                            });
+                          }}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                            padding: "8px 12px",
+                            background: additionalPlatformIds.has(game.id)
+                              ? "rgba(230, 0, 18, 0.15)"
+                              : "var(--bg-secondary)",
+                            border: additionalPlatformIds.has(game.id)
+                              ? "1px solid var(--nintendo-red)"
+                              : "1px solid var(--border-color)",
+                            borderRadius: "var(--border-radius)",
+                            cursor: "pointer",
+                            color: "var(--text-primary)",
+                            fontSize: 14,
+                            textAlign: "left",
+                          }}
+                        >
+                          {game.platform?.slug && (
+                            <img
+                              src={`/platforms/${game.platform.slug}.svg`}
+                              alt=""
+                              style={{ width: 18, height: 18 }}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = "none";
+                              }}
+                            />
+                          )}
+                          <span style={{ flex: 1 }}>{game.platform?.name || "Unknown"}</span>
+                          {additionalPlatformIds.has(game.id) && (
+                            <Check size={16} style={{ color: "var(--nintendo-red)" }} />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </DialogBody>
 
               <DialogFooter>
@@ -353,7 +468,9 @@ export default function AdminDLCsPage() {
                   loading={creating}
                   disabled={!newName || !newSlug}
                 >
-                  Create DLC
+                  {additionalPlatformIds.size > 0
+                    ? `Create DLC for ${additionalPlatformIds.size + 1} Platforms`
+                    : "Create DLC"}
                 </Button>
               </DialogFooter>
             </DialogContent>
