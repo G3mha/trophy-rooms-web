@@ -390,10 +390,10 @@ export default function AdminGamesPage() {
         return;
       }
 
-      await refetch();
       setIsEditModalOpen(false);
       resetEditForm();
       toast.success(`Saved changes to ${payload.game.title}.`);
+      refetch();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to update game."
