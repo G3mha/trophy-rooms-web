@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import {
+  Check,
   ChevronDown,
   ChevronRight,
   Copy,
@@ -157,6 +158,7 @@ export default function AdminGamesPage() {
   const [newPlatformId, setNewPlatformId] = useState("");
   const [newType, setNewType] = useState("BASE_GAME");
   const [newBaseGame, setNewBaseGame] = useState<SearchableGame | null>(null);
+  const [newAdditionalPlatformIds, setNewAdditionalPlatformIds] = useState<Set<string>>(new Set());
   const [newErrors, setNewErrors] = useState<GameFormErrors>({});
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -213,6 +215,29 @@ export default function AdminGamesPage() {
     },
   });
 
+  // Query for sibling games when creating DLC/Expansion (same title as base game, different platforms)
+  const { data: baseGameSiblingsData } = useQuery(GET_GAMES_ADMIN, {
+    variables: {
+      first: 20,
+      orderBy: "TITLE_ASC",
+      search: newBaseGame?.title || undefined,
+    },
+    skip: !newBaseGame?.title || newType === "BASE_GAME",
+  });
+
+  // Filter to only show siblings with exact title match
+  const baseGameSiblings = useMemo(() => {
+    if (!baseGameSiblingsData?.games?.edges || !newBaseGame) return [];
+    return baseGameSiblingsData.games.edges
+      .map((edge: { node: SearchableGame }) => edge.node)
+      .filter(
+        (game: SearchableGame) =>
+          game.title === newBaseGame.title &&
+          game.type !== "DLC" &&
+          game.type !== "EXPANSION"
+      );
+  }, [baseGameSiblingsData, newBaseGame]);
+
   const [createGame, { loading: creating }] = useMutation(CREATE_GAME);
   const [updateGame, { loading: updating }] = useMutation(UPDATE_GAME);
   const [deleteGame, { loading: deleting }] = useMutation(DELETE_GAME);
@@ -261,6 +286,7 @@ export default function AdminGamesPage() {
     setNewPlatformId("");
     setNewType("BASE_GAME");
     setNewBaseGame(null);
+    setNewAdditionalPlatformIds(new Set());
     setNewErrors({});
   };
 
@@ -305,45 +331,88 @@ export default function AdminGamesPage() {
   };
 
   const handleCreateGame = async () => {
+    // For DLC/Expansion, platforms come from sibling selection
+    const isDlcOrExpansion = newType !== "BASE_GAME";
+    const hasSelectedPlatforms = newAdditionalPlatformIds.size > 0;
+
+    // Validate form - skip platform for DLC/Expansion since it comes from siblings
     const errors = validateGameForm({
       title: newTitle,
-      platformId: newPlatformId,
+      platformId: isDlcOrExpansion ? "skip" : newPlatformId,
       type: newType,
       baseGame: newBaseGame,
       coverUrl: newCoverUrl,
     });
 
+    // For DLC/Expansion, remove platform error and check if platforms selected
+    if (isDlcOrExpansion) {
+      delete errors.platformId;
+      if (!hasSelectedPlatforms) {
+        errors.baseGame = "Select at least one platform to create this content for.";
+      }
+    }
+
     setNewErrors(errors);
     if (Object.keys(errors).length > 0) return;
 
     try {
-      const { data } = await createGame({
-        variables: {
-          input: {
-            title: newTitle.trim(),
-            description: newDescription.trim() || null,
-            coverUrl: newCoverUrl.trim() || null,
-            platformId: newPlatformId,
-            type: newType,
-            baseGameId: newType !== "BASE_GAME" ? newBaseGame?.id || null : null,
-          },
-        },
-      });
+      // Build list of games to create
+      const gamesToCreate: Array<{ platformId: string; baseGameId: string }> = [];
 
-      const payload = data?.createGame;
-      if (!payload?.success) {
-        handleMutationFailure(
-          getMutationMessage(payload?.error),
-          setNewErrors,
-          payload?.error?.field
-        );
-        return;
+      if (isDlcOrExpansion) {
+        // Create for each selected sibling platform
+        for (const siblingId of newAdditionalPlatformIds) {
+          const sibling = baseGameSiblings.find((g: SearchableGame) => g.id === siblingId);
+          if (sibling?.platform?.id) {
+            gamesToCreate.push({
+              platformId: sibling.platform.id,
+              baseGameId: sibling.id,
+            });
+          }
+        }
+      } else {
+        // Single platform creation (BASE_GAME)
+        gamesToCreate.push({
+          platformId: newPlatformId,
+          baseGameId: "",
+        });
       }
 
-      await refetch();
+      let successCount = 0;
+      let lastCreatedTitle = "";
+
+      for (const gameConfig of gamesToCreate) {
+        const { data } = await createGame({
+          variables: {
+            input: {
+              title: newTitle.trim(),
+              description: newDescription.trim() || null,
+              coverUrl: newCoverUrl.trim() || null,
+              platformId: gameConfig.platformId,
+              type: newType,
+              baseGameId: newType !== "BASE_GAME" ? gameConfig.baseGameId || null : null,
+            },
+          },
+        });
+
+        const payload = data?.createGame;
+        if (payload?.success) {
+          successCount++;
+          lastCreatedTitle = payload.game.title;
+        }
+      }
+
       setIsAddModalOpen(false);
       resetForm();
-      toast.success(`Created ${payload.game.title}.`);
+      refetch();
+
+      if (successCount === 0) {
+        toast.error("Failed to create game.");
+      } else if (successCount === 1) {
+        toast.success(`Created ${lastCreatedTitle}.`);
+      } else {
+        toast.success(`Created ${newTitle.trim()} for ${successCount} platforms.`);
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to create game."
@@ -651,36 +720,38 @@ export default function AdminGamesPage() {
                 {renderFieldError(newErrors.title)}
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Platform *</label>
-                  <Select
-                    value={newPlatformId}
-                    onValueChange={(value) => {
-                      setNewPlatformId(value || "");
-                      setNewErrors((prev) => ({
-                        ...prev,
-                        platformId: undefined,
-                      }));
-                    }}
-                  >
-                    <SelectTrigger
-                      className={getFieldErrorClass(Boolean(newErrors.platformId))}
+              <div className={`grid gap-4 ${newType === "BASE_GAME" ? "sm:grid-cols-2" : ""}`}>
+                {newType === "BASE_GAME" && (
+                  <div className={styles.formField}>
+                    <label className={styles.formLabel}>Platform *</label>
+                    <Select
+                      value={newPlatformId}
+                      onValueChange={(value) => {
+                        setNewPlatformId(value || "");
+                        setNewErrors((prev) => ({
+                          ...prev,
+                          platformId: undefined,
+                        }));
+                      }}
                     >
-                      <span>
-                        {platforms.find((p: Platform) => p.id === newPlatformId)?.name || "Select a platform"}
-                      </span>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {platforms.map((platform: Platform) => (
-                        <SelectItem key={platform.id} value={platform.id}>
-                          {platform.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {renderFieldError(newErrors.platformId)}
-                </div>
+                      <SelectTrigger
+                        className={getFieldErrorClass(Boolean(newErrors.platformId))}
+                      >
+                        <span>
+                          {platforms.find((p: Platform) => p.id === newPlatformId)?.name || "Select a platform"}
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {platforms.map((platform: Platform) => (
+                          <SelectItem key={platform.id} value={platform.id}>
+                            {platform.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {renderFieldError(newErrors.platformId)}
+                  </div>
+                )}
 
                 <div className={styles.formField}>
                   <label className={styles.formLabel}>Type *</label>
@@ -691,6 +762,7 @@ export default function AdminGamesPage() {
                       setNewType(nextType);
                       if (nextType === "BASE_GAME") {
                         setNewBaseGame(null);
+                        setNewAdditionalPlatformIds(new Set());
                         setNewErrors((prev) => ({
                           ...prev,
                           baseGame: undefined,
@@ -720,6 +792,7 @@ export default function AdminGamesPage() {
                     value={newBaseGame}
                     onChange={(value) => {
                       setNewBaseGame(value);
+                      setNewAdditionalPlatformIds(new Set());
                       setNewErrors((prev) => ({ ...prev, baseGame: undefined }));
                     }}
                     placeholder="Search the full game catalog..."
@@ -731,6 +804,67 @@ export default function AdminGamesPage() {
                     {GAME_TYPE_LABELS[newType].toLowerCase()} to its original game.
                   </span>
                   {renderFieldError(newErrors.baseGame)}
+                </div>
+              )}
+
+              {/* Multi-platform selection for DLC/Expansion */}
+              {newType !== "BASE_GAME" && baseGameSiblings.length > 0 && (
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Create for Platforms</label>
+                  <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
+                    Select which platform versions to create this {GAME_TYPE_LABELS[newType].toLowerCase()} for.
+                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {baseGameSiblings.map((game: SearchableGame) => (
+                      <button
+                        key={game.id}
+                        type="button"
+                        onClick={() => {
+                          setNewAdditionalPlatformIds((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(game.id)) {
+                              next.delete(game.id);
+                            } else {
+                              next.add(game.id);
+                            }
+                            return next;
+                          });
+                        }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "8px 12px",
+                          background: newAdditionalPlatformIds.has(game.id)
+                            ? "rgba(230, 0, 18, 0.15)"
+                            : "var(--bg-secondary)",
+                          border: newAdditionalPlatformIds.has(game.id)
+                            ? "1px solid var(--nintendo-red)"
+                            : "1px solid var(--border-color)",
+                          borderRadius: "var(--border-radius)",
+                          cursor: "pointer",
+                          color: "var(--text-primary)",
+                          fontSize: 14,
+                          textAlign: "left",
+                        }}
+                      >
+                        {game.platform?.slug && (
+                          <img
+                            src={`/platforms/${game.platform.slug}.svg`}
+                            alt=""
+                            style={{ width: 18, height: 18 }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        )}
+                        <span style={{ flex: 1 }}>{game.platform?.name || "Unknown"}</span>
+                        {newAdditionalPlatformIds.has(game.id) && (
+                          <Check size={16} style={{ color: "var(--nintendo-red)" }} />
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -796,7 +930,9 @@ export default function AdminGamesPage() {
               Cancel
             </Button>
             <Button onClick={handleCreateGame} loading={creating}>
-              Create Game
+              {newType !== "BASE_GAME" && newAdditionalPlatformIds.size > 0
+                ? `Create for ${newAdditionalPlatformIds.size} Platform${newAdditionalPlatformIds.size > 1 ? "s" : ""}`
+                : "Create Game"}
             </Button>
           </DialogFooter>
         </DialogContent>
