@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronRight,
   Copy,
+  Filter,
   Layers,
   Pencil,
   Plus,
@@ -184,6 +185,7 @@ export default function AdminGamesPage() {
 
   const [groupByTitle, setGroupByTitle] = useState(true);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [typeFilter, setTypeFilter] = useState<string | null>(null); // null = all types
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
@@ -245,13 +247,19 @@ export default function AdminGamesPage() {
   const [cloneGame, { loading: cloning }] = useMutation(CLONE_GAME_TO_PLATFORM);
 
   const platforms = useMemo(() => platformsData?.platforms || [], [platformsData]);
-  const games = useMemo<Game[]>(
-    () =>
-      (gamesData?.games?.edges?.map((edge: { node: Game }) => edge.node) || []).filter(
+  const games = useMemo<Game[]>(() => {
+    const allGames = gamesData?.games?.edges?.map((edge: { node: Game }) => edge.node) || [];
+
+    if (typeFilter === null) {
+      // Default: show all except DLC and EXPANSION (they have their own admin page)
+      return allGames.filter(
         (game: Game) => game.type !== "DLC" && game.type !== "EXPANSION"
-      ),
-    [gamesData]
-  );
+      );
+    }
+
+    // Filter by specific type
+    return allGames.filter((game: Game) => game.type === typeFilter);
+  }, [gamesData, typeFilter]);
   const pageInfo: PageInfo = gamesData?.games?.pageInfo || {
     hasNextPage: false,
     endCursor: null,
@@ -677,6 +685,53 @@ export default function AdminGamesPage() {
           <Plus size={18} />
           Add Game
         </Button>
+      </div>
+
+      {/* Type Filter */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+        <button
+          onClick={() => {
+            setTypeFilter(null);
+            setCurrentPage(1);
+            setCursors(new Map([[1, null]]));
+          }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "6px 12px",
+            fontSize: 13,
+            background: typeFilter === null ? "var(--nintendo-red)" : "var(--bg-secondary)",
+            color: typeFilter === null ? "white" : "var(--text-secondary)",
+            border: typeFilter === null ? "1px solid var(--nintendo-red)" : "1px solid var(--border-color)",
+            borderRadius: "var(--border-radius)",
+            cursor: "pointer",
+          }}
+        >
+          <Filter size={14} />
+          All Games
+        </button>
+        {Object.entries(GAME_TYPE_LABELS).map(([value, label]) => (
+          <button
+            key={value}
+            onClick={() => {
+              setTypeFilter(value);
+              setCurrentPage(1);
+              setCursors(new Map([[1, null]]));
+            }}
+            style={{
+              padding: "6px 12px",
+              fontSize: 13,
+              background: typeFilter === value ? "var(--nintendo-red)" : "var(--bg-secondary)",
+              color: typeFilter === value ? "white" : "var(--text-secondary)",
+              border: typeFilter === value ? "1px solid var(--nintendo-red)" : "1px solid var(--border-color)",
+              borderRadius: "var(--border-radius)",
+              cursor: "pointer",
+            }}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       <Dialog
