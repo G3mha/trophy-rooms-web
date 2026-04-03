@@ -95,7 +95,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
   // Main search query
   const { data, loading } = useQuery(GET_GAMES_ADMIN, {
     variables: {
-      first: 50,
+      first: 200,
       orderBy: "TITLE_ASC",
       search: debouncedSearch || undefined,
     },
@@ -136,12 +136,46 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
       ? new Set(props.value.map((game) => game.id))
       : new Set(props.value ? [props.value.id] : []);
 
-  const options = results
-    .filter((game) => !excludeIds.includes(game.id))
-    .filter((game) => (filterOption ? filterOption(game) : true))
-    .filter((game) =>
-      props.mode === "multiple" ? !selectedIds.has(game.id) : true
-    );
+  // Filter and sort results - prioritize exact/starts-with matches
+  const options = React.useMemo(() => {
+    const filtered = results
+      .filter((game) => !excludeIds.includes(game.id))
+      .filter((game) => (filterOption ? filterOption(game) : true))
+      .filter((game) =>
+        props.mode === "multiple" ? !selectedIds.has(game.id) : true
+      );
+
+    // If there's a search term, sort to prioritize better matches
+    if (debouncedSearch) {
+      const searchLower = debouncedSearch.toLowerCase();
+      return filtered.sort((a, b) => {
+        const aTitle = a.title.toLowerCase();
+        const bTitle = b.title.toLowerCase();
+
+        // Exact match first
+        const aExact = aTitle === searchLower;
+        const bExact = bTitle === searchLower;
+        if (aExact && !bExact) return -1;
+        if (bExact && !aExact) return 1;
+
+        // Starts with search term
+        const aStarts = aTitle.startsWith(searchLower);
+        const bStarts = bTitle.startsWith(searchLower);
+        if (aStarts && !bStarts) return -1;
+        if (bStarts && !aStarts) return 1;
+
+        // Contains search term (earlier position is better)
+        const aIndex = aTitle.indexOf(searchLower);
+        const bIndex = bTitle.indexOf(searchLower);
+        if (aIndex !== bIndex) return aIndex - bIndex;
+
+        // Alphabetical fallback
+        return aTitle.localeCompare(bTitle);
+      });
+    }
+
+    return filtered;
+  }, [results, excludeIds, filterOption, selectedIds, props.mode, debouncedSearch]);
 
   // Group games by title
   const groupedByTitle = React.useMemo(() => {
