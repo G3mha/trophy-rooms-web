@@ -176,7 +176,7 @@ export default function AdminGamesPage() {
   const [cloneGameId, setCloneGameId] = useState<string | null>(null);
   const [cloneGameTitle, setCloneGameTitle] = useState("");
   const [cloneSourcePlatformId, setCloneSourcePlatformId] = useState("");
-  const [cloneTargetPlatformId, setCloneTargetPlatformId] = useState("");
+  const [cloneTargetPlatformIds, setCloneTargetPlatformIds] = useState<Set<string>>(new Set());
   const [cloneCopyAchievements, setCloneCopyAchievements] = useState(false);
   const [cloneError, setCloneError] = useState<string | null>(null);
 
@@ -313,7 +313,7 @@ export default function AdminGamesPage() {
     setCloneGameId(null);
     setCloneGameTitle("");
     setCloneSourcePlatformId("");
-    setCloneTargetPlatformId("");
+    setCloneTargetPlatformIds(new Set());
     setCloneCopyAchievements(false);
     setCloneError(null);
   };
@@ -479,37 +479,46 @@ export default function AdminGamesPage() {
   };
 
   const handleCloneGame = async () => {
-    if (!cloneGameId || !cloneTargetPlatformId) {
-      setCloneError("Select a target platform.");
+    if (!cloneGameId || cloneTargetPlatformIds.size === 0) {
+      setCloneError("Select at least one target platform.");
       return;
     }
 
-    if (cloneTargetPlatformId === cloneSourcePlatformId) {
-      setCloneError("Choose a different platform from the source platform.");
+    if (cloneTargetPlatformIds.has(cloneSourcePlatformId)) {
+      setCloneError("Cannot clone to the source platform.");
       return;
     }
 
     setCloneError(null);
 
     try {
-      const { data } = await cloneGame({
-        variables: {
-          gameId: cloneGameId,
-          targetPlatformId: cloneTargetPlatformId,
-          copyAchievementSets: cloneCopyAchievements,
-        },
-      });
+      let successCount = 0;
 
-      const payload = data?.cloneGameToPlatform;
-      if (!payload?.success) {
-        setCloneError(getMutationMessage(payload?.error));
-        return;
+      for (const targetPlatformId of cloneTargetPlatformIds) {
+        const { data } = await cloneGame({
+          variables: {
+            gameId: cloneGameId,
+            targetPlatformId,
+            copyAchievementSets: cloneCopyAchievements,
+          },
+        });
+
+        if (data?.cloneGameToPlatform?.success) {
+          successCount++;
+        }
       }
 
       await refetch();
       setIsCloneModalOpen(false);
       resetCloneForm();
-      toast.success(`Cloned ${cloneGameTitle} to the selected platform.`);
+
+      if (successCount === 0) {
+        toast.error("Failed to clone game.");
+      } else if (successCount === 1) {
+        toast.success(`Cloned ${cloneGameTitle} to 1 platform.`);
+      } else {
+        toast.success(`Cloned ${cloneGameTitle} to ${successCount} platforms.`);
+      }
     } catch (error) {
       setCloneError(
         error instanceof Error ? error.message : "Unable to clone game."
@@ -533,7 +542,7 @@ export default function AdminGamesPage() {
     setCloneGameId(game.id);
     setCloneGameTitle(game.title);
     setCloneSourcePlatformId(game.platform?.id || "");
-    setCloneTargetPlatformId("");
+    setCloneTargetPlatformIds(new Set());
     setCloneCopyAchievements(false);
     setCloneError(null);
     setIsCloneModalOpen(true);
@@ -1002,37 +1011,62 @@ export default function AdminGamesPage() {
       >
         <DialogContent className="sm:max-w-[460px]">
           <DialogHeader>
-            <DialogTitle>Clone to Platform</DialogTitle>
+            <DialogTitle>Clone to Platforms</DialogTitle>
             <DialogDescription>
-              Create a copy of &quot;{cloneGameTitle}&quot; on another platform.
+              Create copies of &quot;{cloneGameTitle}&quot; on other platforms.
             </DialogDescription>
           </DialogHeader>
 
           <DialogBody className={styles.modalForm}>
             <div className={styles.formField}>
-              <label className={styles.formLabel}>Target Platform *</label>
-              <Select
-                value={cloneTargetPlatformId}
-                onValueChange={(value) => {
-                  setCloneTargetPlatformId(value || "");
-                  setCloneError(null);
-                }}
-              >
-                <SelectTrigger
-                  className={getFieldErrorClass(Boolean(cloneError))}
-                >
-                  <span>
-                    {platforms.find((p: Platform) => p.id === cloneTargetPlatformId)?.name || "Select target platform"}
-                  </span>
-                </SelectTrigger>
-                <SelectContent>
-                  {platforms.map((platform: Platform) => (
-                    <SelectItem key={platform.id} value={platform.id}>
-                      {platform.name}
-                    </SelectItem>
+              <label className={styles.formLabel}>Target Platforms *</label>
+              <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
+                Select platforms to clone this game to.
+              </span>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 200, overflowY: "auto" }}>
+                {platforms
+                  .filter((p: Platform) => p.id !== cloneSourcePlatformId)
+                  .map((platform: Platform) => (
+                    <button
+                      key={platform.id}
+                      type="button"
+                      onClick={() => {
+                        setCloneTargetPlatformIds((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(platform.id)) {
+                            next.delete(platform.id);
+                          } else {
+                            next.add(platform.id);
+                          }
+                          return next;
+                        });
+                        setCloneError(null);
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "8px 12px",
+                        background: cloneTargetPlatformIds.has(platform.id)
+                          ? "rgba(230, 0, 18, 0.15)"
+                          : "var(--bg-secondary)",
+                        border: cloneTargetPlatformIds.has(platform.id)
+                          ? "1px solid var(--nintendo-red)"
+                          : "1px solid var(--border-color)",
+                        borderRadius: "var(--border-radius)",
+                        cursor: "pointer",
+                        color: "var(--text-primary)",
+                        fontSize: 14,
+                        textAlign: "left",
+                      }}
+                    >
+                      <span style={{ flex: 1 }}>{platform.name}</span>
+                      {cloneTargetPlatformIds.has(platform.id) && (
+                        <Check size={16} style={{ color: "var(--nintendo-red)" }} />
+                      )}
+                    </button>
                   ))}
-                </SelectContent>
-              </Select>
+              </div>
               {cloneError && (
                 <span className="text-sm text-red-300">{cloneError}</span>
               )}
@@ -1050,8 +1084,8 @@ export default function AdminGamesPage() {
                 <span>Copy achievement sets</span>
               </label>
               <span className={styles.formHint}>
-                Copy the related achievement sets and achievements into the new
-                game record.
+                Copy the related achievement sets and achievements into each
+                cloned game.
               </span>
             </div>
           </DialogBody>
@@ -1067,7 +1101,9 @@ export default function AdminGamesPage() {
               Cancel
             </Button>
             <Button onClick={handleCloneGame} loading={cloning}>
-              Clone Game
+              {cloneTargetPlatformIds.size > 0
+                ? `Clone to ${cloneTargetPlatformIds.size} Platform${cloneTargetPlatformIds.size > 1 ? "s" : ""}`
+                : "Clone Game"}
             </Button>
           </DialogFooter>
         </DialogContent>
