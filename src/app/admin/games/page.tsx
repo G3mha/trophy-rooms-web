@@ -26,6 +26,8 @@ import {
 import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner, Pagination } from "@/components";
+import { handlePlatformIconError } from "@/lib/image-utils";
+import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
 import { GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
   BULK_DELETE_GAMES,
@@ -97,23 +99,8 @@ interface GameFormErrors {
 
 const DEFAULT_PAGE_SIZE = 20;
 
-function isValidHttpUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
 function getMutationMessage(error?: { message?: string | null } | null) {
   return error?.message || "Something went wrong. Please try again.";
-}
-
-function getFieldErrorClass(hasError: boolean) {
-  return hasError
-    ? "border-red-500 focus:border-red-500 focus:shadow-[inset_0_0_0_1px_rgb(239,68,68)]"
-    : "";
 }
 
 function validateGameForm(input: {
@@ -745,9 +732,7 @@ export default function AdminGamesPage() {
                               src={`/platforms/${game.platform.slug}.svg`}
                               alt=""
                               className="w-[18px] h-[18px]"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = "none";
-                              }}
+                              onError={handlePlatformIconError}
                             />
                           )
                         }

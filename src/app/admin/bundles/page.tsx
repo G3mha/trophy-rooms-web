@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { Package, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
+import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
 
 import { toast } from "sonner";
 import {
@@ -83,23 +84,8 @@ interface BundleFormErrors {
   price?: string;
 }
 
-function isValidHttpUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
 function getMutationMessage(error?: { message?: string | null } | null) {
   return error?.message || "Something went wrong. Please try again.";
-}
-
-function getFieldErrorClass(hasError: boolean) {
-  return hasError
-    ? "border-red-500 focus:border-red-500 focus:shadow-[inset_0_0_0_1px_rgb(239,68,68)]"
-    : "";
 }
 
 function validateBundleForm(input: {

@@ -12,6 +12,7 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Puzzle } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
+import { handlePlatformIconError } from "@/lib/image-utils";
 import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner } from "@/components";
@@ -406,9 +407,7 @@ export default function AdminDLCsPage() {
                                 src={`/platforms/${game.platform.slug}.svg`}
                                 alt=""
                                 className="w-[18px] h-[18px]"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = "none";
-                                }}
+                                onError={handlePlatformIconError}
                               />
                             )
                           }
