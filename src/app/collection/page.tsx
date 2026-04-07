@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
@@ -22,6 +22,8 @@ import {
   Button,
   CollectionItemCard,
   AddToCollectionModal,
+  FilterTabs,
+  type FilterTab,
 } from "@/components";
 import type { GameRegion } from "@/components/CollectionItemCard";
 import styles from "./page.module.css";
@@ -70,7 +72,7 @@ interface CollectionStats {
 type FilterRegion = GameRegion | "ALL";
 type FilterType = "ALL" | "SEALED" | "COMPLETE";
 
-const REGION_TABS: { label: string; value: FilterRegion }[] = [
+const REGION_TAB_CONFIG: { label: string; value: FilterRegion }[] = [
   { label: "All", value: "ALL" },
   { label: "NTSC-U", value: "NTSC_U" },
   { label: "PAL", value: "PAL" },
@@ -122,6 +124,26 @@ export default function CollectionPage() {
     }
   );
 
+  const items: CollectionItem[] = data?.myCollection || [];
+  const stats: CollectionStats = statsData?.collectionStats || {
+    totalItems: 0,
+    sealedCount: 0,
+    completeCount: 0,
+    byRegion: [],
+  };
+
+  // Build region tabs with counts from stats (must be before early returns)
+  const regionTabs: FilterTab<FilterRegion>[] = useMemo(() => {
+    return REGION_TAB_CONFIG.map((tab) => ({
+      ...tab,
+      icon: tab.value !== "ALL" ? Globe : undefined,
+      count:
+        tab.value === "ALL"
+          ? stats.totalItems
+          : stats.byRegion.find((r) => r.region === tab.value)?.count || 0,
+    }));
+  }, [stats]);
+
   if (!isLoaded) {
     return <LoadingSpinner text="Loading..." />;
   }
@@ -137,14 +159,6 @@ export default function CollectionPage() {
       </div>
     );
   }
-
-  const items: CollectionItem[] = data?.myCollection || [];
-  const stats: CollectionStats = statsData?.collectionStats || {
-    totalItems: 0,
-    sealedCount: 0,
-    completeCount: 0,
-    byRegion: [],
-  };
 
   const handleRemove = async (id: string) => {
     if (confirm("Are you sure you want to remove this item from your collection?")) {
@@ -194,27 +208,13 @@ export default function CollectionPage() {
       {/* Filters */}
       <div className={styles.filters}>
         {/* Region Tabs */}
-        <div className={styles.tabs}>
-          {REGION_TABS.map((tab) => {
-            const count =
-              tab.value === "ALL"
-                ? stats.totalItems
-                : stats.byRegion.find((r) => r.region === tab.value)?.count || 0;
-            return (
-              <button
-                key={tab.value}
-                className={`${styles.tab} ${regionFilter === tab.value ? styles.tabActive : ""}`}
-                onClick={() => setRegionFilter(tab.value)}
-              >
-                {tab.value !== "ALL" && (
-                  <Globe size={14} className={styles.tabIcon} />
-                )}
-                <span>{tab.label}</span>
-                <span className={styles.tabCount}>{count}</span>
-              </button>
-            );
-          })}
-        </div>
+        <FilterTabs
+          tabs={regionTabs}
+          value={regionFilter}
+          onChange={setRegionFilter}
+          iconSize={14}
+          className={styles.tabs}
+        />
 
         {/* Type Filters */}
         <div className={styles.typeFilters}>
