@@ -1,12 +1,13 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import Link from "next/link";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
+import { useAdminMode } from "@/contexts/AdminModeContext";
 import { Button, LoadingSpinner, EmptyState, GameCard, BuylistSelector } from "@/components";
 import styles from "./page.module.css";
 
@@ -170,6 +171,7 @@ export default function BundleDetailPage({
 }) {
   const { id } = use(params);
   const { isSignedIn } = useAuth();
+  const { setCurrentEntity, clearEntity } = useAdminMode();
 
   const { data, loading, error, refetch } = useQuery(GET_BUNDLE_DETAIL, {
     variables: { id },
@@ -195,6 +197,18 @@ export default function BundleDetailPage({
 
   const bundle: Bundle | undefined = data?.bundle;
   const isToggling = addingToOwned || removingFromOwned;
+
+  // Register current entity for admin toolbar
+  useEffect(() => {
+    if (bundle) {
+      setCurrentEntity({
+        type: "bundle",
+        id: bundle.id,
+        title: bundle.name,
+      });
+    }
+    return () => clearEntity();
+  }, [bundle, setCurrentEntity, clearEntity]);
 
   const handleToggleOwnership = () => {
     if (!isSignedIn || isToggling) return;
