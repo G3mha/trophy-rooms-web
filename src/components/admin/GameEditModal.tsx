@@ -26,6 +26,8 @@ import {
 } from "@/components/ui/select";
 import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
+import { handlePlatformIconError } from "@/lib/image-utils";
+import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
 import { CoverPreview } from "./cover-preview";
 import { GameSearchPicker, type SearchableGame } from "./game-search-picker";
 
@@ -48,21 +50,6 @@ interface GameFormErrors {
   platformId?: string;
   coverUrl?: string;
   baseGame?: string;
-}
-
-function isValidHttpUrl(value: string) {
-  try {
-    const url = new URL(value);
-    return url.protocol === "http:" || url.protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
-function getFieldErrorClass(hasError: boolean) {
-  return hasError
-    ? "border-red-500 focus:border-red-500 focus:shadow-[inset_0_0_0_1px_rgb(239,68,68)]"
-    : "";
 }
 
 interface GameEditModalProps {
@@ -88,8 +75,12 @@ export function GameEditModal({
   const [platformId, setPlatformId] = useState("");
   const [type, setType] = useState("BASE_GAME");
   const [baseGame, setBaseGame] = useState<SearchableGame | null>(null);
+  const [baseGames, setBaseGames] = useState<SearchableGame[]>([]);
   const [additionalPlatformIds, setAdditionalPlatformIds] = useState<Set<string>>(new Set());
   const [errors, setErrors] = useState<GameFormErrors>({});
+
+  // Use multi-select for DLC/Expansion when enabled
+  const useMultiBaseGameSelect = enableMultiPlatformCreation && (type === "DLC" || type === "EXPANSION");
 
   const { data: gameData, loading: loadingGame, refetch: refetchGame } = useQuery(GET_GAME, {
     variables: { id: gameId },
@@ -137,6 +128,8 @@ export function GameEditModal({
       setPlatformId(game.platform?.id || "");
       setType(game.type || "BASE_GAME");
       setBaseGame(game.baseGame || null);
+      // Initialize baseGames with the current base game if it exists
+      setBaseGames(game.baseGame ? [game.baseGame] : []);
       setAdditionalPlatformIds(new Set());
       setErrors({});
     }
@@ -149,12 +142,19 @@ export function GameEditModal({
       newErrors.title = "Game title is required.";
     }
 
-    if (!platformId) {
+    // Platform is required for base games, but derived from base game for DLC/Expansion with multi-select
+    if (!useMultiBaseGameSelect && !platformId) {
       newErrors.platformId = "Select a platform.";
     }
 
-    if (type !== "BASE_GAME" && !baseGame) {
-      newErrors.baseGame = "Select the original game for this entry type.";
+    if (type !== "BASE_GAME") {
+      if (useMultiBaseGameSelect) {
+        if (baseGames.length === 0) {
+          newErrors.baseGame = "Select at least one base game for this entry type.";
+        }
+      } else if (!baseGame) {
+        newErrors.baseGame = "Select the original game for this entry type.";
+      }
     }
 
     if (coverUrl.trim() && !isValidHttpUrl(coverUrl.trim())) {
@@ -165,6 +165,12 @@ export function GameEditModal({
     if (Object.keys(newErrors).length > 0) return;
 
     try {
+      // For multi-select mode, use first base game; otherwise use single selection
+      const primaryBaseGame = useMultiBaseGameSelect ? baseGames[0] : baseGame;
+      const effectivePlatformId = useMultiBaseGameSelect && primaryBaseGame?.platform?.id
+        ? primaryBaseGame.platform.id
+        : platformId;
+
       // Update the current game
       const { data } = await updateGame({
         variables: {
@@ -173,9 +179,9 @@ export function GameEditModal({
             title: title.trim(),
             description: description.trim() || null,
             coverUrl: coverUrl.trim() || null,
-            platformId,
+            platformId: effectivePlatformId,
             type,
-            baseGameId: type !== "BASE_GAME" ? baseGame?.id || null : null,
+            baseGameId: type !== "BASE_GAME" ? primaryBaseGame?.id || null : null,
           },
         },
       });
@@ -198,9 +204,33 @@ export function GameEditModal({
         return;
       }
 
-      // Create copies for additional platforms if enabled and selected
+      // Create copies for additional base games in multi-select mode
       let additionalCount = 0;
-      if (enableMultiPlatformCreation && type !== "BASE_GAME" && additionalPlatformIds.size > 0) {
+      if (useMultiBaseGameSelect && baseGames.length > 1) {
+        // Skip the first one (already used for update), create for the rest
+        for (let i = 1; i < baseGames.length; i++) {
+          const additionalBaseGame = baseGames[i];
+          if (additionalBaseGame?.platform?.id) {
+            const { data: createData } = await createGame({
+              variables: {
+                input: {
+                  title: title.trim(),
+                  description: description.trim() || null,
+                  coverUrl: coverUrl.trim() || null,
+                  platformId: additionalBaseGame.platform.id,
+                  type,
+                  baseGameId: additionalBaseGame.id,
+                },
+              },
+            });
+
+            if (createData?.createGame?.success) {
+              additionalCount++;
+            }
+          }
+        }
+      } else if (enableMultiPlatformCreation && type !== "BASE_GAME" && additionalPlatformIds.size > 0) {
+        // Fallback: old additional platform selection logic
         for (const siblingId of additionalPlatformIds) {
           const sibling = baseGameSiblings.find((g: SearchableGame) => g.id === siblingId);
           if (sibling?.platform?.id) {
@@ -244,6 +274,7 @@ export function GameEditModal({
   const handleClose = () => {
     onOpenChange(false);
     setErrors({});
+    setBaseGames([]);
     setAdditionalPlatformIds(new Set());
   };
 
@@ -297,31 +328,8 @@ export function GameEditModal({
               />
             </FormField>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FormField label="Platform" required error={errors.platformId}>
-                <Select
-                  value={platformId}
-                  onValueChange={(value) => {
-                    setPlatformId(value || "");
-                    setErrors((prev) => ({ ...prev, platformId: undefined }));
-                  }}
-                >
-                  <SelectTrigger className={getFieldErrorClass(Boolean(errors.platformId))}>
-                    <span>
-                      {platforms.find((p: Platform) => p.id === platformId)?.name ||
-                        "Select a platform"}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {platforms.map((platform: Platform) => (
-                      <SelectItem key={platform.id} value={platform.id}>
-                        {platform.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
-
+            {/* For DLC/Expansion with multi-select, show Type full-width; otherwise show Platform + Type grid */}
+            {useMultiBaseGameSelect ? (
               <FormField label="Type" required>
                 <Select
                   value={type}
@@ -330,6 +338,7 @@ export function GameEditModal({
                     setType(newType);
                     if (newType === "BASE_GAME") {
                       setBaseGame(null);
+                      setBaseGames([]);
                       setAdditionalPlatformIds(new Set());
                       setErrors((prev) => ({ ...prev, baseGame: undefined }));
                     }
@@ -347,9 +356,86 @@ export function GameEditModal({
                   </SelectContent>
                 </Select>
               </FormField>
-            </div>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField label="Platform" required error={errors.platformId}>
+                  <Select
+                    value={platformId}
+                    onValueChange={(value) => {
+                      setPlatformId(value || "");
+                      setErrors((prev) => ({ ...prev, platformId: undefined }));
+                    }}
+                  >
+                    <SelectTrigger className={getFieldErrorClass(Boolean(errors.platformId))}>
+                      <span>
+                        {platforms.find((p: Platform) => p.id === platformId)?.name ||
+                          "Select a platform"}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {platforms.map((platform: Platform) => (
+                        <SelectItem key={platform.id} value={platform.id}>
+                          {platform.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormField>
 
-            {type !== "BASE_GAME" && (
+                <FormField label="Type" required>
+                  <Select
+                    value={type}
+                    onValueChange={(value) => {
+                      const newType = value || "BASE_GAME";
+                      setType(newType);
+                      if (newType === "BASE_GAME") {
+                        setBaseGame(null);
+                        setBaseGames([]);
+                        setAdditionalPlatformIds(new Set());
+                        setErrors((prev) => ({ ...prev, baseGame: undefined }));
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <span>{GAME_TYPE_LABELS[type]}</span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(GAME_TYPE_LABELS).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormField>
+              </div>
+            )}
+
+            {/* Multi-select game picker for DLC/Expansion with multi-platform enabled */}
+            {useMultiBaseGameSelect && (
+              <FormField
+                label="Based On"
+                required
+                hint={`Select one or more base games. Each creates a ${GAME_TYPE_LABELS[type].toLowerCase()} for that platform.`}
+                error={errors.baseGame}
+              >
+                <GameSearchPicker
+                  mode="multiple"
+                  value={baseGames}
+                  onChange={(value) => {
+                    setBaseGames(value);
+                    setErrors((prev) => ({ ...prev, baseGame: undefined }));
+                  }}
+                  placeholder="Search and select base games..."
+                  excludeIds={[gameId]}
+                  filterOption={(game) => game.type === "BASE_GAME" || !game.type}
+                  emptyText="No base games found."
+                />
+              </FormField>
+            )}
+
+            {/* Single-select game picker for non-multi-select mode */}
+            {!useMultiBaseGameSelect && type !== "BASE_GAME" && (
               <FormField
                 label="Based On"
                 required
@@ -372,8 +458,8 @@ export function GameEditModal({
               </FormField>
             )}
 
-            {/* Multi-platform selection for DLC/Expansion when editing */}
-            {enableMultiPlatformCreation && type !== "BASE_GAME" && baseGameSiblings.length > 0 && (
+            {/* Legacy multi-platform selection - only show when NOT using multi-select mode */}
+            {!useMultiBaseGameSelect && enableMultiPlatformCreation && type !== "BASE_GAME" && baseGameSiblings.length > 0 && (
               <FormField
                 label="Also Create for Platforms"
                 hint={`Optionally create this ${GAME_TYPE_LABELS[type].toLowerCase()} for other platform versions of the base game.`}
@@ -400,9 +486,7 @@ export function GameEditModal({
                             src={`/platforms/${game.platform.slug}.svg`}
                             alt=""
                             className="w-[18px] h-[18px]"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                            }}
+                            onError={handlePlatformIconError}
                           />
                         )
                       }
@@ -462,7 +546,9 @@ export function GameEditModal({
             Cancel
           </Button>
           <Button onClick={handleSave} loading={isLoading}>
-            {additionalPlatformIds.size > 0
+            {useMultiBaseGameSelect && baseGames.length > 1
+              ? `Save & Create for ${baseGames.length} Platforms`
+              : additionalPlatformIds.size > 0
               ? `Save & Create for ${additionalPlatformIds.size} Platform${additionalPlatformIds.size > 1 ? "s" : ""}`
               : "Save Changes"}
           </Button>
