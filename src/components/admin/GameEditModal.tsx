@@ -24,10 +24,10 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
+import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
 import { CoverPreview } from "./cover-preview";
 import { GameSearchPicker, type SearchableGame } from "./game-search-picker";
-import styles from "@/app/admin/page.module.css";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
@@ -63,11 +63,6 @@ function getFieldErrorClass(hasError: boolean) {
   return hasError
     ? "border-red-500 focus:border-red-500 focus:shadow-[inset_0_0_0_1px_rgb(239,68,68)]"
     : "";
-}
-
-function renderFieldError(message?: string) {
-  if (!message) return null;
-  return <span className="text-sm text-red-300">{message}</span>;
 }
 
 interface GameEditModalProps {
@@ -280,7 +275,7 @@ export function GameEditModal({
           </DialogDescription>
         </DialogHeader>
 
-        <DialogBody className={styles.modalForm}>
+        <DialogBody className="flex flex-col gap-5 py-2">
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-[var(--text-primary)]">Identity</h3>
@@ -289,8 +284,7 @@ export function GameEditModal({
               </p>
             </div>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Game Title *</label>
+            <FormField label="Game Title" required error={errors.title}>
               <Input
                 placeholder="Enter game title"
                 value={title}
@@ -301,12 +295,10 @@ export function GameEditModal({
                 className={getFieldErrorClass(Boolean(errors.title))}
                 aria-invalid={Boolean(errors.title)}
               />
-              {renderFieldError(errors.title)}
-            </div>
+            </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Platform *</label>
+              <FormField label="Platform" required error={errors.platformId}>
                 <Select
                   value={platformId}
                   onValueChange={(value) => {
@@ -328,11 +320,9 @@ export function GameEditModal({
                     ))}
                   </SelectContent>
                 </Select>
-                {renderFieldError(errors.platformId)}
-              </div>
+              </FormField>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Type *</label>
+              <FormField label="Type" required>
                 <Select
                   value={type}
                   onValueChange={(value) => {
@@ -356,12 +346,16 @@ export function GameEditModal({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </FormField>
             </div>
 
             {type !== "BASE_GAME" && (
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Based On *</label>
+              <FormField
+                label="Based On"
+                required
+                hint={`Search the full catalog to link this ${GAME_TYPE_LABELS[type].toLowerCase()} to its original game.`}
+                error={errors.baseGame}
+              >
                 <GameSearchPicker
                   mode="single"
                   value={baseGame}
@@ -375,22 +369,15 @@ export function GameEditModal({
                   filterOption={(game) => game.type === "BASE_GAME" || !game.type}
                   emptyText="No base games found."
                 />
-                <span className={styles.formHint}>
-                  Search the full catalog to link this {GAME_TYPE_LABELS[type].toLowerCase()} to its
-                  original game.
-                </span>
-                {renderFieldError(errors.baseGame)}
-              </div>
+              </FormField>
             )}
 
             {/* Multi-platform selection for DLC/Expansion when editing */}
             {enableMultiPlatformCreation && type !== "BASE_GAME" && baseGameSiblings.length > 0 && (
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Also Create for Platforms</label>
-                <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
-                  Optionally create this {GAME_TYPE_LABELS[type].toLowerCase()} for other platform
-                  versions of the base game.
-                </span>
+              <FormField
+                label="Also Create for Platforms"
+                hint={`Optionally create this ${GAME_TYPE_LABELS[type].toLowerCase()} for other platform versions of the base game.`}
+              >
                 <div className="flex flex-col gap-1.5">
                   {baseGameSiblings.map((game: SearchableGame) => (
                     <SelectableButton
@@ -424,7 +411,7 @@ export function GameEditModal({
                     </SelectableButton>
                   ))}
                 </div>
-              </div>
+              </FormField>
             )}
           </div>
 
@@ -436,18 +423,20 @@ export function GameEditModal({
               </p>
             </div>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Description</label>
+            <FormField label="Description">
               <Textarea
                 placeholder="Enter game description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
               />
-            </div>
+            </FormField>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Cover URL</label>
+            <FormField
+              label="Cover URL"
+              hint="Use a direct image URL starting with http:// or https://."
+              error={errors.coverUrl}
+            >
               <Input
                 placeholder="https://example.com/cover.jpg"
                 value={coverUrl}
@@ -458,17 +447,12 @@ export function GameEditModal({
                 className={getFieldErrorClass(Boolean(errors.coverUrl))}
                 aria-invalid={Boolean(errors.coverUrl)}
               />
-              <span className={styles.formHint}>
-                Use a direct image URL starting with http:// or https://.
-              </span>
-              {renderFieldError(errors.coverUrl)}
-            </div>
+            </FormField>
 
             {coverUrl.trim() && (
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Cover Preview</label>
+              <FormField label="Cover Preview">
                 <CoverPreview url={coverUrl.trim()} alt="Game cover preview" />
-              </div>
+              </FormField>
             )}
           </div>
         </DialogBody>
