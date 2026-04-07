@@ -17,6 +17,7 @@ import {
   Monitor,
   AlertTriangle,
 } from "lucide-react";
+import { handlePlatformIconError } from "@/lib/image-utils";
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
 import { LoadingSpinner, EmptyState, Button } from "@/components";
@@ -202,9 +203,7 @@ export default function LibraryPage() {
                             src={`/platforms/${item.platformSlug}.svg`}
                             alt={item.platformName}
                             className={styles.platformIcon}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
+                            onError={handlePlatformIconError}
                           />
                         ) : (
                           <Monitor size={12} />

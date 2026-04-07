@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { GET_GAMES_ADMIN } from "@/graphql/admin_queries";
 import { cn } from "@/lib/utils";
+import { handlePlatformIconError } from "@/lib/image-utils";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
@@ -20,7 +21,7 @@ export interface SearchableGame {
   title: string;
   type?: string | null;
   coverUrl?: string | null;
-  platform?: { name: string; slug: string } | null;
+  platform?: { id: string; name: string; slug: string } | null;
 }
 
 interface GameGroup {
@@ -294,9 +295,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                     src={`/platforms/${selectedSingle.platform.slug}.svg`}
                     alt=""
                     className="size-4 shrink-0"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
+                    onError={handlePlatformIconError}
                   />
                 )}
                 <span className="truncate">
@@ -358,9 +357,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                     src={`/platforms/${game.platform.slug}.svg`}
                     alt=""
                     className="size-3.5"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
+                    onError={handlePlatformIconError}
                   />
                 )}
                 <span>{game.platform?.name || "Unknown"}</span>
@@ -415,9 +412,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                               src={`/platforms/${game.platform.slug}.svg`}
                               alt=""
                               className="size-3.5"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                              }}
+                              onError={handlePlatformIconError}
                             />
                           )}
                           <span>

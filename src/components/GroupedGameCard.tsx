@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Gamepad2, Trophy, Star } from "lucide-react";
+import { handlePlatformIconError } from "@/lib/image-utils";
 import styles from "./GroupedGameCard.module.css";
 
 interface Platform {
@@ -65,9 +66,7 @@ export function GroupedGameCard({
               alt={platform.name}
               title={platform.name}
               className={styles.platformIcon}
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
+              onError={handlePlatformIconError}
             />
           ))}
           {remainingCount > 0 && (

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Gamepad2, Trophy, Star } from "lucide-react";
+import { handlePlatformIconError } from "@/lib/image-utils";
 import styles from "./GameCard.module.css";
 
 interface Platform {
@@ -65,10 +66,7 @@ export function GameCard({
                   src={`/platforms/${platform.slug}.svg`}
                   alt={platform.name}
                   className={styles.platformIcon}
-                  onError={(e) => {
-                    // Hide icon if image fails to load
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
+                  onError={handlePlatformIconError}
                 />
                 <span>{platform.name}</span>
               </div>

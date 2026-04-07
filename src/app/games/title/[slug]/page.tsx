@@ -4,6 +4,7 @@ import { use } from "react";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { ArrowLeft, Gamepad2, Star, Trophy } from "lucide-react";
+import { handlePlatformIconError } from "@/lib/image-utils";
 import { GET_GAMES_BY_TITLE } from "@/graphql/queries";
 import { LoadingSpinner, Button, EmptyState } from "@/components";
 import styles from "./page.module.css";
@@ -163,9 +164,7 @@ export default function GameFamilyPage({
                     src={`/platforms/${game.platform.slug}.svg`}
                     alt={game.platform.name}
                     className={styles.platformIcon}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
+                    onError={handlePlatformIconError}
                   />
                 )}
                 <span className={styles.platformName}>
