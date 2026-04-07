@@ -225,13 +225,15 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
   const handleSelect = (game: SearchableGame) => {
     if (props.mode === "multiple") {
       props.onChange([...props.value, game]);
+      // Keep dropdown open in multi-select mode for easy multiple selections
+      setSearch("");
+      setDebouncedSearch("");
     } else {
       props.onChange(game);
+      setSearch("");
+      setDebouncedSearch("");
+      setIsOpen(false);
     }
-
-    setSearch("");
-    setDebouncedSearch("");
-    setIsOpen(false);
   };
 
   const clearSingle = (event: React.MouseEvent) => {
@@ -257,12 +259,25 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
               key={game.id}
               className="inline-flex items-center gap-2 rounded-[var(--border-radius)] border border-[var(--border-color)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)]"
             >
-              <span className="max-w-[240px] truncate">{game.title}</span>
+              {game.platform?.slug && (
+                <img
+                  src={`/platforms/${game.platform.slug}.svg`}
+                  alt=""
+                  className="size-4 shrink-0"
+                  onError={handlePlatformIconError}
+                />
+              )}
+              <span className="max-w-[240px] truncate">
+                {game.title}
+                {game.platform?.name && (
+                  <span className="text-[var(--text-muted)]"> • {game.platform.name}</span>
+                )}
+              </span>
               <button
                 type="button"
                 onClick={() => removeMultiple(game.id)}
                 className="text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
-                aria-label={`Remove ${game.title}`}
+                aria-label={`Remove ${game.title} (${game.platform?.name || "Unknown"})`}
               >
                 <X className="size-4" />
               </button>
