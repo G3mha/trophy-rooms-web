@@ -1,10 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
-import { Check } from "lucide-react";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import { CLONE_GAME_TO_PLATFORM } from "@/graphql/admin_mutations";
 import { Button } from "@/components";
@@ -17,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { SelectableButton } from "@/components/ui/selectable-button";
 import styles from "@/app/admin/page.module.css";
 
 interface Platform {
@@ -30,6 +29,8 @@ interface GameCloneModalProps {
   platformId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Called after successful clone, useful for refetching lists */
+  onSuccess?: () => void;
 }
 
 export function GameCloneModal({
@@ -38,8 +39,8 @@ export function GameCloneModal({
   platformId,
   open,
   onOpenChange,
+  onSuccess,
 }: GameCloneModalProps) {
-  const router = useRouter();
   const [targetPlatformIds, setTargetPlatformIds] = useState<Set<string>>(new Set());
   const [copyAchievements, setCopyAchievements] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +91,7 @@ export function GameCloneModal({
         toast.success(`Cloned ${gameTitle} to ${successCount} platforms.`);
       }
 
-      router.refresh();
+      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to clone game.");
     }
@@ -136,45 +137,17 @@ export function GameCloneModal({
             <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
               Select platforms to clone this game to.
             </span>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 6,
-                maxHeight: 200,
-                overflowY: "auto",
-              }}
-            >
+            <div className="flex flex-col gap-1.5 max-h-[200px] overflow-y-auto">
               {platforms
                 .filter((p: Platform) => p.id !== platformId)
                 .map((platform: Platform) => (
-                  <button
+                  <SelectableButton
                     key={platform.id}
-                    type="button"
+                    selected={targetPlatformIds.has(platform.id)}
                     onClick={() => togglePlatform(platform.id)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "8px 12px",
-                      background: targetPlatformIds.has(platform.id)
-                        ? "rgba(230, 0, 18, 0.15)"
-                        : "var(--bg-secondary)",
-                      border: targetPlatformIds.has(platform.id)
-                        ? "1px solid var(--nintendo-red)"
-                        : "1px solid var(--border-color)",
-                      borderRadius: "var(--border-radius)",
-                      cursor: "pointer",
-                      color: "var(--text-primary)",
-                      fontSize: 14,
-                      textAlign: "left",
-                    }}
                   >
-                    <span style={{ flex: 1 }}>{platform.name}</span>
-                    {targetPlatformIds.has(platform.id) && (
-                      <Check size={16} style={{ color: "var(--nintendo-red)" }} />
-                    )}
-                  </button>
+                    {platform.name}
+                  </SelectableButton>
                 ))}
             </div>
             {error && <span className="text-sm text-red-300">{error}</span>}
