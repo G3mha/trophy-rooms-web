@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import {
-  Check,
   ChevronDown,
   ChevronRight,
   Copy,
@@ -19,15 +18,16 @@ import { toast } from "sonner";
 import {
   AdminConfirmDialog,
   CoverPreview,
+  GameCloneModal,
   GameEditModal,
   GameSearchPicker,
   type SearchableGame,
 } from "@/components/admin";
+import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner, Pagination } from "@/components";
 import { GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
   BULK_DELETE_GAMES,
-  CLONE_GAME_TO_PLATFORM,
   CREATE_GAME,
   DELETE_GAME,
 } from "@/graphql/admin_mutations";
@@ -166,12 +166,7 @@ export default function AdminGamesPage() {
   const [editingGameId, setEditingGameId] = useState<string | null>(null);
 
   const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
-  const [cloneGameId, setCloneGameId] = useState<string | null>(null);
-  const [cloneGameTitle, setCloneGameTitle] = useState("");
-  const [cloneSourcePlatformId, setCloneSourcePlatformId] = useState("");
-  const [cloneTargetPlatformIds, setCloneTargetPlatformIds] = useState<Set<string>>(new Set());
-  const [cloneCopyAchievements, setCloneCopyAchievements] = useState(false);
-  const [cloneError, setCloneError] = useState<string | null>(null);
+  const [cloneGame, setCloneGame] = useState<Game | null>(null);
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null);
@@ -236,7 +231,6 @@ export default function AdminGamesPage() {
   const [createGame, { loading: creating }] = useMutation(CREATE_GAME);
   const [deleteGame, { loading: deleting }] = useMutation(DELETE_GAME);
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_GAMES);
-  const [cloneGame, { loading: cloning }] = useMutation(CLONE_GAME_TO_PLATFORM);
 
   const platforms = useMemo(() => platformsData?.platforms || [], [platformsData]);
   const games = useMemo<Game[]>(() => {
@@ -288,15 +282,6 @@ export default function AdminGamesPage() {
     setNewBaseGame(null);
     setNewAdditionalPlatformIds(new Set());
     setNewErrors({});
-  };
-
-  const resetCloneForm = () => {
-    setCloneGameId(null);
-    setCloneGameTitle("");
-    setCloneSourcePlatformId("");
-    setCloneTargetPlatformIds(new Set());
-    setCloneCopyAchievements(false);
-    setCloneError(null);
   };
 
   const handleMutationFailure = (
@@ -409,66 +394,13 @@ export default function AdminGamesPage() {
     }
   };
 
-  const handleCloneGame = async () => {
-    if (!cloneGameId || cloneTargetPlatformIds.size === 0) {
-      setCloneError("Select at least one target platform.");
-      return;
-    }
-
-    if (cloneTargetPlatformIds.has(cloneSourcePlatformId)) {
-      setCloneError("Cannot clone to the source platform.");
-      return;
-    }
-
-    setCloneError(null);
-
-    try {
-      let successCount = 0;
-
-      for (const targetPlatformId of cloneTargetPlatformIds) {
-        const { data } = await cloneGame({
-          variables: {
-            gameId: cloneGameId,
-            targetPlatformId,
-            copyAchievementSets: cloneCopyAchievements,
-          },
-        });
-
-        if (data?.cloneGameToPlatform?.success) {
-          successCount++;
-        }
-      }
-
-      await refetch();
-      setIsCloneModalOpen(false);
-      resetCloneForm();
-
-      if (successCount === 0) {
-        toast.error("Failed to clone game.");
-      } else if (successCount === 1) {
-        toast.success(`Cloned ${cloneGameTitle} to 1 platform.`);
-      } else {
-        toast.success(`Cloned ${cloneGameTitle} to ${successCount} platforms.`);
-      }
-    } catch (error) {
-      setCloneError(
-        error instanceof Error ? error.message : "Unable to clone game."
-      );
-    }
-  };
-
   const openEditModal = (game: Game) => {
     setEditingGameId(game.id);
     setIsEditModalOpen(true);
   };
 
   const openCloneModal = (game: Game) => {
-    setCloneGameId(game.id);
-    setCloneGameTitle(game.title);
-    setCloneSourcePlatformId(game.platform?.id || "");
-    setCloneTargetPlatformIds(new Set());
-    setCloneCopyAchievements(false);
-    setCloneError(null);
+    setCloneGame(game);
     setIsCloneModalOpen(true);
   };
 
@@ -802,11 +734,11 @@ export default function AdminGamesPage() {
                   <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
                     Select which platform versions to create this {GAME_TYPE_LABELS[newType].toLowerCase()} for.
                   </span>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div className="flex flex-col gap-1.5">
                     {baseGameSiblings.map((game: SearchableGame) => (
-                      <button
+                      <SelectableButton
                         key={game.id}
-                        type="button"
+                        selected={newAdditionalPlatformIds.has(game.id)}
                         onClick={() => {
                           setNewAdditionalPlatformIds((prev) => {
                             const next = new Set(prev);
@@ -818,39 +750,21 @@ export default function AdminGamesPage() {
                             return next;
                           });
                         }}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          padding: "8px 12px",
-                          background: newAdditionalPlatformIds.has(game.id)
-                            ? "rgba(230, 0, 18, 0.15)"
-                            : "var(--bg-secondary)",
-                          border: newAdditionalPlatformIds.has(game.id)
-                            ? "1px solid var(--nintendo-red)"
-                            : "1px solid var(--border-color)",
-                          borderRadius: "var(--border-radius)",
-                          cursor: "pointer",
-                          color: "var(--text-primary)",
-                          fontSize: 14,
-                          textAlign: "left",
-                        }}
+                        icon={
+                          game.platform?.slug && (
+                            <img
+                              src={`/platforms/${game.platform.slug}.svg`}
+                              alt=""
+                              className="w-[18px] h-[18px]"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = "none";
+                              }}
+                            />
+                          )
+                        }
                       >
-                        {game.platform?.slug && (
-                          <img
-                            src={`/platforms/${game.platform.slug}.svg`}
-                            alt=""
-                            style={{ width: 18, height: 18 }}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                            }}
-                          />
-                        )}
-                        <span style={{ flex: 1 }}>{game.platform?.name || "Unknown"}</span>
-                        {newAdditionalPlatformIds.has(game.id) && (
-                          <Check size={16} style={{ color: "var(--nintendo-red)" }} />
-                        )}
-                      </button>
+                        {game.platform?.name || "Unknown"}
+                      </SelectableButton>
                     ))}
                   </div>
                 </div>
@@ -926,112 +840,19 @@ export default function AdminGamesPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={isCloneModalOpen}
-        onOpenChange={(open) => {
-          setIsCloneModalOpen(open);
-          if (!open) resetCloneForm();
-        }}
-      >
-        <DialogContent className="sm:max-w-[460px]">
-          <DialogHeader>
-            <DialogTitle>Clone to Platforms</DialogTitle>
-            <DialogDescription>
-              Create copies of &quot;{cloneGameTitle}&quot; on other platforms.
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogBody className={styles.modalForm}>
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Target Platforms *</label>
-              <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
-                Select platforms to clone this game to.
-              </span>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 200, overflowY: "auto" }}>
-                {platforms
-                  .filter((p: Platform) => p.id !== cloneSourcePlatformId)
-                  .map((platform: Platform) => (
-                    <button
-                      key={platform.id}
-                      type="button"
-                      onClick={() => {
-                        setCloneTargetPlatformIds((prev) => {
-                          const next = new Set(prev);
-                          if (next.has(platform.id)) {
-                            next.delete(platform.id);
-                          } else {
-                            next.add(platform.id);
-                          }
-                          return next;
-                        });
-                        setCloneError(null);
-                      }}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        padding: "8px 12px",
-                        background: cloneTargetPlatformIds.has(platform.id)
-                          ? "rgba(230, 0, 18, 0.15)"
-                          : "var(--bg-secondary)",
-                        border: cloneTargetPlatformIds.has(platform.id)
-                          ? "1px solid var(--nintendo-red)"
-                          : "1px solid var(--border-color)",
-                        borderRadius: "var(--border-radius)",
-                        cursor: "pointer",
-                        color: "var(--text-primary)",
-                        fontSize: 14,
-                        textAlign: "left",
-                      }}
-                    >
-                      <span style={{ flex: 1 }}>{platform.name}</span>
-                      {cloneTargetPlatformIds.has(platform.id) && (
-                        <Check size={16} style={{ color: "var(--nintendo-red)" }} />
-                      )}
-                    </button>
-                  ))}
-              </div>
-              {cloneError && (
-                <span className="text-sm text-red-300">{cloneError}</span>
-              )}
-            </div>
-
-            <div className={styles.formField}>
-              <label className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={cloneCopyAchievements}
-                  onChange={(event) =>
-                    setCloneCopyAchievements(event.target.checked)
-                  }
-                />
-                <span>Copy achievement sets</span>
-              </label>
-              <span className={styles.formHint}>
-                Copy the related achievement sets and achievements into each
-                cloned game.
-              </span>
-            </div>
-          </DialogBody>
-
-          <DialogFooter>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setIsCloneModalOpen(false);
-                resetCloneForm();
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleCloneGame} loading={cloning}>
-              {cloneTargetPlatformIds.size > 0
-                ? `Clone to ${cloneTargetPlatformIds.size} Platform${cloneTargetPlatformIds.size > 1 ? "s" : ""}`
-                : "Clone Game"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {cloneGame && (
+        <GameCloneModal
+          gameId={cloneGame.id}
+          gameTitle={cloneGame.title}
+          platformId={cloneGame.platform?.id}
+          open={isCloneModalOpen}
+          onOpenChange={(open) => {
+            setIsCloneModalOpen(open);
+            if (!open) setCloneGame(null);
+          }}
+          onSuccess={() => refetch()}
+        />
+      )}
 
       {editingGameId && (
         <GameEditModal
