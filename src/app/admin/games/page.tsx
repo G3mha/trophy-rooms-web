@@ -23,6 +23,7 @@ import {
   GameSearchPicker,
   type SearchableGame,
 } from "@/components/admin";
+import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner, Pagination } from "@/components";
 import { GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
@@ -113,11 +114,6 @@ function getFieldErrorClass(hasError: boolean) {
   return hasError
     ? "border-red-500 focus:border-red-500 focus:shadow-[inset_0_0_0_1px_rgb(239,68,68)]"
     : "";
-}
-
-function renderFieldError(message?: string) {
-  if (!message) return null;
-  return <span className="text-sm text-red-300">{message}</span>;
 }
 
 function validateGameForm(input: {
@@ -614,7 +610,7 @@ export default function AdminGamesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className={styles.modalForm}>
+          <DialogBody className="flex flex-col gap-5 py-2">
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">
@@ -625,8 +621,7 @@ export default function AdminGamesPage() {
                 </p>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Game Title *</label>
+              <FormField label="Game Title" required error={newErrors.title}>
                 <Input
                   placeholder="Enter game title"
                   value={newTitle}
@@ -637,13 +632,11 @@ export default function AdminGamesPage() {
                   className={getFieldErrorClass(Boolean(newErrors.title))}
                   aria-invalid={Boolean(newErrors.title)}
                 />
-                {renderFieldError(newErrors.title)}
-              </div>
+              </FormField>
 
               <div className={`grid gap-4 ${newType === "BASE_GAME" ? "sm:grid-cols-2" : ""}`}>
                 {newType === "BASE_GAME" && (
-                  <div className={styles.formField}>
-                    <label className={styles.formLabel}>Platform *</label>
+                  <FormField label="Platform" required error={newErrors.platformId}>
                     <Select
                       value={newPlatformId}
                       onValueChange={(value) => {
@@ -669,12 +662,10 @@ export default function AdminGamesPage() {
                         ))}
                       </SelectContent>
                     </Select>
-                    {renderFieldError(newErrors.platformId)}
-                  </div>
+                  </FormField>
                 )}
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Type *</label>
+                <FormField label="Type" required>
                   <Select
                     value={newType}
                     onValueChange={(value) => {
@@ -701,12 +692,16 @@ export default function AdminGamesPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </FormField>
               </div>
 
               {newType !== "BASE_GAME" && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Based On *</label>
+                <FormField
+                  label="Based On"
+                  required
+                  hint={`Search the full catalog to link this ${GAME_TYPE_LABELS[newType].toLowerCase()} to its original game.`}
+                  error={newErrors.baseGame}
+                >
                   <GameSearchPicker
                     mode="single"
                     value={newBaseGame}
@@ -719,21 +714,15 @@ export default function AdminGamesPage() {
                     filterOption={(game) => game.type === "BASE_GAME" || !game.type}
                     emptyText="No base games found."
                   />
-                  <span className={styles.formHint}>
-                    Search the full catalog to link this{" "}
-                    {GAME_TYPE_LABELS[newType].toLowerCase()} to its original game.
-                  </span>
-                  {renderFieldError(newErrors.baseGame)}
-                </div>
+                </FormField>
               )}
 
               {/* Multi-platform selection for DLC/Expansion */}
               {newType !== "BASE_GAME" && baseGameSiblings.length > 0 && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Create for Platforms</label>
-                  <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
-                    Select which platform versions to create this {GAME_TYPE_LABELS[newType].toLowerCase()} for.
-                  </span>
+                <FormField
+                  label="Create for Platforms"
+                  hint={`Select which platform versions to create this ${GAME_TYPE_LABELS[newType].toLowerCase()} for.`}
+                >
                   <div className="flex flex-col gap-1.5">
                     {baseGameSiblings.map((game: SearchableGame) => (
                       <SelectableButton
@@ -767,7 +756,7 @@ export default function AdminGamesPage() {
                       </SelectableButton>
                     ))}
                   </div>
-                </div>
+                </FormField>
               )}
             </div>
 
@@ -781,18 +770,20 @@ export default function AdminGamesPage() {
                 </p>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Description</label>
+              <FormField label="Description">
                 <Textarea
                   placeholder="Enter game description"
                   value={newDescription}
                   onChange={(event) => setNewDescription(event.target.value)}
                   rows={4}
                 />
-              </div>
+              </FormField>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Cover URL</label>
+              <FormField
+                label="Cover URL"
+                hint="Use a direct image URL starting with http:// or https://."
+                error={newErrors.coverUrl}
+              >
                 <Input
                   placeholder="https://example.com/cover.jpg"
                   value={newCoverUrl}
@@ -803,20 +794,15 @@ export default function AdminGamesPage() {
                   className={getFieldErrorClass(Boolean(newErrors.coverUrl))}
                   aria-invalid={Boolean(newErrors.coverUrl)}
                 />
-                <span className={styles.formHint}>
-                  Use a direct image URL starting with http:// or https://.
-                </span>
-                {renderFieldError(newErrors.coverUrl)}
-              </div>
+              </FormField>
 
               {newCoverUrl.trim() && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Cover Preview</label>
+                <FormField label="Cover Preview">
                   <CoverPreview
                     url={newCoverUrl.trim()}
                     alt="New game cover preview"
                   />
-                </div>
+                </FormField>
               )}
             </div>
           </DialogBody>
