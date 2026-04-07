@@ -25,6 +25,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import { CoverPreview } from "./cover-preview";
+import { GameSearchPicker, type SearchableGame } from "./game-search-picker";
 import styles from "@/app/admin/page.module.css";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
@@ -44,6 +45,7 @@ interface GameFormErrors {
   title?: string;
   platformId?: string;
   coverUrl?: string;
+  baseGame?: string;
 }
 
 function isValidHttpUrl(value: string) {
@@ -78,6 +80,7 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
   const [coverUrl, setCoverUrl] = useState("");
   const [platformId, setPlatformId] = useState("");
   const [type, setType] = useState("BASE_GAME");
+  const [baseGame, setBaseGame] = useState<SearchableGame | null>(null);
   const [errors, setErrors] = useState<GameFormErrors>({});
 
   const { data: gameData, loading: loadingGame, refetch: refetchGame } = useQuery(GET_GAME, {
@@ -121,6 +124,7 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
       setCoverUrl(game.coverUrl || "");
       setPlatformId(game.platform?.id || "");
       setType(game.type || "BASE_GAME");
+      setBaseGame(game.baseGame || null);
       setErrors({});
     }
   }, [gameData]);
@@ -134,6 +138,10 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
 
     if (!platformId) {
       newErrors.platformId = "Select a platform.";
+    }
+
+    if (type !== "BASE_GAME" && !baseGame) {
+      newErrors.baseGame = "Select the original game for this entry type.";
     }
 
     if (coverUrl.trim() && !isValidHttpUrl(coverUrl.trim())) {
@@ -152,6 +160,7 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
           coverUrl: coverUrl.trim() || null,
           platformId,
           type,
+          baseGameId: type !== "BASE_GAME" ? baseGame?.id || null : null,
         },
       },
     });
@@ -236,7 +245,17 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Type</label>
-                <Select value={type} onValueChange={(value) => setType(value || "BASE_GAME")}>
+                <Select
+                  value={type}
+                  onValueChange={(value) => {
+                    const newType = value || "BASE_GAME";
+                    setType(newType);
+                    if (newType === "BASE_GAME") {
+                      setBaseGame(null);
+                      setErrors((prev) => ({ ...prev, baseGame: undefined }));
+                    }
+                  }}
+                >
                   <SelectTrigger>
                     <span>{GAME_TYPE_LABELS[type]}</span>
                   </SelectTrigger>
@@ -250,6 +269,28 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
                 </Select>
               </div>
             </div>
+
+            {type !== "BASE_GAME" && (
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Based On *</label>
+                <GameSearchPicker
+                  mode="single"
+                  value={baseGame}
+                  onChange={(value) => {
+                    setBaseGame(value);
+                    setErrors((prev) => ({ ...prev, baseGame: undefined }));
+                  }}
+                  placeholder="Search the full game catalog..."
+                  excludeIds={[gameId]}
+                  filterOption={(game) => game.type === "BASE_GAME" || !game.type}
+                  emptyText="No base games found."
+                />
+                <span className={styles.formHint}>
+                  Search the full catalog to link this {GAME_TYPE_LABELS[type].toLowerCase()} to its original game.
+                </span>
+                {renderFieldError(errors.baseGame)}
+              </div>
+            )}
 
             <div className={styles.formField}>
               <label className={styles.formLabel}>Description</label>
