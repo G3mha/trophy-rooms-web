@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
 import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert } from "lucide-react";
+import { useAdminMode } from "@/contexts/AdminModeContext";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
 import {
   MARK_ACHIEVEMENT_COMPLETE,
@@ -94,6 +95,7 @@ export default function GameDetailPage({
 }) {
   const { id } = use(params);
   const { isSignedIn } = useAuth();
+  const { setCurrentEntity, clearEntity } = useAdminMode();
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [newSetTitle, setNewSetTitle] = useState("");
   const [setError, setSetError] = useState<string | null>(null);
@@ -209,6 +211,20 @@ export default function GameDetailPage({
       setAchievementSetId(ownedCustomSets[0].id);
     }
   }, [achievementSetId, ownedCustomSets]);
+
+  // Register current entity for admin toolbar
+  useEffect(() => {
+    if (game) {
+      setCurrentEntity({
+        type: "game",
+        id: game.id,
+        title: game.title,
+        platformId: game.platform?.id,
+        platformName: game.platform?.name,
+      });
+    }
+    return () => clearEntity();
+  }, [game, setCurrentEntity, clearEntity]);
 
   const handleToggleAchievement = async (achievementId: string) => {
     if (!isSignedIn) return;
