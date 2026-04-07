@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ApolloWrapper } from "@/lib/apollo-wrapper";
+import { AdminModeProvider } from "@/contexts/AdminModeContext";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { AdminFloatingToolbar } from "@/components/AdminFloatingToolbar";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { Geist } from "next/font/google";
@@ -25,10 +27,13 @@ export default function RootLayout({
       <html lang="en" className={cn("font-sans", geist.variable)}>
         <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
           <ApolloWrapper>
-            <Header />
-            <main style={{ flex: 1 }}>{children}</main>
-            <Footer />
-            <Toaster position="bottom-right" />
+            <AdminModeProvider>
+              <Header />
+              <main style={{ flex: 1 }}>{children}</main>
+              <AdminFloatingToolbar />
+              <Footer />
+              <Toaster position="bottom-right" />
+            </AdminModeProvider>
           </ApolloWrapper>
         </body>
       </html>
