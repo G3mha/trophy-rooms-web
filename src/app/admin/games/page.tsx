@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import {
   AdminConfirmDialog,
   CoverPreview,
+  GameEditModal,
   GameSearchPicker,
   type SearchableGame,
 } from "@/components/admin";
@@ -29,7 +30,6 @@ import {
   CLONE_GAME_TO_PLATFORM,
   CREATE_GAME,
   DELETE_GAME,
-  UPDATE_GAME,
 } from "@/graphql/admin_mutations";
 import { Input } from "@/components/ui/input";
 import {
@@ -163,15 +163,7 @@ export default function AdminGamesPage() {
   const [newErrors, setNewErrors] = useState<GameFormErrors>({});
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editingGame, setEditingGame] = useState<Game | null>(null);
-  const [editTitle, setEditTitle] = useState("");
-  const [editDescription, setEditDescription] = useState("");
-  const [editCoverUrl, setEditCoverUrl] = useState("");
-  const [editPlatformId, setEditPlatformId] = useState("");
-  const [editType, setEditType] = useState("BASE_GAME");
-  const [editBaseGame, setEditBaseGame] = useState<SearchableGame | null>(null);
-  const [editAdditionalPlatformIds, setEditAdditionalPlatformIds] = useState<Set<string>>(new Set());
-  const [editErrors, setEditErrors] = useState<GameFormErrors>({});
+  const [editingGameId, setEditingGameId] = useState<string | null>(null);
 
   const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
   const [cloneGameId, setCloneGameId] = useState<string | null>(null);
@@ -241,32 +233,7 @@ export default function AdminGamesPage() {
       );
   }, [baseGameSiblingsData, newBaseGame]);
 
-  // Query for sibling games when editing to DLC/Expansion (same title as base game, different platforms)
-  const { data: editBaseGameSiblingsData } = useQuery(GET_GAMES_ADMIN, {
-    variables: {
-      first: 20,
-      orderBy: "TITLE_ASC",
-      search: editBaseGame?.title || undefined,
-    },
-    skip: !editBaseGame?.title || editType === "BASE_GAME",
-  });
-
-  // Filter to only show siblings with exact title match for edit modal
-  const editBaseGameSiblings = useMemo(() => {
-    if (!editBaseGameSiblingsData?.games?.edges || !editBaseGame) return [];
-    return editBaseGameSiblingsData.games.edges
-      .map((edge: { node: SearchableGame }) => edge.node)
-      .filter(
-        (game: SearchableGame) =>
-          game.title === editBaseGame.title &&
-          game.type !== "DLC" &&
-          game.type !== "EXPANSION" &&
-          game.id !== editBaseGame.id // Exclude the selected base game itself
-      );
-  }, [editBaseGameSiblingsData, editBaseGame]);
-
   const [createGame, { loading: creating }] = useMutation(CREATE_GAME);
-  const [updateGame, { loading: updating }] = useMutation(UPDATE_GAME);
   const [deleteGame, { loading: deleting }] = useMutation(DELETE_GAME);
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_GAMES);
   const [cloneGame, { loading: cloning }] = useMutation(CLONE_GAME_TO_PLATFORM);
@@ -321,18 +288,6 @@ export default function AdminGamesPage() {
     setNewBaseGame(null);
     setNewAdditionalPlatformIds(new Set());
     setNewErrors({});
-  };
-
-  const resetEditForm = () => {
-    setEditingGame(null);
-    setEditTitle("");
-    setEditDescription("");
-    setEditCoverUrl("");
-    setEditPlatformId("");
-    setEditType("BASE_GAME");
-    setEditBaseGame(null);
-    setEditAdditionalPlatformIds(new Set());
-    setEditErrors({});
   };
 
   const resetCloneForm = () => {
@@ -454,88 +409,6 @@ export default function AdminGamesPage() {
     }
   };
 
-  const handleUpdateGame = async () => {
-    if (!editingGame) return;
-
-    const errors = validateGameForm({
-      title: editTitle,
-      platformId: editPlatformId,
-      type: editType,
-      baseGame: editBaseGame,
-      coverUrl: editCoverUrl,
-    });
-
-    setEditErrors(errors);
-    if (Object.keys(errors).length > 0) return;
-
-    try {
-      // Update the current game
-      const { data } = await updateGame({
-        variables: {
-          id: editingGame.id,
-          input: {
-            title: editTitle.trim(),
-            description: editDescription.trim() || null,
-            coverUrl: editCoverUrl.trim() || null,
-            platformId: editPlatformId,
-            type: editType,
-            baseGameId: editType !== "BASE_GAME" ? editBaseGame?.id || null : null,
-          },
-        },
-      });
-
-      const payload = data?.updateGame;
-      if (!payload?.success) {
-        handleMutationFailure(
-          getMutationMessage(payload?.error),
-          setEditErrors,
-          payload?.error?.field
-        );
-        return;
-      }
-
-      // Create copies for additional platforms if converting to DLC/Expansion
-      let additionalCount = 0;
-      if (editType !== "BASE_GAME" && editAdditionalPlatformIds.size > 0) {
-        for (const siblingId of editAdditionalPlatformIds) {
-          const sibling = editBaseGameSiblings.find((g: SearchableGame) => g.id === siblingId);
-          if (sibling?.platform?.id) {
-            const { data: createData } = await createGame({
-              variables: {
-                input: {
-                  title: editTitle.trim(),
-                  description: editDescription.trim() || null,
-                  coverUrl: editCoverUrl.trim() || null,
-                  platformId: sibling.platform.id,
-                  type: editType,
-                  baseGameId: sibling.id,
-                },
-              },
-            });
-
-            if (createData?.createGame?.success) {
-              additionalCount++;
-            }
-          }
-        }
-      }
-
-      setIsEditModalOpen(false);
-      resetEditForm();
-
-      if (additionalCount > 0) {
-        toast.success(`Saved changes to ${payload.game.title} and created for ${additionalCount} additional platform${additionalCount > 1 ? "s" : ""}.`);
-      } else {
-        toast.success(`Saved changes to ${payload.game.title}.`);
-      }
-      refetch();
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Unable to update game."
-      );
-    }
-  };
-
   const handleCloneGame = async () => {
     if (!cloneGameId || cloneTargetPlatformIds.size === 0) {
       setCloneError("Select at least one target platform.");
@@ -585,14 +458,7 @@ export default function AdminGamesPage() {
   };
 
   const openEditModal = (game: Game) => {
-    setEditingGame(game);
-    setEditTitle(game.title);
-    setEditDescription(game.description || "");
-    setEditCoverUrl(game.coverUrl || "");
-    setEditPlatformId(game.platform?.id || "");
-    setEditType(game.type || "BASE_GAME");
-    setEditBaseGame(game.baseGame || null);
-    setEditErrors({});
+    setEditingGameId(game.id);
     setIsEditModalOpen(true);
   };
 
@@ -1167,265 +1033,18 @@ export default function AdminGamesPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog
-        open={isEditModalOpen}
-        onOpenChange={(open) => {
-          setIsEditModalOpen(open);
-          if (!open) resetEditForm();
-        }}
-      >
-        <DialogContent className="sm:max-w-[560px]">
-          <DialogHeader>
-            <DialogTitle>Edit Game</DialogTitle>
-            <DialogDescription>
-              Update identity, relationships, and media without losing your place
-              in the list.
-            </DialogDescription>
-          </DialogHeader>
-
-          <DialogBody className={styles.modalForm}>
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-                  Identity
-                </h3>
-                <p className="mt-1 text-sm text-[var(--text-muted)]">
-                  Core metadata used to identify and categorize the game.
-                </p>
-              </div>
-
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Game Title *</label>
-                <Input
-                  placeholder="Enter game title"
-                  value={editTitle}
-                  onChange={(event) => {
-                    setEditTitle(event.target.value);
-                    setEditErrors((prev) => ({ ...prev, title: undefined }));
-                  }}
-                  className={getFieldErrorClass(Boolean(editErrors.title))}
-                  aria-invalid={Boolean(editErrors.title)}
-                />
-                {renderFieldError(editErrors.title)}
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Platform *</label>
-                  <Select
-                    value={editPlatformId}
-                    onValueChange={(value) => {
-                      setEditPlatformId(value || "");
-                      setEditErrors((prev) => ({
-                        ...prev,
-                        platformId: undefined,
-                      }));
-                    }}
-                  >
-                    <SelectTrigger
-                      className={getFieldErrorClass(Boolean(editErrors.platformId))}
-                    >
-                      <span>
-                        {platforms.find((p: Platform) => p.id === editPlatformId)?.name || "Select a platform"}
-                      </span>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {platforms.map((platform: Platform) => (
-                        <SelectItem key={platform.id} value={platform.id}>
-                          {platform.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {renderFieldError(editErrors.platformId)}
-                </div>
-
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Type *</label>
-                  <Select
-                    value={editType}
-                    onValueChange={(value) => {
-                      const nextType = value || "BASE_GAME";
-                      setEditType(nextType);
-                      if (nextType === "BASE_GAME") {
-                        setEditBaseGame(null);
-                        setEditAdditionalPlatformIds(new Set());
-                        setEditErrors((prev) => ({
-                          ...prev,
-                          baseGame: undefined,
-                        }));
-                      }
-                    }}
-                  >
-                    <SelectTrigger>
-                      <span>{GAME_TYPE_LABELS[editType]}</span>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(GAME_TYPE_LABELS).map(([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {editType !== "BASE_GAME" && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Based On *</label>
-                  <GameSearchPicker
-                    mode="single"
-                    value={editBaseGame}
-                    onChange={(value) => {
-                      setEditBaseGame(value);
-                      setEditAdditionalPlatformIds(new Set());
-                      setEditErrors((prev) => ({ ...prev, baseGame: undefined }));
-                    }}
-                    placeholder="Search the full game catalog..."
-                    excludeIds={editingGame ? [editingGame.id] : []}
-                    filterOption={(game) => game.type === "BASE_GAME" || !game.type}
-                    emptyText="No base games found."
-                  />
-                  <span className={styles.formHint}>
-                    Search the full catalog to link this{" "}
-                    {GAME_TYPE_LABELS[editType].toLowerCase()} to its original
-                    game.
-                  </span>
-                  {renderFieldError(editErrors.baseGame)}
-                </div>
-              )}
-
-              {/* Multi-platform selection for DLC/Expansion when editing */}
-              {editType !== "BASE_GAME" && editBaseGameSiblings.length > 0 && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Also Create for Platforms</label>
-                  <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
-                    Optionally create this {GAME_TYPE_LABELS[editType].toLowerCase()} for other platform versions of the base game.
-                  </span>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    {editBaseGameSiblings.map((game: SearchableGame) => (
-                      <button
-                        key={game.id}
-                        type="button"
-                        onClick={() => {
-                          setEditAdditionalPlatformIds((prev) => {
-                            const next = new Set(prev);
-                            if (next.has(game.id)) {
-                              next.delete(game.id);
-                            } else {
-                              next.add(game.id);
-                            }
-                            return next;
-                          });
-                        }}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          padding: "8px 12px",
-                          background: editAdditionalPlatformIds.has(game.id)
-                            ? "rgba(230, 0, 18, 0.15)"
-                            : "var(--bg-secondary)",
-                          border: editAdditionalPlatformIds.has(game.id)
-                            ? "1px solid var(--nintendo-red)"
-                            : "1px solid var(--border-color)",
-                          borderRadius: "var(--border-radius)",
-                          cursor: "pointer",
-                          color: "var(--text-primary)",
-                          fontSize: 14,
-                          textAlign: "left",
-                        }}
-                      >
-                        {game.platform?.slug && (
-                          <img
-                            src={`/platforms/${game.platform.slug}.svg`}
-                            alt=""
-                            style={{ width: 18, height: 18 }}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = "none";
-                            }}
-                          />
-                        )}
-                        <span style={{ flex: 1 }}>{game.platform?.name || "Unknown"}</span>
-                        {editAdditionalPlatformIds.has(game.id) && (
-                          <Check size={16} style={{ color: "var(--nintendo-red)" }} />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-4 border-t border-[var(--border-color)] pt-4">
-              <div>
-                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
-                  Details
-                </h3>
-                <p className="mt-1 text-sm text-[var(--text-muted)]">
-                  Supporting description and media for this record.
-                </p>
-              </div>
-
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Description</label>
-                <Textarea
-                  placeholder="Enter game description"
-                  value={editDescription}
-                  onChange={(event) => setEditDescription(event.target.value)}
-                  rows={4}
-                />
-              </div>
-
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Cover URL</label>
-                <Input
-                  placeholder="https://example.com/cover.jpg"
-                  value={editCoverUrl}
-                  onChange={(event) => {
-                    setEditCoverUrl(event.target.value);
-                    setEditErrors((prev) => ({ ...prev, coverUrl: undefined }));
-                  }}
-                  className={getFieldErrorClass(Boolean(editErrors.coverUrl))}
-                  aria-invalid={Boolean(editErrors.coverUrl)}
-                />
-                <span className={styles.formHint}>
-                  Use a direct image URL starting with http:// or https://.
-                </span>
-                {renderFieldError(editErrors.coverUrl)}
-              </div>
-
-              {editCoverUrl.trim() && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Cover Preview</label>
-                  <CoverPreview
-                    url={editCoverUrl.trim()}
-                    alt="Edited game cover preview"
-                  />
-                </div>
-              )}
-            </div>
-          </DialogBody>
-
-          <DialogFooter>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setIsEditModalOpen(false);
-                resetEditForm();
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleUpdateGame} loading={updating}>
-              {editAdditionalPlatformIds.size > 0
-                ? `Save & Create for ${editAdditionalPlatformIds.size} Platform${editAdditionalPlatformIds.size > 1 ? "s" : ""}`
-                : "Save Changes"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {editingGameId && (
+        <GameEditModal
+          gameId={editingGameId}
+          open={isEditModalOpen}
+          onOpenChange={(open) => {
+            setIsEditModalOpen(open);
+            if (!open) setEditingGameId(null);
+          }}
+          onSuccess={() => refetch()}
+          enableMultiPlatformCreation
+        />
+      )}
 
       {games.length > 0 && (
         <div className={styles.selectAllBar}>

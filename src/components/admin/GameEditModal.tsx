@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 import { GET_GAME } from "@/graphql/queries";
-import { GET_PLATFORMS } from "@/graphql/admin_queries";
-import { UPDATE_GAME } from "@/graphql/admin_mutations";
+import { GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
+import { CREATE_GAME, UPDATE_GAME } from "@/graphql/admin_mutations";
 import { Button } from "@/components";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,6 +40,7 @@ const GAME_TYPE_LABELS: Record<string, string> = {
 interface Platform {
   id: string;
   name: string;
+  slug?: string;
 }
 
 interface GameFormErrors {
@@ -72,15 +74,26 @@ interface GameEditModalProps {
   gameId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Called after successful save, useful for refetching lists */
+  onSuccess?: () => void;
+  /** Enable multi-platform creation feature for DLC/Expansion */
+  enableMultiPlatformCreation?: boolean;
 }
 
-export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps) {
+export function GameEditModal({
+  gameId,
+  open,
+  onOpenChange,
+  onSuccess,
+  enableMultiPlatformCreation = false,
+}: GameEditModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
   const [platformId, setPlatformId] = useState("");
   const [type, setType] = useState("BASE_GAME");
   const [baseGame, setBaseGame] = useState<SearchableGame | null>(null);
+  const [additionalPlatformIds, setAdditionalPlatformIds] = useState<Set<string>>(new Set());
   const [errors, setErrors] = useState<GameFormErrors>({});
 
   const { data: gameData, loading: loadingGame, refetch: refetchGame } = useQuery(GET_GAME, {
@@ -91,30 +104,34 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
   const { data: platformsData } = useQuery(GET_PLATFORMS);
   const platforms = useMemo(() => platformsData?.platforms || [], [platformsData]);
 
-  const [updateGame, { loading: updating }] = useMutation(UPDATE_GAME, {
-    onCompleted: (data) => {
-      if (data?.updateGame?.success) {
-        toast.success("Game updated successfully.");
-        onOpenChange(false);
-        refetchGame();
-      } else {
-        const errorMessage = data?.updateGame?.error?.message || "Failed to update game.";
-        toast.error(errorMessage);
-
-        const field = data?.updateGame?.error?.field;
-        if (field === "title") {
-          setErrors({ title: errorMessage });
-        } else if (field === "platformId") {
-          setErrors({ platformId: errorMessage });
-        } else if (field === "coverUrl") {
-          setErrors({ coverUrl: errorMessage });
-        }
-      }
+  // Query for sibling games when editing DLC/Expansion (same title as base game, different platforms)
+  const { data: baseGameSiblingsData } = useQuery(GET_GAMES_ADMIN, {
+    variables: {
+      first: 20,
+      orderBy: "TITLE_ASC",
+      search: baseGame?.title || undefined,
     },
-    onError: (error) => {
-      toast.error(error.message || "Failed to update game.");
-    },
+    skip: !baseGame?.title || type === "BASE_GAME" || !enableMultiPlatformCreation,
   });
+
+  // Filter to only show siblings with exact title match
+  const baseGameSiblings = useMemo(() => {
+    if (!baseGameSiblingsData?.games?.edges || !baseGame) return [];
+    return baseGameSiblingsData.games.edges
+      .map((edge: { node: SearchableGame }) => edge.node)
+      .filter(
+        (game: SearchableGame) =>
+          game.title === baseGame.title &&
+          game.type !== "DLC" &&
+          game.type !== "EXPANSION" &&
+          game.id !== baseGame.id
+      );
+  }, [baseGameSiblingsData, baseGame]);
+
+  const [updateGame, { loading: updating }] = useMutation(UPDATE_GAME);
+  const [createGame, { loading: creating }] = useMutation(CREATE_GAME);
+
+  const isLoading = updating || creating;
 
   useEffect(() => {
     if (gameData?.game) {
@@ -125,6 +142,7 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
       setPlatformId(game.platform?.id || "");
       setType(game.type || "BASE_GAME");
       setBaseGame(game.baseGame || null);
+      setAdditionalPlatformIds(new Set());
       setErrors({});
     }
   }, [gameData]);
@@ -151,24 +169,87 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
-    await updateGame({
-      variables: {
-        id: gameId,
-        input: {
-          title: title.trim(),
-          description: description.trim() || null,
-          coverUrl: coverUrl.trim() || null,
-          platformId,
-          type,
-          baseGameId: type !== "BASE_GAME" ? baseGame?.id || null : null,
+    try {
+      // Update the current game
+      const { data } = await updateGame({
+        variables: {
+          id: gameId,
+          input: {
+            title: title.trim(),
+            description: description.trim() || null,
+            coverUrl: coverUrl.trim() || null,
+            platformId,
+            type,
+            baseGameId: type !== "BASE_GAME" ? baseGame?.id || null : null,
+          },
         },
-      },
-    });
+      });
+
+      const payload = data?.updateGame;
+      if (!payload?.success) {
+        const errorMessage = payload?.error?.message || "Failed to update game.";
+        toast.error(errorMessage);
+
+        const field = payload?.error?.field;
+        if (field === "title") {
+          setErrors({ title: errorMessage });
+        } else if (field === "platformId") {
+          setErrors({ platformId: errorMessage });
+        } else if (field === "coverUrl") {
+          setErrors({ coverUrl: errorMessage });
+        } else if (field === "baseGameId") {
+          setErrors({ baseGame: errorMessage });
+        }
+        return;
+      }
+
+      // Create copies for additional platforms if enabled and selected
+      let additionalCount = 0;
+      if (enableMultiPlatformCreation && type !== "BASE_GAME" && additionalPlatformIds.size > 0) {
+        for (const siblingId of additionalPlatformIds) {
+          const sibling = baseGameSiblings.find((g: SearchableGame) => g.id === siblingId);
+          if (sibling?.platform?.id) {
+            const { data: createData } = await createGame({
+              variables: {
+                input: {
+                  title: title.trim(),
+                  description: description.trim() || null,
+                  coverUrl: coverUrl.trim() || null,
+                  platformId: sibling.platform.id,
+                  type,
+                  baseGameId: sibling.id,
+                },
+              },
+            });
+
+            if (createData?.createGame?.success) {
+              additionalCount++;
+            }
+          }
+        }
+      }
+
+      onOpenChange(false);
+
+      if (additionalCount > 0) {
+        toast.success(
+          `Saved changes to ${payload.game.title} and created for ${additionalCount} additional platform${additionalCount > 1 ? "s" : ""}.`
+        );
+      } else {
+        toast.success("Game updated successfully.");
+      }
+
+      refetchGame();
+      onSuccess?.();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update game.");
+    }
   };
 
   const handleClose = () => {
     onOpenChange(false);
     setErrors({});
+    setAdditionalPlatformIds(new Set());
   };
 
   if (loadingGame && open) {
@@ -195,12 +276,19 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
         <DialogHeader>
           <DialogTitle>Edit Game</DialogTitle>
           <DialogDescription>
-            Update game details. Changes will be saved immediately.
+            Update identity, relationships, and media for this game.
           </DialogDescription>
         </DialogHeader>
 
         <DialogBody className={styles.modalForm}>
           <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">Identity</h3>
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
+                Core metadata used to identify and categorize the game.
+              </p>
+            </div>
+
             <div className={styles.formField}>
               <label className={styles.formLabel}>Game Title *</label>
               <Input
@@ -244,7 +332,7 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
               </div>
 
               <div className={styles.formField}>
-                <label className={styles.formLabel}>Type</label>
+                <label className={styles.formLabel}>Type *</label>
                 <Select
                   value={type}
                   onValueChange={(value) => {
@@ -252,6 +340,7 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
                     setType(newType);
                     if (newType === "BASE_GAME") {
                       setBaseGame(null);
+                      setAdditionalPlatformIds(new Set());
                       setErrors((prev) => ({ ...prev, baseGame: undefined }));
                     }
                   }}
@@ -278,6 +367,7 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
                   value={baseGame}
                   onChange={(value) => {
                     setBaseGame(value);
+                    setAdditionalPlatformIds(new Set());
                     setErrors((prev) => ({ ...prev, baseGame: undefined }));
                   }}
                   placeholder="Search the full game catalog..."
@@ -286,11 +376,83 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
                   emptyText="No base games found."
                 />
                 <span className={styles.formHint}>
-                  Search the full catalog to link this {GAME_TYPE_LABELS[type].toLowerCase()} to its original game.
+                  Search the full catalog to link this {GAME_TYPE_LABELS[type].toLowerCase()} to its
+                  original game.
                 </span>
                 {renderFieldError(errors.baseGame)}
               </div>
             )}
+
+            {/* Multi-platform selection for DLC/Expansion when editing */}
+            {enableMultiPlatformCreation && type !== "BASE_GAME" && baseGameSiblings.length > 0 && (
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Also Create for Platforms</label>
+                <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
+                  Optionally create this {GAME_TYPE_LABELS[type].toLowerCase()} for other platform
+                  versions of the base game.
+                </span>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {baseGameSiblings.map((game: SearchableGame) => (
+                    <button
+                      key={game.id}
+                      type="button"
+                      onClick={() => {
+                        setAdditionalPlatformIds((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(game.id)) {
+                            next.delete(game.id);
+                          } else {
+                            next.add(game.id);
+                          }
+                          return next;
+                        });
+                      }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "8px 12px",
+                        background: additionalPlatformIds.has(game.id)
+                          ? "rgba(230, 0, 18, 0.15)"
+                          : "var(--bg-secondary)",
+                        border: additionalPlatformIds.has(game.id)
+                          ? "1px solid var(--nintendo-red)"
+                          : "1px solid var(--border-color)",
+                        borderRadius: "var(--border-radius)",
+                        cursor: "pointer",
+                        color: "var(--text-primary)",
+                        fontSize: 14,
+                        textAlign: "left",
+                      }}
+                    >
+                      {game.platform?.slug && (
+                        <img
+                          src={`/platforms/${game.platform.slug}.svg`}
+                          alt=""
+                          style={{ width: 18, height: 18 }}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      )}
+                      <span style={{ flex: 1 }}>{game.platform?.name || "Unknown"}</span>
+                      {additionalPlatformIds.has(game.id) && (
+                        <Check size={16} style={{ color: "var(--nintendo-red)" }} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-4 border-t border-[var(--border-color)] pt-4">
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">Details</h3>
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
+                Supporting description and media for this record.
+              </p>
+            </div>
 
             <div className={styles.formField}>
               <label className={styles.formLabel}>Description</label>
@@ -333,8 +495,10 @@ export function GameEditModal({ gameId, open, onOpenChange }: GameEditModalProps
           <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
-          <Button onClick={handleSave} loading={updating}>
-            Save Changes
+          <Button onClick={handleSave} loading={isLoading}>
+            {additionalPlatformIds.size > 0
+              ? `Save & Create for ${additionalPlatformIds.size} Platform${additionalPlatformIds.size > 1 ? "s" : ""}`
+              : "Save Changes"}
           </Button>
         </DialogFooter>
       </DialogContent>
