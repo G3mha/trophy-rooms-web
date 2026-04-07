@@ -12,6 +12,7 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Puzzle } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
+import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner } from "@/components";
 import {
@@ -342,9 +343,8 @@ export default function AdminDLCsPage() {
                 </DialogDescription>
               </DialogHeader>
 
-              <DialogBody className={styles.modalForm}>
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Name *</label>
+              <DialogBody className="flex flex-col gap-5 py-2">
+                <FormField label="Name" required>
                   <Input
                     placeholder="e.g. The Frozen Wilds"
                     value={newName}
@@ -355,22 +355,17 @@ export default function AdminDLCsPage() {
                       }
                     }}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Slug *</label>
+                <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
                   <Input
                     placeholder="e.g. frozen-wilds"
                     value={newSlug}
                     onChange={(e) => setNewSlug(e.target.value)}
                   />
-                  <span className={styles.formHint}>
-                    URL-friendly identifier (lowercase, no spaces)
-                  </span>
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Type *</label>
+                <FormField label="Type" required>
                   <Select value={newType} onValueChange={(value) => value && setNewType(value)}>
                     <SelectTrigger>
                       <span>{DLC_TYPE_LABELS[newType] || "Select type"}</span>
@@ -381,15 +376,14 @@ export default function AdminDLCsPage() {
                       <SelectItem value="FREE_UPDATE">Free Update</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
+                </FormField>
 
                 {/* Multi-platform selection */}
                 {siblingGames.length > 0 && (
-                  <div className={styles.formField}>
-                    <label className={styles.formLabel}>Also create for other platforms</label>
-                    <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
-                      Create this DLC for multiple platform versions at once.
-                    </span>
+                  <FormField
+                    label="Also create for other platforms"
+                    hint="Create this DLC for multiple platform versions at once."
+                  >
                     <div className="flex flex-col gap-1.5">
                       {siblingGames.map((game: SearchableGame) => (
                         <SelectableButton
@@ -423,7 +417,7 @@ export default function AdminDLCsPage() {
                         </SelectableButton>
                       ))}
                     </div>
-                  </div>
+                  </FormField>
                 )}
               </DialogBody>
 
@@ -463,30 +457,24 @@ export default function AdminDLCsPage() {
                 </DialogDescription>
               </DialogHeader>
 
-              <DialogBody className={styles.modalForm}>
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Name *</label>
+              <DialogBody className="flex flex-col gap-5 py-2">
+                <FormField label="Name" required>
                   <Input
                     placeholder="e.g. The Frozen Wilds"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Slug *</label>
+                <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
                   <Input
                     placeholder="e.g. frozen-wilds"
                     value={editSlug}
                     onChange={(e) => setEditSlug(e.target.value)}
                   />
-                  <span className={styles.formHint}>
-                    URL-friendly identifier (lowercase, no spaces)
-                  </span>
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Type *</label>
+                <FormField label="Type" required>
                   <Select value={editType} onValueChange={(value) => value && setEditType(value)}>
                     <SelectTrigger>
                       <span>{DLC_TYPE_LABELS[editType] || "Select type"}</span>
@@ -497,7 +485,7 @@ export default function AdminDLCsPage() {
                       <SelectItem value="FREE_UPDATE">Free Update</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
+                </FormField>
               </DialogBody>
 
               <DialogFooter>

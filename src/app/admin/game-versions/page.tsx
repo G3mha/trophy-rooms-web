@@ -15,6 +15,7 @@ import { Trash2, Pencil, Plus, Search, Star } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { Button, LoadingSpinner } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
+import { FormField } from "@/components/ui/form-field";
 import {
   Dialog,
   DialogBody,
@@ -278,9 +279,8 @@ export default function AdminGameVersionsPage() {
                 </DialogDescription>
               </DialogHeader>
 
-              <DialogBody className={styles.modalForm}>
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Name *</label>
+              <DialogBody className="flex flex-col gap-5 py-2">
+                <FormField label="Name" required>
                   <Input
                     placeholder="e.g. Deluxe Edition"
                     value={newName}
@@ -291,19 +291,15 @@ export default function AdminGameVersionsPage() {
                       }
                     }}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Slug *</label>
+                <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
                   <Input
                     placeholder="e.g. deluxe-edition"
                     value={newSlug}
                     onChange={(e) => setNewSlug(e.target.value)}
                   />
-                  <span className={styles.formHint}>
-                    URL-friendly identifier (lowercase, no spaces)
-                  </span>
-                </div>
+                </FormField>
               </DialogBody>
 
               <DialogFooter>
@@ -340,27 +336,22 @@ export default function AdminGameVersionsPage() {
                 </DialogDescription>
               </DialogHeader>
 
-              <DialogBody className={styles.modalForm}>
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Name *</label>
+              <DialogBody className="flex flex-col gap-5 py-2">
+                <FormField label="Name" required>
                   <Input
                     placeholder="e.g. Deluxe Edition"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Slug *</label>
+                <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
                   <Input
                     placeholder="e.g. deluxe-edition"
                     value={editSlug}
                     onChange={(e) => setEditSlug(e.target.value)}
                   />
-                  <span className={styles.formHint}>
-                    URL-friendly identifier (lowercase, no spaces)
-                  </span>
-                </div>
+                </FormField>
               </DialogBody>
 
               <DialogFooter>

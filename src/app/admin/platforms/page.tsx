@@ -14,6 +14,7 @@ import { Trash2, Pencil, Plus, Search } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { Button, LoadingSpinner } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
+import { FormField } from "@/components/ui/form-field";
 import {
   Dialog,
   DialogBody,
@@ -235,9 +236,8 @@ export default function AdminPlatformsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className={styles.modalForm}>
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Platform Name *</label>
+          <DialogBody className="flex flex-col gap-5 py-2">
+            <FormField label="Platform Name" required>
               <Input
                 placeholder="e.g. PlayStation 5"
                 value={newName}
@@ -248,19 +248,15 @@ export default function AdminPlatformsPage() {
                   }
                 }}
               />
-            </div>
+            </FormField>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Slug *</label>
+            <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
               <Input
                 placeholder="e.g. ps5"
                 value={newSlug}
                 onChange={(e) => setNewSlug(e.target.value)}
               />
-              <span className={styles.formHint}>
-                URL-friendly identifier (lowercase, no spaces)
-              </span>
-            </div>
+            </FormField>
           </DialogBody>
 
           <DialogFooter>
@@ -297,27 +293,22 @@ export default function AdminPlatformsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className={styles.modalForm}>
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Platform Name *</label>
+          <DialogBody className="flex flex-col gap-5 py-2">
+            <FormField label="Platform Name" required>
               <Input
                 placeholder="e.g. PlayStation 5"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
               />
-            </div>
+            </FormField>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Slug *</label>
+            <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
               <Input
                 placeholder="e.g. ps5"
                 value={editSlug}
                 onChange={(e) => setEditSlug(e.target.value)}
               />
-              <span className={styles.formHint}>
-                URL-friendly identifier (lowercase, no spaces)
-              </span>
-            </div>
+            </FormField>
           </DialogBody>
 
           <DialogFooter>
