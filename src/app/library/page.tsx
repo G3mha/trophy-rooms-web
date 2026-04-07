@@ -20,7 +20,7 @@ import {
 import { handlePlatformIconError } from "@/lib/image-utils";
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
-import { LoadingSpinner, EmptyState, Button } from "@/components";
+import { LoadingSpinner, EmptyState, Button, FilterTabs, type FilterTab } from "@/components";
 import {
   Dialog,
   DialogContent,
@@ -53,13 +53,7 @@ type FilterStatus = GameStatus | "ALL";
 
 type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
 
-interface StatusTabConfig {
-  label: string;
-  icon: IconComponent;
-  value: FilterStatus;
-}
-
-const STATUS_TABS: StatusTabConfig[] = [
+const STATUS_TABS: FilterTab<FilterStatus>[] = [
   { label: "All", icon: Library, value: "ALL" },
   { label: "Backlog", icon: BookMarked, value: "BACKLOG" },
   { label: "Playing", icon: Gamepad2, value: "PLAYING" },
@@ -141,23 +135,12 @@ export default function LibraryPage() {
       </header>
 
       {/* Status Filter Tabs */}
-      <div className={styles.tabs}>
-        {STATUS_TABS.map((tab) => {
-          const TabIcon = tab.icon;
-          return (
-            <button
-              key={tab.value}
-              className={`${styles.tab} ${activeFilter === tab.value ? styles.tabActive : ""}`}
-              onClick={() => setActiveFilter(tab.value)}
-            >
-              <span className={styles.tabIcon}>
-                <TabIcon size={16} />
-              </span>
-              <span className={styles.tabLabel}>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
+      <FilterTabs
+        tabs={STATUS_TABS}
+        value={activeFilter}
+        onChange={setActiveFilter}
+        className={styles.tabs}
+      />
 
       {games.length > 0 ? (
         <div className={styles.gamesGrid}>
