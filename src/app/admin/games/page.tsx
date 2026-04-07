@@ -170,6 +170,7 @@ export default function AdminGamesPage() {
   const [editPlatformId, setEditPlatformId] = useState("");
   const [editType, setEditType] = useState("BASE_GAME");
   const [editBaseGame, setEditBaseGame] = useState<SearchableGame | null>(null);
+  const [editAdditionalPlatformIds, setEditAdditionalPlatformIds] = useState<Set<string>>(new Set());
   const [editErrors, setEditErrors] = useState<GameFormErrors>({});
 
   const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
@@ -240,6 +241,30 @@ export default function AdminGamesPage() {
       );
   }, [baseGameSiblingsData, newBaseGame]);
 
+  // Query for sibling games when editing to DLC/Expansion (same title as base game, different platforms)
+  const { data: editBaseGameSiblingsData } = useQuery(GET_GAMES_ADMIN, {
+    variables: {
+      first: 20,
+      orderBy: "TITLE_ASC",
+      search: editBaseGame?.title || undefined,
+    },
+    skip: !editBaseGame?.title || editType === "BASE_GAME",
+  });
+
+  // Filter to only show siblings with exact title match for edit modal
+  const editBaseGameSiblings = useMemo(() => {
+    if (!editBaseGameSiblingsData?.games?.edges || !editBaseGame) return [];
+    return editBaseGameSiblingsData.games.edges
+      .map((edge: { node: SearchableGame }) => edge.node)
+      .filter(
+        (game: SearchableGame) =>
+          game.title === editBaseGame.title &&
+          game.type !== "DLC" &&
+          game.type !== "EXPANSION" &&
+          game.id !== editBaseGame.id // Exclude the selected base game itself
+      );
+  }, [editBaseGameSiblingsData, editBaseGame]);
+
   const [createGame, { loading: creating }] = useMutation(CREATE_GAME);
   const [updateGame, { loading: updating }] = useMutation(UPDATE_GAME);
   const [deleteGame, { loading: deleting }] = useMutation(DELETE_GAME);
@@ -306,6 +331,7 @@ export default function AdminGamesPage() {
     setEditPlatformId("");
     setEditType("BASE_GAME");
     setEditBaseGame(null);
+    setEditAdditionalPlatformIds(new Set());
     setEditErrors({});
   };
 
@@ -443,6 +469,7 @@ export default function AdminGamesPage() {
     if (Object.keys(errors).length > 0) return;
 
     try {
+      // Update the current game
       const { data } = await updateGame({
         variables: {
           id: editingGame.id,
@@ -467,9 +494,40 @@ export default function AdminGamesPage() {
         return;
       }
 
+      // Create copies for additional platforms if converting to DLC/Expansion
+      let additionalCount = 0;
+      if (editType !== "BASE_GAME" && editAdditionalPlatformIds.size > 0) {
+        for (const siblingId of editAdditionalPlatformIds) {
+          const sibling = editBaseGameSiblings.find((g: SearchableGame) => g.id === siblingId);
+          if (sibling?.platform?.id) {
+            const { data: createData } = await createGame({
+              variables: {
+                input: {
+                  title: editTitle.trim(),
+                  description: editDescription.trim() || null,
+                  coverUrl: editCoverUrl.trim() || null,
+                  platformId: sibling.platform.id,
+                  type: editType,
+                  baseGameId: sibling.id,
+                },
+              },
+            });
+
+            if (createData?.createGame?.success) {
+              additionalCount++;
+            }
+          }
+        }
+      }
+
       setIsEditModalOpen(false);
       resetEditForm();
-      toast.success(`Saved changes to ${payload.game.title}.`);
+
+      if (additionalCount > 0) {
+        toast.success(`Saved changes to ${payload.game.title} and created for ${additionalCount} additional platform${additionalCount > 1 ? "s" : ""}.`);
+      } else {
+        toast.success(`Saved changes to ${payload.game.title}.`);
+      }
       refetch();
     } catch (error) {
       toast.error(
@@ -1191,6 +1249,7 @@ export default function AdminGamesPage() {
                       setEditType(nextType);
                       if (nextType === "BASE_GAME") {
                         setEditBaseGame(null);
+                        setEditAdditionalPlatformIds(new Set());
                         setEditErrors((prev) => ({
                           ...prev,
                           baseGame: undefined,
@@ -1220,6 +1279,7 @@ export default function AdminGamesPage() {
                     value={editBaseGame}
                     onChange={(value) => {
                       setEditBaseGame(value);
+                      setEditAdditionalPlatformIds(new Set());
                       setEditErrors((prev) => ({ ...prev, baseGame: undefined }));
                     }}
                     placeholder="Search the full game catalog..."
@@ -1233,6 +1293,67 @@ export default function AdminGamesPage() {
                     game.
                   </span>
                   {renderFieldError(editErrors.baseGame)}
+                </div>
+              )}
+
+              {/* Multi-platform selection for DLC/Expansion when editing */}
+              {editType !== "BASE_GAME" && editBaseGameSiblings.length > 0 && (
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Also Create for Platforms</label>
+                  <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
+                    Optionally create this {GAME_TYPE_LABELS[editType].toLowerCase()} for other platform versions of the base game.
+                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {editBaseGameSiblings.map((game: SearchableGame) => (
+                      <button
+                        key={game.id}
+                        type="button"
+                        onClick={() => {
+                          setEditAdditionalPlatformIds((prev) => {
+                            const next = new Set(prev);
+                            if (next.has(game.id)) {
+                              next.delete(game.id);
+                            } else {
+                              next.add(game.id);
+                            }
+                            return next;
+                          });
+                        }}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                          padding: "8px 12px",
+                          background: editAdditionalPlatformIds.has(game.id)
+                            ? "rgba(230, 0, 18, 0.15)"
+                            : "var(--bg-secondary)",
+                          border: editAdditionalPlatformIds.has(game.id)
+                            ? "1px solid var(--nintendo-red)"
+                            : "1px solid var(--border-color)",
+                          borderRadius: "var(--border-radius)",
+                          cursor: "pointer",
+                          color: "var(--text-primary)",
+                          fontSize: 14,
+                          textAlign: "left",
+                        }}
+                      >
+                        {game.platform?.slug && (
+                          <img
+                            src={`/platforms/${game.platform.slug}.svg`}
+                            alt=""
+                            style={{ width: 18, height: 18 }}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        )}
+                        <span style={{ flex: 1 }}>{game.platform?.name || "Unknown"}</span>
+                        {editAdditionalPlatformIds.has(game.id) && (
+                          <Check size={16} style={{ color: "var(--nintendo-red)" }} />
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -1298,7 +1419,9 @@ export default function AdminGamesPage() {
               Cancel
             </Button>
             <Button onClick={handleUpdateGame} loading={updating}>
-              Save Changes
+              {editAdditionalPlatformIds.size > 0
+                ? `Save & Create for ${editAdditionalPlatformIds.size} Platform${editAdditionalPlatformIds.size > 1 ? "s" : ""}`
+                : "Save Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
