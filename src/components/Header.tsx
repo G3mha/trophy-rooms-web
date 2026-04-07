@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { useQuery } from "@apollo/client";
-import { ChevronDown, LayoutDashboard, Trophy, Library, Disc, ShoppingCart } from "lucide-react";
+import { ChevronDown, LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield } from "lucide-react";
 import { GET_ME } from "@/graphql/queries";
 import styles from "./Header.module.css";
 
@@ -107,13 +107,20 @@ export function Header() {
             </Link>
           </SignedOut>
           <SignedIn>
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: styles.avatarBox,
-                },
-              }}
-            />
+            <div className={styles.userSection}>
+              {isAdmin && (
+                <span className={styles.adminBadge} title="Admin">
+                  <Shield size={14} />
+                </span>
+              )}
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: styles.avatarBox,
+                  },
+                }}
+              />
+            </div>
           </SignedIn>
         </div>
       </div>

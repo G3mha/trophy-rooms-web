@@ -179,6 +179,24 @@
   height: 36px;
 }
 
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adminBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: rgba(230, 0, 18, 0.15);
+  border: 1px solid var(--nintendo-red);
+  border-radius: 6px;
+  color: var(--nintendo-red);
+}
+
 @media (max-width: 768px) {
   .nav {
     display: none;
