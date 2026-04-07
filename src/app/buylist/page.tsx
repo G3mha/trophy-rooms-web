@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { GET_MY_BUYLIST, GET_BUYLIST_STATS } from "@/graphql/queries";
 import { REMOVE_FROM_BUYLIST, MARK_AS_PURCHASED } from "@/graphql/mutations";
-import { LoadingSpinner, EmptyState, Button } from "@/components";
+import { LoadingSpinner, EmptyState, Button, FilterTabs, type FilterTab } from "@/components";
 import styles from "./page.module.css";
 
 interface BuylistItem {
@@ -53,29 +53,16 @@ interface BuylistStats {
 
 type PriorityFilter = "HIGH" | "MEDIUM" | "LOW" | "ALL";
 type ItemTypeFilter = "GAME" | "DLC" | "BUNDLE" | "ALL";
-
 type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
 
-interface PriorityTabConfig {
-  label: string;
-  icon: IconComponent;
-  value: PriorityFilter;
-}
-
-interface ItemTypeTabConfig {
-  label: string;
-  icon: IconComponent;
-  value: ItemTypeFilter;
-}
-
-const PRIORITY_TABS: PriorityTabConfig[] = [
+const PRIORITY_TABS: FilterTab<PriorityFilter>[] = [
   { label: "All Priorities", icon: ShoppingCart, value: "ALL" },
   { label: "High", icon: ArrowUp, value: "HIGH" },
   { label: "Medium", icon: ArrowRight, value: "MEDIUM" },
   { label: "Low", icon: ArrowDown, value: "LOW" },
 ];
 
-const ITEM_TYPE_TABS: ItemTypeTabConfig[] = [
+const ITEM_TYPE_TABS: FilterTab<ItemTypeFilter>[] = [
   { label: "All Types", icon: ShoppingCart, value: "ALL" },
   { label: "Games", icon: Gamepad2, value: "GAME" },
   { label: "DLCs", icon: Package, value: "DLC" },
@@ -282,44 +269,24 @@ export default function BuylistPage() {
       <div className={styles.filters}>
         <div className={styles.filterGroup}>
           <span className={styles.filterLabel}>Priority:</span>
-          <div className={styles.tabs}>
-            {PRIORITY_TABS.map((tab) => {
-              const TabIcon = tab.icon;
-              return (
-                <button
-                  key={tab.value}
-                  className={`${styles.tab} ${priorityFilter === tab.value ? styles.tabActive : ""}`}
-                  onClick={() => setPriorityFilter(tab.value)}
-                >
-                  <span className={styles.tabIcon}>
-                    <TabIcon size={14} />
-                  </span>
-                  <span className={styles.tabLabel}>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
+          <FilterTabs
+            tabs={PRIORITY_TABS}
+            value={priorityFilter}
+            onChange={setPriorityFilter}
+            iconSize={14}
+            className={styles.tabs}
+          />
         </div>
 
         <div className={styles.filterGroup}>
           <span className={styles.filterLabel}>Type:</span>
-          <div className={styles.tabs}>
-            {ITEM_TYPE_TABS.map((tab) => {
-              const TabIcon = tab.icon;
-              return (
-                <button
-                  key={tab.value}
-                  className={`${styles.tab} ${itemTypeFilter === tab.value ? styles.tabActive : ""}`}
-                  onClick={() => setItemTypeFilter(tab.value)}
-                >
-                  <span className={styles.tabIcon}>
-                    <TabIcon size={14} />
-                  </span>
-                  <span className={styles.tabLabel}>{tab.label}</span>
-                </button>
-              );
-            })}
-          </div>
+          <FilterTabs
+            tabs={ITEM_TYPE_TABS}
+            value={itemTypeFilter}
+            onChange={setItemTypeFilter}
+            iconSize={14}
+            className={styles.tabs}
+          />
         </div>
       </div>
 
