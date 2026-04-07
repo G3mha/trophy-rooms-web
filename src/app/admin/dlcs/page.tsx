@@ -10,7 +10,9 @@ import {
   DELETE_DLC,
   BULK_DELETE_DLCS,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Plus, Search, Puzzle, Check } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, Puzzle } from "lucide-react";
+import { generateSlug } from "@/lib/slug-utils";
+import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner } from "@/components";
 import {
   AdminConfirmDialog,
@@ -160,16 +162,6 @@ export default function AdminDLCsPage() {
       );
     }
   }, [searchQuery, dlcs]);
-
-  // Auto-generate slug from name
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim();
-  };
 
   const resetAddForm = () => {
     setNewName("");
@@ -398,11 +390,11 @@ export default function AdminDLCsPage() {
                     <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
                       Create this DLC for multiple platform versions at once.
                     </span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div className="flex flex-col gap-1.5">
                       {siblingGames.map((game: SearchableGame) => (
-                        <button
+                        <SelectableButton
                           key={game.id}
-                          type="button"
+                          selected={additionalPlatformIds.has(game.id)}
                           onClick={() => {
                             setAdditionalPlatformIds((prev) => {
                               const next = new Set(prev);
@@ -414,39 +406,21 @@ export default function AdminDLCsPage() {
                               return next;
                             });
                           }}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                            padding: "8px 12px",
-                            background: additionalPlatformIds.has(game.id)
-                              ? "rgba(230, 0, 18, 0.15)"
-                              : "var(--bg-secondary)",
-                            border: additionalPlatformIds.has(game.id)
-                              ? "1px solid var(--nintendo-red)"
-                              : "1px solid var(--border-color)",
-                            borderRadius: "var(--border-radius)",
-                            cursor: "pointer",
-                            color: "var(--text-primary)",
-                            fontSize: 14,
-                            textAlign: "left",
-                          }}
+                          icon={
+                            game.platform?.slug && (
+                              <img
+                                src={`/platforms/${game.platform.slug}.svg`}
+                                alt=""
+                                className="w-[18px] h-[18px]"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display = "none";
+                                }}
+                              />
+                            )
+                          }
                         >
-                          {game.platform?.slug && (
-                            <img
-                              src={`/platforms/${game.platform.slug}.svg`}
-                              alt=""
-                              style={{ width: 18, height: 18 }}
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = "none";
-                              }}
-                            />
-                          )}
-                          <span style={{ flex: 1 }}>{game.platform?.name || "Unknown"}</span>
-                          {additionalPlatformIds.has(game.id) && (
-                            <Check size={16} style={{ color: "var(--nintendo-red)" }} />
-                          )}
-                        </button>
+                          {game.platform?.name || "Unknown"}
+                        </SelectableButton>
                       ))}
                     </div>
                   </div>

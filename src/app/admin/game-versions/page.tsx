@@ -12,6 +12,7 @@ import {
   BULK_DELETE_GAME_VERSIONS,
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Star } from "lucide-react";
+import { generateSlug } from "@/lib/slug-utils";
 import { Button, LoadingSpinner } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
 import {
@@ -145,16 +146,6 @@ export default function AdminGameVersionsPage() {
       );
     }
   }, [searchQuery, versions]);
-
-  // Auto-generate slug from name
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim();
-  };
 
   const resetAddForm = () => {
     setNewName("");

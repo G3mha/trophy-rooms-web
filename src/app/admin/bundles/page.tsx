@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { Package, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { generateSlug } from "@/lib/slug-utils";
 
 import { toast } from "sonner";
 import {
@@ -88,13 +89,6 @@ function isValidHttpUrl(value: string) {
   } catch {
     return false;
   }
-}
-
-function generateSlug(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
 }
 
 function getMutationMessage(error?: { message?: string | null } | null) {

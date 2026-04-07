@@ -11,6 +11,7 @@ import {
   BULK_DELETE_PLATFORMS,
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search } from "lucide-react";
+import { generateSlug } from "@/lib/slug-utils";
 import { Button, LoadingSpinner } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
 import {
@@ -179,16 +180,6 @@ export default function AdminPlatformsPage() {
     }
     setConfirmOpen(false);
     setPlatformToDelete(null);
-  };
-
-  // Auto-generate slug from name
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .replace(/-+/g, "-")
-      .trim();
   };
 
   if (loading) {
