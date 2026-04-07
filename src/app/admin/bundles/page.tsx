@@ -12,6 +12,7 @@ import {
   GameSearchPicker,
   type SearchableGame,
 } from "@/components/admin";
+import { FormField } from "@/components/ui/form-field";
 import { Button, LoadingSpinner } from "@/components";
 import { GET_BUNDLES, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
@@ -99,11 +100,6 @@ function getFieldErrorClass(hasError: boolean) {
   return hasError
     ? "border-red-500 focus:border-red-500 focus:shadow-[inset_0_0_0_1px_rgb(239,68,68)]"
     : "";
-}
-
-function renderFieldError(message?: string) {
-  if (!message) return null;
-  return <span className="text-sm text-red-300">{message}</span>;
 }
 
 function validateBundleForm(input: {
@@ -498,7 +494,7 @@ export default function AdminBundlesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className={styles.modalForm}>
+          <DialogBody className="flex flex-col gap-5 py-2">
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">
@@ -509,8 +505,7 @@ export default function AdminBundlesPage() {
                 </p>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Bundle Name *</label>
+              <FormField label="Bundle Name" required error={newErrors.name}>
                 <Input
                   placeholder="Enter bundle name"
                   value={newName}
@@ -525,12 +520,15 @@ export default function AdminBundlesPage() {
                   className={getFieldErrorClass(Boolean(newErrors.name))}
                   aria-invalid={Boolean(newErrors.name)}
                 />
-                {renderFieldError(newErrors.name)}
-              </div>
+              </FormField>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Slug *</label>
+                <FormField
+                  label="Slug"
+                  required
+                  hint="Generated from the name until you edit it manually."
+                  error={newErrors.slug}
+                >
                   <Input
                     placeholder="bundle-slug"
                     value={newSlug}
@@ -542,14 +540,9 @@ export default function AdminBundlesPage() {
                     className={getFieldErrorClass(Boolean(newErrors.slug))}
                     aria-invalid={Boolean(newErrors.slug)}
                   />
-                  <span className={styles.formHint}>
-                    Generated from the name until you edit it manually.
-                  </span>
-                  {renderFieldError(newErrors.slug)}
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Type *</label>
+                <FormField label="Type" required>
                   <Select value={newType} onValueChange={(value) => setNewType(value || "BUNDLE")}>
                     <SelectTrigger>
                       <span>{BUNDLE_TYPE_LABELS[newType]}</span>
@@ -562,11 +555,10 @@ export default function AdminBundlesPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </FormField>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Platform</label>
+              <FormField label="Platform">
                 <Select
                   value={newPlatformId}
                   onValueChange={(value) => setNewPlatformId(value || "")}
@@ -584,7 +576,7 @@ export default function AdminBundlesPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </FormField>
             </div>
 
             <div className="space-y-4 border-t border-[var(--border-color)] pt-4">
@@ -597,28 +589,25 @@ export default function AdminBundlesPage() {
                 </p>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Description</label>
+              <FormField label="Description">
                 <Textarea
                   placeholder="Enter bundle description"
                   value={newDescription}
                   onChange={(event) => setNewDescription(event.target.value)}
                   rows={4}
                 />
-              </div>
+              </FormField>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Release Date</label>
+                <FormField label="Release Date">
                   <Input
                     type="date"
                     value={newReleaseDate}
                     onChange={(event) => setNewReleaseDate(event.target.value)}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Price</label>
+                <FormField label="Price" error={newErrors.price}>
                   <Input
                     type="number"
                     step="0.01"
@@ -631,12 +620,14 @@ export default function AdminBundlesPage() {
                     className={getFieldErrorClass(Boolean(newErrors.price))}
                     aria-invalid={Boolean(newErrors.price)}
                   />
-                  {renderFieldError(newErrors.price)}
-                </div>
+                </FormField>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Cover URL</label>
+              <FormField
+                label="Cover URL"
+                hint="Use a direct image URL starting with http:// or https://."
+                error={newErrors.coverUrl}
+              >
                 <Input
                   placeholder="https://example.com/cover.jpg"
                   value={newCoverUrl}
@@ -647,20 +638,15 @@ export default function AdminBundlesPage() {
                   className={getFieldErrorClass(Boolean(newErrors.coverUrl))}
                   aria-invalid={Boolean(newErrors.coverUrl)}
                 />
-                <span className={styles.formHint}>
-                  Use a direct image URL starting with http:// or https://.
-                </span>
-                {renderFieldError(newErrors.coverUrl)}
-              </div>
+              </FormField>
 
               {newCoverUrl.trim() && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Cover Preview</label>
+                <FormField label="Cover Preview">
                   <CoverPreview
                     url={newCoverUrl.trim()}
                     alt="New bundle cover preview"
                   />
-                </div>
+                </FormField>
               )}
             </div>
 
@@ -674,8 +660,7 @@ export default function AdminBundlesPage() {
                 </p>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Games</label>
+              <FormField label="Games">
                 <GameSearchPicker
                   mode="multiple"
                   value={newGames}
@@ -683,7 +668,7 @@ export default function AdminBundlesPage() {
                   placeholder="Search the full game catalog..."
                   emptyText="No matching games found."
                 />
-              </div>
+              </FormField>
             </div>
           </DialogBody>
 
@@ -720,7 +705,7 @@ export default function AdminBundlesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className={styles.modalForm}>
+          <DialogBody className="flex flex-col gap-5 py-2">
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">
@@ -731,8 +716,7 @@ export default function AdminBundlesPage() {
                 </p>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Bundle Name *</label>
+              <FormField label="Bundle Name" required error={editErrors.name}>
                 <Input
                   placeholder="Enter bundle name"
                   value={editName}
@@ -743,12 +727,10 @@ export default function AdminBundlesPage() {
                   className={getFieldErrorClass(Boolean(editErrors.name))}
                   aria-invalid={Boolean(editErrors.name)}
                 />
-                {renderFieldError(editErrors.name)}
-              </div>
+              </FormField>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Slug *</label>
+                <FormField label="Slug" required error={editErrors.slug}>
                   <Input
                     placeholder="bundle-slug"
                     value={editSlug}
@@ -759,11 +741,9 @@ export default function AdminBundlesPage() {
                     className={getFieldErrorClass(Boolean(editErrors.slug))}
                     aria-invalid={Boolean(editErrors.slug)}
                   />
-                  {renderFieldError(editErrors.slug)}
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Type *</label>
+                <FormField label="Type" required>
                   <Select
                     value={editType}
                     onValueChange={(value) => setEditType(value || "BUNDLE")}
@@ -779,11 +759,10 @@ export default function AdminBundlesPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </FormField>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Platform</label>
+              <FormField label="Platform">
                 <Select
                   value={editPlatformId}
                   onValueChange={(value) => setEditPlatformId(value || "")}
@@ -801,7 +780,7 @@ export default function AdminBundlesPage() {
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </FormField>
             </div>
 
             <div className="space-y-4 border-t border-[var(--border-color)] pt-4">
@@ -814,28 +793,25 @@ export default function AdminBundlesPage() {
                 </p>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Description</label>
+              <FormField label="Description">
                 <Textarea
                   placeholder="Enter bundle description"
                   value={editDescription}
                   onChange={(event) => setEditDescription(event.target.value)}
                   rows={4}
                 />
-              </div>
+              </FormField>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Release Date</label>
+                <FormField label="Release Date">
                   <Input
                     type="date"
                     value={editReleaseDate}
                     onChange={(event) => setEditReleaseDate(event.target.value)}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Price</label>
+                <FormField label="Price" error={editErrors.price}>
                   <Input
                     type="number"
                     step="0.01"
@@ -848,12 +824,14 @@ export default function AdminBundlesPage() {
                     className={getFieldErrorClass(Boolean(editErrors.price))}
                     aria-invalid={Boolean(editErrors.price)}
                   />
-                  {renderFieldError(editErrors.price)}
-                </div>
+                </FormField>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Cover URL</label>
+              <FormField
+                label="Cover URL"
+                hint="Use a direct image URL starting with http:// or https://."
+                error={editErrors.coverUrl}
+              >
                 <Input
                   placeholder="https://example.com/cover.jpg"
                   value={editCoverUrl}
@@ -864,20 +842,15 @@ export default function AdminBundlesPage() {
                   className={getFieldErrorClass(Boolean(editErrors.coverUrl))}
                   aria-invalid={Boolean(editErrors.coverUrl)}
                 />
-                <span className={styles.formHint}>
-                  Use a direct image URL starting with http:// or https://.
-                </span>
-                {renderFieldError(editErrors.coverUrl)}
-              </div>
+              </FormField>
 
               {editCoverUrl.trim() && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Cover Preview</label>
+                <FormField label="Cover Preview">
                   <CoverPreview
                     url={editCoverUrl.trim()}
                     alt="Edited bundle cover preview"
                   />
-                </div>
+                </FormField>
               )}
             </div>
 
@@ -892,8 +865,7 @@ export default function AdminBundlesPage() {
                 </p>
               </div>
 
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Games</label>
+              <FormField label="Games">
                 <GameSearchPicker
                   mode="multiple"
                   value={editGames}
@@ -901,7 +873,7 @@ export default function AdminBundlesPage() {
                   placeholder="Search the full game catalog..."
                   emptyText="No matching games found."
                 />
-              </div>
+              </FormField>
             </div>
           </DialogBody>
 
