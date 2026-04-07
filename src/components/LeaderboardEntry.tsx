@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Medal } from "lucide-react";
+import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import styles from "./LeaderboardEntry.module.css";
 
 interface LeaderboardEntryProps {
@@ -14,35 +15,6 @@ interface LeaderboardEntryProps {
   secondaryValue?: number;
   secondaryLabel?: string;
   highlight?: boolean;
-}
-
-function getInitials(name: string | null, email: string): string {
-  if (name) {
-    const parts = name.trim().split(" ");
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-    }
-    return name.slice(0, 2).toUpperCase();
-  }
-  return email.slice(0, 2).toUpperCase();
-}
-
-function getAvatarColor(name: string | null, email: string): string {
-  const str = name || email;
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const colors = [
-    "#e60012",
-    "#00a651",
-    "#0066b3",
-    "#f5a623",
-    "#9b59b6",
-    "#e91e63",
-    "#00bcd4",
-  ];
-  return colors[Math.abs(hash) % colors.length];
 }
 
 function getRankDisplay(rank: number): { icon: React.ReactNode; className: string } {
