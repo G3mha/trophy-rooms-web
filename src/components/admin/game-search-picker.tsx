@@ -244,40 +244,60 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
     }
   };
 
-  const removeMultiple = (id: string) => {
+  const removeMultipleByTitle = (title: string) => {
     if (props.mode === "multiple") {
-      props.onChange(props.value.filter((game) => game.id !== id));
+      props.onChange(props.value.filter((game) => game.title !== title));
     }
   };
 
+  // Group selected games by title for display
+  const groupedSelectedGames = React.useMemo(() => {
+    if (props.mode !== "multiple") return [];
+
+    const groups: Map<string, SearchableGame[]> = new Map();
+
+    for (const game of selectedMultiple) {
+      if (!groups.has(game.title)) {
+        groups.set(game.title, []);
+      }
+      groups.get(game.title)!.push(game);
+    }
+
+    return Array.from(groups.entries()).map(([title, games]) => ({
+      title,
+      games,
+    }));
+  }, [props.mode, selectedMultiple]);
+
   return (
     <div ref={containerRef} className="space-y-2">
-      {props.mode === "multiple" && selectedMultiple.length > 0 && (
+      {props.mode === "multiple" && groupedSelectedGames.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {selectedMultiple.map((game) => (
+          {groupedSelectedGames.map((group) => (
             <span
-              key={game.id}
+              key={group.title}
               className="inline-flex items-center gap-2 rounded-[var(--border-radius)] border border-[var(--border-color)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)]"
             >
-              {game.platform?.slug && (
-                <img
-                  src={`/platforms/${game.platform.slug}.svg`}
-                  alt=""
-                  className="size-4 shrink-0"
-                  onError={handlePlatformIconError}
-                />
-              )}
-              <span className="max-w-[240px] truncate">
-                {game.title}
-                {game.platform?.name && (
-                  <span className="text-[var(--text-muted)]"> • {game.platform.name}</span>
+              <span className="inline-flex items-center gap-1">
+                {group.games.map((game) =>
+                  game.platform?.slug ? (
+                    <img
+                      key={game.id}
+                      src={`/platforms/${game.platform.slug}.svg`}
+                      alt={game.platform.name || ""}
+                      title={game.platform.name || ""}
+                      className="size-4 shrink-0"
+                      onError={handlePlatformIconError}
+                    />
+                  ) : null
                 )}
               </span>
+              <span className="max-w-[240px] truncate">{group.title}</span>
               <button
                 type="button"
-                onClick={() => removeMultiple(game.id)}
+                onClick={() => removeMultipleByTitle(group.title)}
                 className="text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
-                aria-label={`Remove ${game.title} (${game.platform?.name || "Unknown"})`}
+                aria-label={`Remove ${group.title} (${group.games.length} platform${group.games.length > 1 ? "s" : ""})`}
               >
                 <X className="size-4" />
               </button>
