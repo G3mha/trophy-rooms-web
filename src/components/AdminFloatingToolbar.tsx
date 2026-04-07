@@ -204,6 +204,8 @@ export function AdminFloatingToolbar() {
             gameId={currentEntity.id}
             open={isEditModalOpen}
             onOpenChange={setIsEditModalOpen}
+            onSuccess={() => router.refresh()}
+            enableMultiPlatformCreation
           />
           <GameCloneModal
             gameId={currentEntity.id}
@@ -211,6 +213,7 @@ export function AdminFloatingToolbar() {
             platformId={currentEntity.platformId}
             open={isCloneModalOpen}
             onOpenChange={setIsCloneModalOpen}
+            onSuccess={() => router.refresh()}
           />
           <AdminConfirmDialog
             open={isDeleteConfirmOpen}
