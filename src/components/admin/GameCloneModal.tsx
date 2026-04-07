@@ -15,8 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
-import styles from "@/app/admin/page.module.css";
 
 interface Platform {
   id: string;
@@ -131,12 +131,13 @@ export function GameCloneModal({
           </DialogDescription>
         </DialogHeader>
 
-        <DialogBody className={styles.modalForm}>
-          <div className={styles.formField}>
-            <label className={styles.formLabel}>Target Platforms *</label>
-            <span className={styles.formHint} style={{ marginBottom: 8, display: "block" }}>
-              Select platforms to clone this game to.
-            </span>
+        <DialogBody className="flex flex-col gap-5 py-2">
+          <FormField
+            label="Target Platforms"
+            required
+            hint="Select platforms to clone this game to."
+            error={error ?? undefined}
+          >
             <div className="flex flex-col gap-1.5 max-h-[200px] overflow-y-auto">
               {platforms
                 .filter((p: Platform) => p.id !== platformId)
@@ -150,22 +151,22 @@ export function GameCloneModal({
                   </SelectableButton>
                 ))}
             </div>
-            {error && <span className="text-sm text-red-300">{error}</span>}
-          </div>
+          </FormField>
 
-          <div className={styles.formField}>
-            <label className={styles.checkboxLabel}>
+          <FormField
+            label=""
+            hint="Copy the related achievement sets and achievements into each cloned game."
+          >
+            <label className="flex items-center gap-2 text-sm text-[var(--text-primary)] cursor-pointer">
               <input
                 type="checkbox"
+                className="w-4 h-4 cursor-pointer"
                 checked={copyAchievements}
                 onChange={(e) => setCopyAchievements(e.target.checked)}
               />
               <span>Copy achievement sets</span>
             </label>
-            <span className={styles.formHint}>
-              Copy the related achievement sets and achievements into each cloned game.
-            </span>
-          </div>
+          </FormField>
         </DialogBody>
 
         <DialogFooter>
