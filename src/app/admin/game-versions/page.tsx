@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
-import { GET_GAMES_ADMIN, GET_GAME_VERSIONS } from "@/graphql/admin_queries";
+import { GET_GAME_VERSIONS } from "@/graphql/admin_queries";
 import {
   CREATE_GAME_VERSION,
   UPDATE_GAME_VERSION,
@@ -26,15 +26,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { GameCombobox } from "@/components/ui/game-combobox";
+import { GameSearchPicker, type SearchableGame } from "@/components/admin/game-search-picker";
 import styles from "../page.module.css";
-
-interface Game {
-  id: string;
-  title: string;
-  coverUrl?: string | null;
-  platform?: { name: string } | null;
-}
 
 interface GameVersion {
   id: string;
@@ -46,7 +39,7 @@ interface GameVersion {
 
 export default function AdminGameVersionsPage() {
   // Game filter state
-  const [selectedGameId, setSelectedGameId] = useState("");
+  const [selectedGame, setSelectedGame] = useState<SearchableGame | null>(null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -71,17 +64,13 @@ export default function AdminGameVersionsPage() {
   const [confirmAction, setConfirmAction] = useState<"single" | "bulk">("single");
   const [versionToDelete, setVersionToDelete] = useState<GameVersion | null>(null);
 
-  const { data: gamesData } = useQuery(GET_GAMES_ADMIN, {
-    variables: { first: 500, orderBy: "TITLE_ASC" },
-  });
-
   const {
     data: versionsData,
     loading,
     refetch,
   } = useQuery(GET_GAME_VERSIONS, {
-    variables: { gameId: selectedGameId },
-    skip: !selectedGameId,
+    variables: { gameId: selectedGame?.id },
+    skip: !selectedGame,
   });
 
   const [createVersion, { loading: creating }] = useMutation(CREATE_GAME_VERSION, {
@@ -129,7 +118,6 @@ export default function AdminGameVersionsPage() {
     onError: (error) => toast.error(error.message || "Failed to delete versions."),
   });
 
-  const games: Game[] = gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [];
   const versions: GameVersion[] = versionsData?.gameVersions || [];
 
   // Filter versions based on search
@@ -167,13 +155,13 @@ export default function AdminGameVersionsPage() {
   };
 
   const handleCreateVersion = async () => {
-    if (!newName || !newSlug || !selectedGameId) return;
+    if (!newName || !newSlug || !selectedGame) return;
     await createVersion({
       variables: {
         input: {
           name: newName,
           slug: newSlug,
-          gameId: selectedGameId,
+          gameId: selectedGame.id,
         },
       },
     });
@@ -237,11 +225,11 @@ export default function AdminGameVersionsPage() {
       {/* Game Filter */}
       <div style={{ marginBottom: 20 }}>
         <label className={styles.formLabel}>Select a game to manage its versions</label>
-        <GameCombobox
-          games={games}
-          value={selectedGameId}
-          onChange={(gameId) => {
-            setSelectedGameId(gameId);
+        <GameSearchPicker
+          mode="single"
+          value={selectedGame}
+          onChange={(game) => {
+            setSelectedGame(game);
             setSelectedIds(new Set());
             setSearchQuery("");
           }}
@@ -249,7 +237,7 @@ export default function AdminGameVersionsPage() {
         />
       </div>
 
-      {selectedGameId && (
+      {selectedGame && (
         <>
           {/* Search and Add Bar */}
           <div className={styles.searchBar}>
@@ -466,7 +454,7 @@ export default function AdminGameVersionsPage() {
         </>
       )}
 
-      {!selectedGameId && (
+      {!selectedGame && (
         <p className={styles.emptyState}>Select a game above to manage its versions.</p>
       )}
 
