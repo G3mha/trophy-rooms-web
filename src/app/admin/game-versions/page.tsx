@@ -13,6 +13,7 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Star } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
+import { handlePlatformIconError } from "@/lib/image-utils";
 import { Button, LoadingSpinner } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
@@ -26,21 +27,27 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { GameSearchPicker, type SearchableGame } from "@/components/admin/game-search-picker";
 import styles from "../page.module.css";
+
+interface LinkedGame {
+  id: string;
+  title: string;
+  platform?: { id: string; name: string; slug: string } | null;
+}
 
 interface GameVersion {
   id: string;
   name: string;
   slug: string;
   isDefault: boolean;
-  gameId: string;
+  gameIds: string[];
+  gameCount: number;
+  games: LinkedGame[];
 }
 
 export default function AdminGameVersionsPage() {
-  // Game filter state
-  const [selectedGame, setSelectedGame] = useState<SearchableGame | null>(null);
-
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredVersions, setFilteredVersions] = useState<GameVersion[]>([]);
@@ -49,12 +56,15 @@ export default function AdminGameVersionsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
+  const [newSelectedGames, setNewSelectedGames] = useState<SearchableGame[]>([]);
+  const [newIsDefault, setNewIsDefault] = useState(false);
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingVersion, setEditingVersion] = useState<GameVersion | null>(null);
   const [editName, setEditName] = useState("");
   const [editSlug, setEditSlug] = useState("");
+  const [editSelectedGames, setEditSelectedGames] = useState<SearchableGame[]>([]);
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -69,8 +79,8 @@ export default function AdminGameVersionsPage() {
     loading,
     refetch,
   } = useQuery(GET_GAME_VERSIONS, {
-    variables: { gameId: selectedGame?.id },
-    skip: !selectedGame,
+    // No gameId filter - get all versions
+    variables: {},
   });
 
   const [createVersion, { loading: creating }] = useMutation(CREATE_GAME_VERSION, {
@@ -130,7 +140,8 @@ export default function AdminGameVersionsPage() {
         versions.filter(
           (v) =>
             v.name.toLowerCase().includes(query) ||
-            v.slug.toLowerCase().includes(query)
+            v.slug.toLowerCase().includes(query) ||
+            v.games.some((g) => g.title.toLowerCase().includes(query))
         )
       );
     }
@@ -139,42 +150,55 @@ export default function AdminGameVersionsPage() {
   const resetAddForm = () => {
     setNewName("");
     setNewSlug("");
+    setNewSelectedGames([]);
+    setNewIsDefault(false);
   };
 
   const resetEditForm = () => {
     setEditingVersion(null);
     setEditName("");
     setEditSlug("");
+    setEditSelectedGames([]);
   };
 
   const openEditModal = (version: GameVersion) => {
     setEditingVersion(version);
     setEditName(version.name);
     setEditSlug(version.slug);
+    // Convert linked games to SearchableGame format
+    setEditSelectedGames(
+      version.games.map((g) => ({
+        id: g.id,
+        title: g.title,
+        platform: g.platform,
+      }))
+    );
     setIsEditModalOpen(true);
   };
 
   const handleCreateVersion = async () => {
-    if (!newName || !newSlug || !selectedGame) return;
+    if (!newName || !newSlug || newSelectedGames.length === 0) return;
     await createVersion({
       variables: {
         input: {
           name: newName,
           slug: newSlug,
-          gameId: selectedGame.id,
+          gameIds: newSelectedGames.map((g) => g.id),
+          isDefault: newIsDefault,
         },
       },
     });
   };
 
   const handleUpdateVersion = async () => {
-    if (!editingVersion || !editName || !editSlug) return;
+    if (!editingVersion || !editName || !editSlug || editSelectedGames.length === 0) return;
     await updateVersion({
       variables: {
         id: editingVersion.id,
         input: {
           name: editName,
           slug: editSlug,
+          gameIds: editSelectedGames.map((g) => g.id),
         },
       },
     });
@@ -201,6 +225,18 @@ export default function AdminGameVersionsPage() {
     setVersionToDelete(null);
   };
 
+  // Group games by title for display
+  const groupGamesByTitle = (games: LinkedGame[]) => {
+    const groups: Map<string, LinkedGame[]> = new Map();
+    for (const game of games) {
+      if (!groups.has(game.title)) {
+        groups.set(game.title, []);
+      }
+      groups.get(game.title)!.push(game);
+    }
+    return Array.from(groups.entries());
+  };
+
   return (
     <div>
       <div className={styles.sectionHeader}>
@@ -219,243 +255,282 @@ export default function AdminGameVersionsPage() {
               Delete {selectedIds.size}
             </Button>
           )}
+          <Button onClick={() => setIsAddModalOpen(true)}>
+            <Plus size={18} />
+            Add Version
+          </Button>
         </div>
       </div>
 
-      {/* Game Filter */}
-      <div style={{ marginBottom: 20 }}>
-        <label className={styles.formLabel}>Select a game to manage its versions</label>
-        <GameSearchPicker
-          mode="single"
-          value={selectedGame}
-          onChange={(game) => {
-            setSelectedGame(game);
-            setSelectedIds(new Set());
-            setSearchQuery("");
-          }}
-          placeholder="Search for a game..."
-        />
+      {/* Search Bar */}
+      <div className={styles.searchBar}>
+        <div className={styles.searchInputWrapper}>
+          <Search size={18} className={styles.searchIcon} />
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="Search versions or games..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
 
-      {selectedGame && (
-        <>
-          {/* Search and Add Bar */}
-          <div className={styles.searchBar}>
-            <div className={styles.searchInputWrapper}>
-              <Search size={18} className={styles.searchIcon} />
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="Search versions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+      {/* Add Version Modal */}
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="sm:max-w-[520px]" onEnterKeySubmit={handleCreateVersion}>
+          <DialogHeader>
+            <DialogTitle>Add New Version</DialogTitle>
+            <DialogDescription>
+              Create a new version or edition that can be linked to multiple games.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogBody className="flex flex-col gap-5 py-2">
+            <FormField label="Name" required>
+              <Input
+                placeholder="e.g. Deluxe Edition"
+                value={newName}
+                onChange={(e) => {
+                  setNewName(e.target.value);
+                  if (!newSlug || newSlug === generateSlug(newName)) {
+                    setNewSlug(generateSlug(e.target.value));
+                  }
+                }}
               />
+            </FormField>
+
+            <FormField label="Slug" required hint="URL-friendly identifier (globally unique)">
+              <Input
+                placeholder="e.g. deluxe-edition"
+                value={newSlug}
+                onChange={(e) => setNewSlug(e.target.value)}
+              />
+            </FormField>
+
+            <FormField label="Linked Games" required hint="Select one or more games for this version">
+              <GameSearchPicker
+                mode="multiple"
+                value={newSelectedGames}
+                onChange={setNewSelectedGames}
+                placeholder="Search and select games..."
+              />
+            </FormField>
+
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="new-is-default"
+                checked={newIsDefault}
+                onCheckedChange={(checked) => setNewIsDefault(checked === true)}
+              />
+              <label htmlFor="new-is-default" className="text-sm text-[var(--text-primary)] cursor-pointer">
+                Set as default version
+              </label>
             </div>
-            <Button onClick={() => setIsAddModalOpen(true)}>
-              <Plus size={18} />
-              Add Version
+          </DialogBody>
+
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsAddModalOpen(false);
+                resetAddForm();
+              }}
+            >
+              Cancel
             </Button>
-          </div>
+            <Button
+              onClick={handleCreateVersion}
+              loading={creating}
+              disabled={!newName || !newSlug || newSelectedGames.length === 0}
+            >
+              Create Version
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-          {/* Add Version Modal */}
-          <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-            <DialogContent className="sm:max-w-[420px]" onEnterKeySubmit={handleCreateVersion}>
-              <DialogHeader>
-                <DialogTitle>Add New Version</DialogTitle>
-                <DialogDescription>
-                  Create a new version or edition for the selected game.
-                </DialogDescription>
-              </DialogHeader>
+      {/* Edit Version Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={(open) => {
+        setIsEditModalOpen(open);
+        if (!open) resetEditForm();
+      }}>
+        <DialogContent className="sm:max-w-[520px]" onEnterKeySubmit={handleUpdateVersion}>
+          <DialogHeader>
+            <DialogTitle>Edit Version</DialogTitle>
+            <DialogDescription>
+              Update version details and linked games.
+            </DialogDescription>
+          </DialogHeader>
 
-              <DialogBody className="flex flex-col gap-5 py-2">
-                <FormField label="Name" required>
-                  <Input
-                    placeholder="e.g. Deluxe Edition"
-                    value={newName}
-                    onChange={(e) => {
-                      setNewName(e.target.value);
-                      if (!newSlug || newSlug === generateSlug(newName)) {
-                        setNewSlug(generateSlug(e.target.value));
-                      }
-                    }}
-                  />
-                </FormField>
+          <DialogBody className="flex flex-col gap-5 py-2">
+            <FormField label="Name" required>
+              <Input
+                placeholder="e.g. Deluxe Edition"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+              />
+            </FormField>
 
-                <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
-                  <Input
-                    placeholder="e.g. deluxe-edition"
-                    value={newSlug}
-                    onChange={(e) => setNewSlug(e.target.value)}
-                  />
-                </FormField>
-              </DialogBody>
+            <FormField label="Slug" required hint="URL-friendly identifier (globally unique)">
+              <Input
+                placeholder="e.g. deluxe-edition"
+                value={editSlug}
+                onChange={(e) => setEditSlug(e.target.value)}
+              />
+            </FormField>
 
-              <DialogFooter>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setIsAddModalOpen(false);
-                    resetAddForm();
-                  }}
+            <FormField label="Linked Games" required hint="Select one or more games for this version">
+              <GameSearchPicker
+                mode="multiple"
+                value={editSelectedGames}
+                onChange={setEditSelectedGames}
+                placeholder="Search and select games..."
+              />
+            </FormField>
+          </DialogBody>
+
+          <DialogFooter>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setIsEditModalOpen(false);
+                resetEditForm();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpdateVersion}
+              loading={updating}
+              disabled={!editName || !editSlug || editSelectedGames.length === 0}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {loading ? (
+        <LoadingSpinner text="Loading versions..." />
+      ) : (
+        <>
+          {/* Select All Bar */}
+          {filteredVersions.length > 0 && (
+            <div className={styles.selectAllBar}>
+              <input
+                type="checkbox"
+                checked={selectedIds.size === filteredVersions.length && filteredVersions.length > 0}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setSelectedIds(new Set(filteredVersions.map((v) => v.id)));
+                  } else {
+                    setSelectedIds(new Set());
+                  }
+                }}
+              />
+              <span className={styles.selectAllLabel}>
+                Select all ({filteredVersions.length})
+              </span>
+            </div>
+          )}
+
+          {/* Versions List */}
+          <div className={styles.itemsGrid}>
+            {filteredVersions.map((version) => {
+              const groupedGames = groupGamesByTitle(version.games);
+
+              return (
+                <div
+                  key={version.id}
+                  className={`${styles.itemCard} ${
+                    selectedIds.has(version.id) ? styles.selected : ""
+                  }`}
                 >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleCreateVersion}
-                  loading={creating}
-                  disabled={!newName || !newSlug}
-                >
-                  Create Version
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          {/* Edit Version Modal */}
-          <Dialog open={isEditModalOpen} onOpenChange={(open) => {
-            setIsEditModalOpen(open);
-            if (!open) resetEditForm();
-          }}>
-            <DialogContent className="sm:max-w-[420px]" onEnterKeySubmit={handleUpdateVersion}>
-              <DialogHeader>
-                <DialogTitle>Edit Version</DialogTitle>
-                <DialogDescription>
-                  Update version details.
-                </DialogDescription>
-              </DialogHeader>
-
-              <DialogBody className="flex flex-col gap-5 py-2">
-                <FormField label="Name" required>
-                  <Input
-                    placeholder="e.g. Deluxe Edition"
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                  />
-                </FormField>
-
-                <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
-                  <Input
-                    placeholder="e.g. deluxe-edition"
-                    value={editSlug}
-                    onChange={(e) => setEditSlug(e.target.value)}
-                  />
-                </FormField>
-              </DialogBody>
-
-              <DialogFooter>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    setIsEditModalOpen(false);
-                    resetEditForm();
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleUpdateVersion}
-                  loading={updating}
-                  disabled={!editName || !editSlug}
-                >
-                  Save Changes
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          {loading ? (
-            <LoadingSpinner text="Loading versions..." />
-          ) : (
-            <>
-              {/* Select All Bar */}
-              {filteredVersions.length > 0 && (
-                <div className={styles.selectAllBar}>
                   <input
                     type="checkbox"
-                    checked={selectedIds.size === filteredVersions.length && filteredVersions.length > 0}
+                    className={styles.itemCheckbox}
+                    checked={selectedIds.has(version.id)}
                     onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedIds(new Set(filteredVersions.map((v) => v.id)));
-                      } else {
-                        setSelectedIds(new Set());
-                      }
+                      const newSet = new Set(selectedIds);
+                      if (e.target.checked) newSet.add(version.id);
+                      else newSet.delete(version.id);
+                      setSelectedIds(newSet);
                     }}
                   />
-                  <span className={styles.selectAllLabel}>
-                    Select all ({filteredVersions.length})
-                  </span>
-                </div>
-              )}
+                  <div className={styles.itemInfo}>
+                    <span className={styles.itemName}>{version.name}</span>
+                    <span className={styles.itemSlug}>{version.slug}</span>
 
-              {/* Versions List */}
-              <div className={styles.itemsGrid}>
-                {filteredVersions.map((version) => (
-                  <div
-                    key={version.id}
-                    className={`${styles.itemCard} ${
-                      selectedIds.has(version.id) ? styles.selected : ""
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      className={styles.itemCheckbox}
-                      checked={selectedIds.has(version.id)}
-                      onChange={(e) => {
-                        const newSet = new Set(selectedIds);
-                        if (e.target.checked) newSet.add(version.id);
-                        else newSet.delete(version.id);
-                        setSelectedIds(newSet);
-                      }}
-                    />
-                    <div className={styles.itemInfo}>
-                      <span className={styles.itemName}>{version.name}</span>
-                      <span className={styles.itemSlug}>{version.slug}</span>
-                      {version.isDefault && (
-                        <span className={`${styles.badge} ${styles.badgeDefault}`}>Default</span>
-                      )}
-                    </div>
-                    <div className={styles.itemActions}>
-                      {!version.isDefault && (
-                        <button
-                          className={styles.actionBtn}
-                          onClick={() => setDefaultVersion({ variables: { id: version.id } })}
-                          title="Set as default"
+                    {/* Display linked games with platform icons */}
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {groupedGames.map(([title, games]) => (
+                        <div
+                          key={title}
+                          className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-color)] bg-[var(--bg-secondary)] px-2 py-1 text-xs"
                         >
-                          <Star size={14} />
-                        </button>
-                      )}
+                          <span className="inline-flex items-center gap-0.5">
+                            {games.map((game) =>
+                              game.platform?.slug ? (
+                                <img
+                                  key={game.id}
+                                  src={`/platforms/${game.platform.slug}.svg`}
+                                  alt={game.platform.name || ""}
+                                  title={game.platform.name || ""}
+                                  className="size-3.5"
+                                  onError={handlePlatformIconError}
+                                />
+                              ) : null
+                            )}
+                          </span>
+                          <span className="text-[var(--text-primary)] max-w-[180px] truncate">
+                            {title}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {version.isDefault && (
+                      <span className={`${styles.badge} ${styles.badgeDefault} mt-2`}>Default</span>
+                    )}
+                  </div>
+                  <div className={styles.itemActions}>
+                    {!version.isDefault && (
                       <button
                         className={styles.actionBtn}
-                        onClick={() => openEditModal(version)}
-                        title="Edit"
+                        onClick={() => setDefaultVersion({ variables: { id: version.id } })}
+                        title="Set as default"
                       >
-                        <Pencil size={14} />
+                        <Star size={14} />
                       </button>
-                      <button
-                        className={`${styles.actionBtn} ${styles.danger}`}
-                        onClick={() => openDeleteConfirm(version)}
-                        title="Delete"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
+                    )}
+                    <button
+                      className={styles.actionBtn}
+                      onClick={() => openEditModal(version)}
+                      title="Edit"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      className={`${styles.actionBtn} ${styles.danger}`}
+                      onClick={() => openDeleteConfirm(version)}
+                      title="Delete"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
-                ))}
-                {filteredVersions.length === 0 && !loading && (
-                  <p className={styles.emptyState}>
-                    {searchQuery
-                      ? `No versions found matching "${searchQuery}"`
-                      : "No versions for this game yet. Click Add Version to create one."}
-                  </p>
-                )}
-              </div>
-            </>
-          )}
+                </div>
+              );
+            })}
+            {filteredVersions.length === 0 && !loading && (
+              <p className={styles.emptyState}>
+                {searchQuery
+                  ? `No versions found matching "${searchQuery}"`
+                  : "No versions yet. Click Add Version to create one."}
+              </p>
+            )}
+          </div>
         </>
-      )}
-
-      {!selectedGame && (
-        <p className={styles.emptyState}>Select a game above to manage its versions.</p>
       )}
 
       {/* Confirm Delete Dialog */}
