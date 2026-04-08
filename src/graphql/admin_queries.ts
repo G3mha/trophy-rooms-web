@@ -29,10 +29,16 @@ export const GAME_VERSION_FRAGMENT = gql`
     effectiveCoverUrl
     releaseDate
     isDefault
-    gameId
-    game {
+    gameIds
+    gameCount
+    games {
       id
       title
+      platform {
+        id
+        name
+        slug
+      }
     }
     dlcs {
       id
@@ -183,7 +189,7 @@ export const GET_USERS_ADMIN = gql`
 `;
 
 export const GET_GAME_VERSIONS = gql`
-  query GetGameVersions($gameId: ID!) {
+  query GetGameVersions($gameId: ID) {
     gameVersions(gameId: $gameId) {
       ...GameVersionFields
     }
