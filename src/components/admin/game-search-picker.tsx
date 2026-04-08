@@ -12,6 +12,7 @@ const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
   FANGAME: "Fangame",
   ROM_HACK: "ROM Hack",
+  MOD: "Mod",
   DLC: "DLC",
   EXPANSION: "Expansion",
 };
