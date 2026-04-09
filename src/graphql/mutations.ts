@@ -385,8 +385,8 @@ export const UPDATE_BUYLIST_ITEM = gql`
 `;
 
 export const MARK_AS_PURCHASED = gql`
-  mutation MarkAsPurchased($id: ID!, $platformId: ID) {
-    markAsPurchased(id: $id, platformId: $platformId) {
+  mutation MarkAsPurchased($id: ID!, $platformId: ID, $purchasePrice: Float, $purchasedAt: DateTime) {
+    markAsPurchased(id: $id, platformId: $platformId, purchasePrice: $purchasePrice, purchasedAt: $purchasedAt) {
       success
       error {
         code
