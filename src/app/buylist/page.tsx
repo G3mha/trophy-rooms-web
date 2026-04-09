@@ -20,8 +20,9 @@ import {
   StickyNote,
 } from "lucide-react";
 import { GET_MY_BUYLIST, GET_BUYLIST_STATS } from "@/graphql/queries";
-import { REMOVE_FROM_BUYLIST, MARK_AS_PURCHASED } from "@/graphql/mutations";
+import { REMOVE_FROM_BUYLIST } from "@/graphql/mutations";
 import { LoadingSpinner, EmptyState, Button, FilterTabs, type FilterTab } from "@/components";
+import { MarkAsPurchasedModal } from "@/components/MarkAsPurchasedModal";
 import styles from "./page.module.css";
 
 interface BuylistItem {
@@ -86,6 +87,8 @@ export default function BuylistPage() {
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
   const [itemTypeFilter, setItemTypeFilter] = useState<ItemTypeFilter>("ALL");
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showPurchasedModal, setShowPurchasedModal] = useState(false);
+  const [selectedItemForPurchase, setSelectedItemForPurchase] = useState<BuylistItem | null>(null);
 
   const queryVariables = {
     filter: {
@@ -115,16 +118,6 @@ export default function BuylistPage() {
     }
   );
 
-  const [markAsPurchased, { loading: purchasing }] = useMutation(
-    MARK_AS_PURCHASED,
-    {
-      onCompleted: () => {
-        refetch();
-        toast.success("Item marked as purchased.");
-      },
-      onError: (error) => toast.error(error.message || "Failed to mark as purchased."),
-    }
-  );
 
   if (!isLoaded) {
     return <LoadingSpinner text="Loading..." />;
@@ -149,8 +142,9 @@ export default function BuylistPage() {
     await removeFromBuylist({ variables: { id } });
   };
 
-  const handleMarkPurchased = async (id: string) => {
-    await markAsPurchased({ variables: { id } });
+  const handleMarkPurchased = (item: BuylistItem) => {
+    setSelectedItemForPurchase(item);
+    setShowPurchasedModal(true);
   };
 
   const handleShare = async () => {
@@ -365,8 +359,7 @@ export default function BuylistPage() {
                 <div className={styles.cardActions}>
                   <button
                     className={styles.purchasedButton}
-                    onClick={() => handleMarkPurchased(item.id)}
-                    disabled={purchasing}
+                    onClick={() => handleMarkPurchased(item)}
                     title="Mark as purchased"
                   >
                     <Check size={16} />
@@ -412,6 +405,17 @@ export default function BuylistPage() {
               </Button>
             )
           }
+        />
+      )}
+
+      {selectedItemForPurchase && (
+        <MarkAsPurchasedModal
+          isOpen={showPurchasedModal}
+          onClose={() => {
+            setShowPurchasedModal(false);
+            setSelectedItemForPurchase(null);
+          }}
+          item={selectedItemForPurchase}
         />
       )}
     </div>
