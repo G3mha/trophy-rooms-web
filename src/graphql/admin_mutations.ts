@@ -1,5 +1,5 @@
 import { gql } from "@apollo/client";
-import { PLATFORM_FRAGMENT, GAME_VERSION_FRAGMENT, DLC_FRAGMENT, BUNDLE_FRAGMENT } from "./admin_queries";
+import { PLATFORM_FRAGMENT, PLATFORM_RELEASE_FRAGMENT, GAME_VERSION_FRAGMENT, DLC_FRAGMENT, BUNDLE_FRAGMENT } from "./admin_queries";
 import {
   GAME_FRAGMENT,
   ACHIEVEMENT_SET_FRAGMENT,
@@ -607,6 +607,57 @@ export const REMOVE_DLC_FROM_BUNDLE = gql`
       bundle {
         id
         name
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
+// Platform Release mutations
+export const CREATE_PLATFORM_RELEASE = gql`
+  mutation CreatePlatformRelease($input: CreatePlatformReleaseInput!) {
+    createPlatformRelease(input: $input) {
+      success
+      release {
+        ...PlatformReleaseFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${PLATFORM_RELEASE_FRAGMENT}
+`;
+
+export const UPDATE_PLATFORM_RELEASE = gql`
+  mutation UpdatePlatformRelease($id: ID!, $input: UpdatePlatformReleaseInput!) {
+    updatePlatformRelease(id: $id, input: $input) {
+      success
+      release {
+        ...PlatformReleaseFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${PLATFORM_RELEASE_FRAGMENT}
+`;
+
+export const DELETE_PLATFORM_RELEASE = gql`
+  mutation DeletePlatformRelease($id: ID!) {
+    deletePlatformRelease(id: $id) {
+      success
+      release {
+        id
       }
       error {
         code
