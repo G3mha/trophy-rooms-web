@@ -6,16 +6,32 @@ import {
   USER_FRAGMENT,
 } from "./queries";
 
+// Platform Release fragments
+export const PLATFORM_RELEASE_FRAGMENT = gql`
+  fragment PlatformReleaseFields on PlatformRelease {
+    id
+    region
+    releaseDate
+  }
+`;
+
 // Platform fragments
 export const PLATFORM_FRAGMENT = gql`
   fragment PlatformFields on Platform {
     id
     name
     slug
+    description
+    consolePictureUrl
+    promotionalPictures
+    releases {
+      ...PlatformReleaseFields
+    }
     gameCount
     createdAt
     updatedAt
   }
+  ${PLATFORM_RELEASE_FRAGMENT}
 `;
 
 // GameVersion fragments
