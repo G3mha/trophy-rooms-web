@@ -65,10 +65,11 @@ export const DLC_FRAGMENT = gql`
     effectiveCoverUrl
     releaseDate
     price
-    gameId
-    game {
+    gameFamilyId
+    gameFamily {
       id
       title
+      slug
     }
     achievementSetCount
     createdAt
@@ -141,8 +142,8 @@ export const GET_GAMES_ADMIN = gql`
 `;
 
 export const GET_ACHIEVEMENT_SETS_ADMIN = gql`
-  query GetAchievementSetsAdmin($gameId: ID, $type: AchievementSetType, $visibility: AchievementSetVisibility) {
-    achievementSets(gameId: $gameId, type: $type, visibility: $visibility) {
+  query GetAchievementSetsAdmin($gameFamilyId: ID, $type: AchievementSetType, $visibility: AchievementSetVisibility) {
+    achievementSets(gameFamilyId: $gameFamilyId, type: $type, visibility: $visibility) {
       ...AchievementSetFields
     }
   }
@@ -189,8 +190,8 @@ export const GET_USERS_ADMIN = gql`
 `;
 
 export const GET_GAME_VERSIONS = gql`
-  query GetGameVersions($gameId: ID) {
-    gameVersions(gameId: $gameId) {
+  query GetGameVersions($gameFamilyId: ID) {
+    gameVersions(gameFamilyId: $gameFamilyId) {
       ...GameVersionFields
     }
   }
@@ -208,8 +209,8 @@ export const GET_GAME_VERSION = gql`
 
 // DLC queries
 export const GET_DLCS = gql`
-  query GetDLCs($gameId: ID!) {
-    dlcs(gameId: $gameId) {
+  query GetDLCs($gameFamilyId: ID!) {
+    dlcs(gameFamilyId: $gameFamilyId) {
       ...DLCFields
     }
   }

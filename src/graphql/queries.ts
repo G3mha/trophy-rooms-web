@@ -4,6 +4,7 @@ import { gql } from "@apollo/client";
 export const GAME_FRAGMENT = gql`
   fragment GameFields on Game {
     id
+    gameFamilyId
     title
     description
     coverUrl
@@ -14,17 +15,14 @@ export const GAME_FRAGMENT = gql`
     esrbRating
     screenshots
     type
-    baseGames {
+    baseGameFamilies {
       id
       title
+      slug
       coverUrl
-      platform {
-        id
-        name
-        slug
-      }
+      type
     }
-    baseGameCount
+    baseGameFamilyCount
     platform {
       id
       name
@@ -46,9 +44,11 @@ export const ACHIEVEMENT_SET_FRAGMENT = gql`
     visibility
     createdByUserId
     achievementCount
-    game {
+    gameFamilyId
+    gameFamily {
       id
       title
+      slug
     }
     createdAt
     updatedAt
@@ -100,9 +100,11 @@ export const ACHIEVEMENT_FRAGMENT = gql`
       type
       visibility
       createdByUserId
-      game {
+      gameFamilyId
+      gameFamily {
         id
         title
+        slug
       }
     }
   }
@@ -201,8 +203,8 @@ export const GET_ACHIEVEMENT = gql`
 `;
 
 export const GET_ACHIEVEMENT_SETS = gql`
-  query GetAchievementSets($gameId: ID, $visibility: AchievementSetVisibility, $type: AchievementSetType) {
-    achievementSets(gameId: $gameId, visibility: $visibility, type: $type) {
+  query GetAchievementSets($gameFamilyId: ID, $visibility: AchievementSetVisibility, $type: AchievementSetType) {
+    achievementSets(gameFamilyId: $gameFamilyId, visibility: $visibility, type: $type) {
       ...AchievementSetFields
     }
   }
@@ -255,9 +257,11 @@ export const GET_MY_ACHIEVEMENTS = gql`
             achievementSet {
               id
               title
-              game {
+              gameFamilyId
+              gameFamily {
                 id
                 title
+                slug
               }
             }
           }
@@ -324,9 +328,11 @@ export const GET_USER = gql`
           tier
           points
           achievementSet {
-            game {
+            gameFamilyId
+            gameFamily {
               id
               title
+              slug
             }
           }
         }
@@ -353,9 +359,11 @@ export const GET_USER_ACHIEVEMENTS = gql`
             achievementSet {
               id
               title
-              game {
+              gameFamilyId
+              gameFamily {
                 id
                 title
+                slug
               }
             }
           }
@@ -475,7 +483,7 @@ export const GET_ACTIVITY_FEED = gql`
       achievementTitle
       achievementTier
       achievementPoints
-      gameId
+      gameFamilyId
       gameTitle
       earnedAt
     }
@@ -493,7 +501,7 @@ export const GET_RECENT_ACHIEVEMENT_ACTIVITY = gql`
       achievementTitle
       achievementTier
       achievementPoints
-      gameId
+      gameFamilyId
       gameTitle
       earnedAt
     }
@@ -507,7 +515,7 @@ export const GET_RECENT_TROPHY_ACTIVITY = gql`
       userId
       userName
       userEmail
-      gameId
+      gameFamilyId
       gameTitle
       earnedAt
     }
@@ -518,7 +526,7 @@ export const GET_RECENT_TROPHY_ACTIVITY = gql`
 export const GET_MY_GAME_PROGRESS = gql`
   query GetMyGameProgress {
     myGameProgress {
-      gameId
+      gameFamilyId
       gameTitle
       gameCoverUrl
       earnedCount
@@ -536,7 +544,7 @@ export const GET_MY_GAME_PROGRESS = gql`
 export const GET_USER_GAME_PROGRESS = gql`
   query GetUserGameProgress($userId: String!) {
     userGameProgress(userId: $userId) {
-      gameId
+      gameFamilyId
       gameTitle
       gameCoverUrl
       earnedCount
@@ -752,6 +760,7 @@ export const GET_GAMES_BY_TITLE = gql`
   query GetGamesByTitle($title: String!) {
     gamesByTitle(title: $title) {
       id
+      gameFamilyId
       title
       description
       coverUrl
