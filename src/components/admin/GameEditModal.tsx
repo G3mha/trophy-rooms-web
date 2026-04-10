@@ -128,9 +128,10 @@ export function GameEditModal({
       setCoverUrl(game.coverUrl || "");
       setPlatformId(game.platform?.id || "");
       setType(game.type || "BASE_GAME");
-      setBaseGame(game.baseGame || null);
-      // Initialize baseGames with the current base game if it exists
-      setBaseGames(game.baseGame ? [game.baseGame] : []);
+      // Initialize from baseGames array (new multi-select)
+      const existingBaseGames = game.baseGames || [];
+      setBaseGames(existingBaseGames);
+      setBaseGame(existingBaseGames[0] || null);
       setAdditionalPlatformIds(new Set());
       setErrors({});
     }
@@ -172,6 +173,11 @@ export function GameEditModal({
         ? primaryBaseGame.platform.id
         : platformId;
 
+      // Build baseGameIds from selected base games
+      const baseGameIds = type !== "BASE_GAME"
+        ? (useMultiBaseGameSelect ? baseGames.map(g => g.id) : (primaryBaseGame ? [primaryBaseGame.id] : []))
+        : [];
+
       // Update the current game
       const { data } = await updateGame({
         variables: {
@@ -182,7 +188,7 @@ export function GameEditModal({
             coverUrl: coverUrl.trim() || null,
             platformId: effectivePlatformId,
             type,
-            baseGameId: type !== "BASE_GAME" ? primaryBaseGame?.id || null : null,
+            baseGameIds,
           },
         },
       });
@@ -199,7 +205,7 @@ export function GameEditModal({
           setErrors({ platformId: errorMessage });
         } else if (field === "coverUrl") {
           setErrors({ coverUrl: errorMessage });
-        } else if (field === "baseGameId") {
+        } else if (field === "baseGameIds") {
           setErrors({ baseGame: errorMessage });
         }
         return;
@@ -220,7 +226,7 @@ export function GameEditModal({
                   coverUrl: coverUrl.trim() || null,
                   platformId: additionalBaseGame.platform.id,
                   type,
-                  baseGameId: additionalBaseGame.id,
+                  baseGameIds: [additionalBaseGame.id],
                 },
               },
             });
@@ -243,7 +249,7 @@ export function GameEditModal({
                   coverUrl: coverUrl.trim() || null,
                   platformId: sibling.platform.id,
                   type,
-                  baseGameId: sibling.id,
+                  baseGameIds: [sibling.id],
                 },
               },
             });
