@@ -25,12 +25,24 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { X, Image as ImageIcon } from "lucide-react";
 import styles from "../page.module.css";
+
+interface PlatformRelease {
+  id: string;
+  region: string;
+  releaseDate: string;
+}
 
 interface Platform {
   id: string;
   name: string;
   slug: string;
+  description?: string;
+  consolePictureUrl?: string;
+  promotionalPictures?: string[];
+  releases?: PlatformRelease[];
   gameCount: number;
 }
 
@@ -43,12 +55,18 @@ export default function AdminPlatformsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newConsolePictureUrl, setNewConsolePictureUrl] = useState("");
+  const [newPromotionalPictures, setNewPromotionalPictures] = useState<string[]>([]);
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingPlatform, setEditingPlatform] = useState<Platform | null>(null);
   const [editName, setEditName] = useState("");
   const [editSlug, setEditSlug] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editConsolePictureUrl, setEditConsolePictureUrl] = useState("");
+  const [editPromotionalPictures, setEditPromotionalPictures] = useState<string[]>([]);
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -122,28 +140,41 @@ export default function AdminPlatformsPage() {
   const resetAddForm = () => {
     setNewName("");
     setNewSlug("");
+    setNewDescription("");
+    setNewConsolePictureUrl("");
+    setNewPromotionalPictures([]);
   };
 
   const resetEditForm = () => {
     setEditingPlatform(null);
     setEditName("");
     setEditSlug("");
+    setEditDescription("");
+    setEditConsolePictureUrl("");
+    setEditPromotionalPictures([]);
   };
 
   const openEditModal = (platform: Platform) => {
     setEditingPlatform(platform);
     setEditName(platform.name);
     setEditSlug(platform.slug);
+    setEditDescription(platform.description || "");
+    setEditConsolePictureUrl(platform.consolePictureUrl || "");
+    setEditPromotionalPictures(platform.promotionalPictures || []);
     setIsEditModalOpen(true);
   };
 
   const handleCreatePlatform = async () => {
     if (!newName || !newSlug) return;
+    const filteredPromoPics = newPromotionalPictures.filter(url => url.trim() !== "");
     await createPlatform({
       variables: {
         input: {
           name: newName,
           slug: newSlug,
+          description: newDescription || null,
+          consolePictureUrl: newConsolePictureUrl || null,
+          promotionalPictures: filteredPromoPics.length > 0 ? filteredPromoPics : null,
         },
       },
     });
@@ -151,12 +182,16 @@ export default function AdminPlatformsPage() {
 
   const handleUpdatePlatform = async () => {
     if (!editingPlatform || !editName || !editSlug) return;
+    const filteredPromoPics = editPromotionalPictures.filter(url => url.trim() !== "");
     await updatePlatform({
       variables: {
         id: editingPlatform.id,
         input: {
           name: editName,
           slug: editSlug,
+          description: editDescription || null,
+          consolePictureUrl: editConsolePictureUrl || null,
+          promotionalPictures: filteredPromoPics,
         },
       },
     });
@@ -236,7 +271,7 @@ export default function AdminPlatformsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className="flex flex-col gap-5 py-2">
+          <DialogBody className="flex flex-col gap-5 py-2 max-h-[60vh] overflow-y-auto">
             <FormField label="Platform Name" required>
               <Input
                 placeholder="e.g. PlayStation 5"
@@ -256,6 +291,70 @@ export default function AdminPlatformsPage() {
                 value={newSlug}
                 onChange={(e) => setNewSlug(e.target.value)}
               />
+            </FormField>
+
+            <FormField label="Description">
+              <Textarea
+                placeholder="A brief description of the platform..."
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                rows={3}
+              />
+            </FormField>
+
+            <FormField label="Console Picture URL" hint="Transparent PNG of the console">
+              <Input
+                placeholder="https://example.com/console.png"
+                value={newConsolePictureUrl}
+                onChange={(e) => setNewConsolePictureUrl(e.target.value)}
+              />
+              {newConsolePictureUrl && (
+                <div className="mt-2 flex justify-center">
+                  <img
+                    src={newConsolePictureUrl}
+                    alt="Console preview"
+                    className="max-h-24 object-contain rounded"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </div>
+              )}
+            </FormField>
+
+            <FormField label="Promotional Pictures" hint="Add URLs for promotional images">
+              <div className="flex flex-col gap-2">
+                {newPromotionalPictures.map((url, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="https://example.com/promo.png"
+                      value={url}
+                      onChange={(e) => {
+                        const updated = [...newPromotionalPictures];
+                        updated[index] = e.target.value;
+                        setNewPromotionalPictures(updated);
+                      }}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        setNewPromotionalPictures(newPromotionalPictures.filter((_, i) => i !== index));
+                      }}
+                    >
+                      <X size={14} />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNewPromotionalPictures([...newPromotionalPictures, ""])}
+                >
+                  <ImageIcon size={14} />
+                  Add Picture URL
+                </Button>
+              </div>
             </FormField>
           </DialogBody>
 
@@ -293,7 +392,7 @@ export default function AdminPlatformsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className="flex flex-col gap-5 py-2">
+          <DialogBody className="flex flex-col gap-5 py-2 max-h-[60vh] overflow-y-auto">
             <FormField label="Platform Name" required>
               <Input
                 placeholder="e.g. PlayStation 5"
@@ -309,6 +408,85 @@ export default function AdminPlatformsPage() {
                 onChange={(e) => setEditSlug(e.target.value)}
               />
             </FormField>
+
+            <FormField label="Description">
+              <Textarea
+                placeholder="A brief description of the platform..."
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                rows={3}
+              />
+            </FormField>
+
+            <FormField label="Console Picture URL" hint="Transparent PNG of the console">
+              <Input
+                placeholder="https://example.com/console.png"
+                value={editConsolePictureUrl}
+                onChange={(e) => setEditConsolePictureUrl(e.target.value)}
+              />
+              {editConsolePictureUrl && (
+                <div className="mt-2 flex justify-center">
+                  <img
+                    src={editConsolePictureUrl}
+                    alt="Console preview"
+                    className="max-h-24 object-contain rounded"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                </div>
+              )}
+            </FormField>
+
+            <FormField label="Promotional Pictures" hint="Add URLs for promotional images">
+              <div className="flex flex-col gap-2">
+                {editPromotionalPictures.map((url, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="https://example.com/promo.png"
+                      value={url}
+                      onChange={(e) => {
+                        const updated = [...editPromotionalPictures];
+                        updated[index] = e.target.value;
+                        setEditPromotionalPictures(updated);
+                      }}
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => {
+                        setEditPromotionalPictures(editPromotionalPictures.filter((_, i) => i !== index));
+                      }}
+                    >
+                      <X size={14} />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditPromotionalPictures([...editPromotionalPictures, ""])}
+                >
+                  <ImageIcon size={14} />
+                  Add Picture URL
+                </Button>
+              </div>
+            </FormField>
+
+            {editingPlatform?.releases && editingPlatform.releases.length > 0 && (
+              <FormField label="Release Dates">
+                <div className="flex flex-col gap-1 text-sm">
+                  {editingPlatform.releases.map((release) => (
+                    <div key={release.id} className="flex justify-between items-center py-1 px-2 bg-muted rounded">
+                      <span className="font-medium">{release.region}</span>
+                      <span className="text-muted-foreground">
+                        {new Date(release.releaseDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </FormField>
+            )}
           </DialogBody>
 
           <DialogFooter>
