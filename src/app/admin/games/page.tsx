@@ -282,7 +282,7 @@ export default function AdminGamesPage() {
       setErrors({ platformId: message });
     } else if (field === "coverUrl") {
       setErrors({ coverUrl: message });
-    } else if (field === "baseGameId") {
+    } else if (field === "baseGameIds") {
       setErrors({ baseGame: message });
     }
   };
@@ -314,7 +314,7 @@ export default function AdminGamesPage() {
 
     try {
       // Build list of games to create
-      const gamesToCreate: Array<{ platformId: string; baseGameId: string }> = [];
+      const gamesToCreate: Array<{ platformId: string; baseGameIds: string[] }> = [];
 
       if (isDlcOrExpansion) {
         // Create for each selected sibling platform
@@ -323,7 +323,7 @@ export default function AdminGamesPage() {
           if (sibling?.platform?.id) {
             gamesToCreate.push({
               platformId: sibling.platform.id,
-              baseGameId: sibling.id,
+              baseGameIds: [sibling.id],
             });
           }
         }
@@ -331,7 +331,7 @@ export default function AdminGamesPage() {
         // Single platform creation (BASE_GAME)
         gamesToCreate.push({
           platformId: newPlatformId,
-          baseGameId: "",
+          baseGameIds: [],
         });
       }
 
@@ -347,7 +347,7 @@ export default function AdminGamesPage() {
               coverUrl: newCoverUrl.trim() || null,
               platformId: gameConfig.platformId,
               type: newType,
-              baseGameId: newType !== "BASE_GAME" ? gameConfig.baseGameId || null : null,
+              baseGameIds: newType !== "BASE_GAME" ? gameConfig.baseGameIds : [],
             },
           },
         });
