@@ -45,6 +45,7 @@ export const GAME_VERSION_FRAGMENT = gql`
     effectiveCoverUrl
     releaseDate
     isDefault
+    digitalOnly
     gameIds
     gameCount
     games {
