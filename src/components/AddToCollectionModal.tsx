@@ -119,6 +119,13 @@ export function AddToCollectionModal({
 
   const loading = adding || updating;
 
+  // Get the selected version object
+  const selectedVersion = versions.find((v) => v.id === gameVersionId);
+  const isDigitalOnlyVersion = selectedVersion?.digitalOnly ?? false;
+
+  // Check if form is valid (version required when versions exist)
+  const isFormValid = versions.length === 0 || gameVersionId !== "";
+
   // Initialize form when editing
   useEffect(() => {
     if (editingItem) {
@@ -136,6 +143,28 @@ export function AddToCollectionModal({
       resetForm();
     }
   }, [editingItem]);
+
+  // Auto-select version: if only one version, select it; otherwise select default
+  useEffect(() => {
+    if (editingItem) return; // Don't auto-select when editing
+    if (gameVersionId) return; // Don't override existing selection
+
+    if (versions.length === 1) {
+      setGameVersionId(versions[0].id);
+    } else if (versions.length > 1) {
+      const defaultVersion = versions.find((v) => v.isDefault);
+      if (defaultVersion) {
+        setGameVersionId(defaultVersion.id);
+      }
+    }
+  }, [versions, editingItem, gameVersionId]);
+
+  // Enforce isDigital when a digital-only version is selected
+  useEffect(() => {
+    if (isDigitalOnlyVersion && !isDigital) {
+      setIsDigital(true);
+    }
+  }, [isDigitalOnlyVersion, isDigital]);
 
   const resetForm = () => {
     setPlatformId("");
@@ -227,21 +256,30 @@ export function AddToCollectionModal({
 
           {versions.length > 0 && (
             <div className={styles.field}>
-              <label className={styles.label}>Version</label>
-              <select
-                className={styles.select}
-                value={gameVersionId}
-                onChange={(e) => setGameVersionId(e.target.value)}
-              >
-                <option value="">Select version...</option>
-                {versions.map((version) => (
-                  <option key={version.id} value={version.id}>
-                    {version.name}
-                    {version.isDefault ? " (Default)" : ""}
-                    {version.digitalOnly ? " - Digital Only" : ""}
-                  </option>
-                ))}
-              </select>
+              <label className={styles.label}>
+                Version {versions.length > 0 && <span className={styles.required}>*</span>}
+              </label>
+              {versions.length === 1 ? (
+                <div className={styles.readOnlyValue}>
+                  {versions[0].name}
+                  {versions[0].digitalOnly && " (Digital Only)"}
+                </div>
+              ) : (
+                <select
+                  className={styles.select}
+                  value={gameVersionId}
+                  onChange={(e) => setGameVersionId(e.target.value)}
+                  required
+                >
+                  {versions.map((version) => (
+                    <option key={version.id} value={version.id}>
+                      {version.name}
+                      {version.isDefault ? " (Default)" : ""}
+                      {version.digitalOnly ? " - Digital Only" : ""}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           )}
 
@@ -249,12 +287,16 @@ export function AddToCollectionModal({
             <button
               type="button"
               className={`${styles.sealedButton} ${isDigital ? styles.active : ""}`}
-              onClick={() => setIsDigital(!isDigital)}
+              onClick={() => !isDigitalOnlyVersion && setIsDigital(!isDigital)}
+              disabled={isDigitalOnlyVersion}
             >
               <Cloud size={18} />
               <span>Digital Copy</span>
             </button>
-            {isDigital && (
+            {isDigitalOnlyVersion && (
+              <p className={styles.hint}>This version is only available as a digital copy.</p>
+            )}
+            {isDigital && !isDigitalOnlyVersion && (
               <p className={styles.hint}>Physical components are not applicable for digital copies.</p>
             )}
           </div>
@@ -351,7 +393,7 @@ export function AddToCollectionModal({
             <button
               type="submit"
               className={styles.submitButton}
-              disabled={loading}
+              disabled={loading || !isFormValid}
             >
               {loading
                 ? "Saving..."
