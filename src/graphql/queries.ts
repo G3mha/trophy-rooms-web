@@ -782,3 +782,22 @@ export const GET_GAMES_BY_TITLE = gql`
     }
   }
 `;
+
+// Global search query
+export const GLOBAL_SEARCH = gql`
+  query GlobalSearch($query: String!, $limit: Int) {
+    globalSearch(query: $query, limit: $limit) {
+      items {
+        id
+        type
+        title
+        coverUrl
+        subtitle
+      }
+      gameCount
+      bundleCount
+      dlcCount
+      totalCount
+    }
+  }
+`;
