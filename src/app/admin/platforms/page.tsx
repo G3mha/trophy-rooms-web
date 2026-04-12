@@ -9,6 +9,9 @@ import {
   UPDATE_PLATFORM,
   DELETE_PLATFORM,
   BULK_DELETE_PLATFORMS,
+  CREATE_PLATFORM_RELEASE,
+  UPDATE_PLATFORM_RELEASE,
+  DELETE_PLATFORM_RELEASE,
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
@@ -26,7 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Image as ImageIcon } from "lucide-react";
+import { X, Image as ImageIcon, Calendar } from "lucide-react";
 import styles from "../page.module.css";
 
 interface PlatformRelease {
@@ -67,6 +70,13 @@ export default function AdminPlatformsPage() {
   const [editDescription, setEditDescription] = useState("");
   const [editConsolePictureUrl, setEditConsolePictureUrl] = useState("");
   const [editPromotionalPictures, setEditPromotionalPictures] = useState<string[]>([]);
+
+  // New release state (for adding releases in edit modal)
+  const [newReleaseRegion, setNewReleaseRegion] = useState("");
+  const [newReleaseDate, setNewReleaseDate] = useState("");
+  const [editingReleaseId, setEditingReleaseId] = useState<string | null>(null);
+  const [editReleaseRegion, setEditReleaseRegion] = useState("");
+  const [editReleaseDate, setEditReleaseDate] = useState("");
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -119,6 +129,35 @@ export default function AdminPlatformsPage() {
     onError: (error) => toast.error(error.message || "Failed to delete platforms."),
   });
 
+  const [createRelease, { loading: creatingRelease }] = useMutation(CREATE_PLATFORM_RELEASE, {
+    onCompleted: () => {
+      refetch();
+      setNewReleaseRegion("");
+      setNewReleaseDate("");
+      toast.success("Release date added.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to add release date."),
+  });
+
+  const [updateRelease, { loading: updatingRelease }] = useMutation(UPDATE_PLATFORM_RELEASE, {
+    onCompleted: () => {
+      refetch();
+      setEditingReleaseId(null);
+      setEditReleaseRegion("");
+      setEditReleaseDate("");
+      toast.success("Release date updated.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to update release date."),
+  });
+
+  const [deleteRelease] = useMutation(DELETE_PLATFORM_RELEASE, {
+    onCompleted: () => {
+      refetch();
+      toast.success("Release date deleted.");
+    },
+    onError: (error) => toast.error(error.message || "Failed to delete release date."),
+  });
+
   const platforms: Platform[] = platformsData?.platforms || [];
 
   // Filter platforms based on search
@@ -152,6 +191,11 @@ export default function AdminPlatformsPage() {
     setEditDescription("");
     setEditConsolePictureUrl("");
     setEditPromotionalPictures([]);
+    setNewReleaseRegion("");
+    setNewReleaseDate("");
+    setEditingReleaseId(null);
+    setEditReleaseRegion("");
+    setEditReleaseDate("");
   };
 
   const openEditModal = (platform: Platform) => {
@@ -195,6 +239,49 @@ export default function AdminPlatformsPage() {
         },
       },
     });
+  };
+
+  const handleAddRelease = async () => {
+    if (!editingPlatform || !newReleaseRegion || !newReleaseDate) return;
+    await createRelease({
+      variables: {
+        input: {
+          platformId: editingPlatform.id,
+          region: newReleaseRegion,
+          releaseDate: newReleaseDate,
+        },
+      },
+    });
+  };
+
+  const handleUpdateRelease = async () => {
+    if (!editingReleaseId || !editReleaseRegion || !editReleaseDate) return;
+    await updateRelease({
+      variables: {
+        id: editingReleaseId,
+        input: {
+          region: editReleaseRegion,
+          releaseDate: editReleaseDate,
+        },
+      },
+    });
+  };
+
+  const handleDeleteRelease = async (releaseId: string) => {
+    await deleteRelease({ variables: { id: releaseId } });
+  };
+
+  const startEditRelease = (release: PlatformRelease) => {
+    setEditingReleaseId(release.id);
+    setEditReleaseRegion(release.region);
+    // Convert date to YYYY-MM-DD format for input
+    setEditReleaseDate(release.releaseDate.split("T")[0]);
+  };
+
+  const cancelEditRelease = () => {
+    setEditingReleaseId(null);
+    setEditReleaseRegion("");
+    setEditReleaseDate("");
   };
 
   const openDeleteConfirm = (platform: Platform) => {
@@ -325,7 +412,19 @@ export default function AdminPlatformsPage() {
             <FormField label="Promotional Pictures" hint="Add URLs for promotional images">
               <div className="flex flex-col gap-2">
                 {newPromotionalPictures.map((url, index) => (
-                  <div key={index} className="flex gap-2">
+                  <div key={index} className="flex gap-2 items-start">
+                    {url && (
+                      <div className="w-16 h-12 flex-shrink-0 bg-muted rounded overflow-hidden">
+                        <img
+                          src={url}
+                          alt={`Promo ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      </div>
+                    )}
                     <Input
                       placeholder="https://example.com/promo.png"
                       value={url}
@@ -334,6 +433,7 @@ export default function AdminPlatformsPage() {
                         updated[index] = e.target.value;
                         setNewPromotionalPictures(updated);
                       }}
+                      className="flex-1"
                     />
                     <Button
                       variant="outline"
@@ -441,7 +541,19 @@ export default function AdminPlatformsPage() {
             <FormField label="Promotional Pictures" hint="Add URLs for promotional images">
               <div className="flex flex-col gap-2">
                 {editPromotionalPictures.map((url, index) => (
-                  <div key={index} className="flex gap-2">
+                  <div key={index} className="flex gap-2 items-start">
+                    {url && (
+                      <div className="w-16 h-12 flex-shrink-0 bg-muted rounded overflow-hidden">
+                        <img
+                          src={url}
+                          alt={`Promo ${index + 1}`}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                          }}
+                        />
+                      </div>
+                    )}
                     <Input
                       placeholder="https://example.com/promo.png"
                       value={url}
@@ -450,6 +562,7 @@ export default function AdminPlatformsPage() {
                         updated[index] = e.target.value;
                         setEditPromotionalPictures(updated);
                       }}
+                      className="flex-1"
                     />
                     <Button
                       variant="outline"
@@ -473,20 +586,96 @@ export default function AdminPlatformsPage() {
               </div>
             </FormField>
 
-            {editingPlatform?.releases && editingPlatform.releases.length > 0 && (
-              <FormField label="Release Dates">
-                <div className="flex flex-col gap-1 text-sm">
-                  {editingPlatform.releases.map((release) => (
-                    <div key={release.id} className="flex justify-between items-center py-1 px-2 bg-muted rounded">
-                      <span className="font-medium">{release.region}</span>
-                      <span className="text-muted-foreground">
-                        {new Date(release.releaseDate).toLocaleDateString()}
-                      </span>
-                    </div>
-                  ))}
+            <FormField label="Release Dates" hint="Manage regional release dates">
+              <div className="flex flex-col gap-2">
+                {/* Existing releases */}
+                {editingPlatform?.releases?.map((release) => (
+                  <div key={release.id} className="flex gap-2 items-center">
+                    {editingReleaseId === release.id ? (
+                      <>
+                        <Input
+                          placeholder="Region (e.g. NA, EU, JP)"
+                          value={editReleaseRegion}
+                          onChange={(e) => setEditReleaseRegion(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Input
+                          type="date"
+                          value={editReleaseDate}
+                          onChange={(e) => setEditReleaseDate(e.target.value)}
+                          className="w-36"
+                        />
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={handleUpdateRelease}
+                          disabled={updatingRelease || !editReleaseRegion || !editReleaseDate}
+                        >
+                          {updatingRelease ? "..." : "Save"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={cancelEditRelease}
+                        >
+                          <X size={14} />
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex-1 flex items-center gap-2 py-2 px-3 bg-muted rounded text-sm">
+                          <span className="font-medium">{release.region}</span>
+                          <span className="text-muted-foreground">-</span>
+                          <span className="text-muted-foreground">
+                            {new Date(release.releaseDate).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => startEditRelease(release)}
+                        >
+                          <Pencil size={14} />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteRelease(release.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                ))}
+
+                {/* Add new release form */}
+                <div className="flex gap-2 items-center pt-2 border-t border-border mt-1">
+                  <Input
+                    placeholder="Region (e.g. NA, EU, JP)"
+                    value={newReleaseRegion}
+                    onChange={(e) => setNewReleaseRegion(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Input
+                    type="date"
+                    value={newReleaseDate}
+                    onChange={(e) => setNewReleaseDate(e.target.value)}
+                    className="w-36"
+                  />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddRelease}
+                    disabled={creatingRelease || !newReleaseRegion || !newReleaseDate}
+                  >
+                    <Calendar size={14} />
+                    {creatingRelease ? "Adding..." : "Add"}
+                  </Button>
                 </div>
-              </FormField>
-            )}
+              </div>
+            </FormField>
           </DialogBody>
 
           <DialogFooter>
