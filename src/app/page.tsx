@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
 import { Gamepad2, Star, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
-import { GameCard, Button, LoadingSpinner, EmptyState } from "@/components";
+import { GameCard, Button, LoadingSpinner, EmptyState, GlobalSearch } from "@/components";
 import styles from "./page.module.css";
 
 interface GameNode {
@@ -41,6 +41,7 @@ export default function Home() {
             Your personal trophy room across every platform. Track achievements,
             earn trophies, and showcase your gaming legacy.
           </p>
+          <GlobalSearch className={styles.heroSearch} />
           <div className={styles.heroActions}>
             {isSignedIn ? (
               <>
