@@ -20,3 +20,4 @@ export { AddToCollectionModal } from "./AddToCollectionModal";
 export { BundleCard } from "./BundleCard";
 export { Pagination } from "./Pagination";
 export { FilterTabs, type FilterTab } from "./FilterTabs";
+export { GlobalSearch } from "./GlobalSearch";
