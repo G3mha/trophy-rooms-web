@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
-import { CLONE_GAME_TO_PLATFORM } from "@/graphql/admin_mutations";
+import { ADD_PLATFORM_TO_GAME_FAMILY } from "@/graphql/admin_mutations";
 import { Button } from "@/components";
 import {
   Dialog,
@@ -24,9 +24,10 @@ interface Platform {
 }
 
 interface GameCloneModalProps {
-  gameId: string;
+  gameFamilyId: string;
   gameTitle: string;
-  platformId?: string;
+  /** Current platform ID to exclude from selection */
+  currentPlatformId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Called after successful clone, useful for refetching lists */
@@ -34,30 +35,29 @@ interface GameCloneModalProps {
 }
 
 export function GameCloneModal({
-  gameId,
+  gameFamilyId,
   gameTitle,
-  platformId,
+  currentPlatformId,
   open,
   onOpenChange,
   onSuccess,
 }: GameCloneModalProps) {
   const [targetPlatformIds, setTargetPlatformIds] = useState<Set<string>>(new Set());
-  const [copyAchievements, setCopyAchievements] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { data: platformsData } = useQuery(GET_PLATFORMS);
   const platforms = useMemo(() => platformsData?.platforms || [], [platformsData]);
 
-  const [cloneGame, { loading: cloning }] = useMutation(CLONE_GAME_TO_PLATFORM);
+  const [addPlatform, { loading: adding }] = useMutation(ADD_PLATFORM_TO_GAME_FAMILY);
 
-  const handleClone = async () => {
+  const handleAddPlatforms = async () => {
     if (targetPlatformIds.size === 0) {
       setError("Select at least one target platform.");
       return;
     }
 
-    if (platformId && targetPlatformIds.has(platformId)) {
-      setError("Cannot clone to the source platform.");
+    if (currentPlatformId && targetPlatformIds.has(currentPlatformId)) {
+      setError("Cannot add the current platform.");
       return;
     }
 
@@ -66,16 +66,15 @@ export function GameCloneModal({
     try {
       let successCount = 0;
 
-      for (const targetId of targetPlatformIds) {
-        const { data } = await cloneGame({
+      for (const platformId of targetPlatformIds) {
+        const { data } = await addPlatform({
           variables: {
-            gameId,
-            targetPlatformId: targetId,
-            copyAchievementSets: copyAchievements,
+            gameFamilyId,
+            platformId,
           },
         });
 
-        if (data?.cloneGameToPlatform?.success) {
+        if (data?.addPlatformToGameFamily?.success) {
           successCount++;
         }
       }
@@ -84,22 +83,21 @@ export function GameCloneModal({
       resetForm();
 
       if (successCount === 0) {
-        toast.error("Failed to clone game.");
+        toast.error("Failed to add platforms.");
       } else if (successCount === 1) {
-        toast.success(`Cloned ${gameTitle} to 1 platform.`);
+        toast.success(`Added ${gameTitle} to 1 platform.`);
       } else {
-        toast.success(`Cloned ${gameTitle} to ${successCount} platforms.`);
+        toast.success(`Added ${gameTitle} to ${successCount} platforms.`);
       }
 
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unable to clone game.");
+      setError(err instanceof Error ? err.message : "Unable to add platforms.");
     }
   };
 
   const resetForm = () => {
     setTargetPlatformIds(new Set());
-    setCopyAchievements(false);
     setError(null);
   };
 
@@ -125,9 +123,9 @@ export function GameCloneModal({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[460px]">
         <DialogHeader>
-          <DialogTitle>Clone to Platforms</DialogTitle>
+          <DialogTitle>Add to Platforms</DialogTitle>
           <DialogDescription>
-            Create copies of &quot;{gameTitle}&quot; on other platforms.
+            Add &quot;{gameTitle}&quot; to additional platforms.
           </DialogDescription>
         </DialogHeader>
 
@@ -135,12 +133,12 @@ export function GameCloneModal({
           <FormField
             label="Target Platforms"
             required
-            hint="Select platforms to clone this game to."
+            hint="Select platforms to add this game to."
             error={error ?? undefined}
           >
             <div className="flex flex-col gap-1.5 max-h-[200px] overflow-y-auto">
               {platforms
-                .filter((p: Platform) => p.id !== platformId)
+                .filter((p: Platform) => p.id !== currentPlatformId)
                 .map((platform: Platform) => (
                   <SelectableButton
                     key={platform.id}
@@ -152,31 +150,16 @@ export function GameCloneModal({
                 ))}
             </div>
           </FormField>
-
-          <FormField
-            label=""
-            hint="Copy the related achievement sets and achievements into each cloned game."
-          >
-            <label className="flex items-center gap-2 text-sm text-[var(--text-primary)] cursor-pointer">
-              <input
-                type="checkbox"
-                className="w-4 h-4 cursor-pointer"
-                checked={copyAchievements}
-                onChange={(e) => setCopyAchievements(e.target.checked)}
-              />
-              <span>Copy achievement sets</span>
-            </label>
-          </FormField>
         </DialogBody>
 
         <DialogFooter>
           <Button variant="secondary" onClick={handleClose}>
             Cancel
           </Button>
-          <Button onClick={handleClone} loading={cloning}>
+          <Button onClick={handleAddPlatforms} loading={adding}>
             {targetPlatformIds.size > 0
-              ? `Clone to ${targetPlatformIds.size} Platform${targetPlatformIds.size > 1 ? "s" : ""}`
-              : "Clone Game"}
+              ? `Add to ${targetPlatformIds.size} Platform${targetPlatformIds.size > 1 ? "s" : ""}`
+              : "Add Platform"}
           </Button>
         </DialogFooter>
       </DialogContent>
