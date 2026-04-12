@@ -1,0 +1,33 @@
+.container {
+  width: 100%;
+}
+
+.text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  white-space: pre-line;
+}
+
+.collapsed {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.toggleButton {
+  margin-top: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--nintendo-red);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.toggleButton:hover {
+  opacity: 0.8;
+}

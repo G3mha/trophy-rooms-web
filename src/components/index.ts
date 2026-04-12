@@ -21,3 +21,4 @@ export { BundleCard } from "./BundleCard";
 export { Pagination } from "./Pagination";
 export { FilterTabs, type FilterTab } from "./FilterTabs";
 export { GlobalSearch } from "./GlobalSearch";
+export { ExpandableText } from "./ExpandableText";
