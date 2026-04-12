@@ -69,6 +69,7 @@ interface Platform {
 
 interface Game {
   id: string;
+  gameFamilyId: string;
   title: string;
   description?: string | null;
   coverUrl?: string | null;
@@ -813,9 +814,9 @@ export default function AdminGamesPage() {
 
       {cloneGame && (
         <GameCloneModal
-          gameId={cloneGame.id}
+          gameFamilyId={cloneGame.gameFamilyId}
           gameTitle={cloneGame.title}
-          platformId={cloneGame.platform?.id}
+          currentPlatformId={cloneGame.platform?.id}
           open={isCloneModalOpen}
           onOpenChange={(open) => {
             setIsCloneModalOpen(open);

@@ -72,6 +72,7 @@ interface Platform {
 
 interface Game {
   id: string;
+  gameFamilyId: string;
   title: string;
   description?: string | null;
   coverUrl?: string | null;
@@ -221,6 +222,7 @@ export default function GameDetailPage({
         title: game.title,
         platformId: game.platform?.id,
         platformName: game.platform?.name,
+        gameFamilyId: game.gameFamilyId,
       });
     }
     return () => clearEntity();
