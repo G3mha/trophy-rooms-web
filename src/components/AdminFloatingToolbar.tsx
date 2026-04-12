@@ -102,7 +102,7 @@ export function AdminFloatingToolbar() {
           },
           {
             icon: <Copy size={16} />,
-            label: "Clone to Platforms",
+            label: "Add to Platforms",
             onClick: () => setIsCloneModalOpen(true),
           },
           {
@@ -210,9 +210,9 @@ export function AdminFloatingToolbar() {
             enableMultiPlatformCreation
           />
           <GameCloneModal
-            gameId={currentEntity.id}
+            gameFamilyId={currentEntity.gameFamilyId || currentEntity.id}
             gameTitle={currentEntity.title}
-            platformId={currentEntity.platformId}
+            currentPlatformId={currentEntity.platformId}
             open={isCloneModalOpen}
             onOpenChange={setIsCloneModalOpen}
             onSuccess={() => router.refresh()}
