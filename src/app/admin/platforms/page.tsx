@@ -13,8 +13,9 @@ import {
   UPDATE_PLATFORM_RELEASE,
   DELETE_PLATFORM_RELEASE,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Plus, Search } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, Gamepad2 } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
+import { handlePlatformIconError } from "@/lib/image-utils";
 import { Button, LoadingSpinner } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
@@ -739,6 +740,18 @@ export default function AdminPlatformsPage() {
                 setSelectedIds(newSet);
               }}
             />
+            <div className="w-8 h-8 flex-shrink-0 bg-[var(--bg-secondary)] rounded flex items-center justify-center overflow-hidden">
+              {platform.consolePictureUrl ? (
+                <img
+                  src={platform.consolePictureUrl}
+                  alt=""
+                  className="w-full h-full object-contain p-1"
+                  onError={handlePlatformIconError}
+                />
+              ) : (
+                <Gamepad2 size={16} className="text-[var(--text-muted)]" />
+              )}
+            </div>
             <div className={styles.itemInfo}>
               <span className={styles.itemName}>{platform.name}</span>
               <span className={styles.itemSlug}>{platform.slug}</span>
