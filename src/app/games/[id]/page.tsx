@@ -14,7 +14,7 @@ import {
   CREATE_ACHIEVEMENT,
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
-import { AchievementCard, Button, LoadingSpinner, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector } from "@/components";
+import { AchievementCard, Button, LoadingSpinner, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
@@ -359,7 +359,7 @@ export default function GameDetailPage({
             )}
           </div>
           {game.description && (
-            <p className={styles.description}>{game.description}</p>
+            <ExpandableText text={game.description} maxLines={4} className={styles.description} />
           )}
 
           {/* Game Metadata */}

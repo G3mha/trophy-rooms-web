@@ -8,7 +8,7 @@ import { useAuth } from "@clerk/nextjs";
 import { Puzzle, Gamepad2, Package, Calendar, DollarSign, Check, Plus, Award } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { Button, LoadingSpinner, EmptyState, BuylistSelector } from "@/components";
+import { Button, LoadingSpinner, EmptyState, BuylistSelector, ExpandableText } from "@/components";
 import styles from "./page.module.css";
 
 const GET_DLC_DETAIL = gql`
@@ -266,7 +266,7 @@ export default function DLCDetailPage({
             </span>
           </div>
           {dlc.description && (
-            <p className={styles.description}>{dlc.description}</p>
+            <ExpandableText text={dlc.description} maxLines={4} className={styles.description} />
           )}
 
           {/* Metadata */}

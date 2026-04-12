@@ -8,7 +8,7 @@ import { useAuth } from "@clerk/nextjs";
 import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { Button, LoadingSpinner, EmptyState, GameCard, BuylistSelector } from "@/components";
+import { Button, LoadingSpinner, EmptyState, GameCard, BuylistSelector, ExpandableText } from "@/components";
 import styles from "./page.module.css";
 
 const GET_BUNDLE_DETAIL = gql`
@@ -276,7 +276,7 @@ export default function BundleDetailPage({
             </span>
           </div>
           {bundle.description && (
-            <p className={styles.description}>{bundle.description}</p>
+            <ExpandableText text={bundle.description} maxLines={4} className={styles.description} />
           )}
 
           {/* Metadata */}
