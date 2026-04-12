@@ -35,6 +35,8 @@ function getEntityLabel(type: EntityType): string {
       return "Bundle";
     case "achievementSet":
       return "Achievement Set";
+    case "dlc":
+      return "DLC";
   }
 }
 

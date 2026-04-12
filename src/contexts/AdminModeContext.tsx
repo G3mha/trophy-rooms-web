@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 import { useQuery } from "@apollo/client";
 import { GET_ME } from "@/graphql/queries";
 
-export type EntityType = "game" | "bundle" | "achievementSet";
+export type EntityType = "game" | "bundle" | "achievementSet" | "dlc";
 
 export interface CurrentEntity {
   type: EntityType;
