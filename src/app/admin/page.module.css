@@ -412,6 +412,14 @@
   color: #22c55e;
 }
 
+.badgeDigital {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
 .badgeCount {
   background: var(--bg-secondary);
   color: var(--text-secondary);

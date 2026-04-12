@@ -11,7 +11,7 @@ import {
   SET_DEFAULT_VERSION,
   BULK_DELETE_GAME_VERSIONS,
 } from "@/graphql/admin_mutations";
-import { Trash2, Pencil, Plus, Search, Star } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, Star, Cloud } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { handlePlatformIconError } from "@/lib/image-utils";
 import { Button, LoadingSpinner } from "@/components";
@@ -42,6 +42,7 @@ interface GameVersion {
   name: string;
   slug: string;
   isDefault: boolean;
+  digitalOnly: boolean;
   gameIds: string[];
   gameCount: number;
   games: LinkedGame[];
@@ -58,6 +59,7 @@ export default function AdminGameVersionsPage() {
   const [newSlug, setNewSlug] = useState("");
   const [newSelectedGames, setNewSelectedGames] = useState<SearchableGame[]>([]);
   const [newIsDefault, setNewIsDefault] = useState(false);
+  const [newDigitalOnly, setNewDigitalOnly] = useState(false);
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -65,6 +67,7 @@ export default function AdminGameVersionsPage() {
   const [editName, setEditName] = useState("");
   const [editSlug, setEditSlug] = useState("");
   const [editSelectedGames, setEditSelectedGames] = useState<SearchableGame[]>([]);
+  const [editDigitalOnly, setEditDigitalOnly] = useState(false);
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -152,6 +155,7 @@ export default function AdminGameVersionsPage() {
     setNewSlug("");
     setNewSelectedGames([]);
     setNewIsDefault(false);
+    setNewDigitalOnly(false);
   };
 
   const resetEditForm = () => {
@@ -159,12 +163,14 @@ export default function AdminGameVersionsPage() {
     setEditName("");
     setEditSlug("");
     setEditSelectedGames([]);
+    setEditDigitalOnly(false);
   };
 
   const openEditModal = (version: GameVersion) => {
     setEditingVersion(version);
     setEditName(version.name);
     setEditSlug(version.slug);
+    setEditDigitalOnly(version.digitalOnly);
     // Convert linked games to SearchableGame format
     setEditSelectedGames(
       version.games.map((g) => ({
@@ -185,6 +191,7 @@ export default function AdminGameVersionsPage() {
           slug: newSlug,
           gameIds: newSelectedGames.map((g) => g.id),
           isDefault: newIsDefault,
+          digitalOnly: newDigitalOnly,
         },
       },
     });
@@ -199,6 +206,7 @@ export default function AdminGameVersionsPage() {
           name: editName,
           slug: editSlug,
           gameIds: editSelectedGames.map((g) => g.id),
+          digitalOnly: editDigitalOnly,
         },
       },
     });
@@ -327,6 +335,18 @@ export default function AdminGameVersionsPage() {
                 Set as default version
               </label>
             </div>
+
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="new-digital-only"
+                checked={newDigitalOnly}
+                onCheckedChange={(checked) => setNewDigitalOnly(checked === true)}
+              />
+              <label htmlFor="new-digital-only" className="text-sm text-[var(--text-primary)] cursor-pointer flex items-center gap-2">
+                <Cloud size={14} />
+                Digital only (no physical release)
+              </label>
+            </div>
           </DialogBody>
 
           <DialogFooter>
@@ -388,6 +408,18 @@ export default function AdminGameVersionsPage() {
                 placeholder="Search and select games..."
               />
             </FormField>
+
+            <div className="flex items-center gap-3">
+              <Checkbox
+                id="edit-digital-only"
+                checked={editDigitalOnly}
+                onCheckedChange={(checked) => setEditDigitalOnly(checked === true)}
+              />
+              <label htmlFor="edit-digital-only" className="text-sm text-[var(--text-primary)] cursor-pointer flex items-center gap-2">
+                <Cloud size={14} />
+                Digital only (no physical release)
+              </label>
+            </div>
           </DialogBody>
 
           <DialogFooter>
@@ -490,9 +522,17 @@ export default function AdminGameVersionsPage() {
                       ))}
                     </div>
 
-                    {version.isDefault && (
-                      <span className={`${styles.badge} ${styles.badgeDefault} mt-2`}>Default</span>
-                    )}
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {version.isDefault && (
+                        <span className={`${styles.badge} ${styles.badgeDefault}`}>Default</span>
+                      )}
+                      {version.digitalOnly && (
+                        <span className={`${styles.badge} ${styles.badgeDigital}`}>
+                          <Cloud size={10} />
+                          Digital Only
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className={styles.itemActions}>
                     {!version.isDefault && (
