@@ -1,0 +1,432 @@
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.coverContainer {
+  flex-shrink: 0;
+}
+
+.cover {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: var(--border-radius-lg);
+  border: 2px solid var(--border-color);
+}
+
+.coverPlaceholder {
+  width: 200px;
+  height: 200px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.typeBadgeDLC {
+  background: rgba(59, 130, 246, 0.9);
+  color: white;
+}
+
+.typeBadgeExpansion {
+  background: rgba(168, 85, 247, 0.9);
+  color: white;
+}
+
+.typeBadgeFreeUpdate {
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+}
+
+.description {
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+}
+
+/* Metadata */
+.metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.metaIcon {
+  color: var(--text-muted);
+}
+
+.metaLabel {
+  color: var(--text-muted);
+}
+
+.metaValue {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.stats {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 20px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--nintendo-red);
+}
+
+.statLabel {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.headerActions {
+  display: flex;
+  gap: 12px;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 40px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.sectionCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 10px;
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Game Card (Parent Game) */
+.gameCard {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  max-width: 400px;
+}
+
+.gameCard:hover {
+  border-color: var(--nintendo-red);
+  box-shadow: 0 0 10px rgba(230, 0, 18, 0.1);
+}
+
+.gameImageContainer {
+  flex-shrink: 0;
+  width: 80px;
+  height: 100px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.gameImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gamePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.gameContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.gameName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Achievement Set List */
+.achievementSetList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.achievementSetCard {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.achievementSetIcon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  color: var(--switch-gold);
+}
+
+.achievementSetContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.achievementSetName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.achievementSetCount {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* Bundle List */
+.bundleList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bundleCard {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.bundleCard:hover {
+  border-color: var(--nintendo-red);
+  box-shadow: 0 0 10px rgba(230, 0, 18, 0.1);
+}
+
+.bundleImageContainer {
+  flex-shrink: 0;
+  width: 120px;
+  height: 68px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.bundleImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bundlePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.bundleContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+}
+
+.bundleName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.bundleType {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 2px 8px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Error */
+.error {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.error p {
+  color: var(--nintendo-red);
+  margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .titleRow {
+    justify-content: center;
+  }
+
+  .cover,
+  .coverPlaceholder {
+    width: 160px;
+    height: 160px;
+  }
+
+  .metadata {
+    justify-content: center;
+  }
+
+  .stats {
+    justify-content: center;
+  }
+
+  .headerActions {
+    justify-content: center;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .gameCard {
+    max-width: 100%;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .gameContent {
+    align-items: center;
+  }
+
+  .bundleCard {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .bundleContent {
+    align-items: center;
+  }
+}
