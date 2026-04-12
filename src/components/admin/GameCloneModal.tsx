@@ -16,7 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FormField } from "@/components/ui/form-field";
-import { SelectableButton } from "@/components/ui/selectable-button";
+import { PlatformPicker } from "@/components/ui/platform-picker";
 
 interface Platform {
   id: string;
@@ -136,19 +136,14 @@ export function GameCloneModal({
             hint="Select platforms to add this game to."
             error={error ?? undefined}
           >
-            <div className="flex flex-col gap-1.5 max-h-[200px] overflow-y-auto">
-              {platforms
-                .filter((p: Platform) => p.id !== currentPlatformId)
-                .map((platform: Platform) => (
-                  <SelectableButton
-                    key={platform.id}
-                    selected={targetPlatformIds.has(platform.id)}
-                    onClick={() => togglePlatform(platform.id)}
-                  >
-                    {platform.name}
-                  </SelectableButton>
-                ))}
-            </div>
+            <PlatformPicker
+              platforms={platforms}
+              selectedIds={targetPlatformIds}
+              onToggle={togglePlatform}
+              excludeIds={currentPlatformId ? [currentPlatformId] : []}
+              grouped
+              maxHeight="250px"
+            />
           </FormField>
         </DialogBody>
 
