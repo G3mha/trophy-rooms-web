@@ -12,6 +12,7 @@ export interface CurrentEntity {
   title: string;
   platformId?: string;
   platformName?: string;
+  gameFamilyId?: string;
 }
 
 interface AdminModeContextValue {
