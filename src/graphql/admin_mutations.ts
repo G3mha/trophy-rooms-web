@@ -281,6 +281,27 @@ export const CLONE_GAME_TO_PLATFORM = gql`
   }
 `;
 
+export const ADD_PLATFORM_TO_GAME_FAMILY = gql`
+  mutation AddPlatformToGameFamily($gameFamilyId: ID!, $platformId: ID!) {
+    addPlatformToGameFamily(gameFamilyId: $gameFamilyId, platformId: $platformId) {
+      success
+      game {
+        id
+        title
+        platform {
+          id
+          name
+        }
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
 export const BULK_DELETE_ACHIEVEMENT_SETS = gql`
   mutation BulkDeleteAchievementSets($ids: [ID!]!) {
     bulkDeleteAchievementSets(ids: $ids) {
