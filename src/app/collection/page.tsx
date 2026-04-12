@@ -46,6 +46,7 @@ interface CollectionItem {
   game: Game;
   platformId?: string | null;
   platform?: Platform | null;
+  gameVersionId?: string | null;
   hasDisc: boolean;
   hasBox: boolean;
   hasManual: boolean;

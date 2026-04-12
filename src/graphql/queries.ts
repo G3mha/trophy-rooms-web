@@ -616,6 +616,13 @@ export const COLLECTION_ITEM_FRAGMENT = gql`
       name
       slug
     }
+    gameVersionId
+    gameVersion {
+      id
+      name
+      isDefault
+      digitalOnly
+    }
     hasDisc
     hasBox
     hasManual

@@ -259,6 +259,13 @@ export const ADD_TO_COLLECTION = gql`
           name
           slug
         }
+        gameVersionId
+        gameVersion {
+          id
+          name
+          isDefault
+          digitalOnly
+        }
         hasDisc
         hasBox
         hasManual
@@ -295,6 +302,13 @@ export const UPDATE_COLLECTION_ITEM = gql`
           id
           name
           slug
+        }
+        gameVersionId
+        gameVersion {
+          id
+          name
+          isDefault
+          digitalOnly
         }
         hasDisc
         hasBox

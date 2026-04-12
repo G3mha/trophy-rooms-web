@@ -30,10 +30,18 @@ interface Game {
   coverUrl?: string | null;
 }
 
+interface GameVersion {
+  id: string;
+  name: string;
+  isDefault: boolean;
+  digitalOnly?: boolean;
+}
+
 interface CollectionItem {
   id: string;
   gameId: string;
   platformId?: string | null;
+  gameVersionId?: string | null;
   hasDisc: boolean;
   hasBox: boolean;
   hasManual: boolean;
@@ -48,6 +56,7 @@ interface AddToCollectionModalProps {
   isOpen: boolean;
   onClose: () => void;
   game: Game;
+  versions?: GameVersion[];
   editingItem?: CollectionItem | null;
 }
 
@@ -55,9 +64,11 @@ export function AddToCollectionModal({
   isOpen,
   onClose,
   game,
+  versions = [],
   editingItem,
 }: AddToCollectionModalProps) {
   const [platformId, setPlatformId] = useState<string>("");
+  const [gameVersionId, setGameVersionId] = useState<string>("");
   const [hasDisc, setHasDisc] = useState(false);
   const [hasBox, setHasBox] = useState(false);
   const [hasManual, setHasManual] = useState(false);
@@ -112,6 +123,7 @@ export function AddToCollectionModal({
   useEffect(() => {
     if (editingItem) {
       setPlatformId(editingItem.platformId ?? "");
+      setGameVersionId(editingItem.gameVersionId ?? "");
       setHasDisc(editingItem.hasDisc);
       setHasBox(editingItem.hasBox);
       setHasManual(editingItem.hasManual);
@@ -127,6 +139,7 @@ export function AddToCollectionModal({
 
   const resetForm = () => {
     setPlatformId("");
+    setGameVersionId("");
     setHasDisc(false);
     setHasBox(false);
     setHasManual(false);
@@ -143,6 +156,7 @@ export function AddToCollectionModal({
 
     const input = {
       platformId: platformId || null,
+      gameVersionId: gameVersionId || null,
       hasDisc: isDigital ? false : hasDisc,
       hasBox: isDigital ? false : hasBox,
       hasManual: isDigital ? false : hasManual,
@@ -210,6 +224,26 @@ export function AddToCollectionModal({
               ))}
             </select>
           </div>
+
+          {versions.length > 0 && (
+            <div className={styles.field}>
+              <label className={styles.label}>Version</label>
+              <select
+                className={styles.select}
+                value={gameVersionId}
+                onChange={(e) => setGameVersionId(e.target.value)}
+              >
+                <option value="">Select version...</option>
+                {versions.map((version) => (
+                  <option key={version.id} value={version.id}>
+                    {version.name}
+                    {version.isDefault ? " (Default)" : ""}
+                    {version.digitalOnly ? " - Digital Only" : ""}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div className={styles.field}>
             <button
