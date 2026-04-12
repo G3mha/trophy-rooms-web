@@ -50,6 +50,7 @@ interface CollectionItem {
   hasBox: boolean;
   hasManual: boolean;
   hasExtras: boolean;
+  isDigital: boolean;
   isSealed: boolean;
   region: GameRegion;
   notes?: string | null;

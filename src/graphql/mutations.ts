@@ -263,6 +263,7 @@ export const ADD_TO_COLLECTION = gql`
         hasBox
         hasManual
         hasExtras
+        isDigital
         isSealed
         region
         notes
@@ -299,6 +300,7 @@ export const UPDATE_COLLECTION_ITEM = gql`
         hasBox
         hasManual
         hasExtras
+        isDigital
         isSealed
         region
         notes

@@ -620,6 +620,7 @@ export const COLLECTION_ITEM_FRAGMENT = gql`
     hasBox
     hasManual
     hasExtras
+    isDigital
     isSealed
     region
     notes

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
-import { X, Disc, Package, BookOpen, Gift, Lock } from "lucide-react";
+import { X, Disc, Package, BookOpen, Gift, Lock, Cloud } from "lucide-react";
 import { ADD_TO_COLLECTION, UPDATE_COLLECTION_ITEM } from "@/graphql/mutations";
 import { GET_MY_COLLECTION, GET_COLLECTION_STATS } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
@@ -38,6 +38,7 @@ interface CollectionItem {
   hasBox: boolean;
   hasManual: boolean;
   hasExtras: boolean;
+  isDigital: boolean;
   isSealed: boolean;
   region: GameRegion;
   notes?: string | null;
@@ -61,6 +62,7 @@ export function AddToCollectionModal({
   const [hasBox, setHasBox] = useState(false);
   const [hasManual, setHasManual] = useState(false);
   const [hasExtras, setHasExtras] = useState(false);
+  const [isDigital, setIsDigital] = useState(false);
   const [isSealed, setIsSealed] = useState(false);
   const [region, setRegion] = useState<GameRegion>("NTSC_U");
   const [notes, setNotes] = useState("");
@@ -114,6 +116,7 @@ export function AddToCollectionModal({
       setHasBox(editingItem.hasBox);
       setHasManual(editingItem.hasManual);
       setHasExtras(editingItem.hasExtras);
+      setIsDigital(editingItem.isDigital);
       setIsSealed(editingItem.isSealed);
       setRegion(editingItem.region);
       setNotes(editingItem.notes ?? "");
@@ -128,6 +131,7 @@ export function AddToCollectionModal({
     setHasBox(false);
     setHasManual(false);
     setHasExtras(false);
+    setIsDigital(false);
     setIsSealed(false);
     setRegion("NTSC_U");
     setNotes("");
@@ -139,11 +143,12 @@ export function AddToCollectionModal({
 
     const input = {
       platformId: platformId || null,
-      hasDisc,
-      hasBox,
-      hasManual,
-      hasExtras,
-      isSealed,
+      hasDisc: isDigital ? false : hasDisc,
+      hasBox: isDigital ? false : hasBox,
+      hasManual: isDigital ? false : hasManual,
+      hasExtras: isDigital ? false : hasExtras,
+      isDigital,
+      isSealed: isDigital ? false : isSealed,
       region,
       notes: notes || null,
     };
@@ -207,12 +212,27 @@ export function AddToCollectionModal({
           </div>
 
           <div className={styles.field}>
+            <button
+              type="button"
+              className={`${styles.sealedButton} ${isDigital ? styles.active : ""}`}
+              onClick={() => setIsDigital(!isDigital)}
+            >
+              <Cloud size={18} />
+              <span>Digital Copy</span>
+            </button>
+            {isDigital && (
+              <p className={styles.hint}>Physical components are not applicable for digital copies.</p>
+            )}
+          </div>
+
+          <div className={styles.field}>
             <label className={styles.label}>Components</label>
-            <div className={styles.components}>
+            <div className={`${styles.components} ${isDigital ? styles.disabled : ""}`}>
               <button
                 type="button"
                 className={`${styles.componentButton} ${hasDisc ? styles.active : ""}`}
-                onClick={() => setHasDisc(!hasDisc)}
+                onClick={() => !isDigital && setHasDisc(!hasDisc)}
+                disabled={isDigital}
               >
                 <Disc size={18} />
                 <span>Disc</span>
@@ -220,7 +240,8 @@ export function AddToCollectionModal({
               <button
                 type="button"
                 className={`${styles.componentButton} ${hasBox ? styles.active : ""}`}
-                onClick={() => setHasBox(!hasBox)}
+                onClick={() => !isDigital && setHasBox(!hasBox)}
+                disabled={isDigital}
               >
                 <Package size={18} />
                 <span>Box</span>
@@ -228,7 +249,8 @@ export function AddToCollectionModal({
               <button
                 type="button"
                 className={`${styles.componentButton} ${hasManual ? styles.active : ""}`}
-                onClick={() => setHasManual(!hasManual)}
+                onClick={() => !isDigital && setHasManual(!hasManual)}
+                disabled={isDigital}
               >
                 <BookOpen size={18} />
                 <span>Manual</span>
@@ -236,7 +258,8 @@ export function AddToCollectionModal({
               <button
                 type="button"
                 className={`${styles.componentButton} ${hasExtras ? styles.active : ""}`}
-                onClick={() => setHasExtras(!hasExtras)}
+                onClick={() => !isDigital && setHasExtras(!hasExtras)}
+                disabled={isDigital}
               >
                 <Gift size={18} />
                 <span>Extras</span>
@@ -248,7 +271,8 @@ export function AddToCollectionModal({
             <button
               type="button"
               className={`${styles.sealedButton} ${isSealed ? styles.active : ""}`}
-              onClick={() => setIsSealed(!isSealed)}
+              onClick={() => !isDigital && setIsSealed(!isSealed)}
+              disabled={isDigital}
             >
               <Lock size={18} />
               <span>Sealed / Factory Sealed</span>

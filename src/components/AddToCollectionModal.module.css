@@ -169,6 +169,31 @@
   color: var(--switch-darkest);
 }
 
+.sealedButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sealedButton:disabled:hover {
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.components.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.componentButton:disabled {
+  cursor: not-allowed;
+}
+
 .textarea {
   padding: 10px 12px;
   border: 1px solid var(--border-color);
