@@ -15,7 +15,7 @@ import { Trash2, Pencil, Plus, Search, Star, Cloud } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { handlePlatformIconError } from "@/lib/image-utils";
 import { Button, LoadingSpinner } from "@/components";
-import { AdminConfirmDialog } from "@/components/admin";
+import { AdminConfirmDialog, CoverPreview } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import {
   Dialog,
@@ -343,21 +343,12 @@ export default function AdminGameVersionsPage() {
             </FormField>
 
             <FormField label="Cover URL" hint="Optional cover image specific to this version">
-              <div className="flex gap-3">
-                <Input
-                  placeholder="https://example.com/cover.jpg"
-                  value={newCoverUrl}
-                  onChange={(e) => setNewCoverUrl(e.target.value)}
-                  className="flex-1"
-                />
-                {newCoverUrl && (
-                  <img
-                    src={newCoverUrl}
-                    alt="Cover preview"
-                    className="w-12 h-16 object-cover rounded border border-[var(--border-color)]"
-                  />
-                )}
-              </div>
+              <Input
+                placeholder="https://example.com/cover.jpg"
+                value={newCoverUrl}
+                onChange={(e) => setNewCoverUrl(e.target.value)}
+              />
+              {newCoverUrl && <CoverPreview url={newCoverUrl.trim()} alt="Version cover preview" />}
             </FormField>
 
             <FormField label="Linked Games" required hint="Select one or more games for this version">
@@ -454,21 +445,12 @@ export default function AdminGameVersionsPage() {
             </FormField>
 
             <FormField label="Cover URL" hint="Optional cover image specific to this version">
-              <div className="flex gap-3">
-                <Input
-                  placeholder="https://example.com/cover.jpg"
-                  value={editCoverUrl}
-                  onChange={(e) => setEditCoverUrl(e.target.value)}
-                  className="flex-1"
-                />
-                {editCoverUrl && (
-                  <img
-                    src={editCoverUrl}
-                    alt="Cover preview"
-                    className="w-12 h-16 object-cover rounded border border-[var(--border-color)]"
-                  />
-                )}
-              </div>
+              <Input
+                placeholder="https://example.com/cover.jpg"
+                value={editCoverUrl}
+                onChange={(e) => setEditCoverUrl(e.target.value)}
+              />
+              {editCoverUrl && <CoverPreview url={editCoverUrl.trim()} alt="Version cover preview" />}
             </FormField>
 
             <FormField label="Linked Games" required hint="Select one or more games for this version">

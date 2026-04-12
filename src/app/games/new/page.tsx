@@ -10,6 +10,7 @@ import { CREATE_GAME } from "@/graphql/mutations";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import { Button, LoadingSpinner, EmptyState } from "@/components";
+import { CoverPreview } from "@/components/admin";
 import styles from "./page.module.css";
 
 export default function NewGamePage() {
@@ -153,11 +154,7 @@ export default function NewGamePage() {
             placeholder="https://example.com/game-cover.jpg"
             className={styles.input}
           />
-          {coverUrl && (
-            <div className={styles.preview}>
-              <img src={coverUrl} alt="Cover preview" className={styles.previewImage} />
-            </div>
-          )}
+          {coverUrl && <CoverPreview url={coverUrl.trim()} alt="Cover preview" />}
         </div>
 
         <div className={styles.field}>
