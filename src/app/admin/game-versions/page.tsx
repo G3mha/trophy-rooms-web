@@ -41,6 +41,9 @@ interface GameVersion {
   id: string;
   name: string;
   slug: string;
+  description?: string | null;
+  coverUrl?: string | null;
+  effectiveCoverUrl?: string | null;
   isDefault: boolean;
   digitalOnly: boolean;
   gameIds: string[];
@@ -57,6 +60,8 @@ export default function AdminGameVersionsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newCoverUrl, setNewCoverUrl] = useState("");
   const [newSelectedGames, setNewSelectedGames] = useState<SearchableGame[]>([]);
   const [newIsDefault, setNewIsDefault] = useState(false);
   const [newDigitalOnly, setNewDigitalOnly] = useState(false);
@@ -66,6 +71,8 @@ export default function AdminGameVersionsPage() {
   const [editingVersion, setEditingVersion] = useState<GameVersion | null>(null);
   const [editName, setEditName] = useState("");
   const [editSlug, setEditSlug] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCoverUrl, setEditCoverUrl] = useState("");
   const [editSelectedGames, setEditSelectedGames] = useState<SearchableGame[]>([]);
   const [editDigitalOnly, setEditDigitalOnly] = useState(false);
 
@@ -153,6 +160,8 @@ export default function AdminGameVersionsPage() {
   const resetAddForm = () => {
     setNewName("");
     setNewSlug("");
+    setNewDescription("");
+    setNewCoverUrl("");
     setNewSelectedGames([]);
     setNewIsDefault(false);
     setNewDigitalOnly(false);
@@ -162,6 +171,8 @@ export default function AdminGameVersionsPage() {
     setEditingVersion(null);
     setEditName("");
     setEditSlug("");
+    setEditDescription("");
+    setEditCoverUrl("");
     setEditSelectedGames([]);
     setEditDigitalOnly(false);
   };
@@ -170,6 +181,8 @@ export default function AdminGameVersionsPage() {
     setEditingVersion(version);
     setEditName(version.name);
     setEditSlug(version.slug);
+    setEditDescription(version.description ?? "");
+    setEditCoverUrl(version.coverUrl ?? "");
     setEditDigitalOnly(version.digitalOnly);
     // Convert linked games to SearchableGame format
     setEditSelectedGames(
@@ -189,6 +202,8 @@ export default function AdminGameVersionsPage() {
         input: {
           name: newName,
           slug: newSlug,
+          description: newDescription || null,
+          coverUrl: newCoverUrl || null,
           gameIds: newSelectedGames.map((g) => g.id),
           isDefault: newIsDefault,
           digitalOnly: newDigitalOnly,
@@ -205,6 +220,8 @@ export default function AdminGameVersionsPage() {
         input: {
           name: editName,
           slug: editSlug,
+          description: editDescription || null,
+          coverUrl: editCoverUrl || null,
           gameIds: editSelectedGames.map((g) => g.id),
           digitalOnly: editDigitalOnly,
         },
@@ -316,6 +333,33 @@ export default function AdminGameVersionsPage() {
               />
             </FormField>
 
+            <FormField label="Description" hint="Optional description of this version">
+              <textarea
+                className="w-full min-h-[80px] px-3 py-2 rounded-md border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm resize-y"
+                placeholder="What makes this version special?"
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+              />
+            </FormField>
+
+            <FormField label="Cover URL" hint="Optional cover image specific to this version">
+              <div className="flex gap-3">
+                <Input
+                  placeholder="https://example.com/cover.jpg"
+                  value={newCoverUrl}
+                  onChange={(e) => setNewCoverUrl(e.target.value)}
+                  className="flex-1"
+                />
+                {newCoverUrl && (
+                  <img
+                    src={newCoverUrl}
+                    alt="Cover preview"
+                    className="w-12 h-16 object-cover rounded border border-[var(--border-color)]"
+                  />
+                )}
+              </div>
+            </FormField>
+
             <FormField label="Linked Games" required hint="Select one or more games for this version">
               <GameSearchPicker
                 mode="multiple"
@@ -398,6 +442,33 @@ export default function AdminGameVersionsPage() {
                 value={editSlug}
                 onChange={(e) => setEditSlug(e.target.value)}
               />
+            </FormField>
+
+            <FormField label="Description" hint="Optional description of this version">
+              <textarea
+                className="w-full min-h-[80px] px-3 py-2 rounded-md border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm resize-y"
+                placeholder="What makes this version special?"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+              />
+            </FormField>
+
+            <FormField label="Cover URL" hint="Optional cover image specific to this version">
+              <div className="flex gap-3">
+                <Input
+                  placeholder="https://example.com/cover.jpg"
+                  value={editCoverUrl}
+                  onChange={(e) => setEditCoverUrl(e.target.value)}
+                  className="flex-1"
+                />
+                {editCoverUrl && (
+                  <img
+                    src={editCoverUrl}
+                    alt="Cover preview"
+                    className="w-12 h-16 object-cover rounded border border-[var(--border-color)]"
+                  />
+                )}
+              </div>
             </FormField>
 
             <FormField label="Linked Games" required hint="Select one or more games for this version">
