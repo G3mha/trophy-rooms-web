@@ -37,6 +37,7 @@ const PRIORITY_CONFIG: Record<BuylistPriority, PriorityConfig> = {
 
 interface BuylistSelectorProps {
   gameId?: string;
+  dlcId?: string;
   bundleId?: string;
   variant?: "default" | "compact";
   className?: string;
@@ -44,12 +45,13 @@ interface BuylistSelectorProps {
 
 export function BuylistSelector({
   gameId,
+  dlcId,
   bundleId,
   variant = "default",
   className = "",
 }: BuylistSelectorProps) {
-  const itemId = gameId || bundleId;
-  const itemType = gameId ? "game" : "bundle";
+  const itemId = gameId || dlcId || bundleId;
+  const itemType = gameId ? "game" : dlcId ? "DLC" : "bundle";
   const { isSignedIn } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isInBuylist, setIsInBuylist] = useState(false);
@@ -60,7 +62,7 @@ export function BuylistSelector({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { data, loading: queryLoading, refetch } = useQuery(IS_IN_BUYLIST, {
-    variables: { gameId, bundleId },
+    variables: { gameId, dlcId, bundleId },
     skip: !isSignedIn || !itemId,
   });
 
@@ -71,7 +73,7 @@ export function BuylistSelector({
 
   const [addToBuylist, { loading: adding }] = useMutation(ADD_TO_BUYLIST, {
     refetchQueries: [
-      { query: IS_IN_BUYLIST, variables: { gameId, bundleId } },
+      { query: IS_IN_BUYLIST, variables: { gameId, dlcId, bundleId } },
       { query: GET_MY_BUYLIST },
     ],
     onCompleted: (result) => {
@@ -93,7 +95,7 @@ export function BuylistSelector({
 
   const [removeFromBuylist, { loading: removing }] = useMutation(REMOVE_FROM_BUYLIST, {
     refetchQueries: [
-      { query: IS_IN_BUYLIST, variables: { gameId, bundleId } },
+      { query: IS_IN_BUYLIST, variables: { gameId, dlcId, bundleId } },
       { query: GET_MY_BUYLIST },
     ],
     onCompleted: (result) => {
@@ -118,14 +120,14 @@ export function BuylistSelector({
   useEffect(() => {
     if (buylistData?.myBuylist && isInBuylist) {
       const item = buylistData.myBuylist.find(
-        (item: { gameId?: string; bundleId?: string; id: string }) =>
-          (gameId && item.gameId === gameId) || (bundleId && item.bundleId === bundleId)
+        (item: { gameId?: string; dlcId?: string; bundleId?: string; id: string }) =>
+          (gameId && item.gameId === gameId) || (dlcId && item.dlcId === dlcId) || (bundleId && item.bundleId === bundleId)
       );
       if (item) {
         setBuylistItemId(item.id);
       }
     }
-  }, [buylistData, gameId, bundleId, isInBuylist]);
+  }, [buylistData, gameId, dlcId, bundleId, isInBuylist]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -147,6 +149,7 @@ export function BuylistSelector({
 
     const input: {
       gameId?: string;
+      dlcId?: string;
       bundleId?: string;
       priority: BuylistPriority;
       estimatedPrice?: number;
@@ -157,6 +160,8 @@ export function BuylistSelector({
 
     if (gameId) {
       input.gameId = gameId;
+    } else if (dlcId) {
+      input.dlcId = dlcId;
     } else if (bundleId) {
       input.bundleId = bundleId;
     }
