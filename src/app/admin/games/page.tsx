@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Copy,
   Filter,
+  Gamepad2,
   Layers,
   Pencil,
   Plus,
@@ -169,6 +170,24 @@ function convertToGame(item: AdminGameItem): Game {
     baseGame: null,
     achievementCount: item.achievementSetCount,
   };
+}
+
+// Cover thumbnail component
+function GameCoverThumbnail({ coverUrl, title }: { coverUrl?: string | null; title: string }) {
+  if (coverUrl) {
+    return (
+      <div className={styles.itemCover}>
+        <img src={coverUrl} alt={title} />
+      </div>
+    );
+  }
+  return (
+    <div className={styles.itemCover}>
+      <div className={styles.itemCoverPlaceholder}>
+        <Gamepad2 size={20} />
+      </div>
+    </div>
+  );
 }
 
 export default function AdminGamesPage() {
@@ -904,6 +923,10 @@ export default function AdminGamesPage() {
                         setSelectedIds(next);
                       }}
                     />
+                    <GameCoverThumbnail
+                      coverUrl={group.games[0].coverUrl}
+                      title={group.games[0].title}
+                    />
                     <div className={styles.itemInfo}>
                       <span className={styles.itemName}>
                         {group.games[0].title}
@@ -980,6 +1003,10 @@ export default function AdminGamesPage() {
                           />
                         )}
                       </div>
+                      <GameCoverThumbnail
+                        coverUrl={group.games[0]?.coverUrl}
+                        title={group.title}
+                      />
                       <div className={styles.itemInfo}>
                         <span className={styles.itemName}>{group.title}</span>
                         <span className={styles.itemSlug}>
@@ -1102,6 +1129,7 @@ export default function AdminGamesPage() {
                   setSelectedIds(next);
                 }}
               />
+              <GameCoverThumbnail coverUrl={game.coverUrl} title={game.title} />
               <div className={styles.itemInfo}>
                 <span className={styles.itemName}>{game.title}</span>
                 <span className={styles.itemSlug}>
