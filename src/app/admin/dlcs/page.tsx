@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
-import { GET_DLCS } from "@/graphql/admin_queries";
+import { GET_DLCS, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
   CREATE_DLC,
   UPDATE_DLC,
@@ -37,11 +37,18 @@ import {
 } from "@/components/ui/select";
 import styles from "../page.module.css";
 
+interface Platform {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface DLC {
   id: string;
   name: string;
   slug: string;
   type: string;
+  platforms?: Platform[];
   game?: { id: string; title: string } | null;
 }
 
@@ -64,6 +71,7 @@ export default function AdminDLCsPage() {
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
   const [newType, setNewType] = useState("DLC");
+  const [newPlatformIds, setNewPlatformIds] = useState<Set<string>>(new Set());
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -71,6 +79,7 @@ export default function AdminDLCsPage() {
   const [editName, setEditName] = useState("");
   const [editSlug, setEditSlug] = useState("");
   const [editType, setEditType] = useState("DLC");
+  const [editPlatformIds, setEditPlatformIds] = useState<Set<string>>(new Set());
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -88,6 +97,9 @@ export default function AdminDLCsPage() {
     variables: { gameFamilyId: selectedGameFamily?.id },
     skip: !selectedGameFamily?.id,
   });
+
+  const { data: platformsData } = useQuery(GET_PLATFORMS);
+  const platforms: Platform[] = platformsData?.platforms || [];
 
   const [createDLC, { loading: creating }] = useMutation(CREATE_DLC);
 
@@ -141,6 +153,7 @@ export default function AdminDLCsPage() {
     setNewName("");
     setNewSlug("");
     setNewType("DLC");
+    setNewPlatformIds(new Set());
   };
 
   const resetEditForm = () => {
@@ -148,6 +161,7 @@ export default function AdminDLCsPage() {
     setEditName("");
     setEditSlug("");
     setEditType("DLC");
+    setEditPlatformIds(new Set());
   };
 
   const openEditModal = (dlc: DLC) => {
@@ -155,6 +169,7 @@ export default function AdminDLCsPage() {
     setEditName(dlc.name);
     setEditSlug(dlc.slug);
     setEditType(dlc.type);
+    setEditPlatformIds(new Set(dlc.platforms?.map((p) => p.id) || []));
     setIsEditModalOpen(true);
   };
 
@@ -169,6 +184,7 @@ export default function AdminDLCsPage() {
             slug: newSlug,
             type: newType,
             gameFamilyId: selectedGameFamily.id,
+            platformIds: Array.from(newPlatformIds),
           },
         },
       });
@@ -191,6 +207,7 @@ export default function AdminDLCsPage() {
           name: editName,
           slug: editSlug,
           type: editType,
+          platformIds: Array.from(editPlatformIds),
         },
       },
     });
@@ -321,6 +338,36 @@ export default function AdminDLCsPage() {
                     </SelectContent>
                   </Select>
                 </FormField>
+
+                <FormField label="Available On" hint="Select the platforms this DLC is available on.">
+                  <div className="flex flex-col gap-2">
+                    {platforms.length === 0 ? (
+                      <p className="text-sm text-[var(--text-muted)]">No platforms available</p>
+                    ) : (
+                      platforms.map((platform) => (
+                        <label
+                          key={platform.id}
+                          className="flex items-center gap-2 cursor-pointer hover:bg-[var(--bg-secondary)] px-2 py-1.5 rounded"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={newPlatformIds.has(platform.id)}
+                            onChange={(e) => {
+                              const next = new Set(newPlatformIds);
+                              if (e.target.checked) {
+                                next.add(platform.id);
+                              } else {
+                                next.delete(platform.id);
+                              }
+                              setNewPlatformIds(next);
+                            }}
+                          />
+                          <span className="text-sm">{platform.name}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
+                </FormField>
               </DialogBody>
 
               <DialogFooter>
@@ -385,6 +432,36 @@ export default function AdminDLCsPage() {
                       <SelectItem value="FREE_UPDATE">Free Update</SelectItem>
                     </SelectContent>
                   </Select>
+                </FormField>
+
+                <FormField label="Available On" hint="Select the platforms this DLC is available on.">
+                  <div className="flex flex-col gap-2">
+                    {platforms.length === 0 ? (
+                      <p className="text-sm text-[var(--text-muted)]">No platforms available</p>
+                    ) : (
+                      platforms.map((platform) => (
+                        <label
+                          key={platform.id}
+                          className="flex items-center gap-2 cursor-pointer hover:bg-[var(--bg-secondary)] px-2 py-1.5 rounded"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={editPlatformIds.has(platform.id)}
+                            onChange={(e) => {
+                              const next = new Set(editPlatformIds);
+                              if (e.target.checked) {
+                                next.add(platform.id);
+                              } else {
+                                next.delete(platform.id);
+                              }
+                              setEditPlatformIds(next);
+                            }}
+                          />
+                          <span className="text-sm">{platform.name}</span>
+                        </label>
+                      ))
+                    )}
+                  </div>
                 </FormField>
               </DialogBody>
 
