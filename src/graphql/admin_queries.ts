@@ -183,6 +183,33 @@ export const GET_ADMIN_GAMES = gql`
   }
 `;
 
+// Game Families query with offset-based pagination
+export const GET_GAME_FAMILIES = gql`
+  query GetGameFamilies($page: Int, $pageSize: Int, $search: String) {
+    gameFamiliesPage(page: $page, pageSize: $pageSize, filter: { search: $search }) {
+      items {
+        id
+        title
+        slug
+        description
+        coverUrl
+        type
+        platforms {
+          id
+          name
+          slug
+        }
+        achievementSetCount
+        gameCount
+      }
+      totalCount
+      page
+      pageSize
+      totalPages
+    }
+  }
+`;
+
 export const GET_ACHIEVEMENT_SETS_ADMIN = gql`
   query GetAchievementSetsAdmin($gameFamilyId: ID, $type: AchievementSetType, $visibility: AchievementSetVisibility) {
     achievementSets(gameFamilyId: $gameFamilyId, type: $type, visibility: $visibility) {
