@@ -190,6 +190,24 @@ function GameCoverThumbnail({ coverUrl, title }: { coverUrl?: string | null; tit
   );
 }
 
+// Platform icon component
+function PlatformIcon({ slug, name }: { slug?: string | null; name?: string | null }) {
+  if (!slug) {
+    return <span className={styles.itemSlug}>{name || "No platform"}</span>;
+  }
+  return (
+    <span className={styles.platformBadge}>
+      <img
+        src={`/platforms/${slug}.svg`}
+        alt={name || slug}
+        className={styles.platformIcon}
+        onError={handlePlatformIconError}
+      />
+      <span>{name || slug}</span>
+    </span>
+  );
+}
+
 export default function AdminGamesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -931,9 +949,10 @@ export default function AdminGamesPage() {
                       <span className={styles.itemName}>
                         {group.games[0].title}
                       </span>
-                      <span className={styles.itemSlug}>
-                        {group.games[0].platformName || "No platform"}
-                      </span>
+                      <PlatformIcon
+                        slug={group.games[0].platformSlug}
+                        name={group.games[0].platformName}
+                      />
                       {group.games[0].type &&
                         group.games[0].type !== "BASE_GAME" && (
                           <span className={styles.badge}>
@@ -1049,12 +1068,10 @@ export default function AdminGamesPage() {
                               }}
                             />
                             <div className={styles.itemInfo}>
-                              <span
-                                className={styles.itemSlug}
-                                style={{ fontWeight: 500 }}
-                              >
-                                {game.platformName || "No platform"}
-                              </span>
+                              <PlatformIcon
+                                slug={game.platformSlug}
+                                name={game.platformName}
+                              />
                               {game.type && game.type !== "BASE_GAME" && (
                                 <span className={styles.badge}>
                                   {GAME_TYPE_LABELS[game.type]}
@@ -1132,9 +1149,7 @@ export default function AdminGamesPage() {
               <GameCoverThumbnail coverUrl={game.coverUrl} title={game.title} />
               <div className={styles.itemInfo}>
                 <span className={styles.itemName}>{game.title}</span>
-                <span className={styles.itemSlug}>
-                  {game.platformName || "No platform"}
-                </span>
+                <PlatformIcon slug={game.platformSlug} name={game.platformName} />
                 {game.type && game.type !== "BASE_GAME" && (
                   <span className={styles.badge}>
                     {GAME_TYPE_LABELS[game.type]}
