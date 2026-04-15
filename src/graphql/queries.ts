@@ -15,14 +15,14 @@ export const GAME_FRAGMENT = gql`
     esrbRating
     screenshots
     type
-    baseGameFamilies {
+    baseGames {
       id
       title
       slug
       coverUrl
       type
     }
-    baseGameFamilyCount
+    baseGameCount
     platform {
       id
       name
