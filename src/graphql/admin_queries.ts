@@ -158,6 +158,31 @@ export const GET_GAMES_ADMIN = gql`
   ${GAME_FRAGMENT}
 `;
 
+// Admin Games query with offset-based pagination (like iOS)
+export const GET_ADMIN_GAMES = gql`
+  query GetAdminGames($page: Int, $pageSize: Int, $search: String) {
+    adminGames(page: $page, pageSize: $pageSize, search: $search) {
+      items {
+        id
+        gameFamilyId
+        title
+        description
+        coverUrl
+        type
+        baseGameFamilyIds
+        platformId
+        platformName
+        platformSlug
+        achievementSetCount
+      }
+      totalCount
+      page
+      pageSize
+      totalPages
+    }
+  }
+`;
+
 export const GET_ACHIEVEMENT_SETS_ADMIN = gql`
   query GetAchievementSetsAdmin($gameFamilyId: ID, $type: AchievementSetType, $visibility: AchievementSetVisibility) {
     achievementSets(gameFamilyId: $gameFamilyId, type: $type, visibility: $visibility) {
