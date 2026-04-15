@@ -28,7 +28,7 @@ import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner, Pagination } from "@/components";
 import { handlePlatformIconError } from "@/lib/image-utils";
 import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
-import { GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
+import { GET_ADMIN_GAMES, GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
   BULK_DELETE_GAMES,
   CREATE_GAME,
@@ -67,6 +67,30 @@ interface Platform {
   name: string;
 }
 
+// AdminGameItem from backend adminGames query
+interface AdminGameItem {
+  id: string;
+  gameFamilyId: string;
+  title: string;
+  description?: string | null;
+  coverUrl?: string | null;
+  type?: string | null;
+  baseGameFamilyIds?: string[] | null;
+  platformId?: string | null;
+  platformName?: string | null;
+  platformSlug?: string | null;
+  achievementSetCount: number;
+}
+
+// Game family group for display (like iOS AdminGameGroup)
+interface AdminGameGroup {
+  gameFamilyId: string;
+  title: string;
+  games: AdminGameItem[];
+  totalAchievements: number;
+}
+
+// Legacy Game interface for mutations and edit modal
 interface Game {
   id: string;
   gameFamilyId: string;
@@ -77,11 +101,6 @@ interface Game {
   type?: string | null;
   baseGame?: SearchableGame | null;
   achievementCount: number;
-}
-
-interface PageInfo {
-  hasNextPage: boolean;
-  endCursor: string | null;
 }
 
 interface ConfirmState {
@@ -132,6 +151,26 @@ function validateGameForm(input: {
   return errors;
 }
 
+// Convert AdminGameItem to Game for modals
+function convertToGame(item: AdminGameItem): Game {
+  return {
+    id: item.id,
+    gameFamilyId: item.gameFamilyId,
+    title: item.title,
+    description: item.description,
+    coverUrl: item.coverUrl,
+    platform: item.platformId
+      ? {
+          id: item.platformId,
+          name: item.platformName || "",
+        }
+      : null,
+    type: item.type,
+    baseGame: null,
+    achievementCount: item.achievementSetCount,
+  };
+}
+
 export default function AdminGamesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -161,15 +200,11 @@ export default function AdminGamesPage() {
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [currentPage, setCurrentPage] = useState(1);
-  const [cursors, setCursors] = useState<Map<number, string | null>>(
-    new Map([[1, null]])
-  );
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
       setCurrentPage(1);
-      setCursors(new Map([[1, null]]));
     }, 300);
 
     return () => clearTimeout(timer);
@@ -180,11 +215,10 @@ export default function AdminGamesPage() {
     data: gamesData,
     loading,
     refetch,
-  } = useQuery(GET_GAMES_ADMIN, {
+  } = useQuery(GET_ADMIN_GAMES, {
     variables: {
-      first: pageSize,
-      after: cursors.get(currentPage) || null,
-      orderBy: "TITLE_ASC",
+      page: currentPage,
+      pageSize: pageSize,
       search: debouncedSearch || undefined,
     },
   });
@@ -217,45 +251,47 @@ export default function AdminGamesPage() {
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_GAMES);
 
   const platforms = useMemo(() => platformsData?.platforms || [], [platformsData]);
-  const games = useMemo<Game[]>(() => {
-    const allGames = gamesData?.games?.edges?.map((edge: { node: Game }) => edge.node) || [];
+
+  // Extract items from adminGames query
+  const adminGames = useMemo<AdminGameItem[]>(() => {
+    const allGames = gamesData?.adminGames?.items || [];
 
     if (typeFilter === null) {
       // Default: show all except DLC and EXPANSION (they have their own admin page)
       return allGames.filter(
-        (game: Game) => game.type !== "DLC" && game.type !== "EXPANSION"
+        (game: AdminGameItem) => game.type !== "DLC" && game.type !== "EXPANSION"
       );
     }
 
     // Filter by specific type
-    return allGames.filter((game: Game) => game.type === typeFilter);
+    return allGames.filter((game: AdminGameItem) => game.type === typeFilter);
   }, [gamesData, typeFilter]);
-  const pageInfo: PageInfo = gamesData?.games?.pageInfo || {
-    hasNextPage: false,
-    endCursor: null,
-  };
-  const totalCount = gamesData?.games?.totalCount || 0;
-  const totalPages = Math.ceil(totalCount / pageSize);
 
-  const groupedGames = useMemo(() => {
+  const totalCount = gamesData?.adminGames?.totalCount || 0;
+  const totalPages = gamesData?.adminGames?.totalPages || Math.ceil(totalCount / pageSize);
+
+  // Group games by gameFamilyId (like iOS AdminGameGroup)
+  const groupedGames = useMemo<AdminGameGroup[]>(() => {
     if (!groupByTitle) return [];
 
-    const groups = new Map<string, Game[]>();
-    games.forEach((game: Game) => {
-      const existing = groups.get(game.title) || [];
+    const groups = new Map<string, AdminGameItem[]>();
+    adminGames.forEach((game: AdminGameItem) => {
+      const key = game.gameFamilyId;
+      const existing = groups.get(key) || [];
       existing.push(game);
-      groups.set(game.title, existing);
+      groups.set(key, existing);
     });
 
-    return Array.from(groups.entries()).map(([title, gameList]) => ({
-      title,
+    return Array.from(groups.entries()).map(([gameFamilyId, gameList]) => ({
+      gameFamilyId,
+      title: gameList[0]?.title || "",
       games: gameList,
       totalAchievements: gameList.reduce(
-        (sum, game) => sum + game.achievementCount,
+        (sum, game) => sum + game.achievementSetCount,
         0
       ),
     }));
-  }, [games, groupByTitle]);
+  }, [adminGames, groupByTitle]);
 
   const resetForm = () => {
     setNewTitle("");
@@ -445,30 +481,20 @@ export default function AdminGamesPage() {
   const handlePageChange = useCallback(
     (page: number) => {
       if (page < 1 || page > totalPages) return;
-
-      if (page === currentPage + 1 && pageInfo.endCursor) {
-        setCursors((prev) => new Map(prev).set(page, pageInfo.endCursor));
-      }
-
-      if (page === 1) {
-        setCursors(new Map([[1, null]]));
-      }
-
       setCurrentPage(page);
       setSelectedIds(new Set());
     },
-    [currentPage, pageInfo.endCursor, totalPages]
+    [totalPages]
   );
 
   const handlePageSizeChange = useCallback((size: number) => {
     setPageSize(size);
     setCurrentPage(1);
-    setCursors(new Map([[1, null]]));
     setSelectedIds(new Set());
   }, []);
 
   // Only show full-page spinner on initial load (no data and no search)
-  const isInitialLoad = loading && games.length === 0 && !debouncedSearch;
+  const isInitialLoad = loading && adminGames.length === 0 && !debouncedSearch;
 
   if (isInitialLoad) {
     return <LoadingSpinner text="Loading games..." />;
@@ -542,7 +568,6 @@ export default function AdminGamesPage() {
           onClick={() => {
             setTypeFilter(null);
             setCurrentPage(1);
-            setCursors(new Map([[1, null]]));
           }}
           style={{
             display: "flex",
@@ -566,7 +591,6 @@ export default function AdminGamesPage() {
             onClick={() => {
               setTypeFilter(value);
               setCurrentPage(1);
-              setCursors(new Map([[1, null]]));
             }}
             style={{
               padding: "6px 12px",
@@ -839,21 +863,21 @@ export default function AdminGamesPage() {
         />
       )}
 
-      {games.length > 0 && (
+      {adminGames.length > 0 && (
         <div className={styles.selectAllBar}>
           <input
             type="checkbox"
-            checked={selectedIds.size === games.length && games.length > 0}
+            checked={selectedIds.size === adminGames.length && adminGames.length > 0}
             onChange={(event) => {
               if (event.target.checked) {
-                setSelectedIds(new Set(games.map((game: Game) => game.id)));
+                setSelectedIds(new Set(adminGames.map((game: AdminGameItem) => game.id)));
               } else {
                 setSelectedIds(new Set());
               }
             }}
           />
           <span className={styles.selectAllLabel}>
-            Select all on this page ({games.length})
+            Select all on this page ({adminGames.length})
           </span>
         </div>
       )}
@@ -862,7 +886,7 @@ export default function AdminGamesPage() {
         {groupByTitle ? (
           <>
             {groupedGames.map((group) => (
-              <div key={group.title}>
+              <div key={group.gameFamilyId}>
                 {group.games.length === 1 ? (
                   <div
                     className={`${styles.itemCard} ${
@@ -885,7 +909,7 @@ export default function AdminGamesPage() {
                         {group.games[0].title}
                       </span>
                       <span className={styles.itemSlug}>
-                        {group.games[0].platform?.name || "No platform"}
+                        {group.games[0].platformName || "No platform"}
                       </span>
                       {group.games[0].type &&
                         group.games[0].type !== "BASE_GAME" && (
@@ -895,19 +919,19 @@ export default function AdminGamesPage() {
                         )}
                     </div>
                     <span className={styles.itemMeta}>
-                      {group.games[0].achievementCount} achievements
+                      {group.games[0].achievementSetCount} achievements
                     </span>
                     <div className={styles.itemActions}>
                       <button
                         className={styles.actionBtn}
-                        onClick={() => openCloneModal(group.games[0])}
+                        onClick={() => openCloneModal(convertToGame(group.games[0]))}
                         title="Clone to platform"
                       >
                         <Copy size={14} />
                       </button>
                       <button
                         className={styles.actionBtn}
-                        onClick={() => openEditModal(group.games[0])}
+                        onClick={() => openEditModal(convertToGame(group.games[0]))}
                         title="Edit game"
                       >
                         <Pencil size={14} />
@@ -936,15 +960,15 @@ export default function AdminGamesPage() {
                       onClick={() =>
                         setExpandedGroups((prev) => {
                           const next = new Set(prev);
-                          if (next.has(group.title)) next.delete(group.title);
-                          else next.add(group.title);
+                          if (next.has(group.gameFamilyId)) next.delete(group.gameFamilyId);
+                          else next.add(group.gameFamilyId);
                           return next;
                         })
                       }
                       style={{ cursor: "pointer" }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        {expandedGroups.has(group.title) ? (
+                        {expandedGroups.has(group.gameFamilyId) ? (
                           <ChevronDown
                             size={18}
                             style={{ color: "var(--text-muted)" }}
@@ -961,7 +985,7 @@ export default function AdminGamesPage() {
                         <span className={styles.itemSlug}>
                           {group.games.length} platforms:{" "}
                           {group.games
-                            .map((game) => game.platform?.name)
+                            .map((game) => game.platformName)
                             .filter(Boolean)
                             .join(", ")}
                         </span>
@@ -970,7 +994,7 @@ export default function AdminGamesPage() {
                         {group.totalAchievements} achievements total
                       </span>
                     </div>
-                    {expandedGroups.has(group.title) && (
+                    {expandedGroups.has(group.gameFamilyId) && (
                       <div
                         style={{
                           marginLeft: 24,
@@ -1002,7 +1026,7 @@ export default function AdminGamesPage() {
                                 className={styles.itemSlug}
                                 style={{ fontWeight: 500 }}
                               >
-                                {game.platform?.name || "No platform"}
+                                {game.platformName || "No platform"}
                               </span>
                               {game.type && game.type !== "BASE_GAME" && (
                                 <span className={styles.badge}>
@@ -1011,14 +1035,14 @@ export default function AdminGamesPage() {
                               )}
                             </div>
                             <span className={styles.itemMeta}>
-                              {game.achievementCount} achievements
+                              {game.achievementSetCount} achievements
                             </span>
                             <div className={styles.itemActions}>
                               <button
                                 className={styles.actionBtn}
                                 onClick={(event) => {
                                   event.stopPropagation();
-                                  openCloneModal(game);
+                                  openCloneModal(convertToGame(game));
                                 }}
                                 title="Clone to platform"
                               >
@@ -1028,7 +1052,7 @@ export default function AdminGamesPage() {
                                 className={styles.actionBtn}
                                 onClick={(event) => {
                                   event.stopPropagation();
-                                  openEditModal(game);
+                                  openEditModal(convertToGame(game));
                                 }}
                                 title="Edit game"
                               >
@@ -1042,7 +1066,7 @@ export default function AdminGamesPage() {
                                     kind: "single",
                                     gameId: game.id,
                                     title: `Delete ${game.title}?`,
-                                    description: `This will permanently remove the ${game.platform?.name || "selected"} version of this game.`,
+                                    description: `This will permanently remove the ${game.platformName || "selected"} version of this game.`,
                                   });
                                 }}
                                 title="Delete game"
@@ -1060,7 +1084,7 @@ export default function AdminGamesPage() {
             ))}
           </>
         ) : (
-          games.map((game: Game) => (
+          adminGames.map((game: AdminGameItem) => (
             <div
               key={game.id}
               className={`${styles.itemCard} ${
@@ -1081,7 +1105,7 @@ export default function AdminGamesPage() {
               <div className={styles.itemInfo}>
                 <span className={styles.itemName}>{game.title}</span>
                 <span className={styles.itemSlug}>
-                  {game.platform?.name || "No platform"}
+                  {game.platformName || "No platform"}
                 </span>
                 {game.type && game.type !== "BASE_GAME" && (
                   <span className={styles.badge}>
@@ -1090,19 +1114,19 @@ export default function AdminGamesPage() {
                 )}
               </div>
               <span className={styles.itemMeta}>
-                {game.achievementCount} achievements
+                {game.achievementSetCount} achievements
               </span>
               <div className={styles.itemActions}>
                 <button
                   className={styles.actionBtn}
-                  onClick={() => openCloneModal(game)}
+                  onClick={() => openCloneModal(convertToGame(game))}
                   title="Clone to platform"
                 >
                   <Copy size={14} />
                 </button>
                 <button
                   className={styles.actionBtn}
-                  onClick={() => openEditModal(game)}
+                  onClick={() => openEditModal(convertToGame(game))}
                   title="Edit game"
                 >
                   <Pencil size={14} />
@@ -1127,7 +1151,7 @@ export default function AdminGamesPage() {
           ))
         )}
 
-        {games.length === 0 && !loading && (
+        {adminGames.length === 0 && !loading && (
           <p className={styles.emptyState}>
             {searchQuery
               ? `No games found matching "${searchQuery}"`
