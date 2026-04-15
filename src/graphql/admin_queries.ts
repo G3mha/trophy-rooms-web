@@ -88,6 +88,11 @@ export const DLC_FRAGMENT = gql`
       title
       slug
     }
+    platforms {
+      id
+      name
+      slug
+    }
     achievementSetCount
     createdAt
     updatedAt
