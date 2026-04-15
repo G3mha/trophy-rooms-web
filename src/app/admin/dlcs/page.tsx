@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
-import { GET_DLCS, GET_GAMES_ADMIN } from "@/graphql/admin_queries";
+import { GET_DLCS } from "@/graphql/admin_queries";
 import {
   CREATE_DLC,
   UPDATE_DLC,
@@ -12,14 +12,12 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Puzzle } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { FormField } from "@/components/ui/form-field";
-import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner } from "@/components";
 import {
   AdminConfirmDialog,
-  GameSearchPicker,
-  type SearchableGame,
+  GameFamilySearchPicker,
+  type SearchableGameFamily,
 } from "@/components/admin";
 import {
   Dialog,
@@ -54,8 +52,8 @@ const DLC_TYPE_LABELS: Record<string, string> = {
 };
 
 export default function AdminDLCsPage() {
-  // Game filter state
-  const [selectedGame, setSelectedGame] = useState<SearchableGame | null>(null);
+  // Game Family filter state
+  const [selectedGameFamily, setSelectedGameFamily] = useState<SearchableGameFamily | null>(null);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,7 +64,6 @@ export default function AdminDLCsPage() {
   const [newName, setNewName] = useState("");
   const [newSlug, setNewSlug] = useState("");
   const [newType, setNewType] = useState("DLC");
-  const [additionalPlatformIds, setAdditionalPlatformIds] = useState<Set<string>>(new Set());
 
   // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -88,33 +85,9 @@ export default function AdminDLCsPage() {
     loading,
     refetch,
   } = useQuery(GET_DLCS, {
-    variables: { gameFamilyId: selectedGame?.gameFamilyId },
-    skip: !selectedGame?.gameFamilyId,
+    variables: { gameFamilyId: selectedGameFamily?.id },
+    skip: !selectedGameFamily?.id,
   });
-
-  // Query for sibling games (same title, different platforms)
-  const { data: siblingsData } = useQuery(GET_GAMES_ADMIN, {
-    variables: {
-      first: 20,
-      orderBy: "TITLE_ASC",
-      search: selectedGame?.title || undefined,
-    },
-    skip: !selectedGame?.title,
-  });
-
-  // Filter to only show siblings with exact title match and different platform
-  const siblingGames = useMemo(() => {
-    if (!siblingsData?.games?.edges || !selectedGame) return [];
-    return siblingsData.games.edges
-      .map((edge: { node: SearchableGame }) => edge.node)
-      .filter(
-        (game: SearchableGame) =>
-          game.title === selectedGame.title &&
-          game.id !== selectedGame.id &&
-          game.type !== "DLC" &&
-          game.type !== "EXPANSION"
-      );
-  }, [siblingsData, selectedGame]);
 
   const [createDLC, { loading: creating }] = useMutation(CREATE_DLC);
 
@@ -168,7 +141,6 @@ export default function AdminDLCsPage() {
     setNewName("");
     setNewSlug("");
     setNewType("DLC");
-    setAdditionalPlatformIds(new Set());
   };
 
   const resetEditForm = () => {
@@ -187,50 +159,24 @@ export default function AdminDLCsPage() {
   };
 
   const handleCreateDLC = async () => {
-    if (!newName || !newSlug || !selectedGame) return;
-
-    // Collect all game IDs to create DLC for
-    const allGameIds = [selectedGame.id, ...Array.from(additionalPlatformIds)];
-    let successCount = 0;
-    let errorCount = 0;
+    if (!newName || !newSlug || !selectedGameFamily) return;
 
     try {
-      // Create DLC for each selected platform
-      for (const gameId of allGameIds) {
-        try {
-          await createDLC({
-            variables: {
-              input: {
-                name: newName,
-                slug: newSlug,
-                type: newType,
-                gameId,
-              },
-            },
-          });
-          successCount++;
-        } catch {
-          errorCount++;
-        }
-      }
+      await createDLC({
+        variables: {
+          input: {
+            name: newName,
+            slug: newSlug,
+            type: newType,
+            gameFamilyId: selectedGameFamily.id,
+          },
+        },
+      });
 
-      // Close modal and reset form
       setIsAddModalOpen(false);
       resetAddForm();
       refetch();
-
-      // Show appropriate toast message
-      if (errorCount === 0) {
-        if (successCount === 1) {
-          toast.success("DLC created.");
-        } else {
-          toast.success(`DLC created for ${successCount} platforms.`);
-        }
-      } else if (successCount > 0) {
-        toast.warning(`Created ${successCount} DLC(s), ${errorCount} failed.`);
-      } else {
-        toast.error("Failed to create DLC.");
-      }
+      toast.success("DLC created.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to create DLC.");
     }
@@ -295,24 +241,23 @@ export default function AdminDLCsPage() {
         </div>
       </div>
 
-      {/* Game Filter */}
+      {/* Game Family Filter */}
       <div style={{ marginBottom: 20 }}>
-        <label className={styles.formLabel}>Select a game to manage its DLCs</label>
-        <GameSearchPicker
-          mode="single"
-          value={selectedGame}
-          onChange={(game) => {
-            setSelectedGame(game);
+        <label className={styles.formLabel}>Select a game family to manage its DLCs</label>
+        <GameFamilySearchPicker
+          value={selectedGameFamily}
+          onChange={(family) => {
+            setSelectedGameFamily(family);
             setSelectedIds(new Set());
             setSearchQuery("");
           }}
-          placeholder="Search the full game catalog..."
-          emptyText="No matching games found."
-          filterOption={(game) => game.type !== "DLC" && game.type !== "EXPANSION"}
+          placeholder="Search game families..."
+          emptyText="No matching game families found."
+          filterOption={(family) => family.type !== "DLC" && family.type !== "EXPANSION"}
         />
       </div>
 
-      {selectedGame && (
+      {selectedGameFamily && (
         <>
           {/* Search and Add Bar */}
           <div className={styles.searchBar}>
@@ -376,46 +321,6 @@ export default function AdminDLCsPage() {
                     </SelectContent>
                   </Select>
                 </FormField>
-
-                {/* Multi-platform selection */}
-                {siblingGames.length > 0 && (
-                  <FormField
-                    label="Also create for other platforms"
-                    hint="Create this DLC for multiple platform versions at once."
-                  >
-                    <div className="flex flex-col gap-1.5">
-                      {siblingGames.map((game: SearchableGame) => (
-                        <SelectableButton
-                          key={game.id}
-                          selected={additionalPlatformIds.has(game.id)}
-                          onClick={() => {
-                            setAdditionalPlatformIds((prev) => {
-                              const next = new Set(prev);
-                              if (next.has(game.id)) {
-                                next.delete(game.id);
-                              } else {
-                                next.add(game.id);
-                              }
-                              return next;
-                            });
-                          }}
-                          icon={
-                            game.platform?.slug && (
-                              <img
-                                src={`/platforms/${game.platform.slug}.svg`}
-                                alt=""
-                                className="w-[18px] h-[18px]"
-                                onError={handlePlatformIconError}
-                              />
-                            )
-                          }
-                        >
-                          {game.platform?.name || "Unknown"}
-                        </SelectableButton>
-                      ))}
-                    </div>
-                  </FormField>
-                )}
               </DialogBody>
 
               <DialogFooter>
@@ -433,9 +338,7 @@ export default function AdminDLCsPage() {
                   loading={creating}
                   disabled={!newName || !newSlug}
                 >
-                  {additionalPlatformIds.size > 0
-                    ? `Create DLC for ${additionalPlatformIds.size + 1} Platforms`
-                    : "Create DLC"}
+                  Create DLC
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -588,8 +491,8 @@ export default function AdminDLCsPage() {
         </>
       )}
 
-      {!selectedGame && (
-        <p className={styles.emptyState}>Select a game above to manage its DLCs.</p>
+      {!selectedGameFamily && (
+        <p className={styles.emptyState}>Select a game family above to manage its DLCs.</p>
       )}
 
       {/* Confirm Delete Dialog */}
