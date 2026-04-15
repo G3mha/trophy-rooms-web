@@ -55,7 +55,6 @@ const DLC_TYPE_LABELS: Record<string, string> = {
 
 export default function AdminDLCsPage() {
   // Game filter state
-  const [selectedGameId, setSelectedGameId] = useState("");
   const [selectedGame, setSelectedGame] = useState<SearchableGame | null>(null);
 
   // Search state
@@ -89,8 +88,8 @@ export default function AdminDLCsPage() {
     loading,
     refetch,
   } = useQuery(GET_DLCS, {
-    variables: { gameId: selectedGameId },
-    skip: !selectedGameId,
+    variables: { gameFamilyId: selectedGame?.gameFamilyId },
+    skip: !selectedGame?.gameFamilyId,
   });
 
   // Query for sibling games (same title, different platforms)
@@ -188,10 +187,10 @@ export default function AdminDLCsPage() {
   };
 
   const handleCreateDLC = async () => {
-    if (!newName || !newSlug || !selectedGameId) return;
+    if (!newName || !newSlug || !selectedGame) return;
 
     // Collect all game IDs to create DLC for
-    const allGameIds = [selectedGameId, ...Array.from(additionalPlatformIds)];
+    const allGameIds = [selectedGame.id, ...Array.from(additionalPlatformIds)];
     let successCount = 0;
     let errorCount = 0;
 
@@ -304,7 +303,6 @@ export default function AdminDLCsPage() {
           value={selectedGame}
           onChange={(game) => {
             setSelectedGame(game);
-            setSelectedGameId(game?.id || "");
             setSelectedIds(new Set());
             setSearchQuery("");
           }}
@@ -314,7 +312,7 @@ export default function AdminDLCsPage() {
         />
       </div>
 
-      {selectedGameId && (
+      {selectedGame && (
         <>
           {/* Search and Add Bar */}
           <div className={styles.searchBar}>
@@ -590,7 +588,7 @@ export default function AdminDLCsPage() {
         </>
       )}
 
-      {!selectedGameId && (
+      {!selectedGame && (
         <p className={styles.emptyState}>Select a game above to manage its DLCs.</p>
       )}
 

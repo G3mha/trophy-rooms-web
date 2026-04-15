@@ -19,6 +19,7 @@ const GAME_TYPE_LABELS: Record<string, string> = {
 
 export interface SearchableGame {
   id: string;
+  gameFamilyId?: string;
   title: string;
   type?: string | null;
   coverUrl?: string | null;
