@@ -907,6 +907,7 @@ export default function AdminGamesPage() {
         <GameCloneModal
           gameFamilyId={cloneGame.gameFamilyId}
           gameTitle={cloneGame.title}
+          gameId={cloneGame.id}
           currentPlatformId={cloneGame.platform?.id}
           open={isCloneModalOpen}
           onOpenChange={(open) => {
