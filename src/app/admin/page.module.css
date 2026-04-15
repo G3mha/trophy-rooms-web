@@ -330,6 +330,33 @@
   flex-shrink: 0;
 }
 
+/* Platform icons row for group headers */
+.platformIconsRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.platformIconSmall {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.platformIconSmall:hover {
+  opacity: 1;
+}
+
+.platformOverflow {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 2px 6px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
 .itemInfo {
   flex: 1;
   min-width: 0;

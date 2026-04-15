@@ -208,6 +208,36 @@ function PlatformIcon({ slug, name }: { slug?: string | null; name?: string | nu
   );
 }
 
+// Platform icons row for group headers (shows up to 5 icons with +X overflow)
+const MAX_VISIBLE_PLATFORMS = 5;
+
+function PlatformIconsRow({ games }: { games: AdminGameItem[] }) {
+  const platforms = games
+    .filter((g) => g.platformSlug)
+    .map((g) => ({ slug: g.platformSlug!, name: g.platformName }));
+
+  const visible = platforms.slice(0, MAX_VISIBLE_PLATFORMS);
+  const overflow = platforms.length - MAX_VISIBLE_PLATFORMS;
+
+  return (
+    <div className={styles.platformIconsRow}>
+      {visible.map((p, idx) => (
+        <img
+          key={`${p.slug}-${idx}`}
+          src={`/platforms/${p.slug}.svg`}
+          alt={p.name || p.slug}
+          className={styles.platformIconSmall}
+          title={p.name || p.slug}
+          onError={handlePlatformIconError}
+        />
+      ))}
+      {overflow > 0 && (
+        <span className={styles.platformOverflow}>+{overflow}</span>
+      )}
+    </div>
+  );
+}
+
 export default function AdminGamesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -1028,16 +1058,10 @@ export default function AdminGamesPage() {
                       />
                       <div className={styles.itemInfo}>
                         <span className={styles.itemName}>{group.title}</span>
-                        <span className={styles.itemSlug}>
-                          {group.games.length} platforms:{" "}
-                          {group.games
-                            .map((game) => game.platformName)
-                            .filter(Boolean)
-                            .join(", ")}
-                        </span>
+                        <PlatformIconsRow games={group.games} />
                       </div>
                       <span className={styles.itemMeta}>
-                        {group.totalAchievements} achievements total
+                        {group.games.length} platforms, {group.totalAchievements} sets
                       </span>
                     </div>
                     {expandedGroups.has(group.gameFamilyId) && (
