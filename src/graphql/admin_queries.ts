@@ -115,18 +115,22 @@ export const BUNDLE_FRAGMENT = gql`
       name
     }
     platformId
-    gameCount
+    gameCount: gameFamilyCount
     dlcCount
-    games {
+    games: gameFamilies {
       id
       title
+      gameFamilyId: id
+      coverUrl
+      type
     }
     dlcs {
       id
       name
-      game {
+      game: gameFamily {
         id
         title
+        slug
       }
     }
     createdAt

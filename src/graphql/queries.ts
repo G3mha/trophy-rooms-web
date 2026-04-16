@@ -17,10 +17,15 @@ export const GAME_FRAGMENT = gql`
     type
     baseGames {
       id
+      gameFamilyId
       title
-      slug
       coverUrl
       type
+      platform {
+        id
+        name
+        slug
+      }
     }
     baseGameCount
     platform {
@@ -701,9 +706,10 @@ export const BUYLIST_ITEM_FRAGMENT = gql`
       id
       name
       effectiveCoverUrl
-      game {
+      game: gameFamily {
         id
         title
+        slug
       }
     }
     bundleId

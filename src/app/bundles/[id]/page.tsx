@@ -8,7 +8,7 @@ import { useAuth } from "@clerk/nextjs";
 import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { Button, LoadingSpinner, EmptyState, GameCard, BuylistSelector, ExpandableText } from "@/components";
+import { Button, LoadingSpinner, EmptyState, BuylistSelector, ExpandableText } from "@/components";
 import styles from "./page.module.css";
 
 const GET_BUNDLE_DETAIL = gql`
@@ -23,15 +23,17 @@ const GET_BUNDLE_DETAIL = gql`
       releaseDate
       price
       isOwned
-      gameCount
+      gameCount: gameFamilyCount
       dlcCount
-      games {
+      games: gameFamilies {
         id
         title
         coverUrl
-        achievementCount
-        trophyCount
-        platform {
+        slug
+        achievementCount: totalAchievementCount
+        trophyCount: totalTrophyCount
+        platformCount: gameCount
+        platforms {
           id
           name
           slug
@@ -45,9 +47,10 @@ const GET_BUNDLE_DETAIL = gql`
         description
         coverUrl
         effectiveCoverUrl
-        game {
+        game: gameFamily {
           id
           title
+          slug
         }
       }
     }
@@ -81,14 +84,16 @@ const REMOVE_BUNDLE_FROM_OWNED = gql`
 interface Game {
   id: string;
   title: string;
+  slug: string;
   coverUrl?: string | null;
   achievementCount: number;
   trophyCount: number;
-  platform?: {
+  platformCount: number;
+  platforms: {
     id: string;
     name: string;
     slug: string;
-  } | null;
+  }[];
 }
 
 interface DLC {
@@ -102,6 +107,7 @@ interface DLC {
   game?: {
     id: string;
     title: string;
+    slug: string;
   } | null;
 }
 
@@ -351,22 +357,48 @@ export default function BundleDetailPage({
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
               <Gamepad2 size={20} />
-              Included Games
+              Included Titles
             </h2>
             <span className={styles.sectionCount}>{bundle.games.length}</span>
           </div>
-          <div className={styles.gamesGrid}>
+          <div className={styles.dlcList}>
             {bundle.games.map((game) => (
-              <GameCard
+              <Link
                 key={game.id}
-                id={game.id}
-                title={game.title}
-                coverUrl={game.coverUrl}
-                achievementCount={game.achievementCount}
-                trophyCount={game.trophyCount}
-                platform={game.platform}
-                compact
-              />
+                href={`/games/title/${game.slug}`}
+                className={styles.dlcCard}
+              >
+                <div className={styles.dlcImageContainer}>
+                  {game.coverUrl ? (
+                    <img
+                      src={game.coverUrl}
+                      alt={game.title}
+                      className={styles.dlcImage}
+                    />
+                  ) : (
+                    <div className={styles.dlcPlaceholder}>
+                      <Gamepad2 size={24} />
+                    </div>
+                  )}
+                </div>
+                <div className={styles.dlcContent}>
+                  <h3 className={styles.dlcName}>{game.title}</h3>
+                  <p className={styles.dlcGame}>
+                    {game.platformCount === 1
+                      ? "1 platform version"
+                      : `${game.platformCount} platform versions`}
+                  </p>
+                  {game.platforms.length > 0 && (
+                    <p className={styles.dlcGame}>
+                      {game.platforms.map((platform) => platform.name).join(" • ")}
+                    </p>
+                  )}
+                  <span className={styles.dlcType}>
+                    {game.achievementCount} achievements
+                    {game.trophyCount > 0 ? ` • ${game.trophyCount} trophies` : ""}
+                  </span>
+                </div>
+              </Link>
             ))}
           </div>
         </section>
@@ -386,7 +418,7 @@ export default function BundleDetailPage({
             {bundle.dlcs.map((dlc) => (
               <Link
                 key={dlc.id}
-                href={dlc.game ? `/games/${dlc.game.id}` : "#"}
+                href={`/dlcs/${dlc.id}`}
                 className={styles.dlcCard}
               >
                 <div className={styles.dlcImageContainer}>

@@ -120,6 +120,25 @@ function validateBundleForm(input: {
   return errors;
 }
 
+function normalizeBundleGames(games: SearchableGame[]) {
+  const seen = new Set<string>();
+
+  return games.filter((game) => {
+    const key = game.gameFamilyId ?? game.id;
+
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
+function toGameFamilyIds(games: SearchableGame[]) {
+  return normalizeBundleGames(games).map((game) => game.gameFamilyId ?? game.id);
+}
+
 export default function AdminBundlesPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -259,7 +278,8 @@ export default function AdminBundlesPage() {
             releaseDate: newReleaseDate || null,
             price: newPrice.trim() ? Number(newPrice) : null,
             platformId: newPlatformId || null,
-            gameIds: newGames.length > 0 ? newGames.map((game) => game.id) : null,
+            gameFamilyIds:
+              newGames.length > 0 ? toGameFamilyIds(newGames) : null,
           },
         },
       });
@@ -311,7 +331,7 @@ export default function AdminBundlesPage() {
             releaseDate: editReleaseDate || null,
             price: editPrice.trim() ? Number(editPrice) : null,
             platformId: editPlatformId || null,
-            gameIds: editGames.map((game) => game.id),
+            gameFamilyIds: toGameFamilyIds(editGames),
           },
         },
       });
@@ -403,7 +423,7 @@ export default function AdminBundlesPage() {
     );
     setEditPrice(bundle.price?.toString() || "");
     setEditPlatformId(bundle.platformId || "");
-    setEditGames(bundle.games || []);
+    setEditGames(normalizeBundleGames(bundle.games || []));
     setEditErrors({});
     setIsEditModalOpen(true);
   };
@@ -650,7 +670,7 @@ export default function AdminBundlesPage() {
                 <GameSearchPicker
                   mode="multiple"
                   value={newGames}
-                  onChange={setNewGames}
+                  onChange={(games) => setNewGames(normalizeBundleGames(games))}
                   placeholder="Search the full game catalog..."
                   emptyText="No matching games found."
                 />
@@ -855,7 +875,7 @@ export default function AdminBundlesPage() {
                 <GameSearchPicker
                   mode="multiple"
                   value={editGames}
-                  onChange={setEditGames}
+                  onChange={(games) => setEditGames(normalizeBundleGames(games))}
                   placeholder="Search the full game catalog..."
                   emptyText="No matching games found."
                 />
