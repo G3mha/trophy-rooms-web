@@ -3,7 +3,16 @@
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useAuth, useUser } from "@clerk/nextjs";
-import { Trophy, Star, Gem, Gamepad2, Zap, LucideIcon } from "lucide-react";
+import {
+  Trophy,
+  Star,
+  Gem,
+  Gamepad2,
+  Zap,
+  LucideIcon,
+  Crown,
+  Medal,
+} from "lucide-react";
 import {
   GET_LEADERBOARD_BY_TROPHIES,
   GET_LEADERBOARD_BY_ACHIEVEMENTS,
@@ -11,10 +20,19 @@ import {
   GET_LEADERBOARD_BY_GAMES,
   GET_FASTEST_COMPLETIONS,
 } from "@/graphql/queries";
-import { LoadingSpinner, LeaderboardEntry, FastestCompletionEntry } from "@/components";
+import {
+  LoadingSpinner,
+  LeaderboardEntry,
+  FastestCompletionEntry,
+} from "@/components";
 import styles from "./page.module.css";
 
-type LeaderboardTab = "trophies" | "achievements" | "points" | "games" | "fastest";
+type LeaderboardTab =
+  | "trophies"
+  | "achievements"
+  | "points"
+  | "games"
+  | "fastest";
 
 interface LeaderboardEntryData {
   rank: number;
@@ -36,12 +54,42 @@ interface FastestCompletionData {
   completedAt: string;
 }
 
-const TABS: { id: LeaderboardTab; label: string; Icon: LucideIcon; description: string }[] = [
-  { id: "trophies", label: "Top Completionists", Icon: Trophy, description: "Most 100% game completions" },
-  { id: "achievements", label: "Achievement Hunters", Icon: Star, description: "Most achievements earned" },
-  { id: "points", label: "Point Leaders", Icon: Gem, description: "Highest total achievement points" },
-  { id: "games", label: "Game Explorers", Icon: Gamepad2, description: "Most unique games played" },
-  { id: "fastest", label: "Speedrunners", Icon: Zap, description: "Fastest 100% completions" },
+const TABS: {
+  id: LeaderboardTab;
+  label: string;
+  Icon: LucideIcon;
+  description: string;
+}[] = [
+  {
+    id: "trophies",
+    label: "Top Completionists",
+    Icon: Trophy,
+    description: "Most 100% game completions",
+  },
+  {
+    id: "achievements",
+    label: "Achievement Hunters",
+    Icon: Star,
+    description: "Most achievements earned",
+  },
+  {
+    id: "points",
+    label: "Point Leaders",
+    Icon: Gem,
+    description: "Highest total achievement points",
+  },
+  {
+    id: "games",
+    label: "Game Explorers",
+    Icon: Gamepad2,
+    description: "Most unique games played",
+  },
+  {
+    id: "fastest",
+    label: "Speedrunners",
+    Icon: Zap,
+    description: "Fastest 100% completions",
+  },
 ];
 
 const VALUE_LABELS: Record<LeaderboardTab, string> = {
@@ -142,20 +190,45 @@ export default function LeaderboardsPage() {
   const currentTab = TABS.find((t) => t.id === activeTab)!;
   const leaderboardData = getLeaderboardData();
   const loading = isLoading();
-
-  // Get current user's Clerk ID to highlight their entry
+  const podium = leaderboardData?.slice(0, 3) || [];
   const currentUserId = user?.id;
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Leaderboards</h1>
-        <p className={styles.subtitle}>
-          See how you stack up against other trophy hunters
-        </p>
+      <header className={styles.hero}>
+        <div className={styles.heroLead}>
+          <div className={styles.eyebrow}>
+            <Crown size={16} />
+            <span>Competitive Snapshot</span>
+          </div>
+          <h1 className={styles.title}>Leaderboards</h1>
+          <p className={styles.subtitle}>
+            Track the most decorated players, fastest completions, and the people
+            setting the pace across Trophy Rooms.
+          </p>
+        </div>
+        <aside className={styles.heroPanel}>
+          <div className={styles.heroPanelLabel}>Now Tracking</div>
+          <div className={styles.heroPanelValue}>{currentTab.label}</div>
+          <p className={styles.heroPanelText}>{currentTab.description}</p>
+          {!loading && podium.length > 0 && (
+            <div className={styles.heroPodium}>
+              {podium.map((entry, index) => (
+                <div
+                  key={`${activeTab}-${entry.userId}-${index}`}
+                  className={styles.heroPodiumEntry}
+                >
+                  <span className={styles.heroPodiumRank}>#{index + 1}</span>
+                  <span className={styles.heroPodiumName}>
+                    {entry.userName || entry.userEmail.split("@")[0]}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </aside>
       </header>
 
-      {/* Tab Navigation */}
       <nav className={styles.tabNav}>
         {TABS.map((tab) => (
           <button
@@ -169,13 +242,46 @@ export default function LeaderboardsPage() {
         ))}
       </nav>
 
-      {/* Tab Description */}
       <div className={styles.tabDescription}>
         <currentTab.Icon className={styles.descriptionIcon} size={18} />
         <span>{currentTab.description}</span>
       </div>
 
-      {/* Leaderboard Content */}
+      {!loading && podium.length > 0 && (
+        <section className={styles.podiumSection}>
+          <div className={styles.podiumHeader}>
+            <p className={styles.sectionEyebrow}>Top Three</p>
+            <h2 className={styles.sectionTitle}>Current Podium</h2>
+          </div>
+          <div className={styles.podiumGrid}>
+            {podium.map((entry, index) => (
+              <div
+                key={`${activeTab}-podium-${entry.userId}-${index}`}
+                className={styles.podiumCard}
+              >
+                <div className={styles.podiumRankWrap}>
+                  {index === 0 ? <Crown size={18} /> : <Medal size={18} />}
+                  <span className={styles.podiumRank}>#{index + 1}</span>
+                </div>
+                <h3 className={styles.podiumName}>
+                  {entry.userName || entry.userEmail.split("@")[0]}
+                </h3>
+                {"value" in entry && (
+                  <p className={styles.podiumValue}>
+                    {entry.value} {VALUE_LABELS[activeTab]}
+                  </p>
+                )}
+                {"completionTimeHours" in entry && (
+                  <p className={styles.podiumValue}>
+                    {entry.completionTimeHours.toFixed(1)}h completion
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className={styles.leaderboardSection}>
         {loading ? (
           <div className={styles.loadingContainer}>
@@ -226,7 +332,6 @@ export default function LeaderboardsPage() {
         )}
       </section>
 
-      {/* Sign in prompt for non-authenticated users */}
       {!isSignedIn && (
         <div className={styles.signInPrompt}>
           <p>Sign in to see your rank and compete with others!</p>

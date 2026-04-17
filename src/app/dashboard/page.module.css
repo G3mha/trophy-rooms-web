@@ -1,128 +1,272 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 24px;
+  padding: 40px 24px 56px;
 }
 
-.header {
-  margin-bottom: 40px;
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(320px, 0.9fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.heroLead,
+.heroPanel,
+.section {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 45%),
+    var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.heroLead {
+  padding: 34px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  background: rgba(230, 0, 18, 0.12);
+  color: #ff908c;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .title {
-  font-size: 36px;
-  font-weight: 700;
+  margin: 0 0 12px;
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  line-height: 0.96;
   color: var(--text-primary);
-  margin: 0 0 8px 0;
 }
 
 .subtitle {
-  font-size: 18px;
-  color: var(--text-secondary);
+  max-width: 58ch;
   margin: 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.7;
 }
 
-/* Stats */
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.heroPanel {
+  padding: 24px;
+}
+
+.heroPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  color: var(--text-muted);
+}
+
+.heroPanelLabel {
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.milestoneCard {
+  padding: 20px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(230, 0, 18, 0.14), rgba(255, 255, 255, 0.04));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.milestoneBadge {
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15, 17, 21, 0.55);
+  color: #ffd6d3;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.milestoneTitle {
+  margin: 0 0 6px;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.milestoneText {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.heroMiniStats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.heroMiniStat {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.heroMiniValue {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.heroMiniLabel {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
 .stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  margin-bottom: 48px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
 }
 
-/* Columns */
 .columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
 }
 
-/* Sections */
 .section {
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius-lg);
-  border: 1px solid var(--border-color);
   padding: 24px;
 }
 
 .sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
+.sectionEyebrow {
+  margin: 0 0 6px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .sectionTitle {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text-primary);
   margin: 0;
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
-/* Achievement List */
-.achievementList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+.sectionLink {
+  white-space: nowrap;
 }
 
-/* Trophy List */
+.achievementList,
 .trophyList {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .trophyCard {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
   gap: 16px;
   padding: 16px;
-  background: var(--bg-card);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--switch-gold);
-  animation: trophyGlow 3s ease-in-out infinite alternate;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.08), rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(255, 215, 0, 0.18);
 }
 
-@keyframes trophyGlow {
-  from {
-    box-shadow: 0 0 10px rgba(255, 215, 0, 0.1);
-  }
-  to {
-    box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-  }
+.trophyMedia {
+  width: 64px;
+  height: 64px;
+}
+
+.trophyCover,
+.trophyIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+}
+
+.trophyCover {
+  display: block;
+  object-fit: cover;
 }
 
 .trophyIcon {
-  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 215, 0, 0.15);
+  color: #ffd54a;
 }
 
 .trophyInfo {
-  flex: 1;
+  min-width: 0;
 }
 
 .trophyGame {
-  font-size: 16px;
-  font-weight: 600;
+  margin: 0 0 4px;
   color: var(--text-primary);
-  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .trophyDate {
-  font-size: 13px;
-  color: var(--text-muted);
   margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.92rem;
 }
 
-/* Responsive */
 @media (max-width: 1024px) {
+  .hero,
   .columns {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding: 28px 16px 44px;
+  }
+
+  .heroLead,
+  .heroPanel,
+  .section {
+    padding: 20px;
+  }
+
   .stats {
     grid-template-columns: 1fr;
   }
 
-  .title {
-    font-size: 28px;
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

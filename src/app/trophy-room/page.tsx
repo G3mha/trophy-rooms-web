@@ -3,9 +3,26 @@
 import { useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
-import { Trophy, Gamepad2, PartyPopper } from "lucide-react";
-import { GET_ME, GET_MY_TROPHIES, GET_MY_GAME_PROGRESS } from "@/graphql/queries";
-import { LoadingSpinner, EmptyState, Button, ProfileHeader, GameProgressCard } from "@/components";
+import {
+  Trophy,
+  Gamepad2,
+  PartyPopper,
+  Sparkles,
+  Target,
+  TimerReset,
+} from "lucide-react";
+import {
+  GET_ME,
+  GET_MY_TROPHIES,
+  GET_MY_GAME_PROGRESS,
+} from "@/graphql/queries";
+import {
+  LoadingSpinner,
+  EmptyState,
+  Button,
+  ProfileHeader,
+  GameProgressCard,
+} from "@/components";
 import styles from "./page.module.css";
 
 interface GameProgressData {
@@ -57,9 +74,15 @@ export default function TrophyRoom() {
   const trophyCount = trophiesData?.myTrophies?.totalCount || 0;
   const gameProgress: GameProgressData[] = progressData?.myGameProgress || [];
 
-  // Separate completed and in-progress games
   const completedGames = gameProgress.filter((g) => g.hasTrophy);
   const inProgressGames = gameProgress.filter((g) => !g.hasTrophy);
+  const totalPoints = gameProgress.reduce((sum, game) => sum + game.earnedPoints, 0);
+  const averageCompletion = gameProgress.length
+    ? Math.round(
+        gameProgress.reduce((sum, game) => sum + game.percentComplete, 0) /
+          gameProgress.length
+      )
+    : 0;
 
   if (loading) {
     return (
@@ -77,7 +100,34 @@ export default function TrophyRoom() {
 
   return (
     <div className={styles.container}>
-      {/* Profile Header */}
+      <header className={styles.hero}>
+        <div className={styles.heroLead}>
+          <div className={styles.eyebrow}>
+            <Sparkles size={16} />
+            <span>Your Personal Showcase</span>
+          </div>
+          <h1 className={styles.heroTitle}>Trophy Room</h1>
+          <p className={styles.heroSubtitle}>
+            A live view of completed runs, active hunts, and the progress pushing
+            you toward the next Crimson Trophy.
+          </p>
+        </div>
+        <div className={styles.heroStats}>
+          <div className={styles.heroStat}>
+            <Trophy size={16} />
+            <span>{completedGames.length} completed runs</span>
+          </div>
+          <div className={styles.heroStat}>
+            <Target size={16} />
+            <span>{totalPoints.toLocaleString()} points earned</span>
+          </div>
+          <div className={styles.heroStat}>
+            <TimerReset size={16} />
+            <span>{averageCompletion}% avg progress</span>
+          </div>
+        </div>
+      </header>
+
       <ProfileHeader
         name={user?.name}
         email={user?.email || ""}
@@ -90,15 +140,42 @@ export default function TrophyRoom() {
         onShare={handleShare}
       />
 
-      {/* Completed Games - Crimson Trophy Holders */}
+      <section className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Crimson Shelf</span>
+          <strong className={styles.summaryValue}>{completedGames.length}</strong>
+          <p className={styles.summaryText}>
+            Games fully completed and preserved in your showcase.
+          </p>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>In Rotation</span>
+          <strong className={styles.summaryValue}>{inProgressGames.length}</strong>
+          <p className={styles.summaryText}>
+            Active progress cards still pushing toward 100%.
+          </p>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Momentum</span>
+          <strong className={styles.summaryValue}>{averageCompletion}%</strong>
+          <p className={styles.summaryText}>
+            Average completion across your tracked library right now.
+          </p>
+        </div>
+      </section>
+
       {completedGames.length > 0 && (
         <section className={styles.trophyShowcase}>
-          <h2 className={styles.sectionTitle}>
-            <Trophy className={styles.crimsonIcon} size={24} /> Crimson Trophy Collection
-          </h2>
-          <p className={styles.sectionSubtitle}>
-            100% completion achieved in these games
-          </p>
+          <div className={styles.sectionHeader}>
+            <div>
+              <p className={styles.sectionEyebrow}>Completed</p>
+              <h2 className={styles.sectionTitle}>
+                <Trophy className={styles.crimsonIcon} size={24} /> Crimson Trophy Collection
+              </h2>
+            </div>
+            <span className={styles.sectionCount}>{completedGames.length} games</span>
+          </div>
+          <p className={styles.sectionSubtitle}>100% completion achieved in these games</p>
           <div className={styles.progressGrid}>
             {completedGames.map((game) => (
               <GameProgressCard
@@ -119,9 +196,14 @@ export default function TrophyRoom() {
         </section>
       )}
 
-      {/* Games In Progress */}
       <section className={styles.gamesSection}>
-        <h2 className={styles.sectionTitle}>Games In Progress</h2>
+        <div className={styles.sectionHeader}>
+          <div>
+            <p className={styles.sectionEyebrow}>Active Hunts</p>
+            <h2 className={styles.sectionTitle}>Games In Progress</h2>
+          </div>
+          <span className={styles.sectionCount}>{inProgressGames.length} active</span>
+        </div>
         <p className={styles.sectionSubtitle}>
           Keep earning achievements to unlock Crimson Trophies
         </p>
