@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
 import { ArrowRight, Gamepad2, Search, Star, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
-import { GameCard, AppImage, Button, LoadingSpinner, EmptyState, GlobalSearch } from "@/components";
+import { GameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch } from "@/components";
 import styles from "./page.module.css";
 
 interface GameNode {
@@ -195,12 +195,15 @@ export default function Home() {
         {loading && <LoadingSpinner text="Loading games..." />}
 
         {error && (
-          <div className={styles.error}>
-            <p>Error loading games: {error.message}</p>
-            <Button onClick={() => window.location.reload()} variant="secondary">
-              Try Again
-            </Button>
-          </div>
+          <ErrorState
+            title="Couldn’t load featured games"
+            description={error.message}
+            action={
+              <Button onClick={() => window.location.reload()} variant="secondary">
+                Try Again
+              </Button>
+            }
+          />
         )}
 
         {featuredGames.length > 0 && (

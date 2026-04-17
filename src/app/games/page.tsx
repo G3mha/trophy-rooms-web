@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
-import { GameCard, GroupedGameCard, Button, LoadingSpinner, EmptyState } from "@/components";
+import { GameCard, GroupedGameCard, Button, LoadingSpinner, EmptyState, ErrorState } from "@/components";
 import { ChevronDown, Gamepad2, Search, Swords, Trophy } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -249,12 +249,15 @@ export default function GamesPage() {
 
       {/* Error */}
       {error && (
-        <div className={styles.error}>
-          <p>Error loading games: {error.message}</p>
-          <Button onClick={() => window.location.reload()} variant="secondary">
-            Try Again
-          </Button>
-        </div>
+        <ErrorState
+          title="Couldn’t load the games catalog"
+          description={error.message}
+          action={
+            <Button onClick={() => window.location.reload()} variant="secondary">
+              Try Again
+            </Button>
+          }
+        />
       )}
 
       {/* Games Grid */}

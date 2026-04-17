@@ -8,7 +8,7 @@ import { useAuth } from "@clerk/nextjs";
 import { Puzzle, Gamepad2, Package, Calendar, DollarSign, Check, Plus, Award } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { AppImage, Button, LoadingSpinner, EmptyState, BuylistSelector, ExpandableText } from "@/components";
+import { AppImage, Button, LoadingSpinner, EmptyState, ErrorState, BuylistSelector, ExpandableText } from "@/components";
 import styles from "./page.module.css";
 
 const GET_DLC_DETAIL = gql`
@@ -218,12 +218,15 @@ export default function DLCDetailPage({
   if (error) {
     return (
       <div className={styles.container}>
-        <div className={styles.error}>
-          <p>Error loading DLC: {error.message}</p>
-          <Button href="/games" variant="secondary">
-            Browse Games
-          </Button>
-        </div>
+        <ErrorState
+          title="Couldn’t load this DLC"
+          description={error.message}
+          action={
+            <Button href="/games" variant="secondary">
+              Browse Games
+            </Button>
+          }
+        />
       </div>
     );
   }

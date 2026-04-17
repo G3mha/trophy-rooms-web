@@ -8,7 +8,7 @@ import { useAuth } from "@clerk/nextjs";
 import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { AppImage, Button, LoadingSpinner, EmptyState, BuylistSelector, ExpandableText } from "@/components";
+import { AppImage, Button, LoadingSpinner, EmptyState, ErrorState, BuylistSelector, ExpandableText } from "@/components";
 import styles from "./page.module.css";
 
 const GET_BUNDLE_DETAIL = gql`
@@ -236,12 +236,15 @@ export default function BundleDetailPage({
   if (error) {
     return (
       <div className={styles.container}>
-        <div className={styles.error}>
-          <p>Error loading bundle: {error.message}</p>
-          <Button href="/bundles" variant="secondary">
-            Back to Bundles
-          </Button>
-        </div>
+        <ErrorState
+          title="Couldn’t load this bundle"
+          description={error.message}
+          action={
+            <Button href="/bundles" variant="secondary">
+              Back to Bundles
+            </Button>
+          }
+        />
       </div>
     );
   }

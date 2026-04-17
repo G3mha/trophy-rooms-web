@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_BUNDLES } from "@/graphql/admin_queries";
-import { BundleCard, Button, LoadingSpinner, EmptyState } from "@/components";
+import { BundleCard, Button, LoadingSpinner, EmptyState, ErrorState } from "@/components";
 import { ChevronDown, Package, Layers3, Puzzle, Search } from "lucide-react";
 import styles from "./page.module.css";
 
@@ -127,12 +127,15 @@ export default function BundlesPage() {
       {loading && <LoadingSpinner text="Loading bundles..." />}
 
       {error && (
-        <div className={styles.error}>
-          <p>Error loading bundles: {error.message}</p>
-          <Button onClick={() => window.location.reload()} variant="secondary">
-            Try Again
-          </Button>
-        </div>
+        <ErrorState
+          title="Couldn’t load bundles"
+          description={error.message}
+          action={
+            <Button onClick={() => window.location.reload()} variant="secondary">
+              Try Again
+            </Button>
+          }
+        />
       )}
 
       {!loading && !error && filteredBundles.length > 0 && (

@@ -14,7 +14,7 @@ import {
   CREATE_ACHIEVEMENT,
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
-import { AchievementCard, AppImage, Button, LoadingSpinner, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText } from "@/components";
+import { AchievementCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
@@ -266,12 +266,15 @@ export default function GameDetailPage({
   if (error) {
     return (
       <div className={styles.container}>
-        <div className={styles.error}>
-          <p>Error loading game: {error.message}</p>
-          <Button href="/games" variant="secondary">
-            Back to Games
-          </Button>
-        </div>
+        <ErrorState
+          title="Couldn’t load this game"
+          description={error.message}
+          action={
+            <Button href="/games" variant="secondary">
+              Back to Games
+            </Button>
+          }
+        />
       </div>
     );
   }
