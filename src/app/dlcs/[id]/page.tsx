@@ -247,9 +247,8 @@ export default function DLCDetailPage({
 
   return (
     <div className={styles.container}>
-      {/* DLC Header */}
-      <header className={styles.header}>
-        <div className={styles.coverContainer}>
+      <header className={styles.hero}>
+        <div className={styles.coverCard}>
           <AppImage
             src={coverImage}
             alt={dlc.name}
@@ -261,55 +260,65 @@ export default function DLCDetailPage({
             }
           />
         </div>
-        <div className={styles.headerContent}>
-          <div className={styles.titleRow}>
-            <h1 className={styles.title}>{dlc.name}</h1>
+        <div className={styles.heroContent}>
+          <div className={styles.heroHeader}>
+            <div className={styles.eyebrow}>
+              <Puzzle size={14} />
+              <span>DLC Detail</span>
+            </div>
             <span className={`${styles.typeBadge} ${getDLCTypeClass(dlc.type)}`}>
               {getDLCTypeLabel(dlc.type)}
             </span>
+          </div>
+          <div className={styles.titleBlock}>
+            <h1 className={styles.title}>{dlc.name}</h1>
+            <p className={styles.subtitle}>
+              Expansion context, achievement support, and bundle coverage at a glance.
+            </p>
           </div>
           {dlc.description && (
             <ExpandableText text={dlc.description} maxLines={4} className={styles.description} />
           )}
 
-          {/* Metadata */}
-          <div className={styles.metadata}>
+          <div className={styles.metadataGrid}>
             {dlc.releaseDate && (
-              <div className={styles.metaItem}>
+              <div className={styles.metaCard}>
                 <Calendar className={styles.metaIcon} size={16} />
-                <span className={styles.metaLabel}>Released</span>
-                <span className={styles.metaValue}>
-                  {new Date(dlc.releaseDate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </span>
+                <div>
+                  <p className={styles.metaLabel}>Released</p>
+                  <p className={styles.metaValue}>
+                    {new Date(dlc.releaseDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
               </div>
             )}
             {dlc.price !== null && dlc.price !== undefined && (
-              <div className={styles.metaItem}>
+              <div className={styles.metaCard}>
                 <DollarSign className={styles.metaIcon} size={16} />
-                <span className={styles.metaLabel}>Price</span>
-                <span className={styles.metaValue}>
-                  ${dlc.price.toFixed(2)}
-                </span>
+                <div>
+                  <p className={styles.metaLabel}>Price</p>
+                  <p className={styles.metaValue}>${dlc.price.toFixed(2)}</p>
+                </div>
               </div>
             )}
           </div>
 
-          <div className={styles.stats}>
-            <div className={styles.stat}>
+          <div className={styles.statGrid}>
+            <div className={styles.statCard}>
               <span className={styles.statValue}>{dlc.achievementSetCount}</span>
-              <span className={styles.statLabel}>
-                {dlc.achievementSetCount === 1 ? "Achievement Set" : "Achievement Sets"}
-              </span>
+              <span className={styles.statLabel}>Achievement Sets</span>
             </div>
-            <div className={styles.stat}>
+            <div className={styles.statCard}>
               <span className={styles.statValue}>{dlc.bundles.length}</span>
-              <span className={styles.statLabel}>
-                {dlc.bundles.length === 1 ? "Bundle" : "Bundles"}
-              </span>
+              <span className={styles.statLabel}>Bundle Appearances</span>
+            </div>
+            <div className={styles.statCard}>
+              <span className={styles.statValue}>{dlc.isOwned ? "Yes" : "No"}</span>
+              <span className={styles.statLabel}>Owned</span>
             </div>
           </div>
 
@@ -338,57 +347,58 @@ export default function DLCDetailPage({
         </div>
       </header>
 
-      {/* Parent Game Section */}
       {dlc.gameFamily && (
-        <section className={styles.section}>
+        <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <Gamepad2 size={20} />
-              Parent Game
-            </h2>
+            <div>
+              <p className={styles.sectionEyebrow}>Base Title</p>
+              <h2 className={styles.sectionTitle}>Parent Game</h2>
+            </div>
           </div>
           <Link
             href={`/games/title/${dlc.gameFamily.slug}`}
-            className={styles.gameCard}
+            className={styles.contentCard}
           >
-            <div className={styles.gameImageContainer}>
+            <div className={styles.contentMedia}>
               <AppImage
                 src={dlc.gameFamily.coverUrl}
                 alt={dlc.gameFamily.title}
-                className={styles.gameImage}
+                className={styles.contentImage}
                 fallback={
-                  <div className={styles.gamePlaceholder}>
+                  <div className={styles.contentPlaceholder}>
                     <Gamepad2 size={24} />
                   </div>
                 }
               />
             </div>
-            <div className={styles.gameContent}>
-              <h3 className={styles.gameName}>{dlc.gameFamily.title}</h3>
+            <div className={styles.contentBody}>
+              <h3 className={styles.contentName}>{dlc.gameFamily.title}</h3>
+              <p className={styles.contentMeta}>
+                Return to the main title to track the full game family and related progress.
+              </p>
             </div>
           </Link>
         </section>
       )}
 
-      {/* Achievement Sets Section */}
       {dlc.achievementSets.length > 0 && (
-        <section className={styles.section}>
+        <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <Award size={20} />
-              Achievement Sets
-            </h2>
-            <span className={styles.sectionCount}>{dlc.achievementSets.length}</span>
+            <div>
+              <p className={styles.sectionEyebrow}>Challenges</p>
+              <h2 className={styles.sectionTitle}>Achievement Sets</h2>
+            </div>
+            <span className={styles.countPill}>{dlc.achievementSets.length}</span>
           </div>
-          <div className={styles.achievementSetList}>
+          <div className={styles.contentList}>
             {dlc.achievementSets.map((set) => (
-              <div key={set.id} className={styles.achievementSetCard}>
-                <div className={styles.achievementSetIcon}>
+              <div key={set.id} className={styles.contentCard}>
+                <div className={styles.iconTile}>
                   <Award size={20} />
                 </div>
-                <div className={styles.achievementSetContent}>
-                  <h3 className={styles.achievementSetName}>{set.title}</h3>
-                  <span className={styles.achievementSetCount}>
+                <div className={styles.contentBody}>
+                  <h3 className={styles.contentName}>{set.title}</h3>
+                  <span className={styles.contentPill}>
                     {set.achievementCount} {set.achievementCount === 1 ? "achievement" : "achievements"}
                   </span>
                 </div>
@@ -398,38 +408,37 @@ export default function DLCDetailPage({
         </section>
       )}
 
-      {/* Bundles Section */}
       {dlc.bundles.length > 0 && (
-        <section className={styles.section}>
+        <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>
-              <Package size={20} />
-              Available In
-            </h2>
-            <span className={styles.sectionCount}>{dlc.bundles.length}</span>
+            <div>
+              <p className={styles.sectionEyebrow}>Packaging</p>
+              <h2 className={styles.sectionTitle}>Available In</h2>
+            </div>
+            <span className={styles.countPill}>{dlc.bundles.length}</span>
           </div>
-          <div className={styles.bundleList}>
+          <div className={styles.contentList}>
             {dlc.bundles.map((bundle) => (
               <Link
                 key={bundle.id}
                 href={`/bundles/${bundle.id}`}
-                className={styles.bundleCard}
+                className={styles.contentCard}
               >
-                <div className={styles.bundleImageContainer}>
+                <div className={styles.contentMedia}>
                   <AppImage
                     src={bundle.coverUrl}
                     alt={bundle.name}
-                    className={styles.bundleImage}
+                    className={styles.contentImage}
                     fallback={
-                      <div className={styles.bundlePlaceholder}>
+                      <div className={styles.contentPlaceholder}>
                         <Package size={24} />
                       </div>
                     }
                   />
                 </div>
-                <div className={styles.bundleContent}>
-                  <h3 className={styles.bundleName}>{bundle.name}</h3>
-                  <span className={styles.bundleType}>{getBundleTypeLabel(bundle.type)}</span>
+                <div className={styles.contentBody}>
+                  <h3 className={styles.contentName}>{bundle.name}</h3>
+                  <span className={styles.contentPill}>{getBundleTypeLabel(bundle.type)}</span>
                 </div>
               </Link>
             ))}
@@ -437,13 +446,14 @@ export default function DLCDetailPage({
         </section>
       )}
 
-      {/* Empty content */}
       {dlc.achievementSets.length === 0 && dlc.bundles.length === 0 && !dlc.gameFamily && (
-        <EmptyState
-          icon={<Puzzle size={48} />}
-          title="No additional content"
-          description="This DLC doesn't have any associated achievement sets, bundles, or parent game."
-        />
+        <section className={styles.sectionPanel}>
+          <EmptyState
+            icon={<Puzzle size={48} />}
+            title="No additional content"
+            description="This DLC doesn't have any associated achievement sets, bundles, or parent game."
+          />
+        </section>
       )}
     </div>
   );

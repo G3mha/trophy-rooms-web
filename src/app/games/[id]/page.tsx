@@ -4,7 +4,7 @@ import { use, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
-import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert } from "lucide-react";
+import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon } from "lucide-react";
 import { useAdminMode } from "@/contexts/AdminModeContext";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
 import {
@@ -43,6 +43,14 @@ function sortByTier(achievements: Achievement[]): Achievement[] {
     const bTier = b.tier ?? "BRONZE";
     return tierPriority[bTier] - tierPriority[aTier];
   });
+}
+
+function formatEnumLabel(value: string): string {
+  return value
+    .toLowerCase()
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 interface Trophy {
@@ -287,6 +295,7 @@ export default function GameDetailPage({
   const completedCount = allAchievements.filter((a: Achievement) => a.isCompleted).length;
   const totalCount = allAchievements.length;
   const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const screenshotCount = game.screenshots.length;
 
   // Calculate total players for rarity (max userCount across all achievements)
   const totalPlayers = allAchievements.length > 0
@@ -344,9 +353,8 @@ export default function GameDetailPage({
 
   return (
     <div className={styles.container}>
-      {/* Game Header */}
-      <header className={styles.header}>
-        <div className={styles.coverContainer}>
+      <header className={styles.hero}>
+        <div className={styles.coverCard}>
           <AppImage
             src={game.coverUrl}
             alt={game.title}
@@ -358,72 +366,109 @@ export default function GameDetailPage({
             }
           />
         </div>
-        <div className={styles.headerContent}>
-          <div className={styles.titleRow}>
-            <h1 className={styles.title}>{game.title}</h1>
+        <div className={styles.heroContent}>
+          <div className={styles.heroHeader}>
+            <div className={styles.eyebrow}>
+              <Gamepad2 size={14} />
+              <span>Game Detail</span>
+            </div>
             {game.platform && (
               <span className={styles.platformBadge}>{game.platform.name}</span>
             )}
+          </div>
+          <div className={styles.titleBlock}>
+            <h1 className={styles.title}>{game.title}</h1>
+            <p className={styles.subtitle}>
+              Achievement tracking, release context, and community completion in one place.
+            </p>
           </div>
           {game.description && (
             <ExpandableText text={game.description} maxLines={4} className={styles.description} />
           )}
 
-          {/* Game Metadata */}
-          <div className={styles.metadata}>
+          <div className={styles.metadataGrid}>
             {game.releaseDate && (
-              <div className={styles.metaItem}>
+              <div className={styles.metaCard}>
                 <Calendar className={styles.metaIcon} size={16} />
-                <span className={styles.metaLabel}>Released</span>
-                <span className={styles.metaValue}>
-                  {new Date(game.releaseDate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </span>
+                <div>
+                  <p className={styles.metaLabel}>Released</p>
+                  <p className={styles.metaValue}>
+                    {new Date(game.releaseDate).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
               </div>
             )}
             {game.developer && (
-              <div className={styles.metaItem}>
+              <div className={styles.metaCard}>
                 <Code2 className={styles.metaIcon} size={16} />
-                <span className={styles.metaLabel}>Developer</span>
-                <span className={styles.metaValue}>{game.developer}</span>
+                <div>
+                  <p className={styles.metaLabel}>Developer</p>
+                  <p className={styles.metaValue}>{game.developer}</p>
+                </div>
               </div>
             )}
             {game.publisher && (
-              <div className={styles.metaItem}>
+              <div className={styles.metaCard}>
                 <Building2 className={styles.metaIcon} size={16} />
-                <span className={styles.metaLabel}>Publisher</span>
-                <span className={styles.metaValue}>{game.publisher}</span>
+                <div>
+                  <p className={styles.metaLabel}>Publisher</p>
+                  <p className={styles.metaValue}>{game.publisher}</p>
+                </div>
               </div>
             )}
             {game.genre && (
-              <div className={styles.metaItem}>
+              <div className={styles.metaCard}>
                 <Target className={styles.metaIcon} size={16} />
-                <span className={styles.metaLabel}>Genre</span>
-                <span className={styles.metaValue}>{game.genre}</span>
+                <div>
+                  <p className={styles.metaLabel}>Genre</p>
+                  <p className={styles.metaValue}>{game.genre}</p>
+                </div>
               </div>
             )}
             {game.esrbRating && (
-              <div className={styles.metaItem}>
+              <div className={styles.metaCard}>
                 <ShieldAlert className={styles.metaIcon} size={16} />
-                <span className={styles.metaLabel}>Rating</span>
-                <span className={styles.metaValue}>{game.esrbRating}</span>
+                <div>
+                  <p className={styles.metaLabel}>Rating</p>
+                  <p className={styles.metaValue}>{game.esrbRating}</p>
+                </div>
               </div>
             )}
           </div>
 
-          <div className={styles.stats}>
-            <div className={styles.stat}>
+          <div className={styles.statGrid}>
+            <div className={styles.statCard}>
               <span className={styles.statValue}>{totalCount}</span>
               <span className={styles.statLabel}>Achievements</span>
             </div>
-            <div className={styles.stat}>
-              <span className={styles.statValue}>{game.trophyCount}</span>
-              <span className={styles.statLabel}>Trophies Earned</span>
+            <div className={styles.statCard}>
+              <span className={styles.statValue}>{game.achievementSets.length}</span>
+              <span className={styles.statLabel}>Set Collections</span>
             </div>
+            <div className={styles.statCard}>
+              <span className={styles.statValue}>{game.trophyCount}</span>
+              <span className={styles.statLabel}>Crimson Trophies</span>
+            </div>
+            <div className={styles.statCard}>
+              <span className={styles.statValue}>{game.trophies.length}</span>
+              <span className={styles.statLabel}>Trophy Holders</span>
+            </div>
+            <div className={styles.statCard}>
+              <span className={styles.statValue}>{screenshotCount}</span>
+              <span className={styles.statLabel}>Screenshots</span>
+            </div>
+            {isSignedIn && totalCount > 0 && (
+              <div className={styles.statCard}>
+                <span className={styles.statValue}>{progress}%</span>
+                <span className={styles.statLabel}>Your Progress</span>
+              </div>
+            )}
           </div>
+
           <div className={styles.headerActions}>
             <GameStatusSelector gameId={id} />
             <BuylistSelector gameId={id} />
@@ -438,11 +483,14 @@ export default function GameDetailPage({
         </div>
       </header>
 
-      {/* Screenshots Gallery */}
-      {game.screenshots && game.screenshots.length > 0 && (
-        <section className={styles.screenshotsSection}>
+      {game.screenshots.length > 0 && (
+        <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Screenshots</h2>
+            <div>
+              <p className={styles.sectionEyebrow}>Visuals</p>
+              <h2 className={styles.sectionTitle}>Screenshot Gallery</h2>
+            </div>
+            <span className={styles.countPill}>{game.screenshots.length}</span>
           </div>
           <div className={styles.screenshotsGrid}>
             {game.screenshots.map((screenshot, index) => (
@@ -452,13 +500,16 @@ export default function GameDetailPage({
                 onClick={() => setSelectedScreenshot(index)}
               >
                 <AppImage src={screenshot} alt={`Screenshot ${index + 1}`} />
+                <span className={styles.screenshotCaption}>
+                  <ImageIcon size={14} />
+                  <span>Open shot {index + 1}</span>
+                </span>
               </button>
             ))}
           </div>
         </section>
       )}
 
-      {/* Screenshot Modal */}
       {selectedScreenshot !== null && game.screenshots && (
         <div
           className={styles.screenshotModal}
@@ -508,13 +559,15 @@ export default function GameDetailPage({
         </div>
       )}
 
-      {/* Progress Bar */}
       {isSignedIn && totalCount > 0 && (
-        <section className={styles.progressSection}>
-          <div className={styles.progressHeader}>
-            <span className={styles.progressLabel}>Your Progress</span>
-            <span className={styles.progressValue}>
-              {completedCount} / {totalCount} ({progress}%)
+        <section className={styles.progressPanel}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <p className={styles.sectionEyebrow}>Tracking</p>
+              <h2 className={styles.sectionTitle}>Your Progress</h2>
+            </div>
+            <span className={styles.progressSummary}>
+              {completedCount} / {totalCount} complete
             </span>
           </div>
           <div className={styles.progressBar}>
@@ -523,36 +576,46 @@ export default function GameDetailPage({
               style={{ width: `${progress}%` }}
             />
           </div>
+          <p className={styles.progressCopy}>
+            You have cleared {progress}% of this game&rsquo;s tracked achievements.
+          </p>
           {progress === 100 && (
             <div className={styles.crimsonTrophy}>
               <div className={styles.crimsonIcon}>
                 <Trophy size={32} />
               </div>
               <div className={styles.crimsonContent}>
-                <span className={styles.crimsonTitle}>Crimson Trophy Earned!</span>
-                <span className={styles.crimsonSubtitle}>100% Completion Achieved</span>
+                <span className={styles.crimsonTitle}>Crimson Trophy Earned</span>
+                <span className={styles.crimsonSubtitle}>100% completion achieved</span>
               </div>
             </div>
           )}
         </section>
       )}
 
-      {/* Achievement Sets */}
-      <section className={styles.achievementsSection}>
+      <section className={styles.sectionPanel}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Achievement Sets</h2>
+          <div>
+            <p className={styles.sectionEyebrow}>Challenges</p>
+            <h2 className={styles.sectionTitle}>Achievement Sets</h2>
+          </div>
+          <span className={styles.countPill}>{game.achievementSets.length}</span>
         </div>
 
         {game.achievementSets.length > 0 ? (
-          <div className={styles.achievementList}>
+          <div className={styles.achievementGroupList}>
             {game.achievementSets.map((set) => (
               <div key={set.id} className={styles.setCard}>
                 <div className={styles.setHeader}>
                   <div>
                     <h3 className={styles.setTitle}>{set.title}</h3>
-                    <p className={styles.setMeta}>
-                      {set.type} · {set.visibility.toLowerCase()}
-                    </p>
+                    <div className={styles.setMetaRow}>
+                      <span className={styles.metaBadge}>{formatEnumLabel(set.type)}</span>
+                      <span className={styles.metaBadgeMuted}>{formatEnumLabel(set.visibility)}</span>
+                      <span className={styles.metaBadgeMuted}>
+                        {set.achievements.length} achievement{set.achievements.length === 1 ? "" : "s"}
+                      </span>
+                    </div>
                   </div>
                   {isSignedIn &&
                     set.type === "CUSTOM" &&
@@ -609,125 +672,144 @@ export default function GameDetailPage({
       </section>
 
       {isSignedIn && (
-        <section className={styles.createSection}>
+        <section className={styles.creatorPanel}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Create Your Custom Set</h2>
+            <div>
+              <p className={styles.sectionEyebrow}>Create</p>
+              <h2 className={styles.sectionTitle}>Build Your Custom Challenge Set</h2>
+            </div>
           </div>
 
-          <form onSubmit={handleCreateCustomSet} className={styles.form}>
-            {setError && (
-              <div className={styles.error}>
-                <p>{setError}</p>
-              </div>
-            )}
-            <div className={styles.field}>
-              <label htmlFor="setTitle" className={styles.label}>
-                Set Title
-              </label>
-              <input
-                id="setTitle"
-                type="text"
-                value={newSetTitle}
-                onChange={(e) => setNewSetTitle(e.target.value)}
-                className={styles.input}
-                placeholder="e.g. Speedrunner Challenges"
-              />
-            </div>
-            <Button type="submit" loading={creatingSet}>
-              Create Custom Set
-            </Button>
-          </form>
-
-          {ownedCustomSets.length > 0 && (
-            <div className={styles.subSection}>
-              <h3 className={styles.subTitle}>Add Achievements</h3>
-              <form onSubmit={handleCreateAchievement} className={styles.form}>
-                {achievementError && (
+          <div className={styles.creatorGrid}>
+            <div className={styles.formCard}>
+              <h3 className={styles.formTitle}>Start a New Set</h3>
+              <p className={styles.formCopy}>
+                Create a personal ruleset for speedruns, challenge runs, or community events.
+              </p>
+              <form onSubmit={handleCreateCustomSet} className={styles.form}>
+                {setError && (
                   <div className={styles.error}>
-                    <p>{achievementError}</p>
+                    <p>{setError}</p>
                   </div>
                 )}
                 <div className={styles.field}>
-                  <label htmlFor="achievementSet" className={styles.label}>
-                    Custom Set
-                  </label>
-                  <select
-                    id="achievementSet"
-                    className={styles.select}
-                    value={achievementSetId}
-                    onChange={(e) => setAchievementSetId(e.target.value)}
-                  >
-                    <option value="">Select a set</option>
-                    {ownedCustomSets.map((set) => (
-                      <option key={set.id} value={set.id}>
-                        {set.title}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="achievementTitle" className={styles.label}>
-                    Achievement Title
+                  <label htmlFor="setTitle" className={styles.label}>
+                    Set Title
                   </label>
                   <input
-                    id="achievementTitle"
+                    id="setTitle"
                     type="text"
-                    value={achievementTitle}
-                    onChange={(e) => setAchievementTitle(e.target.value)}
+                    value={newSetTitle}
+                    onChange={(e) => setNewSetTitle(e.target.value)}
                     className={styles.input}
+                    placeholder="e.g. Speedrunner Challenges"
                   />
                 </div>
-                <div className={styles.field}>
-                  <label htmlFor="achievementDescription" className={styles.label}>
-                    Description
-                  </label>
-                  <textarea
-                    id="achievementDescription"
-                    value={achievementDescription}
-                    onChange={(e) => setAchievementDescription(e.target.value)}
-                    className={styles.textarea}
-                    rows={3}
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="achievementPoints" className={styles.label}>
-                    Points
-                  </label>
-                  <input
-                    id="achievementPoints"
-                    type="number"
-                    min="0"
-                    value={achievementPoints}
-                    onChange={(e) => setAchievementPoints(e.target.value)}
-                    className={styles.input}
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label htmlFor="achievementIconUrl" className={styles.label}>
-                    Icon URL
-                  </label>
-                  <input
-                    id="achievementIconUrl"
-                    type="url"
-                    value={achievementIconUrl}
-                    onChange={(e) => setAchievementIconUrl(e.target.value)}
-                    className={styles.input}
-                  />
-                </div>
-                <Button type="submit" loading={creatingAchievement}>
-                  Add Achievement
+                <Button type="submit" loading={creatingSet}>
+                  Create Custom Set
                 </Button>
               </form>
             </div>
-          )}
+
+            {ownedCustomSets.length > 0 && (
+              <div className={styles.formCard}>
+                <h3 className={styles.formTitle}>Add Achievements</h3>
+                <p className={styles.formCopy}>
+                  Expand one of your custom sets with new goals, descriptions, and iconography.
+                </p>
+                <form onSubmit={handleCreateAchievement} className={styles.form}>
+                  {achievementError && (
+                    <div className={styles.error}>
+                      <p>{achievementError}</p>
+                    </div>
+                  )}
+                  <div className={styles.field}>
+                    <label htmlFor="achievementSet" className={styles.label}>
+                      Custom Set
+                    </label>
+                    <select
+                      id="achievementSet"
+                      className={styles.select}
+                      value={achievementSetId}
+                      onChange={(e) => setAchievementSetId(e.target.value)}
+                    >
+                      <option value="">Select a set</option>
+                      {ownedCustomSets.map((set) => (
+                        <option key={set.id} value={set.id}>
+                          {set.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="achievementTitle" className={styles.label}>
+                      Achievement Title
+                    </label>
+                    <input
+                      id="achievementTitle"
+                      type="text"
+                      value={achievementTitle}
+                      onChange={(e) => setAchievementTitle(e.target.value)}
+                      className={styles.input}
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="achievementDescription" className={styles.label}>
+                      Description
+                    </label>
+                    <textarea
+                      id="achievementDescription"
+                      value={achievementDescription}
+                      onChange={(e) => setAchievementDescription(e.target.value)}
+                      className={styles.textarea}
+                      rows={3}
+                    />
+                  </div>
+                  <div className={styles.inlineFields}>
+                    <div className={styles.field}>
+                      <label htmlFor="achievementPoints" className={styles.label}>
+                        Points
+                      </label>
+                      <input
+                        id="achievementPoints"
+                        type="number"
+                        min="0"
+                        value={achievementPoints}
+                        onChange={(e) => setAchievementPoints(e.target.value)}
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <label htmlFor="achievementIconUrl" className={styles.label}>
+                        Icon URL
+                      </label>
+                      <input
+                        id="achievementIconUrl"
+                        type="url"
+                        value={achievementIconUrl}
+                        onChange={(e) => setAchievementIconUrl(e.target.value)}
+                        className={styles.input}
+                      />
+                    </div>
+                  </div>
+                  <Button type="submit" loading={creatingAchievement}>
+                    Add Achievement
+                  </Button>
+                </form>
+              </div>
+            )}
+          </div>
         </section>
       )}
 
-      {/* Trophy Holders */}
       {game.trophies.length > 0 && (
-        <section className={styles.trophySection}>
+        <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Trophy Holders</h2>
+            <div>
+              <p className={styles.sectionEyebrow}>Community</p>
+              <h2 className={styles.sectionTitle}>Trophy Holders</h2>
+            </div>
+            <span className={styles.countPill}>{game.trophies.length}</span>
           </div>
           <div className={styles.trophyHolders}>
             {game.trophies.map((trophy: Trophy) => (
@@ -740,7 +822,7 @@ export default function GameDetailPage({
                     {trophy.user.name || trophy.user.email}
                   </span>
                   <span className={styles.trophyDate}>
-                    {new Date(trophy.createdAt).toLocaleDateString()}
+                    Earned on {new Date(trophy.createdAt).toLocaleDateString()}
                   </span>
                 </div>
               </div>
