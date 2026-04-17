@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useLazyQuery } from "@apollo/client";
 import { Search, Gamepad2, Package, Puzzle, X } from "lucide-react";
 import { GLOBAL_SEARCH } from "@/graphql/queries";
+import { AppImage } from "./AppImage";
 import styles from "./GlobalSearch.module.css";
 
 type SearchResultType = "GAME" | "BUNDLE" | "DLC";
@@ -79,7 +80,10 @@ export function GlobalSearch({
     globalSearch: GlobalSearchResults;
   }>(GLOBAL_SEARCH);
 
-  const results = data?.globalSearch?.items ?? [];
+  const results = useMemo(
+    () => data?.globalSearch?.items ?? [],
+    [data?.globalSearch?.items]
+  );
 
   // Debounce search query
   useEffect(() => {
@@ -217,13 +221,15 @@ export function GlobalSearch({
                       onMouseEnter={() => setSelectedIndex(index)}
                     >
                       <div className={styles.resultImage}>
-                        {item.coverUrl ? (
-                          <img src={item.coverUrl} alt="" />
-                        ) : (
-                          <div className={styles.resultPlaceholder}>
-                            {getResultIcon(item.type)}
-                          </div>
-                        )}
+                        <AppImage
+                          src={item.coverUrl}
+                          alt=""
+                          fallback={
+                            <div className={styles.resultPlaceholder}>
+                              {getResultIcon(item.type)}
+                            </div>
+                          }
+                        />
                       </div>
                       <div className={styles.resultContent}>
                         <span className={styles.resultTitle}>{item.title}</span>

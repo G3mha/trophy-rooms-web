@@ -7,6 +7,7 @@ import { X, Disc, Package, BookOpen, Gift, Lock, Cloud } from "lucide-react";
 import { ADD_TO_COLLECTION, UPDATE_COLLECTION_ITEM } from "@/graphql/mutations";
 import { GET_MY_COLLECTION, GET_COLLECTION_STATS } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
+import { AppImage } from "./AppImage";
 import styles from "./AddToCollectionModal.module.css";
 
 export type GameRegion = "NTSC_U" | "PAL" | "NTSC_J" | "OTHER";
@@ -227,13 +228,11 @@ export function AddToCollectionModal({
         </div>
 
         <div className={styles.gameInfo}>
-          {game.coverUrl && (
-            <img
-              src={game.coverUrl}
-              alt={game.title}
-              className={styles.gameCover}
-            />
-          )}
+          <AppImage
+            src={game.coverUrl}
+            alt={game.title}
+            className={styles.gameCover}
+          />
           <h3 className={styles.gameTitle}>{game.title}</h3>
         </div>
 

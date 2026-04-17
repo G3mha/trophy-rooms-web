@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Gamepad2, Trophy } from "lucide-react";
+import { AppImage } from "./AppImage";
 import styles from "./GameProgressCard.module.css";
 
 interface GameProgressCardProps {
@@ -40,13 +41,16 @@ export function GameProgressCard({
     >
       {/* Cover Image */}
       <div className={styles.coverContainer}>
-        {gameCoverUrl ? (
-          <img src={gameCoverUrl} alt={gameTitle} className={styles.cover} />
-        ) : (
-          <div className={styles.coverPlaceholder}>
-            <Gamepad2 size={32} />
-          </div>
-        )}
+        <AppImage
+          src={gameCoverUrl}
+          alt={gameTitle}
+          className={styles.cover}
+          fallback={
+            <div className={styles.coverPlaceholder}>
+              <Gamepad2 size={32} />
+            </div>
+          }
+        />
         {hasTrophy && (
           <div className={styles.trophyOverlay}>
             <Trophy className={styles.trophyIcon} size={24} />
@@ -84,7 +88,7 @@ export function GameProgressCard({
           </div>
           <div className={styles.stat}>
             <span className={styles.statValue}>
-              {earnedPoints.toLocaleString()}
+              {earnedPoints.toLocaleString()}/{totalPoints.toLocaleString()}
             </span>
             <span className={styles.statLabel}>Points</span>
           </div>

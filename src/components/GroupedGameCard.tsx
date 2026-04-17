@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Gamepad2, Trophy, Star } from "lucide-react";
 import { handlePlatformIconError } from "@/lib/image-utils";
+import { AppImage } from "./AppImage";
 import styles from "./GroupedGameCard.module.css";
 
 interface Platform {
@@ -36,13 +37,16 @@ export function GroupedGameCard({
   return (
     <Link href={`/games/title/${slug}`} className={styles.card}>
       <div className={styles.imageContainer}>
-        {coverUrl ? (
-          <img src={coverUrl} alt={title} className={styles.image} />
-        ) : (
-          <div className={styles.placeholder}>
-            <Gamepad2 size={32} />
-          </div>
-        )}
+        <AppImage
+          src={coverUrl}
+          alt={title}
+          className={styles.image}
+          fallback={
+            <div className={styles.placeholder}>
+              <Gamepad2 size={32} />
+            </div>
+          }
+        />
         {totalTrophyCount > 0 && (
           <div className={styles.trophyBadge}>
             <Trophy size={14} />
@@ -60,7 +64,7 @@ export function GroupedGameCard({
         </div>
         <div className={styles.platformsRow}>
           {displayPlatforms.map((platform) => (
-            <img
+            <AppImage
               key={platform.id}
               src={`/platforms/${platform.slug}.svg`}
               alt={platform.name}

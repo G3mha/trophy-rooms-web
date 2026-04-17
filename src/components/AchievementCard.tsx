@@ -1,6 +1,7 @@
 "use client";
 
 import { Medal } from "lucide-react";
+import { AppImage } from "./AppImage";
 import styles from "./AchievementCard.module.css";
 
 export type AchievementTier = "BRONZE" | "SILVER" | "GOLD";
@@ -89,11 +90,14 @@ export function AchievementCard({
   return (
     <div className={`${styles.card} ${tierInfo.cardClass} ${isCompleted ? styles.completed : ""}`}>
       <div className={`${styles.icon} ${tierInfo.iconClass} ${isCompleted ? styles.iconCompleted : ""}`}>
-        {iconUrl ? (
-          <img src={iconUrl} alt={title} className={styles.iconImage} />
-        ) : (
-          <Medal className={styles.tierIcon} size={24} color={tierInfo.color} />
-        )}
+        <AppImage
+          src={iconUrl}
+          alt={title}
+          className={styles.iconImage}
+          fallback={
+            <Medal className={styles.tierIcon} size={24} color={tierInfo.color} />
+          }
+        />
         {!isCompleted && <div className={styles.iconShade} />}
       </div>
       <div className={styles.info}>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Package, Gamepad2, Puzzle } from "lucide-react";
+import { AppImage } from "./AppImage";
 import styles from "./BundleCard.module.css";
 
 interface BundleCardProps {
@@ -58,13 +59,16 @@ export function BundleCard({
   return (
     <Link href={`/bundles/${id}`} className={`${styles.card} ${compact ? styles.compact : ""}`}>
       <div className={styles.imageContainer}>
-        {coverUrl ? (
-          <img src={coverUrl} alt={name} className={styles.image} />
-        ) : (
-          <div className={styles.placeholder}>
-            <Package size={compact ? 20 : 32} />
-          </div>
-        )}
+        <AppImage
+          src={coverUrl}
+          alt={name}
+          className={styles.image}
+          fallback={
+            <div className={styles.placeholder}>
+              <Package size={compact ? 20 : 32} />
+            </div>
+          }
+        />
         <div className={`${styles.typeBadge} ${getBundleTypeClass(type)}`}>
           {getBundleTypeLabel(type)}
         </div>

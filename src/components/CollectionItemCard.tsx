@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Disc, Package, BookOpen, Gift, Lock, Pencil, Trash2 } from "lucide-react";
 import { handlePlatformIconError } from "@/lib/image-utils";
+import { AppImage } from "./AppImage";
 import styles from "./CollectionItemCard.module.css";
 
 export type GameRegion = "NTSC_U" | "PAL" | "NTSC_J" | "OTHER";
@@ -65,13 +66,16 @@ export function CollectionItemCard({
   return (
     <div className={styles.card}>
       <Link href={`/games/${game.id}`} className={styles.imageContainer}>
-        {game.coverUrl ? (
-          <img src={game.coverUrl} alt={game.title} className={styles.image} />
-        ) : (
-          <div className={styles.placeholder}>
-            <Disc size={32} />
-          </div>
-        )}
+        <AppImage
+          src={game.coverUrl}
+          alt={game.title}
+          className={styles.image}
+          fallback={
+            <div className={styles.placeholder}>
+              <Disc size={32} />
+            </div>
+          }
+        />
         <div
           className={styles.regionBadge}
           style={{ "--region-color": REGION_COLORS[region] } as React.CSSProperties}
@@ -93,7 +97,7 @@ export function CollectionItemCard({
 
         {platform && (
           <div className={styles.platform}>
-            <img
+            <AppImage
               src={`/platforms/${platform.slug}.svg`}
               alt={platform.name}
               className={styles.platformIcon}

@@ -20,7 +20,7 @@ import {
 import { handlePlatformIconError } from "@/lib/image-utils";
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
-import { LoadingSpinner, EmptyState, Button, FilterTabs, type FilterTab } from "@/components";
+import { LoadingSpinner, EmptyState, AppImage, Button, FilterTabs, type FilterTab } from "@/components";
 import {
   Dialog,
   DialogContent,
@@ -150,17 +150,16 @@ export default function LibraryPage() {
               <div key={item.id} className={styles.gameCard}>
                 <Link href={`/games/${item.gameId}`} className={styles.gameLink}>
                   <div className={styles.coverContainer}>
-                    {item.gameCoverUrl ? (
-                      <img
-                        src={item.gameCoverUrl}
-                        alt={item.gameTitle}
-                        className={styles.cover}
-                      />
-                    ) : (
-                      <div className={styles.coverPlaceholder}>
-                        <Gamepad2 size={32} />
-                      </div>
-                    )}
+                    <AppImage
+                      src={item.gameCoverUrl}
+                      alt={item.gameTitle}
+                      className={styles.cover}
+                      fallback={
+                        <div className={styles.coverPlaceholder}>
+                          <Gamepad2 size={32} />
+                        </div>
+                      }
+                    />
                     <div
                       className={styles.statusBadge}
                       style={
@@ -182,7 +181,7 @@ export default function LibraryPage() {
                     {item.platformName && (
                       <div className={styles.platformBadge}>
                         {item.platformSlug ? (
-                          <img
+                          <AppImage
                             src={`/platforms/${item.platformSlug}.svg`}
                             alt={item.platformName}
                             className={styles.platformIcon}

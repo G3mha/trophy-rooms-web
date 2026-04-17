@@ -61,7 +61,7 @@ export function BuylistSelector({
   const [notes, setNotes] = useState<string>("");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const { data, loading: queryLoading, refetch } = useQuery(IS_IN_BUYLIST, {
+  const { data, loading: queryLoading } = useQuery(IS_IN_BUYLIST, {
     variables: { gameId, dlcId, bundleId },
     skip: !isSignedIn || !itemId,
   });
@@ -187,8 +187,6 @@ export function BuylistSelector({
   }
 
   const loading = queryLoading || adding || removing;
-  const priorityConfig = PRIORITY_CONFIG[selectedPriority];
-
   return (
     <div
       ref={dropdownRef}

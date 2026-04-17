@@ -127,12 +127,16 @@ export default function CollectionPage() {
   );
 
   const items: CollectionItem[] = data?.myCollection || [];
-  const stats: CollectionStats = statsData?.collectionStats || {
-    totalItems: 0,
-    sealedCount: 0,
-    completeCount: 0,
-    byRegion: [],
-  };
+  const stats: CollectionStats = useMemo(
+    () =>
+      statsData?.collectionStats || {
+        totalItems: 0,
+        sealedCount: 0,
+        completeCount: 0,
+        byRegion: [],
+      },
+    [statsData]
+  );
 
   // Build region tabs with counts from stats (must be before early returns)
   const regionTabs: FilterTab<FilterRegion>[] = useMemo(() => {

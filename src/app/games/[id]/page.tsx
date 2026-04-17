@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/nextjs";
@@ -14,7 +14,7 @@ import {
   CREATE_ACHIEVEMENT,
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
-import { AchievementCard, Button, LoadingSpinner, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText } from "@/components";
+import { AchievementCard, AppImage, Button, LoadingSpinner, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
@@ -202,9 +202,13 @@ export default function GameDetailPage({
   const me = meData?.me;
 
   // Compute owned custom sets for useEffect dependency
-  const ownedCustomSets = game?.achievementSets.filter(
-    (set) => set.type === "CUSTOM" && set.createdByUserId === me?.id
-  ) ?? [];
+  const ownedCustomSets = useMemo(
+    () =>
+      game?.achievementSets.filter(
+        (set) => set.type === "CUSTOM" && set.createdByUserId === me?.id
+      ) ?? [],
+    [game?.achievementSets, me?.id]
+  );
 
   // Set default achievement set - must be before any conditional returns
   useEffect(() => {
@@ -343,13 +347,16 @@ export default function GameDetailPage({
       {/* Game Header */}
       <header className={styles.header}>
         <div className={styles.coverContainer}>
-          {game.coverUrl ? (
-            <img src={game.coverUrl} alt={game.title} className={styles.cover} />
-          ) : (
-            <div className={styles.coverPlaceholder}>
-              <Gamepad2 size={48} />
-            </div>
-          )}
+          <AppImage
+            src={game.coverUrl}
+            alt={game.title}
+            className={styles.cover}
+            fallback={
+              <div className={styles.coverPlaceholder}>
+                <Gamepad2 size={48} />
+              </div>
+            }
+          />
         </div>
         <div className={styles.headerContent}>
           <div className={styles.titleRow}>
@@ -444,7 +451,7 @@ export default function GameDetailPage({
                 className={styles.screenshotThumb}
                 onClick={() => setSelectedScreenshot(index)}
               >
-                <img src={screenshot} alt={`Screenshot ${index + 1}`} />
+                <AppImage src={screenshot} alt={`Screenshot ${index + 1}`} />
               </button>
             ))}
           </div>
@@ -476,7 +483,7 @@ export default function GameDetailPage({
           >
             ‹
           </button>
-          <img
+          <AppImage
             src={game.screenshots[selectedScreenshot]}
             alt={`Screenshot ${selectedScreenshot + 1}`}
             className={styles.modalImage}

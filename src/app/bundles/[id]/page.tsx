@@ -8,7 +8,7 @@ import { useAuth } from "@clerk/nextjs";
 import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { Button, LoadingSpinner, EmptyState, BuylistSelector, ExpandableText } from "@/components";
+import { AppImage, Button, LoadingSpinner, EmptyState, BuylistSelector, ExpandableText } from "@/components";
 import styles from "./page.module.css";
 
 const GET_BUNDLE_DETAIL = gql`
@@ -266,13 +266,16 @@ export default function BundleDetailPage({
       {/* Bundle Header */}
       <header className={styles.header}>
         <div className={styles.coverContainer}>
-          {bundle.coverUrl ? (
-            <img src={bundle.coverUrl} alt={bundle.name} className={styles.cover} />
-          ) : (
-            <div className={styles.coverPlaceholder}>
-              <Package size={48} />
-            </div>
-          )}
+          <AppImage
+            src={bundle.coverUrl}
+            alt={bundle.name}
+            className={styles.cover}
+            fallback={
+              <div className={styles.coverPlaceholder}>
+                <Package size={48} />
+              </div>
+            }
+          />
         </div>
         <div className={styles.headerContent}>
           <div className={styles.titleRow}>
@@ -369,17 +372,16 @@ export default function BundleDetailPage({
                 className={styles.dlcCard}
               >
                 <div className={styles.dlcImageContainer}>
-                  {game.coverUrl ? (
-                    <img
-                      src={game.coverUrl}
-                      alt={game.title}
-                      className={styles.dlcImage}
-                    />
-                  ) : (
-                    <div className={styles.dlcPlaceholder}>
-                      <Gamepad2 size={24} />
-                    </div>
-                  )}
+                  <AppImage
+                    src={game.coverUrl}
+                    alt={game.title}
+                    className={styles.dlcImage}
+                    fallback={
+                      <div className={styles.dlcPlaceholder}>
+                        <Gamepad2 size={24} />
+                      </div>
+                    }
+                  />
                 </div>
                 <div className={styles.dlcContent}>
                   <h3 className={styles.dlcName}>{game.title}</h3>
@@ -422,17 +424,16 @@ export default function BundleDetailPage({
                 className={styles.dlcCard}
               >
                 <div className={styles.dlcImageContainer}>
-                  {dlc.effectiveCoverUrl || dlc.coverUrl ? (
-                    <img
-                      src={dlc.effectiveCoverUrl || dlc.coverUrl || undefined}
-                      alt={dlc.name}
-                      className={styles.dlcImage}
-                    />
-                  ) : (
-                    <div className={styles.dlcPlaceholder}>
-                      <Puzzle size={24} />
-                    </div>
-                  )}
+                  <AppImage
+                    src={dlc.effectiveCoverUrl || dlc.coverUrl}
+                    alt={dlc.name}
+                    className={styles.dlcImage}
+                    fallback={
+                      <div className={styles.dlcPlaceholder}>
+                        <Puzzle size={24} />
+                      </div>
+                    }
+                  />
                 </div>
                 <div className={styles.dlcContent}>
                   <h3 className={styles.dlcName}>{dlc.name}</h3>

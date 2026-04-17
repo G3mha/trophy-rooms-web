@@ -7,6 +7,7 @@ import { X, DollarSign, Calendar } from "lucide-react";
 import { MARK_AS_PURCHASED } from "@/graphql/mutations";
 import { GET_MY_BUYLIST, GET_BUYLIST_STATS } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
+import { AppImage } from "./AppImage";
 import styles from "./MarkAsPurchasedModal.module.css";
 
 interface Platform {
@@ -109,13 +110,11 @@ export function MarkAsPurchasedModal({
         </div>
 
         <div className={styles.itemInfo}>
-          {item.displayCoverUrl && (
-            <img
-              src={item.displayCoverUrl}
-              alt={item.displayTitle}
-              className={styles.itemCover}
-            />
-          )}
+          <AppImage
+            src={item.displayCoverUrl}
+            alt={item.displayTitle}
+            className={styles.itemCover}
+          />
           <h3 className={styles.itemTitle}>{item.displayTitle}</h3>
         </div>
 

@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { GET_MY_BUYLIST, GET_BUYLIST_STATS } from "@/graphql/queries";
 import { REMOVE_FROM_BUYLIST } from "@/graphql/mutations";
-import { LoadingSpinner, EmptyState, Button, FilterTabs, type FilterTab } from "@/components";
+import { LoadingSpinner, EmptyState, AppImage, Button, FilterTabs, type FilterTab } from "@/components";
 import { MarkAsPurchasedModal } from "@/components/MarkAsPurchasedModal";
 import styles from "./page.module.css";
 
@@ -83,7 +83,7 @@ const ITEM_TYPE_COLORS: Record<string, string> = {
 };
 
 export default function BuylistPage() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded, userId } = useAuth();
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
   const [itemTypeFilter, setItemTypeFilter] = useState<ItemTypeFilter>("ALL");
   const [copiedLink, setCopiedLink] = useState(false);
@@ -148,7 +148,12 @@ export default function BuylistPage() {
   };
 
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/users/${data?.me?.id}/buylist`;
+    if (!userId) {
+      toast.error("Unable to build your public buylist link right now.");
+      return;
+    }
+
+    const shareUrl = `${window.location.origin}/users/${userId}/buylist`;
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopiedLink(true);
@@ -293,17 +298,16 @@ export default function BuylistPage() {
               <div key={item.id} className={styles.itemCard}>
                 <Link href={getItemLink(item)} className={styles.itemLink}>
                   <div className={styles.coverContainer}>
-                    {item.displayCoverUrl ? (
-                      <img
-                        src={item.displayCoverUrl}
-                        alt={item.displayTitle}
-                        className={styles.cover}
-                      />
-                    ) : (
-                      <div className={styles.coverPlaceholder}>
-                        <ItemTypeIcon size={32} />
-                      </div>
-                    )}
+                    <AppImage
+                      src={item.displayCoverUrl}
+                      alt={item.displayTitle}
+                      className={styles.cover}
+                      fallback={
+                        <div className={styles.coverPlaceholder}>
+                          <ItemTypeIcon size={32} />
+                        </div>
+                      }
+                    />
                     <div
                       className={styles.priorityBadge}
                       style={

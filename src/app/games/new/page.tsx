@@ -13,6 +13,11 @@ import { Button, LoadingSpinner, EmptyState } from "@/components";
 import { CoverPreview } from "@/components/admin";
 import styles from "./page.module.css";
 
+interface Platform {
+  id: string;
+  name: string;
+}
+
 export default function NewGamePage() {
   const router = useRouter();
   const { isSignedIn, isLoaded } = useAuth();
@@ -29,6 +34,7 @@ export default function NewGamePage() {
   const { data: platformsData } = useQuery(GET_PLATFORMS, {
     skip: !isSignedIn,
   });
+  const platforms: Platform[] = platformsData?.platforms ?? [];
 
   const isAdmin =
     meData?.me?.role === "ADMIN" || meData?.me?.role === "TRUSTED";
@@ -168,7 +174,7 @@ export default function NewGamePage() {
             className={styles.select}
           >
             <option value="">No platform</option>
-            {platformsData?.platforms?.map((platform: any) => (
+            {platforms.map((platform) => (
               <option key={platform.id} value={platform.id}>
                 {platform.name}
               </option>

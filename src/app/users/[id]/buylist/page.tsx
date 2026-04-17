@@ -16,7 +16,7 @@ import {
   StickyNote,
 } from "lucide-react";
 import { GET_USER_BUYLIST, GET_USER } from "@/graphql/queries";
-import { LoadingSpinner, EmptyState, Button } from "@/components";
+import { LoadingSpinner, EmptyState, AppImage, Button } from "@/components";
 import styles from "./page.module.css";
 
 interface BuylistItem {
@@ -215,17 +215,16 @@ export default function PublicBuylistPage({
               <div key={item.id} className={styles.itemCard}>
                 <Link href={getItemLink(item)} className={styles.itemLink}>
                   <div className={styles.coverContainer}>
-                    {item.displayCoverUrl ? (
-                      <img
-                        src={item.displayCoverUrl}
-                        alt={item.displayTitle}
-                        className={styles.cover}
-                      />
-                    ) : (
-                      <div className={styles.coverPlaceholder}>
-                        <ItemTypeIcon size={32} />
-                      </div>
-                    )}
+                    <AppImage
+                      src={item.displayCoverUrl}
+                      alt={item.displayTitle}
+                      className={styles.cover}
+                      fallback={
+                        <div className={styles.coverPlaceholder}>
+                          <ItemTypeIcon size={32} />
+                        </div>
+                      }
+                    />
                     <div
                       className={styles.priorityBadge}
                       style={

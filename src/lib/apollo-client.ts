@@ -4,7 +4,6 @@ import {
   createHttpLink,
   from,
 } from "@apollo/client";
-import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 
 const httpLink = createHttpLink({
@@ -24,30 +23,6 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (networkError) {
     console.error(`[Network error]: ${networkError}`);
   }
-});
-
-// Auth link - adds token to requests
-const authLink = setContext(async (_, { headers }) => {
-  // Get token from Clerk on client side
-  let token: string | null = null;
-
-  if (typeof window !== "undefined") {
-    // Dynamic import to avoid SSR issues
-    try {
-      const { useAuth } = await import("@clerk/nextjs");
-      // Note: This won't work directly - we need to use the provider approach
-      // Token will be injected via ApolloWrapper
-    } catch {
-      // Clerk not available
-    }
-  }
-
-  return {
-    headers: {
-      ...headers,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  };
 });
 
 // Create Apollo Client for SSR (without auth)

@@ -35,6 +35,12 @@ interface GameGroup {
   totalTrophyCount: number;
 }
 
+interface GameFilter {
+  search?: string;
+  platformId?: string;
+  hasAchievements?: boolean;
+}
+
 function groupGamesByTitle(games: GameNode[]): GameGroup[] {
   const groups = new Map<string, GameNode[]>();
 
@@ -72,9 +78,10 @@ export default function GamesPage() {
   });
 
   const { data: platformsData } = useQuery(GET_PLATFORMS);
+  const platforms: Platform[] = platformsData?.platforms ?? [];
 
   const filter = useMemo(() => {
-    const nextFilter: Record<string, any> = {};
+    const nextFilter: GameFilter = {};
     if (searchQuery) nextFilter.search = searchQuery;
     if (platformId) nextFilter.platformId = platformId;
     if (hasAchievements === "with") nextFilter.hasAchievements = true;
@@ -146,7 +153,7 @@ export default function GamesPage() {
             onChange={(e) => setPlatformId(e.target.value)}
           >
             <option value="">All Platforms</option>
-            {platformsData?.platforms?.map((platform: any) => (
+            {platforms.map((platform) => (
               <option key={platform.id} value={platform.id}>
                 {platform.name}
               </option>

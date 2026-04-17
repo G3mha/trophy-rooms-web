@@ -4,7 +4,7 @@ import { useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
 import { Gamepad2, Star, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
-import { GameCard, Button, LoadingSpinner, EmptyState, GlobalSearch } from "@/components";
+import { GameCard, AppImage, Button, LoadingSpinner, EmptyState, GlobalSearch } from "@/components";
 import styles from "./page.module.css";
 
 interface GameNode {
@@ -65,7 +65,7 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.heroVisual}>
-          <img
+          <AppImage
             src="/hero-platforms.png"
             alt="Trophy Rooms - Track achievements across Nintendo, PlayStation, Xbox, Steam, GOG, and RetroAchievements"
             className={styles.heroImage}
