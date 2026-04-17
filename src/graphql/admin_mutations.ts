@@ -283,7 +283,9 @@ export const CLONE_GAME_TO_PLATFORM = gql`
 
 export const ADD_PLATFORM_TO_GAME_FAMILY = gql`
   mutation AddPlatformToGameFamily($gameFamilyId: ID!, $platformId: ID!) {
-    addPlatformToGameFamily(gameFamilyId: $gameFamilyId, platformId: $platformId) {
+    addPlatformToGameFamily(
+      input: { gameFamilyId: $gameFamilyId, platformId: $platformId }
+    ) {
       success
       game {
         id
@@ -571,8 +573,8 @@ export const BULK_DELETE_BUNDLES = gql`
 `;
 
 export const ADD_GAME_TO_BUNDLE = gql`
-  mutation AddGameToBundle($gameId: ID!, $bundleId: ID!) {
-    addGameToBundle(gameId: $gameId, bundleId: $bundleId) {
+  mutation AddGameToBundle($gameFamilyId: ID!, $bundleId: ID!) {
+    addGameFamilyToBundle(gameFamilyId: $gameFamilyId, bundleId: $bundleId) {
       success
       bundle {
         id
@@ -588,8 +590,8 @@ export const ADD_GAME_TO_BUNDLE = gql`
 `;
 
 export const REMOVE_GAME_FROM_BUNDLE = gql`
-  mutation RemoveGameFromBundle($gameId: ID!, $bundleId: ID!) {
-    removeGameFromBundle(gameId: $gameId, bundleId: $bundleId) {
+  mutation RemoveGameFromBundle($gameFamilyId: ID!, $bundleId: ID!) {
+    removeGameFamilyFromBundle(gameFamilyId: $gameFamilyId, bundleId: $bundleId) {
       success
       bundle {
         id
