@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
-import { Lock } from "lucide-react";
+import { FilePlus2, Gamepad2, ImageIcon, Lock } from "lucide-react";
 import { CREATE_GAME } from "@/graphql/mutations";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
-import { Button, LoadingSpinner, EmptyState } from "@/components";
+import { Button, LoadingSpinner, EmptyState, FormAlert } from "@/components";
 import { CoverPreview } from "@/components/admin";
 import styles from "./page.module.css";
 
@@ -105,33 +105,73 @@ export default function NewGamePage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Add New Game</h1>
-        <p className={styles.subtitle}>
-          Add a game to the library
-        </p>
+      <header className={styles.hero}>
+        <div className={styles.heroContent}>
+          <div className={styles.eyebrow}>
+            <FilePlus2 size={14} />
+            <span>Catalog Admin</span>
+          </div>
+          <h1 className={styles.title}>Add New Game</h1>
+          <p className={styles.subtitle}>
+            Create a new library entry with its platform context, cover art, and base description.
+          </p>
+        </div>
+        <div className={styles.heroStats}>
+          <div className={styles.heroStat}>
+            <Gamepad2 size={16} />
+            <span>{platforms.length} platforms available</span>
+          </div>
+          <div className={styles.heroStat}>
+            <ImageIcon size={16} />
+            <span>Cover preview updates live</span>
+          </div>
+        </div>
       </header>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        {error && (
-          <div className={styles.error}>
-            <p>{error}</p>
+      <form onSubmit={handleSubmit} className={styles.formPanel}>
+        <div className={styles.formHeader}>
+          <div>
+            <p className={styles.sectionEyebrow}>Entry Setup</p>
+            <h2 className={styles.formTitle}>Core Metadata</h2>
           </div>
-        )}
+        </div>
 
-        <div className={styles.field}>
-          <label htmlFor="title" className={styles.label}>
-            Game Title *
-          </label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. The Legend of Zelda: Tears of the Kingdom"
-            className={styles.input}
-            required
-          />
+        {error && <FormAlert message={error} className={styles.formAlert} />}
+
+        <div className={styles.fieldGrid}>
+          <div className={styles.field}>
+            <label htmlFor="title" className={styles.label}>
+              Game Title *
+            </label>
+            <input
+              id="title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. The Legend of Zelda: Tears of the Kingdom"
+              className={styles.input}
+              required
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="platformId" className={styles.label}>
+              Platform
+            </label>
+            <select
+              id="platformId"
+              value={platformId}
+              onChange={(e) => setPlatformId(e.target.value)}
+              className={styles.select}
+            >
+              <option value="">No platform</option>
+              {platforms.map((platform) => (
+                <option key={platform.id} value={platform.id}>
+                  {platform.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className={styles.field}>
@@ -161,25 +201,6 @@ export default function NewGamePage() {
             className={styles.input}
           />
           {coverUrl && <CoverPreview url={coverUrl.trim()} alt="Cover preview" />}
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="platformId" className={styles.label}>
-            Platform
-          </label>
-          <select
-            id="platformId"
-            value={platformId}
-            onChange={(e) => setPlatformId(e.target.value)}
-            className={styles.select}
-          >
-            <option value="">No platform</option>
-            {platforms.map((platform) => (
-              <option key={platform.id} value={platform.id}>
-                {platform.name}
-              </option>
-            ))}
-          </select>
         </div>
 
         <div className={styles.actions}>

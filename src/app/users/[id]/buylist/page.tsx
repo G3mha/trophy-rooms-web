@@ -4,6 +4,7 @@ import { use } from "react";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import {
+  BookmarkPlus,
   ShoppingCart,
   Gamepad2,
   Package,
@@ -161,39 +162,29 @@ export default function PublicBuylistPage({
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div>
-            <h1 className={styles.title}>
-              {user.name || user.email}&apos;s Buylist
-            </h1>
-            <p className={styles.subtitle}>
-              Games, DLCs, and bundles they want to buy or receive as gifts
-            </p>
+      <header className={styles.hero}>
+        <div className={styles.heroContent}>
+          <div className={styles.eyebrow}>
+            <ShoppingCart size={14} />
+            <span>Shared Buylist</span>
           </div>
-          <Link href={`/users/${id}`} className={styles.profileLink}>
-            <User size={16} />
-            <span>View Profile</span>
-          </Link>
-        </div>
+          <h1 className={styles.title}>
+            {user.name || user.email}&apos;s Buylist
+          </h1>
+          <p className={styles.subtitle}>
+            Games, DLCs, and bundles they want to pick up or receive as gifts.
+          </p>
 
-        {/* Stats Bar */}
-        {totalItems > 0 && (
-          <div className={styles.statsBar}>
-            <div className={styles.statItem}>
+          <div className={styles.statsGrid}>
+            <div className={styles.statCard}>
               <span className={styles.statValue}>{totalItems}</span>
               <span className={styles.statLabel}>Items</span>
             </div>
-            <div className={styles.statDivider} />
-            <div className={styles.statItem}>
-              <span className={styles.statValue}>
-                ${totalEstimatedCost.toFixed(2)}
-              </span>
-              <span className={styles.statLabel}>Est. Total</span>
+            <div className={styles.statCard}>
+              <span className={styles.statValue}>${totalEstimatedCost.toFixed(2)}</span>
+              <span className={styles.statLabel}>Estimated Total</span>
             </div>
-            <div className={styles.statDivider} />
-            <div className={styles.statItem}>
+            <div className={styles.statCard}>
               <span
                 className={styles.statValue}
                 style={{ color: PRIORITY_COLORS.HIGH }}
@@ -203,11 +194,36 @@ export default function PublicBuylistPage({
               <span className={styles.statLabel}>High Priority</span>
             </div>
           </div>
-        )}
+        </div>
+        <div className={styles.heroSidebar}>
+          <div className={styles.contextCard}>
+            <div className={styles.contextHeader}>
+              <div className={styles.contextLabel}>
+                <BookmarkPlus size={14} />
+                <span>Share Context</span>
+              </div>
+              <Link href={`/users/${id}`} className={styles.profileLink}>
+                <User size={16} />
+                <span>View Profile</span>
+              </Link>
+            </div>
+            <p className={styles.contextCopy}>
+              Use this page as a quick reference for gifting ideas, backlog help, or wishlist comparisons.
+            </p>
+          </div>
+        </div>
       </header>
 
       {items.length > 0 ? (
-        <div className={styles.itemsGrid}>
+        <section className={styles.sectionPanel}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <p className={styles.sectionEyebrow}>Wishlist</p>
+              <h2 className={styles.sectionTitle}>Wanted Items</h2>
+            </div>
+            <span className={styles.countPill}>{items.length}</span>
+          </div>
+          <div className={styles.itemsGrid}>
           {items.map((item) => {
             const PriorityIcon = getPriorityIcon(item.priority);
             const ItemTypeIcon = getItemTypeIcon(item.itemType);
@@ -280,18 +296,21 @@ export default function PublicBuylistPage({
               </div>
             );
           })}
-        </div>
+          </div>
+        </section>
       ) : (
-        <EmptyState
-          icon={<ShoppingCart size={48} />}
-          title="Buylist is empty"
-          description="This user hasn't added any items to their buylist yet."
-          action={
-            <Button href={`/users/${id}`} variant="secondary">
-              View Profile
-            </Button>
-          }
-        />
+        <section className={styles.sectionPanel}>
+          <EmptyState
+            icon={<ShoppingCart size={48} />}
+            title="Buylist is empty"
+            description="This user hasn't added any items to their buylist yet."
+            action={
+              <Button href={`/users/${id}`} variant="secondary">
+                View Profile
+              </Button>
+            }
+          />
+        </section>
       )}
     </div>
   );

@@ -3,10 +3,10 @@
 import { use } from "react";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
-import { ArrowLeft, Gamepad2, Star, Trophy } from "lucide-react";
+import { ArrowLeft, Gamepad2, Layers3, Monitor, Star, Trophy } from "lucide-react";
 import { handlePlatformIconError } from "@/lib/image-utils";
 import { GET_GAMES_BY_TITLE } from "@/graphql/queries";
-import { LoadingSpinner, AppImage, Button, EmptyState } from "@/components";
+import { LoadingSpinner, AppImage, Button, EmptyState, ErrorState } from "@/components";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -57,12 +57,15 @@ export default function GameFamilyPage({
   if (error) {
     return (
       <div className={styles.container}>
-        <div className={styles.error}>
-          <p>Error loading game: {error.message}</p>
-          <Button href="/games" variant="secondary">
-            Back to Games
-          </Button>
-        </div>
+        <ErrorState
+          title="Couldn’t load this game family"
+          description={error.message}
+          action={
+            <Button href="/games" variant="secondary">
+              Back to Games
+            </Button>
+          }
+        />
       </div>
     );
   }
@@ -115,9 +118,8 @@ export default function GameFamilyPage({
         Back to Games
       </Link>
 
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.coverContainer}>
+      <header className={styles.hero}>
+        <div className={styles.coverCard}>
           <AppImage
             src={coverUrl}
             alt={displayTitle}
@@ -129,27 +131,44 @@ export default function GameFamilyPage({
             }
           />
         </div>
-        <div className={styles.headerContent}>
+        <div className={styles.heroContent}>
+          <div className={styles.eyebrow}>
+            <Layers3 size={14} />
+            <span>Game Family</span>
+          </div>
           <h1 className={styles.title}>{displayTitle}</h1>
+          <p className={styles.subtitle}>
+            Compare platform variants, achievement totals, and trophy support for this title group.
+          </p>
           <div className={styles.stats}>
-            <div className={styles.stat}>
+            <div className={styles.statCard}>
+              <span className={styles.statValue}>{games.length}</span>
+              <span className={styles.statLabel}>Platform Versions</span>
+            </div>
+            <div className={styles.statCard}>
               <span className={styles.statValue}>{totalAchievements}</span>
               <span className={styles.statLabel}>Total Achievements</span>
             </div>
-            <div className={styles.stat}>
+            <div className={styles.statCard}>
               <span className={styles.statValue}>{totalTrophies}</span>
               <span className={styles.statLabel}>Total Trophies</span>
             </div>
           </div>
-          <p className={styles.platformCount}>
-            Available on {games.length} platforms
-          </p>
+          <div className={styles.platformCount}>
+            <Monitor size={16} />
+            <span>Available across {games.length} tracked platforms</span>
+          </div>
         </div>
       </header>
 
-      {/* Platform Versions */}
-      <section className={styles.versionsSection}>
-        <h2 className={styles.sectionTitle}>Platform Versions</h2>
+      <section className={styles.sectionPanel}>
+        <div className={styles.sectionHeader}>
+          <div>
+            <p className={styles.sectionEyebrow}>Variants</p>
+            <h2 className={styles.sectionTitle}>Platform Versions</h2>
+          </div>
+          <span className={styles.countPill}>{games.length}</span>
+        </div>
         <div className={styles.versionsList}>
           {games.map((game) => (
             <Link
