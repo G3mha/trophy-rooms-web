@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { BookMarked } from "lucide-react";
 import styles from "./EmptyState.module.css";
 
@@ -6,6 +7,7 @@ interface EmptyStateProps {
   title: string;
   description?: string;
   action?: React.ReactNode;
+  className?: string;
 }
 
 export function EmptyState({
@@ -13,9 +15,10 @@ export function EmptyState({
   title,
   description,
   action,
+  className,
 }: EmptyStateProps) {
   return (
-    <div className={styles.container}>
+    <div className={cn(styles.container, className)}>
       <div className={styles.icon}>{icon}</div>
       <h3 className={styles.title}>{title}</h3>
       {description && <p className={styles.description}>{description}</p>}

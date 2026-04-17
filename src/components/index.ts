@@ -6,6 +6,8 @@ export { GameCard } from "./GameCard";
 export { GroupedGameCard } from "./GroupedGameCard";
 export { AchievementCard } from "./AchievementCard";
 export { EmptyState } from "./EmptyState";
+export { ErrorState } from "./ErrorState";
+export { FormAlert } from "./FormAlert";
 export { StatCard } from "./StatCard";
 export { Button } from "./Button";
 export { ProfileHeader } from "./ProfileHeader";

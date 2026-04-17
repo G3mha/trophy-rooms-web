@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect, KeyboardEvent, ClipboardEvent } from "react";
+import { FormAlert } from "@/components";
 import styles from "./VerificationCodeInput.module.css";
 
 interface VerificationCodeInputProps {
@@ -110,7 +111,7 @@ export function VerificationCodeInput({
           />
         ))}
       </div>
-      {error && <div className={styles.error}>{error}</div>}
+      {error && <FormAlert message={error} />}
     </div>
   );
 }

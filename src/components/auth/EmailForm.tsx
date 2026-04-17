@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { FormAlert } from "@/components";
 import styles from "./EmailForm.module.css";
 
 interface EmailFormProps {
@@ -79,7 +80,7 @@ export function EmailForm({
         )}
       </div>
 
-      {error && <div className={styles.error}>{error}</div>}
+      {error && <FormAlert message={error} />}
 
       <button
         type="submit"

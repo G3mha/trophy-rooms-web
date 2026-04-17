@@ -22,17 +22,17 @@
   width: 100%;
   padding: 14px 18px;
   font-size: 16px;
-  background: var(--bg-secondary);
-  border: 2px solid var(--border-color);
-  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
   color: var(--text-primary);
   transition: all 0.2s ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--nintendo-red);
-  box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.2);
+  border-color: rgba(255, 159, 171, 0.36);
+  box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.12);
 }
 
 .input::placeholder {
@@ -78,24 +78,15 @@
   margin: 0;
 }
 
-.error {
-  padding: 12px 16px;
-  background: rgba(230, 0, 18, 0.1);
-  border: 1px solid var(--nintendo-red);
-  border-radius: var(--border-radius);
-  color: var(--nintendo-red-light);
-  font-size: 14px;
-}
-
 .submitButton {
   width: 100%;
   padding: 14px 24px;
   font-size: 16px;
   font-weight: 600;
   color: white;
-  background: var(--nintendo-red);
+  background: linear-gradient(135deg, var(--nintendo-red), var(--switch-neon-red));
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -104,12 +95,12 @@
 }
 
 .submitButton:hover:not(:disabled) {
-  background: var(--nintendo-red-dark);
-  transform: scale(1.02);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(230, 0, 18, 0.22);
 }
 
 .submitButton:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: translateY(0);
 }
 
 .submitButton:disabled {
