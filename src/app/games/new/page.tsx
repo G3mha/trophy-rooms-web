@@ -6,11 +6,12 @@ import { useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
 import { FilePlus2, Gamepad2, ImageIcon, Lock } from "lucide-react";
-import { CREATE_GAME } from "@/graphql/mutations";
+import { CREATE_GAME_FAMILY } from "@/graphql/mutations";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import { Button, LoadingSpinner, EmptyState, FormAlert } from "@/components";
 import { CoverPreview } from "@/components/admin";
+import { generateSlug } from "@/lib/slug-utils";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -24,7 +25,7 @@ export default function NewGamePage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
-  const [platformId, setPlatformId] = useState("");
+  const [platformIds, setPlatformIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
   const { data: meData, loading: meLoading } = useQuery(GET_ME, {
@@ -39,14 +40,20 @@ export default function NewGamePage() {
   const isAdmin =
     meData?.me?.role === "ADMIN" || meData?.me?.role === "TRUSTED";
 
-  const [createGame, { loading }] = useMutation(CREATE_GAME, {
+  const [createGameFamily, { loading }] = useMutation(CREATE_GAME_FAMILY, {
     refetchQueries: [{ query: GET_GAMES, variables: { first: 12 } }],
     onCompleted: (data) => {
-      if (data.createGame.success) {
-        toast.success("Game created successfully.");
-        router.push(`/games/${data.createGame.game.id}`);
+      if (data.createGameFamily.success) {
+        const trimmedTitle = title.trim();
+        const count = platformIds.size;
+        toast.success(
+          count > 1
+            ? `Created ${trimmedTitle} for ${count} platforms.`
+            : "Game created successfully."
+        );
+        router.push(`/games/title/${encodeURIComponent(generateSlug(trimmedTitle))}`);
       } else {
-        const errorMsg = data.createGame.error?.message || "Failed to create game";
+        const errorMsg = data.createGameFamily.error?.message || "Failed to create game";
         setError(errorMsg);
         toast.error(errorMsg);
       }
@@ -66,13 +73,18 @@ export default function NewGamePage() {
       return;
     }
 
-    await createGame({
+    if (platformIds.size === 0) {
+      setError("Select at least one platform.");
+      return;
+    }
+
+    await createGameFamily({
       variables: {
         input: {
           title: title.trim(),
           description: description.trim() || null,
           coverUrl: coverUrl.trim() || null,
-          platformId: platformId || null,
+          platformIds: Array.from(platformIds),
         },
       },
     });
@@ -119,7 +131,11 @@ export default function NewGamePage() {
         <div className={styles.heroStats}>
           <div className={styles.heroStat}>
             <Gamepad2 size={16} />
-            <span>{platforms.length} platforms available</span>
+            <span>
+              {platformIds.size > 0
+                ? `${platformIds.size} selected`
+                : `${platforms.length} platforms available`}
+            </span>
           </div>
           <div className={styles.heroStat}>
             <ImageIcon size={16} />
@@ -155,22 +171,29 @@ export default function NewGamePage() {
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="platformId" className={styles.label}>
-              Platform
+            <label className={styles.label}>
+              Platforms *
             </label>
-            <select
-              id="platformId"
-              value={platformId}
-              onChange={(e) => setPlatformId(e.target.value)}
-              className={styles.select}
-            >
-              <option value="">No platform</option>
+            <div className={styles.checkboxList}>
               {platforms.map((platform) => (
-                <option key={platform.id} value={platform.id}>
-                  {platform.name}
-                </option>
+                <label key={platform.id} className={styles.checkboxOption}>
+                  <input
+                    type="checkbox"
+                    checked={platformIds.has(platform.id)}
+                    onChange={(e) => {
+                      const next = new Set(platformIds);
+                      if (e.target.checked) {
+                        next.add(platform.id);
+                      } else {
+                        next.delete(platform.id);
+                      }
+                      setPlatformIds(next);
+                    }}
+                  />
+                  <span className={styles.checkboxOptionText}>{platform.name}</span>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
         </div>
 

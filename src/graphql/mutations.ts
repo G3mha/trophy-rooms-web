@@ -23,6 +23,20 @@ export const CREATE_GAME = gql`
   ${GAME_FRAGMENT}
 `;
 
+export const CREATE_GAME_FAMILY = gql`
+  mutation CreateGameFamily($input: CreateGameFamilyInput!) {
+    createGameFamily(input: $input) {
+      success
+      gameFamilyId
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+`;
+
 export const UPDATE_GAME = gql`
   mutation UpdateGame($id: ID!, $input: UpdateGameInput!) {
     updateGame(id: $id, input: $input) {
