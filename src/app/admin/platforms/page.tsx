@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
@@ -15,9 +15,8 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Gamepad2 } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { Button, LoadingSpinner } from "@/components";
-import { AdminConfirmDialog } from "@/components/admin";
+import { AdminConfirmDialog, AdminImage, CoverPreview } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import {
   Dialog,
@@ -53,8 +52,6 @@ interface Platform {
 export default function AdminPlatformsPage() {
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredPlatforms, setFilteredPlatforms] = useState<Platform[]>([]);
-
   // Add modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
@@ -159,22 +156,21 @@ export default function AdminPlatformsPage() {
     onError: (error) => toast.error(error.message || "Failed to delete release date."),
   });
 
-  const platforms: Platform[] = platformsData?.platforms || [];
-
-  // Filter platforms based on search
-  useEffect(() => {
+  const platforms: Platform[] = useMemo(
+    () => platformsData?.platforms || [],
+    [platformsData]
+  );
+  const filteredPlatforms = useMemo(() => {
     if (!searchQuery.trim()) {
-      setFilteredPlatforms(platforms);
-    } else {
-      const query = searchQuery.toLowerCase();
-      setFilteredPlatforms(
-        platforms.filter(
-          (p) =>
-            p.name.toLowerCase().includes(query) ||
-            p.slug.toLowerCase().includes(query)
-        )
-      );
+      return platforms;
     }
+
+    const query = searchQuery.toLowerCase();
+    return platforms.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        p.slug.toLowerCase().includes(query)
+    );
   }, [searchQuery, platforms]);
 
   const resetAddForm = () => {
@@ -317,7 +313,7 @@ export default function AdminPlatformsPage() {
           <h1 className={styles.pageTitle}>Platforms</h1>
           <p className={styles.sectionSubtitle}>Create and manage gaming platforms.</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className={styles.headerActions}>
           {selectedIds.size > 0 && (
             <Button
               variant="outline"
@@ -328,6 +324,15 @@ export default function AdminPlatformsPage() {
               Delete {selectedIds.size}
             </Button>
           )}
+        </div>
+      </div>
+
+      <div className={`${styles.contextPanel} ${styles.contextPanelCompact}`}>
+        <div className={styles.contextPanelHeader}>
+          <h2 className={styles.contextPanelTitle}>Library Assets</h2>
+          <p className={styles.contextPanelDescription}>
+            Platforms drive console branding, promo art, and regional launch metadata across the admin tools.
+          </p>
         </div>
       </div>
 
@@ -351,7 +356,7 @@ export default function AdminPlatformsPage() {
 
       {/* Add Platform Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="sm:max-w-[420px]" onEnterKeySubmit={handleCreatePlatform}>
+        <DialogContent className="sm:max-w-[620px]" onEnterKeySubmit={handleCreatePlatform}>
           <DialogHeader>
             <DialogTitle>Add New Platform</DialogTitle>
             <DialogDescription>
@@ -359,104 +364,116 @@ export default function AdminPlatformsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className="flex flex-col gap-5 py-2 max-h-[60vh] overflow-y-auto">
-            <FormField label="Platform Name" required>
-              <Input
-                placeholder="e.g. PlayStation 5"
-                value={newName}
-                onChange={(e) => {
-                  setNewName(e.target.value);
-                  if (!newSlug || newSlug === generateSlug(newName)) {
-                    setNewSlug(generateSlug(e.target.value));
-                  }
-                }}
-              />
-            </FormField>
+          <DialogBody className="flex flex-col gap-6 py-2 max-h-[65vh] overflow-y-auto">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                  Identity
+                </h3>
+                <p className="mt-1 text-sm text-[var(--text-muted)]">
+                  The core fields used for platform naming and URLs.
+                </p>
+              </div>
 
-            <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
-              <Input
-                placeholder="e.g. ps5"
-                value={newSlug}
-                onChange={(e) => setNewSlug(e.target.value)}
-              />
-            </FormField>
+              <FormField label="Platform Name" required>
+                <Input
+                  placeholder="e.g. PlayStation 5"
+                  value={newName}
+                  onChange={(e) => {
+                    setNewName(e.target.value);
+                    if (!newSlug || newSlug === generateSlug(newName)) {
+                      setNewSlug(generateSlug(e.target.value));
+                    }
+                  }}
+                />
+              </FormField>
 
-            <FormField label="Description">
-              <Textarea
-                placeholder="A brief description of the platform..."
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-                rows={3}
-              />
-            </FormField>
+              <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
+                <Input
+                  placeholder="e.g. ps5"
+                  value={newSlug}
+                  onChange={(e) => setNewSlug(e.target.value)}
+                />
+              </FormField>
 
-            <FormField label="Console Picture URL" hint="Transparent PNG of the console">
-              <Input
-                placeholder="https://example.com/console.png"
-                value={newConsolePictureUrl}
-                onChange={(e) => setNewConsolePictureUrl(e.target.value)}
-              />
-              {newConsolePictureUrl && (
-                <div className="mt-2 flex justify-center">
-                  <img
-                    src={newConsolePictureUrl}
-                    alt="Console preview"
-                    className="max-h-24 object-contain rounded"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
+              <FormField label="Description">
+                <Textarea
+                  placeholder="A brief description of the platform..."
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  rows={3}
+                />
+              </FormField>
+            </div>
+
+            <div className="space-y-4 border-t border-[var(--border-color)] pt-4">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                  Visual Assets
+                </h3>
+                <p className="mt-1 text-sm text-[var(--text-muted)]">
+                  Optional imagery used in cards, banners, and platform pages.
+                </p>
+              </div>
+
+              <FormField label="Console Picture URL" hint="Transparent PNG of the console">
+                <Input
+                  placeholder="https://example.com/console.png"
+                  value={newConsolePictureUrl}
+                  onChange={(e) => setNewConsolePictureUrl(e.target.value)}
+                />
+                {newConsolePictureUrl.trim() && (
+                  <CoverPreview
+                    url={newConsolePictureUrl.trim()}
+                    alt="Console picture preview"
                   />
-                </div>
-              )}
-            </FormField>
+                )}
+              </FormField>
 
-            <FormField label="Promotional Pictures" hint="Add URLs for promotional images">
-              <div className="flex flex-col gap-2">
-                {newPromotionalPictures.map((url, index) => (
-                  <div key={index} className="flex gap-2 items-start">
-                    {url && (
-                      <div className="w-16 h-12 flex-shrink-0 bg-muted rounded overflow-hidden">
-                        <img
+              <FormField label="Promotional Pictures" hint="Add URLs for promotional images">
+                <div className={styles.mediaList}>
+                  {newPromotionalPictures.map((url, index) => (
+                    <div key={index} className={styles.mediaRow}>
+                      <div className={styles.mediaThumb}>
+                        <AdminImage
                           src={url}
                           alt={`Promo ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = "none";
-                          }}
+                          fallback={
+                            <ImageIcon size={18} className="text-[var(--text-muted)]" />
+                          }
                         />
                       </div>
-                    )}
-                    <Input
-                      placeholder="https://example.com/promo.png"
-                      value={url}
-                      onChange={(e) => {
-                        const updated = [...newPromotionalPictures];
-                        updated[index] = e.target.value;
-                        setNewPromotionalPictures(updated);
-                      }}
-                      className="flex-1"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        setNewPromotionalPictures(newPromotionalPictures.filter((_, i) => i !== index));
-                      }}
-                    >
-                      <X size={14} />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setNewPromotionalPictures([...newPromotionalPictures, ""])}
-                >
-                  <ImageIcon size={14} />
-                  Add Picture URL
-                </Button>
-              </div>
-            </FormField>
+                      <Input
+                        placeholder="https://example.com/promo.png"
+                        value={url}
+                        onChange={(e) => {
+                          const updated = [...newPromotionalPictures];
+                          updated[index] = e.target.value;
+                          setNewPromotionalPictures(updated);
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setNewPromotionalPictures(newPromotionalPictures.filter((_, i) => i !== index));
+                        }}
+                      >
+                        <X size={14} />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setNewPromotionalPictures([...newPromotionalPictures, ""])}
+                  >
+                    <ImageIcon size={14} />
+                    Add Picture URL
+                  </Button>
+                </div>
+              </FormField>
+            </div>
           </DialogBody>
 
           <DialogFooter>
@@ -485,7 +502,7 @@ export default function AdminPlatformsPage() {
         setIsEditModalOpen(open);
         if (!open) resetEditForm();
       }}>
-        <DialogContent className="sm:max-w-[420px]" onEnterKeySubmit={handleUpdatePlatform}>
+        <DialogContent className="sm:max-w-[680px]" onEnterKeySubmit={handleUpdatePlatform}>
           <DialogHeader>
             <DialogTitle>Edit Platform</DialogTitle>
             <DialogDescription>
@@ -493,190 +510,206 @@ export default function AdminPlatformsPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className="flex flex-col gap-5 py-2 max-h-[60vh] overflow-y-auto">
-            <FormField label="Platform Name" required>
-              <Input
-                placeholder="e.g. PlayStation 5"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-              />
-            </FormField>
+          <DialogBody className="flex flex-col gap-6 py-2 max-h-[70vh] overflow-y-auto">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                  Identity
+                </h3>
+                <p className="mt-1 text-sm text-[var(--text-muted)]">
+                  Core metadata for the platform record.
+                </p>
+              </div>
 
-            <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
-              <Input
-                placeholder="e.g. ps5"
-                value={editSlug}
-                onChange={(e) => setEditSlug(e.target.value)}
-              />
-            </FormField>
+              <FormField label="Platform Name" required>
+                <Input
+                  placeholder="e.g. PlayStation 5"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                />
+              </FormField>
 
-            <FormField label="Description">
-              <Textarea
-                placeholder="A brief description of the platform..."
-                value={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-                rows={3}
-              />
-            </FormField>
+              <FormField label="Slug" required hint="URL-friendly identifier (lowercase, no spaces)">
+                <Input
+                  placeholder="e.g. ps5"
+                  value={editSlug}
+                  onChange={(e) => setEditSlug(e.target.value)}
+                />
+              </FormField>
 
-            <FormField label="Console Picture URL" hint="Transparent PNG of the console">
-              <Input
-                placeholder="https://example.com/console.png"
-                value={editConsolePictureUrl}
-                onChange={(e) => setEditConsolePictureUrl(e.target.value)}
-              />
-              {editConsolePictureUrl && (
-                <div className="mt-2 flex justify-center">
-                  <img
-                    src={editConsolePictureUrl}
+              <FormField label="Description">
+                <Textarea
+                  placeholder="A brief description of the platform..."
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  rows={3}
+                />
+              </FormField>
+            </div>
+
+            <div className="space-y-4 border-t border-[var(--border-color)] pt-4">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                  Visual Assets
+                </h3>
+                <p className="mt-1 text-sm text-[var(--text-muted)]">
+                  Maintain the console hero art and supporting promotional images.
+                </p>
+              </div>
+
+              <FormField label="Console Picture URL" hint="Transparent PNG of the console">
+                <Input
+                  placeholder="https://example.com/console.png"
+                  value={editConsolePictureUrl}
+                  onChange={(e) => setEditConsolePictureUrl(e.target.value)}
+                />
+                {editConsolePictureUrl.trim() && (
+                  <CoverPreview
+                    url={editConsolePictureUrl.trim()}
                     alt="Console preview"
-                    className="max-h-24 object-contain rounded"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
                   />
-                </div>
-              )}
-            </FormField>
+                )}
+              </FormField>
 
-            <FormField label="Promotional Pictures" hint="Add URLs for promotional images">
-              <div className="flex flex-col gap-2">
-                {editPromotionalPictures.map((url, index) => (
-                  <div key={index} className="flex gap-2 items-start">
-                    {url && (
-                      <div className="w-16 h-12 flex-shrink-0 bg-muted rounded overflow-hidden">
-                        <img
+              <FormField label="Promotional Pictures" hint="Add URLs for promotional images">
+                <div className={styles.mediaList}>
+                  {editPromotionalPictures.map((url, index) => (
+                    <div key={index} className={styles.mediaRow}>
+                      <div className={styles.mediaThumb}>
+                        <AdminImage
                           src={url}
                           alt={`Promo ${index + 1}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = "none";
-                          }}
+                          fallback={
+                            <ImageIcon size={18} className="text-[var(--text-muted)]" />
+                          }
                         />
                       </div>
-                    )}
-                    <Input
-                      placeholder="https://example.com/promo.png"
-                      value={url}
-                      onChange={(e) => {
-                        const updated = [...editPromotionalPictures];
-                        updated[index] = e.target.value;
-                        setEditPromotionalPictures(updated);
-                      }}
-                      className="flex-1"
-                    />
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        setEditPromotionalPictures(editPromotionalPictures.filter((_, i) => i !== index));
-                      }}
-                    >
-                      <X size={14} />
-                    </Button>
-                  </div>
-                ))}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditPromotionalPictures([...editPromotionalPictures, ""])}
-                >
-                  <ImageIcon size={14} />
-                  Add Picture URL
-                </Button>
-              </div>
-            </FormField>
-
-            <FormField label="Release Dates" hint="Manage regional release dates">
-              <div className="flex flex-col gap-2">
-                {/* Existing releases */}
-                {editingPlatform?.releases?.map((release) => (
-                  <div key={release.id} className="flex gap-2 items-center">
-                    {editingReleaseId === release.id ? (
-                      <>
-                        <Input
-                          placeholder="Region (e.g. NA, EU, JP)"
-                          value={editReleaseRegion}
-                          onChange={(e) => setEditReleaseRegion(e.target.value)}
-                          className="flex-1"
-                        />
-                        <Input
-                          type="date"
-                          value={editReleaseDate}
-                          onChange={(e) => setEditReleaseDate(e.target.value)}
-                          className="w-36"
-                        />
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={handleUpdateRelease}
-                          disabled={updatingRelease || !editReleaseRegion || !editReleaseDate}
-                        >
-                          {updatingRelease ? "..." : "Save"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={cancelEditRelease}
-                        >
-                          <X size={14} />
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex-1 flex items-center gap-2 py-2 px-3 bg-muted rounded text-sm">
-                          <span className="font-medium">{release.region}</span>
-                          <span className="text-muted-foreground">-</span>
-                          <span className="text-muted-foreground">
-                            {new Date(release.releaseDate).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => startEditRelease(release)}
-                        >
-                          <Pencil size={14} />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => handleDeleteRelease(release.id)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 size={14} />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                ))}
-
-                {/* Add new release form */}
-                <div className="flex gap-2 items-center pt-2 border-t border-border mt-1">
-                  <Input
-                    placeholder="Region (e.g. NA, EU, JP)"
-                    value={newReleaseRegion}
-                    onChange={(e) => setNewReleaseRegion(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Input
-                    type="date"
-                    value={newReleaseDate}
-                    onChange={(e) => setNewReleaseDate(e.target.value)}
-                    className="w-36"
-                  />
+                      <Input
+                        placeholder="https://example.com/promo.png"
+                        value={url}
+                        onChange={(e) => {
+                          const updated = [...editPromotionalPictures];
+                          updated[index] = e.target.value;
+                          setEditPromotionalPictures(updated);
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setEditPromotionalPictures(editPromotionalPictures.filter((_, i) => i !== index));
+                        }}
+                      >
+                        <X size={14} />
+                      </Button>
+                    </div>
+                  ))}
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={handleAddRelease}
-                    disabled={creatingRelease || !newReleaseRegion || !newReleaseDate}
+                    onClick={() => setEditPromotionalPictures([...editPromotionalPictures, ""])}
                   >
-                    <Calendar size={14} />
-                    {creatingRelease ? "Adding..." : "Add"}
+                    <ImageIcon size={14} />
+                    Add Picture URL
                   </Button>
                 </div>
+              </FormField>
+            </div>
+
+            <div className="space-y-4 border-t border-[var(--border-color)] pt-4">
+              <div>
+                <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                  Release Dates
+                </h3>
+                <p className="mt-1 text-sm text-[var(--text-muted)]">
+                  Track launch dates by region without leaving the modal.
+                </p>
               </div>
-            </FormField>
+
+              <FormField label="Regional Launches" hint="Manage regional release dates">
+                <div className={styles.releaseList}>
+                  {editingPlatform?.releases?.map((release) => (
+                    <div key={release.id}>
+                      {editingReleaseId === release.id ? (
+                        <div className={styles.releaseEditRow}>
+                          <Input
+                            placeholder="Region (e.g. NA, EU, JP)"
+                            value={editReleaseRegion}
+                            onChange={(e) => setEditReleaseRegion(e.target.value)}
+                          />
+                          <Input
+                            type="date"
+                            value={editReleaseDate}
+                            onChange={(e) => setEditReleaseDate(e.target.value)}
+                          />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleUpdateRelease}
+                            disabled={updatingRelease || !editReleaseRegion || !editReleaseDate}
+                          >
+                            {updatingRelease ? "Saving..." : "Save"}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={cancelEditRelease}
+                          >
+                            <X size={14} />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className={styles.releaseRow}>
+                          <div className={styles.releaseReadOnly}>
+                            <span className={styles.releaseRegion}>{release.region}</span>
+                            <span className={styles.releaseDate}>
+                              {new Date(release.releaseDate).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => startEditRelease(release)}
+                          >
+                            <Pencil size={14} />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleDeleteRelease(release.id)}
+                            className="text-[var(--switch-neon-red)] hover:text-[var(--switch-neon-red)]"
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  <div className={styles.releaseAddRow}>
+                    <Input
+                      placeholder="Region (e.g. NA, EU, JP)"
+                      value={newReleaseRegion}
+                      onChange={(e) => setNewReleaseRegion(e.target.value)}
+                    />
+                    <Input
+                      type="date"
+                      value={newReleaseDate}
+                      onChange={(e) => setNewReleaseDate(e.target.value)}
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleAddRelease}
+                      disabled={creatingRelease || !newReleaseRegion || !newReleaseDate}
+                    >
+                      <Calendar size={14} />
+                      {creatingRelease ? "Adding..." : "Add"}
+                    </Button>
+                  </div>
+                </div>
+              </FormField>
+            </div>
           </DialogBody>
 
           <DialogFooter>
@@ -741,20 +774,19 @@ export default function AdminPlatformsPage() {
               }}
             />
             <div className="w-8 h-8 flex-shrink-0 bg-[var(--bg-secondary)] rounded flex items-center justify-center overflow-hidden">
-              {platform.consolePictureUrl ? (
-                <img
-                  src={platform.consolePictureUrl}
-                  alt=""
-                  className="w-full h-full object-contain p-1"
-                  onError={handlePlatformIconError}
-                />
-              ) : (
-                <Gamepad2 size={16} className="text-[var(--text-muted)]" />
-              )}
+              <AdminImage
+                src={platform.consolePictureUrl}
+                alt=""
+                className="w-full h-full object-contain p-1"
+                fallback={<Gamepad2 size={16} className="text-[var(--text-muted)]" />}
+              />
             </div>
             <div className={styles.itemInfo}>
               <span className={styles.itemName}>{platform.name}</span>
               <span className={styles.itemSlug}>{platform.slug}</span>
+              {platform.description && (
+                <span className={styles.itemMeta}>{platform.description}</span>
+              )}
             </div>
             <span className={styles.itemMeta}>
               {platform.gameCount} {platform.gameCount === 1 ? "game" : "games"}

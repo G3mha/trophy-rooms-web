@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { GET_DLCS, GET_PLATFORMS } from "@/graphql/admin_queries";
@@ -64,8 +64,6 @@ export default function AdminDLCsPage() {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredDLCs, setFilteredDLCs] = useState<DLC[]>([]);
-
   // Add modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
@@ -99,7 +97,10 @@ export default function AdminDLCsPage() {
   });
 
   const { data: platformsData } = useQuery(GET_PLATFORMS);
-  const platforms: Platform[] = platformsData?.platforms || [];
+  const platforms: Platform[] = useMemo(
+    () => platformsData?.platforms || [],
+    [platformsData]
+  );
 
   const [createDLC, { loading: creating }] = useMutation(CREATE_DLC);
 
@@ -130,23 +131,19 @@ export default function AdminDLCsPage() {
     onError: (error) => toast.error(error.message || "Failed to delete DLCs."),
   });
 
-  const dlcs: DLC[] = dlcsData?.dlcs || [];
-
-  // Filter DLCs based on search
-  useEffect(() => {
+  const dlcs: DLC[] = useMemo(() => dlcsData?.dlcs || [], [dlcsData]);
+  const filteredDLCs = useMemo(() => {
     if (!searchQuery.trim()) {
-      setFilteredDLCs(dlcs);
-    } else {
-      const query = searchQuery.toLowerCase();
-      setFilteredDLCs(
-        dlcs.filter(
-          (d) =>
-            d.name.toLowerCase().includes(query) ||
-            d.slug.toLowerCase().includes(query) ||
-            d.type.toLowerCase().includes(query)
-        )
-      );
+      return dlcs;
     }
+
+    const query = searchQuery.toLowerCase();
+    return dlcs.filter(
+      (d) =>
+        d.name.toLowerCase().includes(query) ||
+        d.slug.toLowerCase().includes(query) ||
+        d.type.toLowerCase().includes(query)
+    );
   }, [searchQuery, dlcs]);
 
   const resetAddForm = () => {
@@ -238,13 +235,13 @@ export default function AdminDLCsPage() {
     <div>
       <div className={styles.sectionHeader}>
         <div>
-          <h1 className={styles.pageTitle}>
-            <Puzzle size={24} style={{ marginRight: 8 }} />
+          <h1 className={styles.pageTitle} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Puzzle size={24} />
             DLCs & Expansions
           </h1>
           <p className={styles.sectionSubtitle}>Manage downloadable content for games.</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className={styles.headerActions}>
           {selectedIds.size > 0 && (
             <Button
               variant="outline"
@@ -259,8 +256,13 @@ export default function AdminDLCsPage() {
       </div>
 
       {/* Game Family Filter */}
-      <div style={{ marginBottom: 20 }}>
-        <label className={styles.formLabel}>Select a game family to manage its DLCs</label>
+      <div className={`${styles.contextPanel} ${styles.contextPanelCompact}`}>
+        <div className={styles.contextPanelHeader}>
+          <h2 className={styles.contextPanelTitle}>Game Family</h2>
+          <p className={styles.contextPanelDescription}>
+            Select a game family first. DLC creation and search are scoped to that parent title.
+          </p>
+        </div>
         <GameFamilySearchPicker
           value={selectedGameFamily}
           onChange={(family) => {
@@ -276,6 +278,15 @@ export default function AdminDLCsPage() {
 
       {selectedGameFamily && (
         <>
+          <div className={`${styles.contextPanel} ${styles.contextPanelCompact}`}>
+            <div className={styles.contextPanelHeader}>
+              <h2 className={styles.contextPanelTitle}>{selectedGameFamily.title}</h2>
+              <p className={styles.contextPanelDescription}>
+                Search and manage expansions linked to this game family only.
+              </p>
+            </div>
+          </div>
+
           {/* Search and Add Bar */}
           <div className={styles.searchBar}>
             <div className={styles.searchInputWrapper}>
@@ -340,14 +351,14 @@ export default function AdminDLCsPage() {
                 </FormField>
 
                 <FormField label="Available On" hint="Select the platforms this DLC is available on.">
-                  <div className="flex flex-col gap-2">
+                  <div className={styles.checkboxList}>
                     {platforms.length === 0 ? (
                       <p className="text-sm text-[var(--text-muted)]">No platforms available</p>
                     ) : (
                       platforms.map((platform) => (
                         <label
                           key={platform.id}
-                          className="flex items-center gap-2 cursor-pointer hover:bg-[var(--bg-secondary)] px-2 py-1.5 rounded"
+                          className={styles.checkboxOption}
                         >
                           <input
                             type="checkbox"
@@ -362,7 +373,7 @@ export default function AdminDLCsPage() {
                               setNewPlatformIds(next);
                             }}
                           />
-                          <span className="text-sm">{platform.name}</span>
+                          <span className={styles.checkboxOptionText}>{platform.name}</span>
                         </label>
                       ))
                     )}
@@ -435,14 +446,14 @@ export default function AdminDLCsPage() {
                 </FormField>
 
                 <FormField label="Available On" hint="Select the platforms this DLC is available on.">
-                  <div className="flex flex-col gap-2">
+                  <div className={styles.checkboxList}>
                     {platforms.length === 0 ? (
                       <p className="text-sm text-[var(--text-muted)]">No platforms available</p>
                     ) : (
                       platforms.map((platform) => (
                         <label
                           key={platform.id}
-                          className="flex items-center gap-2 cursor-pointer hover:bg-[var(--bg-secondary)] px-2 py-1.5 rounded"
+                          className={styles.checkboxOption}
                         >
                           <input
                             type="checkbox"
@@ -457,7 +468,7 @@ export default function AdminDLCsPage() {
                               setEditPlatformIds(next);
                             }}
                           />
-                          <span className="text-sm">{platform.name}</span>
+                          <span className={styles.checkboxOptionText}>{platform.name}</span>
                         </label>
                       ))
                     )}

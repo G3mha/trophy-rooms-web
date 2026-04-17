@@ -24,6 +24,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -337,7 +338,7 @@ export default function AdminAchievementsPage() {
           <h1 className={styles.pageTitle}>Achievements</h1>
           <p className={styles.sectionSubtitle}>Manage individual achievements.</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className={styles.headerActions}>
           {selectedSetId && (
             <Button
               variant="secondary"
@@ -362,7 +363,13 @@ export default function AdminAchievementsPage() {
       </div>
 
       {/* Achievement Set Selector */}
-      <div style={{ marginBottom: 20, maxWidth: 500 }}>
+      <div className={`${styles.contextPanel} ${styles.contextPanelCompact}`}>
+        <div className={styles.contextPanelHeader}>
+          <h2 className={styles.contextPanelTitle}>Achievement Set</h2>
+          <p className={styles.contextPanelDescription}>
+            Pick the set you want to manage before editing individual achievements.
+          </p>
+        </div>
         <Select value={selectedSetId} onValueChange={handleSetChange}>
           <SelectTrigger>
             <span>
@@ -386,31 +393,20 @@ export default function AdminAchievementsPage() {
 
       {/* Import CSV Section */}
       {showImport && selectedSetId && (
-        <div
-          style={{
-            marginBottom: 20,
-            padding: 16,
-            background: "var(--bg-secondary)",
-            borderRadius: 8,
-            border: "1px solid var(--border-color)",
-          }}
-        >
-          <p
-            style={{
-              marginBottom: 8,
-              fontSize: 13,
-              color: "var(--text-secondary)",
-            }}
-          >
-            Paste CSV data (title,description,points per line):
-          </p>
+        <div className={`${styles.contextPanel} ${styles.contextPanelCompact}`}>
+          <div className={styles.contextPanelHeader}>
+            <h2 className={styles.contextPanelTitle}>CSV Import</h2>
+            <p className={styles.contextPanelDescription}>
+              Paste rows in the format `title,description,points` to create achievements in bulk.
+            </p>
+          </div>
           <Textarea
-            style={{ width: "100%", minHeight: 100, marginBottom: 8 }}
             value={csvData}
             onChange={(e) => setCsvData(e.target.value)}
             placeholder="Beat the game,Complete the main story,100&#10;Find all secrets,Discover every hidden item,50"
+            className="min-h-[140px]"
           />
-          <div style={{ display: "flex", gap: 8 }}>
+          <div className={styles.actionsRow}>
             <Button loading={importing} onClick={handleImport}>
               Import Achievements
             </Button>
@@ -452,43 +448,39 @@ export default function AdminAchievementsPage() {
               </DialogHeader>
 
               <DialogBody className={styles.modalForm}>
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Title *</label>
+                <FormField label="Title" required>
                   <Input
                     placeholder="e.g. Beat the Game"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Description</label>
+                <FormField label="Description">
                   <Textarea
                     placeholder="e.g. Complete the main story"
                     value={newDescription}
                     onChange={(e) => setNewDescription(e.target.value)}
                     rows={2}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Points</label>
+                <FormField label="Points">
                   <Input
                     type="number"
                     placeholder="0"
                     value={newPoints}
                     onChange={(e) => setNewPoints(e.target.value)}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Icon URL</label>
+                <FormField label="Icon URL" hint="Optional direct image URL for the achievement icon.">
                   <Input
                     placeholder="https://example.com/icon.png"
                     value={newIconUrl}
                     onChange={(e) => setNewIconUrl(e.target.value)}
                   />
-                </div>
+                </FormField>
               </DialogBody>
 
               <DialogFooter>
@@ -526,43 +518,39 @@ export default function AdminAchievementsPage() {
               </DialogHeader>
 
               <DialogBody className={styles.modalForm}>
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Title *</label>
+                <FormField label="Title" required>
                   <Input
                     placeholder="e.g. Beat the Game"
                     value={editTitle}
                     onChange={(e) => setEditTitle(e.target.value)}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Description</label>
+                <FormField label="Description">
                   <Textarea
                     placeholder="e.g. Complete the main story"
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                     rows={2}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Points</label>
+                <FormField label="Points">
                   <Input
                     type="number"
                     placeholder="0"
                     value={editPoints}
                     onChange={(e) => setEditPoints(e.target.value)}
                   />
-                </div>
+                </FormField>
 
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Icon URL</label>
+                <FormField label="Icon URL" hint="Optional direct image URL for the achievement icon.">
                   <Input
                     placeholder="https://example.com/icon.png"
                     value={editIconUrl}
                     onChange={(e) => setEditIconUrl(e.target.value)}
                   />
-                </div>
+                </FormField>
               </DialogBody>
 
               <DialogFooter>

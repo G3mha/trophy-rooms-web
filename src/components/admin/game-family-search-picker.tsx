@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { GET_GAME_FAMILIES } from "@/graphql/admin_queries";
 import { cn } from "@/lib/utils";
+import { AdminImage } from "./admin-image";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
@@ -82,7 +83,10 @@ export function GameFamilySearchPicker({
     notifyOnNetworkStatusChange: true,
   });
 
-  const results: SearchableGameFamily[] = data?.gameFamiliesPage?.items || [];
+  const results: SearchableGameFamily[] = React.useMemo(
+    () => data?.gameFamiliesPage?.items || [],
+    [data]
+  );
 
   const options = React.useMemo(() => {
     let filtered = results;
@@ -151,17 +155,16 @@ export function GameFamilySearchPicker({
 
         {value && !isOpen ? (
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {value.coverUrl ? (
-              <img
-                src={value.coverUrl}
-                alt=""
-                className="w-6 h-6 rounded object-cover flex-shrink-0"
-              />
-            ) : (
-              <div className="w-6 h-6 rounded bg-[var(--bg-primary)] flex items-center justify-center flex-shrink-0">
-                <Gamepad2 size={14} className="text-[var(--text-muted)]" />
-              </div>
-            )}
+            <AdminImage
+              src={value.coverUrl}
+              alt=""
+              className="w-6 h-6 rounded object-cover flex-shrink-0"
+              fallback={
+                <div className="w-6 h-6 rounded bg-[var(--bg-primary)] flex items-center justify-center flex-shrink-0">
+                  <Gamepad2 size={14} className="text-[var(--text-muted)]" />
+                </div>
+              }
+            />
             <span className="text-sm text-[var(--text-primary)] truncate">
               {value.title}
             </span>
@@ -230,17 +233,16 @@ export function GameFamilySearchPicker({
                   value?.id === family.id && "bg-[var(--bg-secondary)]"
                 )}
               >
-                {family.coverUrl ? (
-                  <img
-                    src={family.coverUrl}
-                    alt=""
-                    className="w-10 h-10 rounded object-cover flex-shrink-0"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded bg-[var(--bg-secondary)] flex items-center justify-center flex-shrink-0">
-                    <Gamepad2 size={18} className="text-[var(--text-muted)]" />
-                  </div>
-                )}
+                <AdminImage
+                  src={family.coverUrl}
+                  alt=""
+                  className="w-10 h-10 rounded object-cover flex-shrink-0"
+                  fallback={
+                    <div className="w-10 h-10 rounded bg-[var(--bg-secondary)] flex items-center justify-center flex-shrink-0">
+                      <Gamepad2 size={18} className="text-[var(--text-muted)]" />
+                    </div>
+                  }
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-[var(--text-primary)] truncate">

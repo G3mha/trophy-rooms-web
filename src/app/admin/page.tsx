@@ -9,8 +9,8 @@ import {
   GET_USERS_ADMIN,
   GET_BUNDLES,
 } from "@/graphql/admin_queries";
-import { LoadingSpinner } from "@/components";
 import {
+  ArrowRight,
   Gamepad,
   Layers,
   Trophy,
@@ -23,6 +23,7 @@ import {
 import styles from "./page.module.css";
 
 interface StatCardProps {
+  eyebrow: string;
   title: string;
   count: number;
   icon: React.ReactNode;
@@ -30,11 +31,12 @@ interface StatCardProps {
   loading?: boolean;
 }
 
-function StatCard({ title, count, icon, href, loading }: StatCardProps) {
+function StatCard({ eyebrow, title, count, icon, href, loading }: StatCardProps) {
   return (
     <Link href={href} className={styles.statCard}>
       <div className={styles.statIcon}>{icon}</div>
       <div className={styles.statContent}>
+        <span className={styles.statEyebrow}>{eyebrow}</span>
         <span className={styles.statCount}>
           {loading ? "..." : count.toLocaleString()}
         </span>
@@ -61,6 +63,102 @@ export default function AdminDashboardPage() {
   const setCount = setsData?.achievementSets?.length || 0;
   const userCount = usersData?.users?.totalCount || 0;
   const bundleCount = bundlesData?.bundles?.length || 0;
+  const totalManagedRecords =
+    platformCount + gameCount + setCount + userCount + bundleCount;
+
+  const statCards = [
+    {
+      eyebrow: "Catalog",
+      title: "Platforms",
+      count: platformCount,
+      icon: <Gamepad size={24} />,
+      href: "/admin/platforms",
+      loading: platformsLoading,
+    },
+    {
+      eyebrow: "Catalog",
+      title: "Games",
+      count: gameCount,
+      icon: <Layers size={24} />,
+      href: "/admin/games",
+      loading: gamesLoading,
+    },
+    {
+      eyebrow: "Progress",
+      title: "Achievement Sets",
+      count: setCount,
+      icon: <Trophy size={24} />,
+      href: "/admin/achievement-sets",
+      loading: setsLoading,
+    },
+    {
+      eyebrow: "Accounts",
+      title: "Users",
+      count: userCount,
+      icon: <Users size={24} />,
+      href: "/admin/users",
+      loading: usersLoading,
+    },
+    {
+      eyebrow: "Storefront",
+      title: "Bundles",
+      count: bundleCount,
+      icon: <Package size={24} />,
+      href: "/admin/bundles",
+      loading: bundlesLoading,
+    },
+  ] satisfies StatCardProps[];
+
+  const quickActions = [
+    {
+      title: "Manage Platforms",
+      description: "Update console branding, promo art, and regional release dates.",
+      href: "/admin/platforms",
+      icon: <Gamepad size={20} />,
+    },
+    {
+      title: "Manage Games",
+      description: "Create game records, group variants, and maintain platform coverage.",
+      href: "/admin/games",
+      icon: <Layers size={20} />,
+    },
+    {
+      title: "Game Versions",
+      description: "Link deluxe editions and defaults across multiple game records.",
+      href: "/admin/game-versions",
+      icon: <Layers size={20} />,
+    },
+    {
+      title: "Achievement Sets",
+      description: "Organize official, custom, and completionist progression tracks.",
+      href: "/admin/achievement-sets",
+      icon: <Trophy size={20} />,
+    },
+    {
+      title: "Achievements",
+      description: "Edit individual tasks, imports, and point values inside each set.",
+      href: "/admin/achievements",
+      icon: <Star size={20} />,
+    },
+    {
+      title: "DLCs & Expansions",
+      description: "Attach post-launch content to the correct game families and platforms.",
+      href: "/admin/dlcs",
+      icon: <Puzzle size={20} />,
+    },
+    {
+      title: "Bundles",
+      description: "Curate packages, collections, and season-pass style products.",
+      href: "/admin/bundles",
+      icon: <Package size={20} />,
+    },
+    {
+      title: "Users & Roles",
+      description: "Review accounts and promote trusted or admin access when needed.",
+      href: "/admin/users",
+      icon: <Users size={20} />,
+    },
+  ];
 
   return (
     <div>
@@ -73,79 +171,82 @@ export default function AdminDashboardPage() {
         </div>
       </div>
 
+      <div className={styles.dashboardHero}>
+        <section className={styles.dashboardLead}>
+          <h2 className={styles.dashboardLeadTitle}>Admin Control Center</h2>
+          <p className={styles.dashboardLeadText}>
+            Keep the catalog, storefront, and progression systems aligned from one place. Start with the area that changed most recently, then use the quick actions below to move directly into the relevant workflow.
+          </p>
+          <div className={styles.dashboardPills}>
+            <span className={styles.dashboardPill}>
+              <Gamepad size={14} />
+              Catalog
+            </span>
+            <span className={styles.dashboardPill}>
+              <Trophy size={14} />
+              Progression
+            </span>
+            <span className={styles.dashboardPill}>
+              <Package size={14} />
+              Storefront
+            </span>
+            <span className={styles.dashboardPill}>
+              <Users size={14} />
+              Permissions
+            </span>
+          </div>
+        </section>
+
+        <aside className={styles.dashboardSidecard}>
+          <p className={styles.dashboardSidecardLabel}>Managed Records</p>
+          <p className={styles.dashboardSidecardValue}>
+            {totalManagedRecords.toLocaleString()}
+          </p>
+          <p className={styles.dashboardSidecardText}>
+            Snapshot across the core admin entities surfaced on this dashboard.
+          </p>
+          <div className={styles.dashboardMiniStats}>
+            <div className={styles.dashboardMiniStat}>
+              <span className={styles.dashboardMiniStatValue}>{platformCount}</span>
+              <span className={styles.dashboardMiniStatLabel}>Platforms</span>
+            </div>
+            <div className={styles.dashboardMiniStat}>
+              <span className={styles.dashboardMiniStatValue}>{gameCount}</span>
+              <span className={styles.dashboardMiniStatLabel}>Games</span>
+            </div>
+            <div className={styles.dashboardMiniStat}>
+              <span className={styles.dashboardMiniStatValue}>{setCount}</span>
+              <span className={styles.dashboardMiniStatLabel}>Sets</span>
+            </div>
+            <div className={styles.dashboardMiniStat}>
+              <span className={styles.dashboardMiniStatValue}>{bundleCount}</span>
+              <span className={styles.dashboardMiniStatLabel}>Bundles</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+
       <div className={styles.statsGrid}>
-        <StatCard
-          title="Platforms"
-          count={platformCount}
-          icon={<Gamepad size={24} />}
-          href="/admin/platforms"
-          loading={platformsLoading}
-        />
-        <StatCard
-          title="Games"
-          count={gameCount}
-          icon={<Layers size={24} />}
-          href="/admin/games"
-          loading={gamesLoading}
-        />
-        <StatCard
-          title="Achievement Sets"
-          count={setCount}
-          icon={<Trophy size={24} />}
-          href="/admin/achievement-sets"
-          loading={setsLoading}
-        />
-        <StatCard
-          title="Users"
-          count={userCount}
-          icon={<Users size={24} />}
-          href="/admin/users"
-          loading={usersLoading}
-        />
-        <StatCard
-          title="Bundles"
-          count={bundleCount}
-          icon={<Package size={24} />}
-          href="/admin/bundles"
-          loading={bundlesLoading}
-        />
+        {statCards.map((card) => (
+          <StatCard key={card.title} {...card} />
+        ))}
       </div>
 
       <div className={styles.quickLinks}>
         <h2 className={styles.sectionTitle}>Quick Actions</h2>
         <div className={styles.quickLinksGrid}>
-          <Link href="/admin/platforms" className={styles.quickLink}>
-            <Gamepad size={20} />
-            <span>Manage Platforms</span>
-          </Link>
-          <Link href="/admin/games" className={styles.quickLink}>
-            <Layers size={20} />
-            <span>Manage Games</span>
-          </Link>
-          <Link href="/admin/game-versions" className={styles.quickLink}>
-            <Layers size={20} />
-            <span>Game Versions</span>
-          </Link>
-          <Link href="/admin/achievement-sets" className={styles.quickLink}>
-            <Trophy size={20} />
-            <span>Achievement Sets</span>
-          </Link>
-          <Link href="/admin/achievements" className={styles.quickLink}>
-            <Star size={20} />
-            <span>Achievements</span>
-          </Link>
-          <Link href="/admin/dlcs" className={styles.quickLink}>
-            <Puzzle size={20} />
-            <span>DLCs & Expansions</span>
-          </Link>
-          <Link href="/admin/bundles" className={styles.quickLink}>
-            <Package size={20} />
-            <span>Bundles</span>
-          </Link>
-          <Link href="/admin/users" className={styles.quickLink}>
-            <Users size={20} />
-            <span>Users & Roles</span>
-          </Link>
+          {quickActions.map((action) => (
+            <Link key={action.title} href={action.href} className={styles.quickLink}>
+              <span className={styles.quickLinkIcon}>{action.icon}</span>
+              <span className={styles.quickLinkBody}>
+                <span className={styles.quickLinkTitle}>{action.title}</span>
+                <span className={styles.quickLinkDescription}>
+                  {action.description}
+                </span>
+              </span>
+              <ArrowRight size={16} className={styles.quickLinkArrow} />
+            </Link>
+          ))}
         </div>
       </div>
     </div>

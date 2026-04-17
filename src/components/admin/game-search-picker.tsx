@@ -6,7 +6,7 @@ import * as React from "react";
 
 import { GET_GAMES_ADMIN } from "@/graphql/admin_queries";
 import { cn } from "@/lib/utils";
-import { handlePlatformIconError } from "@/lib/image-utils";
+import { AdminImage } from "./admin-image";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
@@ -70,8 +70,14 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const selectedSingle = props.mode === "single" ? props.value : null;
-  const selectedMultiple = props.mode === "multiple" ? props.value : [];
+  const selectedSingle = React.useMemo(
+    () => (props.mode === "single" ? props.value : null),
+    [props.mode, props.value]
+  );
+  const selectedMultiple = React.useMemo(
+    () => (props.mode === "multiple" ? props.value : []),
+    [props.mode, props.value]
+  );
 
   React.useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -115,8 +121,12 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
     skip: !selectedSingle || props.mode !== "single",
   });
 
-  const results: SearchableGame[] =
-    data?.games?.edges?.map((edge: { node: SearchableGame }) => edge.node) || [];
+  const results: SearchableGame[] = React.useMemo(
+    () =>
+      data?.games?.edges?.map((edge: { node: SearchableGame }) => edge.node) ||
+      [],
+    [data]
+  );
 
   // Get sibling games (same title, different platforms)
   const siblingGames = React.useMemo(() => {
@@ -134,10 +144,13 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
     );
   }, [selectedSingle, siblingsData, filterOption]);
 
-  const selectedIds =
-    props.mode === "multiple"
-      ? new Set(props.value.map((game) => game.id))
-      : new Set(props.value ? [props.value.id] : []);
+  const selectedIds = React.useMemo(
+    () =>
+      props.mode === "multiple"
+        ? new Set(props.value.map((game) => game.id))
+        : new Set(props.value ? [props.value.id] : []),
+    [props.mode, props.value]
+  );
 
   // Filter and sort results - prioritize exact/starts-with matches
   const options = React.useMemo(() => {
@@ -278,18 +291,17 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
           {groupedSelectedGames.map((group) => (
             <span
               key={group.title}
-              className="inline-flex items-center gap-2 rounded-[var(--border-radius)] border border-[var(--border-color)] bg-[var(--bg-card)] px-3 py-1.5 text-sm text-[var(--text-primary)]"
+              className="inline-flex items-center gap-2 rounded-[var(--border-radius)] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01)),var(--bg-card)] px-3 py-2 text-sm text-[var(--text-primary)] shadow-[0_8px_20px_rgba(0,0,0,0.18)]"
             >
               <span className="inline-flex items-center gap-1">
                 {group.games.map((game) =>
                   game.platform?.slug ? (
-                    <img
+                    <AdminImage
                       key={game.id}
                       src={`/platforms/${game.platform.slug}.svg`}
                       alt={game.platform.name || ""}
                       title={game.platform.name || ""}
                       className="size-4 shrink-0"
-                      onError={handlePlatformIconError}
                     />
                   ) : null
                 )}
@@ -311,10 +323,11 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
       <div className="relative">
         <div
           className={cn(
-            "flex min-h-12 w-full items-center gap-2 rounded-[var(--border-radius)] border-2 border-[var(--border-color)] bg-[var(--bg-secondary)] px-4 py-3 text-base text-[var(--text-primary)] transition-colors",
+            "flex min-h-11 w-full items-center gap-3 rounded-[var(--border-radius)] border border-[color:rgba(255,255,255,0.09)] bg-[rgba(10,10,10,0.55)] px-4 py-2.5 text-[15px] text-[var(--text-primary)] shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] transition-[border-color,box-shadow,background-color]",
             !disabled && "cursor-text",
             isOpen &&
-              "border-[var(--nintendo-red)] shadow-[inset_0_0_0_1px_var(--nintendo-red)]",
+              "border-[var(--nintendo-red)] bg-[rgba(18,18,18,0.9)] shadow-[0_0_0_3px_rgba(230,0,18,0.18)]",
+            !disabled && !isOpen && "hover:border-[color:rgba(255,255,255,0.16)]",
             disabled && "cursor-not-allowed opacity-50"
           )}
           onClick={() => {
@@ -328,11 +341,10 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
             selectedSingle ? (
               <div className="flex flex-1 items-center gap-2 truncate">
                 {selectedSingle.platform?.slug && (
-                  <img
+                  <AdminImage
                     src={`/platforms/${selectedSingle.platform.slug}.svg`}
                     alt=""
                     className="size-4 shrink-0"
-                    onError={handlePlatformIconError}
                   />
                 )}
                 <span className="truncate">
@@ -387,14 +399,13 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                 type="button"
                 onClick={() => handleSelect(game)}
                 disabled={disabled}
-                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-color)] bg-[var(--bg-card)] px-2 py-1 text-xs text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-card-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[rgba(255,255,255,0.03)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-colors hover:bg-[rgba(255,255,255,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {game.platform?.slug && (
-                  <img
+                  <AdminImage
                     src={`/platforms/${game.platform.slug}.svg`}
                     alt=""
                     className="size-3.5"
-                    onError={handlePlatformIconError}
                   />
                 )}
                 <span>{game.platform?.name || "Unknown"}</span>
@@ -404,7 +415,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
         )}
 
         {isOpen && (
-          <div className="absolute z-50 mt-1 max-h-80 w-full overflow-auto rounded-[var(--border-radius)] border border-[var(--border-color)] bg-[var(--bg-card)] p-1 shadow-lg">
+          <div className="absolute z-50 mt-2 max-h-80 w-full overflow-auto rounded-[calc(var(--border-radius)+4px)] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01)),var(--bg-card)] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
             {loading ? (
               <div className="px-3 py-6 text-center text-sm text-[var(--text-muted)]">
                 Searching games...
@@ -425,11 +436,11 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                     <button
                       key={game.id}
                       type="button"
-                      className="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-card-hover)]"
+                      className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left transition-colors hover:bg-[rgba(255,255,255,0.06)]"
                       onClick={() => handleSelect(game)}
                     >
                       {game.coverUrl ? (
-                        <img
+                        <AdminImage
                           src={game.coverUrl}
                           alt=""
                           className="size-10 shrink-0 rounded object-cover"
@@ -445,11 +456,10 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
                           {game.platform?.slug && (
-                            <img
+                            <AdminImage
                               src={`/platforms/${game.platform.slug}.svg`}
                               alt=""
                               className="size-3.5"
-                              onError={handlePlatformIconError}
                             />
                           )}
                           <span>
@@ -474,7 +484,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                     {/* Game Title Header */}
                     <button
                       type="button"
-                      className="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-secondary)]"
+                      className="flex w-full items-center gap-3 rounded-[12px] px-3 py-2 text-left transition-colors hover:bg-[rgba(255,255,255,0.05)]"
                       onClick={(e) => toggleGameCollapse(group.title, e)}
                     >
                       {isCollapsed ? (
@@ -483,7 +493,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                         <ChevronDown className="size-4 shrink-0 text-[var(--text-muted)]" />
                       )}
                       {group.coverUrl ? (
-                        <img
+                        <AdminImage
                           src={group.coverUrl}
                           alt=""
                           className="size-10 shrink-0 rounded object-cover"
@@ -510,25 +520,21 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                           <button
                             key={game.id}
                             type="button"
-                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-card-hover)]"
+                            className="flex w-full items-center gap-2 rounded-[10px] px-3 py-2 text-left transition-colors hover:bg-[rgba(255,255,255,0.06)]"
                             onClick={() => handleSelect(game)}
                           >
                             {game.platform?.slug ? (
-                              <img
+                              <AdminImage
                                 src={`/platforms/${game.platform.slug}.svg`}
                                 alt=""
                                 className="size-4 shrink-0"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none';
-                                  const fallback = (e.target as HTMLImageElement).nextElementSibling;
-                                  if (fallback) fallback.classList.remove('hidden');
-                                }}
+                                fallback={
+                                  <Gamepad2 className="size-4 shrink-0 text-[var(--text-muted)]" />
+                                }
                               />
-                            ) : null}
-                            <Gamepad2 className={cn(
-                              "size-4 shrink-0 text-[var(--text-muted)]",
-                              game.platform?.slug && "hidden"
-                            )} />
+                            ) : (
+                              <Gamepad2 className="size-4 shrink-0 text-[var(--text-muted)]" />
+                            )}
                             <span className="flex-1 truncate text-sm text-[var(--text-primary)]">
                               {game.platform?.name || "Unknown Platform"}
                             </span>

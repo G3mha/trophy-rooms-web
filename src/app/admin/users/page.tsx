@@ -133,6 +133,15 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
+      <div className={`${styles.contextPanel} ${styles.contextPanelCompact}`}>
+        <div className={styles.contextPanelHeader}>
+          <h2 className={styles.contextPanelTitle}>Role Management</h2>
+          <p className={styles.contextPanelDescription}>
+            Review accounts and update access levels without leaving the admin list.
+          </p>
+        </div>
+      </div>
+
       {/* Search Bar */}
       <div className={styles.searchBar}>
         <div className={styles.searchInputWrapper}>
@@ -151,21 +160,18 @@ export default function AdminUsersPage() {
       <div className={styles.itemsGrid}>
         {users.map((user: User) => (
           <div key={user.id} className={styles.itemCard}>
-            <div className={styles.itemInfo} style={{ flex: 1 }}>
-              <div>
+            <div className={styles.itemInfo}>
+              <div className={styles.userInfo}>
                 <span className={styles.itemName}>
                   {user.name || "Unnamed User"}
                 </span>
-                <span
-                  className={styles.itemSlug}
-                  style={{ display: "block", marginTop: 2 }}
-                >
+                <span className={`${styles.itemSlug} ${styles.userEmail}`}>
                   {user.email}
                 </span>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ width: 120 }}>
+            <div className={styles.userControls}>
+              <div className={styles.userRoleSelect}>
                 <Select
                   value={user.role}
                   onValueChange={(value) => handleRoleChange(user.id, value)}

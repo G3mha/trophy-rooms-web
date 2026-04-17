@@ -28,6 +28,6 @@ export function isValidHttpUrl(value: string): boolean {
  */
 export function getFieldErrorClass(hasError: boolean): string {
   return hasError
-    ? "border-red-500 focus:border-red-500 focus:shadow-[inset_0_0_0_1px_rgb(239,68,68)]"
+    ? "border-red-500 hover:border-red-500 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(239,68,68,0.18)]"
     : "";
 }

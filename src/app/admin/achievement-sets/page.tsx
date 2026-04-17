@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { GET_GAMES_ADMIN, GET_ACHIEVEMENT_SETS_ADMIN } from "@/graphql/admin_queries";
@@ -23,6 +23,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -58,8 +59,6 @@ const SET_TYPE_LABELS: Record<string, string> = {
 export default function AdminAchievementSetsPage() {
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredSets, setFilteredSets] = useState<AchievementSet[]>([]);
-
   // Add modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -128,24 +127,26 @@ export default function AdminAchievementSetsPage() {
     onError: (error) => toast.error(error.message || "Failed to delete achievement sets."),
   });
 
-  const games: Game[] = gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [];
-  const sets: AchievementSet[] = setsData?.achievementSets || [];
-
-  // Filter sets based on search
-  useEffect(() => {
+  const games: Game[] = useMemo(
+    () => gamesData?.games?.edges?.map((e: { node: Game }) => e.node) || [],
+    [gamesData]
+  );
+  const sets: AchievementSet[] = useMemo(
+    () => setsData?.achievementSets || [],
+    [setsData]
+  );
+  const filteredSets = useMemo(() => {
     if (!searchQuery.trim()) {
-      setFilteredSets(sets);
-    } else {
-      const query = searchQuery.toLowerCase();
-      setFilteredSets(
-        sets.filter(
-          (s) =>
-            s.title.toLowerCase().includes(query) ||
-            s.game?.title.toLowerCase().includes(query) ||
-            s.type.toLowerCase().includes(query)
-        )
-      );
+      return sets;
     }
+
+    const query = searchQuery.toLowerCase();
+    return sets.filter(
+      (s) =>
+        s.title.toLowerCase().includes(query) ||
+        s.game?.title.toLowerCase().includes(query) ||
+        s.type.toLowerCase().includes(query)
+    );
   }, [searchQuery, sets]);
 
   const resetAddForm = () => {
@@ -271,17 +272,15 @@ export default function AdminAchievementSetsPage() {
           </DialogHeader>
 
           <DialogBody className={styles.modalForm}>
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Title *</label>
+            <FormField label="Title" required>
               <Input
                 placeholder="e.g. Main Achievements"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
               />
-            </div>
+            </FormField>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Type *</label>
+            <FormField label="Type" required>
               <Select value={newType} onValueChange={(value) => value && setNewType(value)}>
                 <SelectTrigger>
                   <span>{SET_TYPE_LABELS[newType] || "Select type"}</span>
@@ -292,17 +291,16 @@ export default function AdminAchievementSetsPage() {
                   <SelectItem value="CUSTOM">Custom</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </FormField>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Game *</label>
+            <FormField label="Game" required>
               <GameCombobox
                 games={games}
                 value={newGameId}
                 onChange={setNewGameId}
                 placeholder="Search for a game..."
               />
-            </div>
+            </FormField>
           </DialogBody>
 
           <DialogFooter>
@@ -340,17 +338,15 @@ export default function AdminAchievementSetsPage() {
           </DialogHeader>
 
           <DialogBody className={styles.modalForm}>
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Title *</label>
+            <FormField label="Title" required>
               <Input
                 placeholder="e.g. Main Achievements"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
               />
-            </div>
+            </FormField>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Type *</label>
+            <FormField label="Type" required>
               <Select value={editType} onValueChange={(value) => value && setEditType(value)}>
                 <SelectTrigger>
                   <span>{SET_TYPE_LABELS[editType] || "Select type"}</span>
@@ -361,17 +357,16 @@ export default function AdminAchievementSetsPage() {
                   <SelectItem value="CUSTOM">Custom</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
+            </FormField>
 
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Game</label>
+            <FormField label="Game">
               <GameCombobox
                 games={games}
                 value={editGameId}
                 onChange={setEditGameId}
                 placeholder="Search for a game..."
               />
-            </div>
+            </FormField>
           </DialogBody>
 
           <DialogFooter>

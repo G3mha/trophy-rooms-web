@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { GET_GAME_VERSIONS } from "@/graphql/admin_queries";
@@ -13,9 +13,8 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Star, Cloud } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { Button, LoadingSpinner } from "@/components";
-import { AdminConfirmDialog, CoverPreview } from "@/components/admin";
+import { AdminConfirmDialog, AdminImage, CoverPreview } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import {
   Dialog,
@@ -27,6 +26,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { GameSearchPicker, type SearchableGame } from "@/components/admin/game-search-picker";
 import styles from "../page.module.css";
@@ -54,8 +54,6 @@ interface GameVersion {
 export default function AdminGameVersionsPage() {
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredVersions, setFilteredVersions] = useState<GameVersion[]>([]);
-
   // Add modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
@@ -138,23 +136,22 @@ export default function AdminGameVersionsPage() {
     onError: (error) => toast.error(error.message || "Failed to delete versions."),
   });
 
-  const versions: GameVersion[] = versionsData?.gameVersions || [];
-
-  // Filter versions based on search
-  useEffect(() => {
+  const versions: GameVersion[] = useMemo(
+    () => versionsData?.gameVersions || [],
+    [versionsData]
+  );
+  const filteredVersions = useMemo(() => {
     if (!searchQuery.trim()) {
-      setFilteredVersions(versions);
-    } else {
-      const query = searchQuery.toLowerCase();
-      setFilteredVersions(
-        versions.filter(
-          (v) =>
-            v.name.toLowerCase().includes(query) ||
-            v.slug.toLowerCase().includes(query) ||
-            v.games.some((g) => g.title.toLowerCase().includes(query))
-        )
-      );
+      return versions;
     }
+
+    const query = searchQuery.toLowerCase();
+    return versions.filter(
+      (v) =>
+        v.name.toLowerCase().includes(query) ||
+        v.slug.toLowerCase().includes(query) ||
+        v.games.some((g) => g.title.toLowerCase().includes(query))
+    );
   }, [searchQuery, versions]);
 
   const resetAddForm = () => {
@@ -269,7 +266,7 @@ export default function AdminGameVersionsPage() {
           <h1 className={styles.pageTitle}>Game Versions</h1>
           <p className={styles.sectionSubtitle}>Manage different versions/editions of games.</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className={styles.headerActions}>
           {selectedIds.size > 0 && (
             <Button
               variant="outline"
@@ -334,8 +331,8 @@ export default function AdminGameVersionsPage() {
             </FormField>
 
             <FormField label="Description" hint="Optional description of this version">
-              <textarea
-                className="w-full min-h-[80px] px-3 py-2 rounded-md border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm resize-y"
+              <Textarea
+                className="min-h-[96px]"
                 placeholder="What makes this version special?"
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
@@ -436,8 +433,8 @@ export default function AdminGameVersionsPage() {
             </FormField>
 
             <FormField label="Description" hint="Optional description of this version">
-              <textarea
-                className="w-full min-h-[80px] px-3 py-2 rounded-md border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] text-sm resize-y"
+              <Textarea
+                className="min-h-[96px]"
                 placeholder="What makes this version special?"
                 value={editDescription}
                 onChange={(e) => setEditDescription(e.target.value)}
@@ -557,13 +554,12 @@ export default function AdminGameVersionsPage() {
                           <span className="inline-flex items-center gap-0.5">
                             {games.map((game) =>
                               game.platform?.slug ? (
-                                <img
+                                <AdminImage
                                   key={game.id}
                                   src={`/platforms/${game.platform.slug}.svg`}
                                   alt={game.platform.name || ""}
                                   title={game.platform.name || ""}
                                   className="size-3.5"
-                                  onError={handlePlatformIconError}
                                 />
                               ) : null
                             )}

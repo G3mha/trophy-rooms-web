@@ -35,16 +35,29 @@ export function FormField({
   children,
 }: FormFieldProps) {
   return (
-    <div className={cn("flex flex-col gap-1.5", className)}>
-      <label className="text-sm font-medium text-[var(--text-primary)]">
-        {label}
-        {required && " *"}
+    <div className={cn("flex flex-col gap-2", className)}>
+      <label className="flex items-center gap-1.5 text-sm font-semibold tracking-[0.01em] text-[var(--text-primary)]">
+        <span>{label}</span>
+        {required && (
+          <span className="text-[var(--nintendo-red)]" aria-hidden="true">
+            *
+          </span>
+        )}
       </label>
       {children}
       {hint && !error && (
-        <span className="text-xs text-[var(--text-muted)]">{hint}</span>
+        <span className="text-[13px] leading-5 text-[var(--text-muted)]">
+          {hint}
+        </span>
       )}
-      {error && <span className="text-sm text-red-300">{error}</span>}
+      {error && (
+        <span
+          className="text-[13px] font-medium leading-5 text-[#ff8a94]"
+          aria-live="polite"
+        >
+          {error}
+        </span>
+      )}
     </div>
   );
 }

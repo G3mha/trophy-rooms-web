@@ -26,9 +26,9 @@ import {
 } from "@/components/ui/select";
 import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
 import { CoverPreview } from "./cover-preview";
+import { AdminImage } from "./admin-image";
 import { GameSearchPicker, type SearchableGame } from "./game-search-picker";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
@@ -489,11 +489,10 @@ export function GameEditModal({
                       }}
                       icon={
                         game.platform?.slug && (
-                          <img
+                          <AdminImage
                             src={`/platforms/${game.platform.slug}.svg`}
                             alt=""
                             className="w-[18px] h-[18px]"
-                            onError={handlePlatformIconError}
                           />
                         )
                       }

@@ -17,6 +17,7 @@ import {
 
 import { toast } from "sonner";
 import {
+  AdminImage,
   AdminConfirmDialog,
   CoverPreview,
   GameCloneModal,
@@ -27,7 +28,6 @@ import {
 import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner, Pagination } from "@/components";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
 import { GET_ADMIN_GAMES, GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
@@ -177,7 +177,7 @@ function GameCoverThumbnail({ coverUrl, title }: { coverUrl?: string | null; tit
   if (coverUrl) {
     return (
       <div className={styles.itemCover}>
-        <img src={coverUrl} alt={title} />
+        <AdminImage src={coverUrl} alt={title} className="h-full w-full object-cover" />
       </div>
     );
   }
@@ -197,11 +197,10 @@ function PlatformIcon({ slug, name }: { slug?: string | null; name?: string | nu
   }
   return (
     <span className={styles.platformBadge}>
-      <img
+      <AdminImage
         src={`/platforms/${slug}.svg`}
         alt={name || slug}
         className={styles.platformIcon}
-        onError={handlePlatformIconError}
       />
       <span>{name || slug}</span>
     </span>
@@ -222,13 +221,12 @@ function PlatformIconsRow({ games }: { games: AdminGameItem[] }) {
   return (
     <div className={styles.platformIconsRow}>
       {visible.map((p, idx) => (
-        <img
+        <AdminImage
           key={`${p.slug}-${idx}`}
           src={`/platforms/${p.slug}.svg`}
           alt={p.name || p.slug}
           className={styles.platformIconSmall}
           title={p.name || p.slug}
-          onError={handlePlatformIconError}
         />
       ))}
       {overflow > 0 && (
@@ -369,26 +367,6 @@ export default function AdminGamesPage() {
     setNewBaseGame(null);
     setNewAdditionalPlatformIds(new Set());
     setNewErrors({});
-  };
-
-  const handleMutationFailure = (
-    message: string,
-    setErrors?: (errors: GameFormErrors) => void,
-    field?: string | null
-  ) => {
-    toast.error(message);
-
-    if (!setErrors || !field) return;
-
-    if (field === "title") {
-      setErrors({ title: message });
-    } else if (field === "platformId") {
-      setErrors({ platformId: message });
-    } else if (field === "coverUrl") {
-      setErrors({ coverUrl: message });
-    } else if (field === "baseGameIds") {
-      setErrors({ baseGame: message });
-    }
   };
 
   const handleCreateGame = async () => {
@@ -574,7 +552,7 @@ export default function AdminGamesPage() {
           <h1 className={styles.pageTitle}>Games</h1>
           <p className={styles.sectionSubtitle}>Create and manage games.</p>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className={styles.headerActions}>
           {selectedIds.size > 0 && (
             <Button
               variant="outline"
@@ -629,25 +607,16 @@ export default function AdminGamesPage() {
         </Button>
       </div>
 
-      {/* Type Filter */}
-      <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+      <div className={styles.filterChips}>
         <button
+          type="button"
           onClick={() => {
             setTypeFilter(null);
             setCurrentPage(1);
           }}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 6,
-            padding: "6px 12px",
-            fontSize: 13,
-            background: typeFilter === null ? "var(--nintendo-red)" : "var(--bg-secondary)",
-            color: typeFilter === null ? "white" : "var(--text-secondary)",
-            border: typeFilter === null ? "1px solid var(--nintendo-red)" : "1px solid var(--border-color)",
-            borderRadius: "var(--border-radius)",
-            cursor: "pointer",
-          }}
+          className={`${styles.filterChip} ${
+            typeFilter === null ? styles.filterChipActive : ""
+          }`}
         >
           <Filter size={14} />
           All Games
@@ -655,19 +624,14 @@ export default function AdminGamesPage() {
         {Object.entries(GAME_TYPE_LABELS).map(([value, label]) => (
           <button
             key={value}
+            type="button"
             onClick={() => {
               setTypeFilter(value);
               setCurrentPage(1);
             }}
-            style={{
-              padding: "6px 12px",
-              fontSize: 13,
-              background: typeFilter === value ? "var(--nintendo-red)" : "var(--bg-secondary)",
-              color: typeFilter === value ? "white" : "var(--text-secondary)",
-              border: typeFilter === value ? "1px solid var(--nintendo-red)" : "1px solid var(--border-color)",
-              borderRadius: "var(--border-radius)",
-              cursor: "pointer",
-            }}
+            className={`${styles.filterChip} ${
+              typeFilter === value ? styles.filterChipActive : ""
+            }`}
           >
             {label}
           </button>
@@ -820,11 +784,10 @@ export default function AdminGamesPage() {
                         }}
                         icon={
                           game.platform?.slug && (
-                            <img
+                            <AdminImage
                               src={`/platforms/${game.platform.slug}.svg`}
                               alt=""
                               className="w-[18px] h-[18px]"
-                              onError={handlePlatformIconError}
                             />
                           )
                         }
@@ -1040,17 +1003,11 @@ export default function AdminGamesPage() {
                       }
                       style={{ cursor: "pointer" }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div className={styles.groupToggle}>
                         {expandedGroups.has(group.gameFamilyId) ? (
-                          <ChevronDown
-                            size={18}
-                            style={{ color: "var(--text-muted)" }}
-                          />
+                          <ChevronDown size={18} />
                         ) : (
-                          <ChevronRight
-                            size={18}
-                            style={{ color: "var(--text-muted)" }}
-                          />
+                          <ChevronRight size={18} />
                         )}
                       </div>
                       <GameCoverThumbnail
@@ -1066,20 +1023,13 @@ export default function AdminGamesPage() {
                       </span>
                     </div>
                     {expandedGroups.has(group.gameFamilyId) && (
-                      <div
-                        style={{
-                          marginLeft: 24,
-                          borderLeft: "2px solid var(--border-color)",
-                          paddingLeft: 8,
-                        }}
-                      >
+                      <div className={styles.nestedList}>
                         {group.games.map((game) => (
                           <div
                             key={game.id}
                             className={`${styles.itemCard} ${
                               selectedIds.has(game.id) ? styles.selected : ""
-                            }`}
-                            style={{ marginTop: 4 }}
+                            } ${styles.nestedListItem}`}
                           >
                             <input
                               type="checkbox"
