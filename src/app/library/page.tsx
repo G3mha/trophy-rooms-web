@@ -16,11 +16,21 @@ import {
   Plus,
   Monitor,
   AlertTriangle,
+  Sparkles,
+  Target,
+  Compass,
 } from "lucide-react";
 import { handlePlatformIconError } from "@/lib/image-utils";
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
-import { LoadingSpinner, EmptyState, AppImage, Button, FilterTabs, type FilterTab } from "@/components";
+import {
+  LoadingSpinner,
+  EmptyState,
+  AppImage,
+  Button,
+  FilterTabs,
+  type FilterTab,
+} from "@/components";
 import {
   Dialog,
   DialogContent,
@@ -50,7 +60,6 @@ interface UserGameItem {
 }
 
 type FilterStatus = GameStatus | "ALL";
-
 type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
 
 const STATUS_TABS: FilterTab<FilterStatus>[] = [
@@ -108,6 +117,9 @@ export default function LibraryPage() {
   }
 
   const games: UserGameItem[] = data?.myGamesByStatus || [];
+  const completedCount = games.filter((game) => game.status === "COMPLETED").length;
+  const activeCount = games.filter((game) => game.status === "PLAYING").length;
+  const backlogCount = games.filter((game) => game.status === "BACKLOG").length;
 
   const handleRemove = async () => {
     if (!gameToRemove) return;
@@ -127,20 +139,67 @@ export default function LibraryPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>My Library</h1>
-        <p className={styles.subtitle}>
-          Track and organize your gaming journey
-        </p>
+      <header className={styles.hero}>
+        <div className={styles.heroLead}>
+          <div className={styles.eyebrow}>
+            <Sparkles size={16} />
+            <span>Progress Tracker</span>
+          </div>
+          <h1 className={styles.title}>My Library</h1>
+          <p className={styles.subtitle}>
+            Keep your playing queue organized, separate active hunts from the
+            backlog, and track which games are already finished.
+          </p>
+        </div>
+
+        <div className={styles.heroStats}>
+          <div className={styles.heroStat}>
+            <Library size={16} />
+            <span>{games.length} tracked games</span>
+          </div>
+          <div className={styles.heroStat}>
+            <Target size={16} />
+            <span>{activeCount} currently playing</span>
+          </div>
+          <div className={styles.heroStat}>
+            <Compass size={16} />
+            <span>{backlogCount} in backlog</span>
+          </div>
+        </div>
       </header>
 
-      {/* Status Filter Tabs */}
-      <FilterTabs
-        tabs={STATUS_TABS}
-        value={activeFilter}
-        onChange={setActiveFilter}
-        className={styles.tabs}
-      />
+      <section className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Library Size</span>
+          <strong className={styles.summaryValue}>{games.length}</strong>
+          <p className={styles.summaryText}>Games with a tracked status in your library.</p>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Completed</span>
+          <strong className={styles.summaryValue}>{completedCount}</strong>
+          <p className={styles.summaryText}>Runs you&apos;ve already closed out.</p>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Backlog</span>
+          <strong className={styles.summaryValue}>{backlogCount}</strong>
+          <p className={styles.summaryText}>Games waiting for their turn in rotation.</p>
+        </div>
+      </section>
+
+      <section className={styles.filterPanel}>
+        <div className={styles.filterHeader}>
+          <div>
+            <p className={styles.filterEyebrow}>View by Status</p>
+            <h2 className={styles.filterTitle}>Current Library Slice</h2>
+          </div>
+        </div>
+        <FilterTabs
+          tabs={STATUS_TABS}
+          value={activeFilter}
+          onChange={setActiveFilter}
+          className={styles.tabs}
+        />
+      </section>
 
       {games.length > 0 ? (
         <div className={styles.gamesGrid}>
@@ -162,11 +221,7 @@ export default function LibraryPage() {
                     />
                     <div
                       className={styles.statusBadge}
-                      style={
-                        {
-                          "--badge-color": STATUS_COLORS[item.status],
-                        } as React.CSSProperties
-                      }
+                      style={{ "--badge-color": STATUS_COLORS[item.status] } as React.CSSProperties}
                     >
                       <span className={styles.statusIcon}>
                         <StatusIcon size={12} />
@@ -194,9 +249,7 @@ export default function LibraryPage() {
                       </div>
                     )}
                     {item.gameDescription && (
-                      <p className={styles.gameDescription}>
-                        {item.gameDescription}
-                      </p>
+                      <p className={styles.gameDescription}>{item.gameDescription}</p>
                     )}
                     <div className={styles.gameMeta}>
                       <span className={styles.achievementCount}>
@@ -251,7 +304,6 @@ export default function LibraryPage() {
         />
       )}
 
-      {/* Remove Confirmation Dialog */}
       <Dialog open={!!gameToRemove} onOpenChange={(open) => !open && setGameToRemove(null)}>
         <DialogContent showCloseButton={false}>
           <DialogHeader>

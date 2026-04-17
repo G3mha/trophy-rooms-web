@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_BUNDLES } from "@/graphql/admin_queries";
 import { BundleCard, Button, LoadingSpinner, EmptyState } from "@/components";
-import { ChevronDown, Package } from "lucide-react";
+import { ChevronDown, Package, Layers3, Puzzle, Search } from "lucide-react";
 import styles from "./page.module.css";
 
 interface Bundle {
@@ -43,63 +43,89 @@ export default function BundlesPage() {
     );
   }, [bundles, searchQuery]);
 
-  const hasActiveFilters = searchQuery || bundleType;
+  const totalGames = filteredBundles.reduce((sum, bundle) => sum + bundle.gameCount, 0);
+  const totalDlcs = filteredBundles.reduce((sum, bundle) => sum + bundle.dlcCount, 0);
+  const hasActiveFilters = Boolean(searchQuery || bundleType);
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>
-            Bundles
-            <span className={styles.subtitle}>
-              {filteredBundles.length} {filteredBundles.length === 1 ? "bundle" : "bundles"}
-            </span>
-          </h1>
+      <header className={styles.hero}>
+        <div className={styles.heroLead}>
+          <div className={styles.eyebrow}>
+            <Layers3 size={16} />
+            <span>Catalog Overview</span>
+          </div>
+          <h1 className={styles.title}>Bundles Library</h1>
+          <p className={styles.subtitle}>
+            Browse collections, season passes, and grouped releases across the
+            catalog with a clearer view of what each package contains.
+          </p>
+        </div>
+        <div className={styles.heroStats}>
+          <div className={styles.heroStat}>
+            <Package size={16} />
+            <span>{filteredBundles.length} bundles in view</span>
+          </div>
+          <div className={styles.heroStat}>
+            <Layers3 size={16} />
+            <span>{totalGames} total included titles</span>
+          </div>
+          <div className={styles.heroStat}>
+            <Puzzle size={16} />
+            <span>{totalDlcs} total DLC entries</span>
+          </div>
         </div>
       </header>
 
-      {/* Search and Filters */}
-      <div className={styles.filtersRow}>
-        <input
-          type="text"
-          placeholder="Search bundles..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className={styles.searchInput}
-        />
-        <div className={styles.selectWrapper}>
-          <select
-            className={styles.filterSelect}
-            value={bundleType}
-            onChange={(e) => setBundleType(e.target.value)}
-          >
-            {bundleTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className={styles.selectIcon} size={16} />
+      <section className={styles.filterPanel}>
+        <div className={styles.filterHeader}>
+          <div>
+            <p className={styles.filterEyebrow}>Refine Results</p>
+            <h2 className={styles.filterTitle}>Search and Filter</h2>
+          </div>
+          {hasActiveFilters && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setBundleType("");
+              }}
+              className={styles.clearBtn}
+            >
+              Clear Filters
+            </button>
+          )}
         </div>
-        {hasActiveFilters && (
-          <button
-            onClick={() => {
-              setSearchQuery("");
-              setBundleType("");
-            }}
-            className={styles.clearBtn}
-          >
-            Clear
-          </button>
-        )}
-      </div>
 
-      {/* Loading */}
-      {loading && (
-        <LoadingSpinner text="Loading bundles..." />
-      )}
+        <div className={styles.filtersRow}>
+          <label className={styles.searchWrap}>
+            <Search size={16} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search bundles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+          </label>
+          <div className={styles.selectWrapper}>
+            <select
+              className={styles.filterSelect}
+              value={bundleType}
+              onChange={(e) => setBundleType(e.target.value)}
+            >
+              {bundleTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className={styles.selectIcon} size={16} />
+          </div>
+        </div>
+      </section>
 
-      {/* Error */}
+      {loading && <LoadingSpinner text="Loading bundles..." />}
+
       {error && (
         <div className={styles.error}>
           <p>Error loading bundles: {error.message}</p>
@@ -109,7 +135,6 @@ export default function BundlesPage() {
         </div>
       )}
 
-      {/* Bundles Grid */}
       {!loading && !error && filteredBundles.length > 0 && (
         <div className={styles.bundlesGrid}>
           {filteredBundles.map((bundle: Bundle) => (
@@ -127,7 +152,6 @@ export default function BundlesPage() {
         </div>
       )}
 
-      {/* Empty State */}
       {!loading && !error && filteredBundles.length === 0 && (
         <EmptyState
           icon={<Package size={48} />}
@@ -139,7 +163,13 @@ export default function BundlesPage() {
           }
           action={
             searchQuery ? (
-              <Button onClick={() => setSearchQuery("")} variant="secondary">
+              <Button
+                onClick={() => {
+                  setSearchQuery("");
+                  setBundleType("");
+                }}
+                variant="secondary"
+              >
                 Clear Search
               </Button>
             ) : undefined

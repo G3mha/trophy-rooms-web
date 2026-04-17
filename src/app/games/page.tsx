@@ -6,7 +6,7 @@ import { useAuth } from "@clerk/nextjs";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import { GameCard, GroupedGameCard, Button, LoadingSpinner, EmptyState } from "@/components";
-import { ChevronDown, Gamepad2 } from "lucide-react";
+import { ChevronDown, Gamepad2, Search, Swords, Trophy } from "lucide-react";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -110,6 +110,9 @@ export default function GamesPage() {
     const gameNodes = rawGames.map(({ node }: { node: GameNode }) => node);
     return groupGamesByTitle(gameNodes);
   }, [rawGames]);
+  const totalGames = data?.games?.totalCount || 0;
+  const trophyRichGroups = gameGroups.filter((group) => group.totalTrophyCount > 0).length;
+  const multiPlatformGroups = gameGroups.filter((group) => group.games.length > 1).length;
 
   const handleLoadMore = () => {
     fetchMore({
@@ -123,87 +126,121 @@ export default function GamesPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <h1 className={styles.title}>
-            Games Library
-            <span className={styles.subtitle}>
-              {data?.games?.totalCount || 0} games
-            </span>
-          </h1>
+      <header className={styles.hero}>
+        <div className={styles.heroTop}>
+          <div className={styles.heroLead}>
+            <div className={styles.eyebrow}>
+              <Gamepad2 size={16} />
+              <span>Catalog Browser</span>
+            </div>
+            <div className={styles.titleRow}>
+              <h1 className={styles.title}>Games Library</h1>
+              <span className={styles.subtitle}>{totalGames} games</span>
+            </div>
+            <p className={styles.description}>
+              Browse the full library, compare platform variants, and surface the
+              games with the richest achievement support.
+            </p>
+          </div>
+          {isSignedIn && isAdmin && (
+            <Button href="/games/new">Add Game</Button>
+          )}
         </div>
-        {isSignedIn && isAdmin && (
-          <Button href="/games/new">Add Game</Button>
-        )}
+
+        <div className={styles.heroStats}>
+          <div className={styles.heroStat}>
+            <Gamepad2 size={16} />
+            <span>{gameGroups.length} visible title groups</span>
+          </div>
+          <div className={styles.heroStat}>
+            <Swords size={16} />
+            <span>{multiPlatformGroups} multi-platform entries</span>
+          </div>
+          <div className={styles.heroStat}>
+            <Trophy size={16} />
+            <span>{trophyRichGroups} with trophies</span>
+          </div>
+        </div>
       </header>
 
-      {/* Search and Filters */}
-      <div className={styles.filtersRow}>
-        <input
-          type="text"
-          placeholder="Search games..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className={styles.searchInput}
-        />
-        <div className={styles.selectWrapper}>
-          <select
-            className={styles.filterSelect}
-            value={platformId}
-            onChange={(e) => setPlatformId(e.target.value)}
-          >
-            <option value="">All Platforms</option>
-            {platforms.map((platform) => (
-              <option key={platform.id} value={platform.id}>
-                {platform.name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className={styles.selectIcon} size={16} />
+      <section className={styles.filterPanel}>
+        <div className={styles.filterHeader}>
+          <div>
+            <p className={styles.filterEyebrow}>Refine Results</p>
+            <h2 className={styles.filterTitle}>Search and Filter</h2>
+          </div>
+          {(searchQuery || platformId || hasAchievements !== "all") && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setPlatformId("");
+                setHasAchievements("all");
+                setOrderBy("TITLE_ASC");
+              }}
+              className={styles.clearBtn}
+            >
+              Clear Filters
+            </button>
+          )}
         </div>
-        <div className={styles.selectWrapper}>
-          <select
-            className={styles.filterSelect}
-            value={hasAchievements}
-            onChange={(e) =>
-              setHasAchievements(e.target.value as "all" | "with" | "without")
-            }
-          >
-            <option value="all">All</option>
-            <option value="with">With Achievements</option>
-            <option value="without">Without Achievements</option>
-          </select>
-          <ChevronDown className={styles.selectIcon} size={16} />
+
+        <div className={styles.filtersRow}>
+          <label className={styles.searchWrap}>
+            <Search size={16} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search games..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+          </label>
+          <div className={styles.selectWrapper}>
+            <select
+              className={styles.filterSelect}
+              value={platformId}
+              onChange={(e) => setPlatformId(e.target.value)}
+            >
+              <option value="">All Platforms</option>
+              {platforms.map((platform) => (
+                <option key={platform.id} value={platform.id}>
+                  {platform.name}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className={styles.selectIcon} size={16} />
+          </div>
+          <div className={styles.selectWrapper}>
+            <select
+              className={styles.filterSelect}
+              value={hasAchievements}
+              onChange={(e) =>
+                setHasAchievements(e.target.value as "all" | "with" | "without")
+              }
+            >
+              <option value="all">All</option>
+              <option value="with">With Achievements</option>
+              <option value="without">Without Achievements</option>
+            </select>
+            <ChevronDown className={styles.selectIcon} size={16} />
+          </div>
+          <div className={styles.selectWrapper}>
+            <select
+              className={styles.filterSelect}
+              value={orderBy}
+              onChange={(e) => setOrderBy(e.target.value)}
+            >
+              <option value="TITLE_ASC">Title (A → Z)</option>
+              <option value="TITLE_DESC">Title (Z → A)</option>
+              <option value="CREATED_AT_DESC">Newest</option>
+              <option value="CREATED_AT_ASC">Oldest</option>
+              <option value="ACHIEVEMENT_COUNT_DESC">Most Achievements</option>
+              <option value="TROPHY_COUNT_DESC">Most Trophies</option>
+            </select>
+            <ChevronDown className={styles.selectIcon} size={16} />
+          </div>
         </div>
-        <div className={styles.selectWrapper}>
-          <select
-            className={styles.filterSelect}
-            value={orderBy}
-            onChange={(e) => setOrderBy(e.target.value)}
-          >
-            <option value="TITLE_ASC">Title (A → Z)</option>
-            <option value="TITLE_DESC">Title (Z → A)</option>
-            <option value="CREATED_AT_DESC">Newest</option>
-            <option value="CREATED_AT_ASC">Oldest</option>
-            <option value="ACHIEVEMENT_COUNT_DESC">Most Achievements</option>
-            <option value="TROPHY_COUNT_DESC">Most Trophies</option>
-          </select>
-          <ChevronDown className={styles.selectIcon} size={16} />
-        </div>
-        {(searchQuery || platformId || hasAchievements !== "all") && (
-          <button
-            onClick={() => {
-              setSearchQuery("");
-              setPlatformId("");
-              setHasAchievements("all");
-              setOrderBy("TITLE_ASC");
-            }}
-            className={styles.clearBtn}
-          >
-            Clear
-          </button>
-        )}
-      </div>
+      </section>
 
       {/* Loading */}
       {loading && (!rawGames || rawGames.length === 0) && (

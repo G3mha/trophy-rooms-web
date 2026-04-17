@@ -18,10 +18,19 @@ import {
   Share2,
   DollarSign,
   StickyNote,
+  Gift,
+  Sparkles,
 } from "lucide-react";
 import { GET_MY_BUYLIST, GET_BUYLIST_STATS } from "@/graphql/queries";
 import { REMOVE_FROM_BUYLIST } from "@/graphql/mutations";
-import { LoadingSpinner, EmptyState, AppImage, Button, FilterTabs, type FilterTab } from "@/components";
+import {
+  LoadingSpinner,
+  EmptyState,
+  AppImage,
+  Button,
+  FilterTabs,
+  type FilterTab,
+} from "@/components";
 import { MarkAsPurchasedModal } from "@/components/MarkAsPurchasedModal";
 import styles from "./page.module.css";
 
@@ -88,7 +97,8 @@ export default function BuylistPage() {
   const [itemTypeFilter, setItemTypeFilter] = useState<ItemTypeFilter>("ALL");
   const [copiedLink, setCopiedLink] = useState(false);
   const [showPurchasedModal, setShowPurchasedModal] = useState(false);
-  const [selectedItemForPurchase, setSelectedItemForPurchase] = useState<BuylistItem | null>(null);
+  const [selectedItemForPurchase, setSelectedItemForPurchase] =
+    useState<BuylistItem | null>(null);
 
   const queryVariables = {
     filter: {
@@ -118,7 +128,6 @@ export default function BuylistPage() {
     }
   );
 
-
   if (!isLoaded) {
     return <LoadingSpinner text="Loading..." />;
   }
@@ -137,6 +146,9 @@ export default function BuylistPage() {
 
   const items: BuylistItem[] = data?.myBuylist || [];
   const stats: BuylistStats | null = statsData?.buylistStats || null;
+  const totalGames = stats?.gameCount || 0;
+  const totalDlcs = stats?.dlcCount || 0;
+  const totalBundles = stats?.bundleCount || 0;
 
   const handleRemove = async (id: string) => {
     await removeFromBuylist({ variables: { id } });
@@ -164,9 +176,8 @@ export default function BuylistPage() {
     }
   };
 
-  const getPriorityLabel = (priority: string): string => {
-    return priority.charAt(0) + priority.slice(1).toLowerCase();
-  };
+  const getPriorityLabel = (priority: string): string =>
+    priority.charAt(0) + priority.slice(1).toLowerCase();
 
   const getPriorityIcon = (priority: string): IconComponent => {
     switch (priority) {
@@ -214,19 +225,22 @@ export default function BuylistPage() {
     return "#";
   };
 
-  const formatPrice = (price: number | null): string => {
-    if (price === null) return "—";
-    return `$${price.toFixed(2)}`;
-  };
+  const formatPrice = (price: number | null): string =>
+    price === null ? "—" : `$${price.toFixed(2)}`;
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div>
+      <header className={styles.hero}>
+        <div className={styles.heroTop}>
+          <div className={styles.heroLead}>
+            <div className={styles.eyebrow}>
+              <Sparkles size={16} />
+              <span>Wish List Planner</span>
+            </div>
             <h1 className={styles.title}>My Buylist</h1>
             <p className={styles.subtitle}>
-              Track games, DLCs, and bundles you want to buy or receive as gifts
+              Keep your most wanted games, DLCs, and bundles in one place, with
+              priorities and prices ready when it&apos;s time to buy.
             </p>
           </div>
           <button
@@ -235,59 +249,78 @@ export default function BuylistPage() {
             title="Share your buylist"
           >
             {copiedLink ? <Check size={16} /> : <Share2 size={16} />}
-            <span>{copiedLink ? "Copied!" : "Share"}</span>
+            <span>{copiedLink ? "Copied!" : "Share List"}</span>
           </button>
         </div>
 
-        {/* Stats Bar */}
         {stats && stats.totalItems > 0 && (
-          <div className={styles.statsBar}>
-            <div className={styles.statItem}>
-              <span className={styles.statValue}>{stats.totalItems}</span>
-              <span className={styles.statLabel}>Items</span>
+          <div className={styles.heroStats}>
+            <div className={styles.heroStat}>
+              <ShoppingCart size={16} />
+              <span>{stats.totalItems} total wants</span>
             </div>
-            <div className={styles.statDivider} />
-            <div className={styles.statItem}>
-              <span className={styles.statValue}>
-                ${stats.totalEstimatedCost.toFixed(2)}
-              </span>
-              <span className={styles.statLabel}>Est. Total</span>
+            <div className={styles.heroStat}>
+              <DollarSign size={16} />
+              <span>${stats.totalEstimatedCost.toFixed(2)} estimated total</span>
             </div>
-            <div className={styles.statDivider} />
-            <div className={styles.statItem}>
-              <span className={styles.statValue} style={{ color: PRIORITY_COLORS.HIGH }}>
-                {stats.highPriorityCount}
-              </span>
-              <span className={styles.statLabel}>High Priority</span>
+            <div className={styles.heroStat}>
+              <Gift size={16} />
+              <span>{stats.highPriorityCount} high priority</span>
             </div>
           </div>
         )}
       </header>
 
-      {/* Priority Filter Tabs */}
-      <div className={styles.filters}>
-        <div className={styles.filterGroup}>
-          <span className={styles.filterLabel}>Priority:</span>
-          <FilterTabs
-            tabs={PRIORITY_TABS}
-            value={priorityFilter}
-            onChange={setPriorityFilter}
-            iconSize={14}
-            className={styles.tabs}
-          />
+      <section className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Games</span>
+          <strong className={styles.summaryValue}>{totalGames}</strong>
+          <p className={styles.summaryText}>Full releases currently on your list.</p>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>DLCs</span>
+          <strong className={styles.summaryValue}>{totalDlcs}</strong>
+          <p className={styles.summaryText}>Add-ons and expansions you still want.</p>
+        </div>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Bundles</span>
+          <strong className={styles.summaryValue}>{totalBundles}</strong>
+          <p className={styles.summaryText}>Collections and packages worth tracking.</p>
+        </div>
+      </section>
+
+      <section className={styles.filterPanel}>
+        <div className={styles.filterHeader}>
+          <div>
+            <p className={styles.filterEyebrow}>Refine Wishlist</p>
+            <h2 className={styles.filterTitle}>Priority and Type</h2>
+          </div>
         </div>
 
-        <div className={styles.filterGroup}>
-          <span className={styles.filterLabel}>Type:</span>
-          <FilterTabs
-            tabs={ITEM_TYPE_TABS}
-            value={itemTypeFilter}
-            onChange={setItemTypeFilter}
-            iconSize={14}
-            className={styles.tabs}
-          />
+        <div className={styles.filters}>
+          <div className={styles.filterGroup}>
+            <span className={styles.filterLabel}>Priority</span>
+            <FilterTabs
+              tabs={PRIORITY_TABS}
+              value={priorityFilter}
+              onChange={setPriorityFilter}
+              iconSize={14}
+              className={styles.tabs}
+            />
+          </div>
+
+          <div className={styles.filterGroup}>
+            <span className={styles.filterLabel}>Type</span>
+            <FilterTabs
+              tabs={ITEM_TYPE_TABS}
+              value={itemTypeFilter}
+              onChange={setItemTypeFilter}
+              iconSize={14}
+              className={styles.tabs}
+            />
+          </div>
         </div>
-      </div>
+      </section>
 
       {items.length > 0 ? (
         <div className={styles.itemsGrid}>
@@ -310,11 +343,7 @@ export default function BuylistPage() {
                     />
                     <div
                       className={styles.priorityBadge}
-                      style={
-                        {
-                          "--badge-color": PRIORITY_COLORS[item.priority],
-                        } as React.CSSProperties
-                      }
+                      style={{ "--badge-color": PRIORITY_COLORS[item.priority] } as React.CSSProperties}
                     >
                       <span className={styles.badgeIcon}>
                         <PriorityIcon size={12} />
@@ -325,11 +354,7 @@ export default function BuylistPage() {
                     </div>
                     <div
                       className={styles.typeBadge}
-                      style={
-                        {
-                          "--badge-color": ITEM_TYPE_COLORS[item.itemType],
-                        } as React.CSSProperties
-                      }
+                      style={{ "--badge-color": ITEM_TYPE_COLORS[item.itemType] } as React.CSSProperties}
                     >
                       <span className={styles.badgeIcon}>
                         <ItemTypeIcon size={12} />

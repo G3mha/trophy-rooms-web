@@ -10,6 +10,9 @@ import {
   CheckCircle,
   Globe,
   Plus,
+  Sparkles,
+  Disc3,
+  BookOpenCheck,
 } from "lucide-react";
 import {
   GET_MY_COLLECTION,
@@ -138,7 +141,6 @@ export default function CollectionPage() {
     [statsData]
   );
 
-  // Build region tabs with counts from stats (must be before early returns)
   const regionTabs: FilterTab<FilterRegion>[] = useMemo(() => {
     return REGION_TAB_CONFIG.map((tab) => ({
       ...tab,
@@ -149,6 +151,8 @@ export default function CollectionPage() {
           : stats.byRegion.find((r) => r.region === tab.value)?.count || 0,
     }));
   }, [stats]);
+
+  const totalRegionalVariants = stats.byRegion.reduce((sum, item) => sum + item.count, 0);
 
   if (!isLoaded) {
     return <LoadingSpinner text="Loading..." />;
@@ -184,70 +188,96 @@ export default function CollectionPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
+      <header className={styles.hero}>
+        <div className={styles.heroLead}>
+          <div className={styles.eyebrow}>
+            <Sparkles size={16} />
+            <span>Physical Archive</span>
+          </div>
           <h1 className={styles.title}>My Collection</h1>
           <p className={styles.subtitle}>
-            Catalog your physical game collection
+            Catalog your physical library, track condition and completeness, and
+            keep regional variants organized in one place.
           </p>
+        </div>
+
+        <div className={styles.heroStats}>
+          <div className={styles.heroStat}>
+            <Package size={16} />
+            <span>{stats.totalItems} items tracked</span>
+          </div>
+          <div className={styles.heroStat}>
+            <Lock size={16} />
+            <span>{stats.sealedCount} sealed copies</span>
+          </div>
+          <div className={styles.heroStat}>
+            <CheckCircle size={16} />
+            <span>{stats.completeCount} complete sets</span>
+          </div>
         </div>
       </header>
 
-      {/* Stats Bar */}
-      <div className={styles.statsBar}>
-        <div className={styles.stat}>
-          <Package size={16} />
-          <span>{stats.totalItems} items</span>
+      <section className={styles.summaryGrid}>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Inventory</span>
+          <strong className={styles.summaryValue}>{stats.totalItems}</strong>
+          <p className={styles.summaryText}>Physical items currently logged in your archive.</p>
         </div>
-        <div className={styles.statDivider} />
-        <div className={styles.stat}>
-          <Lock size={16} />
-          <span>{stats.sealedCount} sealed</span>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Regional Mix</span>
+          <strong className={styles.summaryValue}>{totalRegionalVariants}</strong>
+          <p className={styles.summaryText}>Copies distributed across your tracked regions.</p>
         </div>
-        <div className={styles.statDivider} />
-        <div className={styles.stat}>
-          <CheckCircle size={16} />
-          <span>{stats.completeCount} complete</span>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Completeness</span>
+          <strong className={styles.summaryValue}>{stats.completeCount}</strong>
+          <p className={styles.summaryText}>Entries with core components present and accounted for.</p>
         </div>
-      </div>
+      </section>
 
-      {/* Filters */}
-      <div className={styles.filters}>
-        {/* Region Tabs */}
-        <FilterTabs
-          tabs={regionTabs}
-          value={regionFilter}
-          onChange={setRegionFilter}
-          iconSize={14}
-          className={styles.tabs}
-        />
-
-        {/* Type Filters */}
-        <div className={styles.typeFilters}>
-          <button
-            className={`${styles.typeFilter} ${typeFilter === "ALL" ? styles.typeFilterActive : ""}`}
-            onClick={() => setTypeFilter("ALL")}
-          >
-            All
-          </button>
-          <button
-            className={`${styles.typeFilter} ${typeFilter === "SEALED" ? styles.typeFilterActive : ""}`}
-            onClick={() => setTypeFilter("SEALED")}
-          >
-            <Lock size={14} />
-            Sealed Only
-          </button>
-          <button
-            className={`${styles.typeFilter} ${typeFilter === "COMPLETE" ? styles.typeFilterActive : ""}`}
-            onClick={() => setTypeFilter("COMPLETE")}
-          >
-            <CheckCircle size={14} />
-            Complete Only
-          </button>
+      <section className={styles.filterPanel}>
+        <div className={styles.filterHeader}>
+          <div>
+            <p className={styles.filterEyebrow}>Refine Archive</p>
+            <h2 className={styles.filterTitle}>Region and Condition</h2>
+          </div>
         </div>
-      </div>
 
-      {/* Collection Grid */}
+        <div className={styles.filters}>
+          <FilterTabs
+            tabs={regionTabs}
+            value={regionFilter}
+            onChange={setRegionFilter}
+            iconSize={14}
+            className={styles.tabs}
+          />
+
+          <div className={styles.typeFilters}>
+            <button
+              className={`${styles.typeFilter} ${typeFilter === "ALL" ? styles.typeFilterActive : ""}`}
+              onClick={() => setTypeFilter("ALL")}
+            >
+              <Disc3 size={14} />
+              All Items
+            </button>
+            <button
+              className={`${styles.typeFilter} ${typeFilter === "SEALED" ? styles.typeFilterActive : ""}`}
+              onClick={() => setTypeFilter("SEALED")}
+            >
+              <Lock size={14} />
+              Sealed Only
+            </button>
+            <button
+              className={`${styles.typeFilter} ${typeFilter === "COMPLETE" ? styles.typeFilterActive : ""}`}
+              onClick={() => setTypeFilter("COMPLETE")}
+            >
+              <BookOpenCheck size={14} />
+              Complete Only
+            </button>
+          </div>
+        </div>
+      </section>
+
       {items.length > 0 ? (
         <div className={styles.grid}>
           {items.map((item) => (
@@ -301,7 +331,6 @@ export default function CollectionPage() {
         />
       )}
 
-      {/* Edit Modal */}
       {editingItem && (
         <AddToCollectionModal
           isOpen={isModalOpen}

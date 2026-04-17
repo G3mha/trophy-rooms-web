@@ -1,200 +1,205 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 24px;
+  padding: 36px 24px 56px;
 }
 
-/* Header */
-.header {
-  text-align: center;
+.hero {
   margin-bottom: 24px;
+  padding: 30px;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at top left, rgba(245, 158, 11, 0.14), transparent 34%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%),
+    var(--bg-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
 }
 
-.headerContent {
-  display: flex;
-  flex-direction: column;
+.heroLead {
+  max-width: 60ch;
+}
+
+.eyebrow {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  padding: 7px 12px;
+  margin-bottom: 16px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.16);
+  color: #ffd38f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .title {
-  font-size: 36px;
-  font-weight: 700;
+  margin: 0 0 10px;
   color: var(--text-primary);
-  margin: 0;
+  font-size: clamp(2.1rem, 4vw, 3.4rem);
 }
 
 .subtitle {
-  font-size: 16px;
-  color: var(--text-secondary);
   margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.7;
 }
 
-/* Stats Bar */
-.statsBar {
+.heroStats,
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.heroStats {
+  margin-top: 20px;
+}
+
+.heroStat,
+.summaryCard,
+.filterPanel {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
+}
+
+.heroStat {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-secondary);
+}
+
+.summaryGrid {
   margin-bottom: 24px;
-  padding: 16px 24px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+  gap: 16px;
 }
 
-.stat {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
+.summaryCard {
+  padding: 20px;
+  background: var(--bg-secondary);
+}
+
+.summaryLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.summaryValue {
+  display: block;
+  margin-bottom: 8px;
   color: var(--text-primary);
+  font-size: 1.7rem;
+  font-weight: 700;
 }
 
-.stat svg {
-  color: var(--nintendo-red);
+.summaryText {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.6;
 }
 
-.statDivider {
-  width: 1px;
-  height: 20px;
-  background: var(--border-color);
+.filterPanel {
+  margin-bottom: 24px;
+  padding: 22px;
+  background: var(--bg-secondary);
 }
 
-/* Filters */
+.filterHeader {
+  margin-bottom: 16px;
+}
+
+.filterEyebrow {
+  margin: 0 0 6px;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.filterTitle {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+}
+
 .filters {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border-color);
 }
 
-/* Region Tabs */
 .tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  justify-content: center;
 }
 
-.tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
-}
-
-.tab:hover {
-  background: var(--bg-card-hover);
-  color: var(--text-primary);
-}
-
-.tabActive {
-  background: var(--nintendo-red);
-  border-color: var(--nintendo-red);
-  color: white;
-}
-
-.tabActive:hover {
-  background: var(--nintendo-red-dark, #cc0000);
-  border-color: var(--nintendo-red-dark, #cc0000);
-  color: white;
-}
-
-.tabIcon {
-  opacity: 0.8;
-}
-
-.tabCount {
-  padding: 2px 8px;
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.tabActive .tabCount {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-/* Type Filters */
 .typeFilters {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  justify-content: center;
 }
 
 .typeFilter {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 14px;
+  padding: 8px 14px;
   background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
   color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
   transition: all 0.2s ease;
 }
 
 .typeFilter:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  border-color: rgba(255, 211, 143, 0.34);
+  color: #ffd38f;
 }
 
 .typeFilterActive {
-  background: var(--bg-secondary);
-  border-color: var(--nintendo-red);
-  color: var(--nintendo-red);
+  background: rgba(245, 158, 11, 0.16);
+  border-color: rgba(255, 211, 143, 0.34);
+  color: #ffd38f;
 }
 
-/* Collection Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 20px;
 }
 
-/* Responsive */
+@media (max-width: 960px) {
+  .heroStats,
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
-  .title {
-    font-size: 28px;
+  .container {
+    padding: 28px 16px 44px;
   }
 
-  .statsBar {
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 12px 16px;
-  }
-
-  .statDivider {
-    display: none;
-  }
-
-  .tabs {
-    gap: 6px;
-  }
-
-  .tab {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
-
-  .typeFilters {
-    flex-wrap: wrap;
+  .hero,
+  .summaryCard,
+  .filterPanel {
+    padding: 20px;
   }
 
   .grid {
@@ -204,26 +209,6 @@
 }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 24px 16px;
-  }
-
-  .tabs {
-    justify-content: flex-start;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 8px;
-    margin-left: -16px;
-    margin-right: -16px;
-    padding-left: 16px;
-    padding-right: 16px;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .tab {
-    flex-shrink: 0;
-  }
-
   .grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
