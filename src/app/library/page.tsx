@@ -29,6 +29,8 @@ import {
   AppImage,
   Button,
   FilterTabs,
+  CatalogFilterPanel,
+  CatalogHero,
   type FilterTab,
 } from "@/components";
 import {
@@ -139,34 +141,39 @@ export default function LibraryPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.hero}>
-        <div className={styles.heroLead}>
-          <div className={styles.eyebrow}>
+      <CatalogHero
+        classes={{
+          root: styles.hero,
+          lead: styles.heroLead,
+          eyebrow: styles.eyebrow,
+          title: styles.title,
+          description: styles.subtitle,
+          stats: styles.heroStats,
+          stat: styles.heroStat,
+        }}
+        eyebrow={
+          <>
             <Sparkles size={16} />
             <span>Progress Tracker</span>
-          </div>
-          <h1 className={styles.title}>My Library</h1>
-          <p className={styles.subtitle}>
-            Keep your playing queue organized, separate active hunts from the
-            backlog, and track which games are already finished.
-          </p>
-        </div>
-
-        <div className={styles.heroStats}>
-          <div className={styles.heroStat}>
-            <Library size={16} />
-            <span>{games.length} tracked games</span>
-          </div>
-          <div className={styles.heroStat}>
-            <Target size={16} />
-            <span>{activeCount} currently playing</span>
-          </div>
-          <div className={styles.heroStat}>
-            <Compass size={16} />
-            <span>{backlogCount} in backlog</span>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+        title="My Library"
+        description="Keep your playing queue organized, separate active hunts from the backlog, and track which games are already finished."
+        stats={[
+          {
+            icon: <Library size={16} />,
+            label: `${games.length} tracked games`,
+          },
+          {
+            icon: <Target size={16} />,
+            label: `${activeCount} currently playing`,
+          },
+          {
+            icon: <Compass size={16} />,
+            label: `${backlogCount} in backlog`,
+          },
+        ]}
+      />
 
       <section className={styles.summaryGrid}>
         <div className={styles.summaryCard}>
@@ -186,20 +193,17 @@ export default function LibraryPage() {
         </div>
       </section>
 
-      <section className={styles.filterPanel}>
-        <div className={styles.filterHeader}>
-          <div>
-            <p className={styles.filterEyebrow}>View by Status</p>
-            <h2 className={styles.filterTitle}>Current Library Slice</h2>
-          </div>
-        </div>
+      <CatalogFilterPanel
+        eyebrow="View by Status"
+        title="Current Library Slice"
+      >
         <FilterTabs
           tabs={STATUS_TABS}
           value={activeFilter}
           onChange={setActiveFilter}
           className={styles.tabs}
         />
-      </section>
+      </CatalogFilterPanel>
 
       {games.length > 0 ? (
         <div className={styles.gamesGrid}>

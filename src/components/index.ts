@@ -14,6 +14,13 @@ export { ProfileHeader } from "./ProfileHeader";
 export { RecentActivity } from "./RecentActivity";
 export { LeaderboardEntry, FastestCompletionEntry } from "./LeaderboardEntry";
 export { ActivityFeedEntry } from "./ActivityFeedEntry";
+export {
+  CatalogFilterPanel,
+  CatalogFilterRow,
+  CatalogSearchField,
+  CatalogSelectField,
+} from "./CatalogFilterPanel";
+export { CatalogHero, type CatalogHeroClasses, type CatalogHeroStat } from "./CatalogHero";
 export { GameProgressCard } from "./GameProgressCard";
 export { GameStatusSelector } from "./GameStatusSelector";
 export { BuylistSelector } from "./BuylistSelector";

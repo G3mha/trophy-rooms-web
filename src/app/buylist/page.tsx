@@ -29,6 +29,8 @@ import {
   AppImage,
   Button,
   FilterTabs,
+  CatalogFilterPanel,
+  CatalogHero,
   type FilterTab,
 } from "@/components";
 import { MarkAsPurchasedModal } from "@/components/MarkAsPurchasedModal";
@@ -230,19 +232,26 @@ export default function BuylistPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.hero}>
-        <div className={styles.heroTop}>
-          <div className={styles.heroLead}>
-            <div className={styles.eyebrow}>
-              <Sparkles size={16} />
-              <span>Wish List Planner</span>
-            </div>
-            <h1 className={styles.title}>My Buylist</h1>
-            <p className={styles.subtitle}>
-              Keep your most wanted games, DLCs, and bundles in one place, with
-              priorities and prices ready when it&apos;s time to buy.
-            </p>
-          </div>
+      <CatalogHero
+        classes={{
+          root: styles.hero,
+          top: styles.heroTop,
+          lead: styles.heroLead,
+          eyebrow: styles.eyebrow,
+          title: styles.title,
+          description: styles.subtitle,
+          stats: styles.heroStats,
+          stat: styles.heroStat,
+        }}
+        eyebrow={
+          <>
+            <Sparkles size={16} />
+            <span>Wish List Planner</span>
+          </>
+        }
+        title="My Buylist"
+        description="Keep your most wanted games, DLCs, and bundles in one place, with priorities and prices ready when it&apos;s time to buy."
+        action={
           <button
             className={styles.shareButton}
             onClick={handleShare}
@@ -251,25 +260,26 @@ export default function BuylistPage() {
             {copiedLink ? <Check size={16} /> : <Share2 size={16} />}
             <span>{copiedLink ? "Copied!" : "Share List"}</span>
           </button>
-        </div>
-
-        {stats && stats.totalItems > 0 && (
-          <div className={styles.heroStats}>
-            <div className={styles.heroStat}>
-              <ShoppingCart size={16} />
-              <span>{stats.totalItems} total wants</span>
-            </div>
-            <div className={styles.heroStat}>
-              <DollarSign size={16} />
-              <span>${stats.totalEstimatedCost.toFixed(2)} estimated total</span>
-            </div>
-            <div className={styles.heroStat}>
-              <Gift size={16} />
-              <span>{stats.highPriorityCount} high priority</span>
-            </div>
-          </div>
-        )}
-      </header>
+        }
+        stats={
+          stats && stats.totalItems > 0
+            ? [
+                {
+                  icon: <ShoppingCart size={16} />,
+                  label: `${stats.totalItems} total wants`,
+                },
+                {
+                  icon: <DollarSign size={16} />,
+                  label: `$${stats.totalEstimatedCost.toFixed(2)} estimated total`,
+                },
+                {
+                  icon: <Gift size={16} />,
+                  label: `${stats.highPriorityCount} high priority`,
+                },
+              ]
+            : []
+        }
+      />
 
       <section className={styles.summaryGrid}>
         <div className={styles.summaryCard}>
@@ -289,15 +299,11 @@ export default function BuylistPage() {
         </div>
       </section>
 
-      <section className={styles.filterPanel}>
-        <div className={styles.filterHeader}>
-          <div>
-            <p className={styles.filterEyebrow}>Refine Wishlist</p>
-            <h2 className={styles.filterTitle}>Priority and Type</h2>
-          </div>
-        </div>
-
-        <div className={styles.filters}>
+      <CatalogFilterPanel
+        eyebrow="Refine Wishlist"
+        title="Priority and Type"
+        bodyClassName={styles.filters}
+      >
           <div className={styles.filterGroup}>
             <span className={styles.filterLabel}>Priority</span>
             <FilterTabs
@@ -319,8 +325,7 @@ export default function BuylistPage() {
               className={styles.tabs}
             />
           </div>
-        </div>
-      </section>
+      </CatalogFilterPanel>
 
       {items.length > 0 ? (
         <div className={styles.itemsGrid}>

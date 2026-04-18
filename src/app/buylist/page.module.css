@@ -1,11 +1,11 @@
 .container {
-  max-width: 1200px;
+  max-width: var(--page-shell-max-full);
   margin: 0 auto;
-  padding: 36px 24px 56px;
+  padding: var(--page-shell-padding-top-full) var(--page-shell-gutter) var(--page-shell-padding-bottom);
 }
 
 .hero {
-  margin-bottom: 24px;
+  margin-bottom: var(--page-block-gap);
   padding: 30px;
   border-radius: 30px;
   background:
@@ -17,7 +17,6 @@
 }
 
 .heroTop,
-.filterHeader,
 .filterGroup {
   display: flex;
   align-items: flex-start;
@@ -92,7 +91,6 @@
 
 .heroStat,
 .summaryCard,
-.filterPanel,
 .itemCard {
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -140,27 +138,6 @@
   margin: 0;
   color: var(--text-secondary);
   line-height: 1.6;
-}
-
-.filterPanel {
-  margin-bottom: 24px;
-  padding: 22px;
-  background: var(--bg-secondary);
-}
-
-.filterEyebrow {
-  margin: 0 0 6px;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.filterTitle {
-  margin: 0;
-  color: var(--text-primary);
-  font-size: 1.2rem;
 }
 
 .filters {
@@ -372,7 +349,6 @@
 
 @media (max-width: 960px) {
   .heroTop,
-  .filterHeader,
   .filterGroup,
   .heroStats,
   .summaryGrid {
@@ -380,7 +356,6 @@
   }
 
   .heroTop,
-  .filterHeader,
   .filterGroup {
     flex-direction: column;
     align-items: flex-start;
@@ -398,7 +373,6 @@
   }
 
   .hero,
-  .filterPanel,
   .summaryCard {
     padding: 20px;
   }

@@ -26,6 +26,8 @@ import {
   CollectionItemCard,
   AddToCollectionModal,
   FilterTabs,
+  CatalogFilterPanel,
+  CatalogHero,
   type FilterTab,
 } from "@/components";
 import type { GameRegion } from "@/components/CollectionItemCard";
@@ -188,34 +190,39 @@ export default function CollectionPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.hero}>
-        <div className={styles.heroLead}>
-          <div className={styles.eyebrow}>
+      <CatalogHero
+        classes={{
+          root: styles.hero,
+          lead: styles.heroLead,
+          eyebrow: styles.eyebrow,
+          title: styles.title,
+          description: styles.subtitle,
+          stats: styles.heroStats,
+          stat: styles.heroStat,
+        }}
+        eyebrow={
+          <>
             <Sparkles size={16} />
             <span>Physical Archive</span>
-          </div>
-          <h1 className={styles.title}>My Collection</h1>
-          <p className={styles.subtitle}>
-            Catalog your physical library, track condition and completeness, and
-            keep regional variants organized in one place.
-          </p>
-        </div>
-
-        <div className={styles.heroStats}>
-          <div className={styles.heroStat}>
-            <Package size={16} />
-            <span>{stats.totalItems} items tracked</span>
-          </div>
-          <div className={styles.heroStat}>
-            <Lock size={16} />
-            <span>{stats.sealedCount} sealed copies</span>
-          </div>
-          <div className={styles.heroStat}>
-            <CheckCircle size={16} />
-            <span>{stats.completeCount} complete sets</span>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+        title="My Collection"
+        description="Catalog your physical library, track condition and completeness, and keep regional variants organized in one place."
+        stats={[
+          {
+            icon: <Package size={16} />,
+            label: `${stats.totalItems} items tracked`,
+          },
+          {
+            icon: <Lock size={16} />,
+            label: `${stats.sealedCount} sealed copies`,
+          },
+          {
+            icon: <CheckCircle size={16} />,
+            label: `${stats.completeCount} complete sets`,
+          },
+        ]}
+      />
 
       <section className={styles.summaryGrid}>
         <div className={styles.summaryCard}>
@@ -235,15 +242,11 @@ export default function CollectionPage() {
         </div>
       </section>
 
-      <section className={styles.filterPanel}>
-        <div className={styles.filterHeader}>
-          <div>
-            <p className={styles.filterEyebrow}>Refine Archive</p>
-            <h2 className={styles.filterTitle}>Region and Condition</h2>
-          </div>
-        </div>
-
-        <div className={styles.filters}>
+      <CatalogFilterPanel
+        eyebrow="Refine Archive"
+        title="Region and Condition"
+        bodyClassName={styles.filters}
+      >
           <FilterTabs
             tabs={regionTabs}
             value={regionFilter}
@@ -275,8 +278,7 @@ export default function CollectionPage() {
               Complete Only
             </button>
           </div>
-        </div>
-      </section>
+      </CatalogFilterPanel>
 
       {items.length > 0 ? (
         <div className={styles.grid}>

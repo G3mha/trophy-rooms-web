@@ -3,8 +3,19 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_BUNDLES } from "@/graphql/admin_queries";
-import { BundleCard, Button, LoadingSpinner, EmptyState, ErrorState } from "@/components";
-import { ChevronDown, Package, Layers3, Puzzle, Search } from "lucide-react";
+import {
+  BundleCard,
+  Button,
+  LoadingSpinner,
+  EmptyState,
+  ErrorState,
+  CatalogFilterPanel,
+  CatalogFilterRow,
+  CatalogSearchField,
+  CatalogSelectField,
+  CatalogHero,
+} from "@/components";
+import { Package, Layers3, Puzzle } from "lucide-react";
 import styles from "./page.module.css";
 
 interface Bundle {
@@ -49,80 +60,68 @@ export default function BundlesPage() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.hero}>
-        <div className={styles.heroLead}>
-          <div className={styles.eyebrow}>
+      <CatalogHero
+        classes={{
+          root: styles.hero,
+          lead: styles.heroLead,
+          eyebrow: styles.eyebrow,
+          title: styles.title,
+          description: styles.subtitle,
+          stats: styles.heroStats,
+          stat: styles.heroStat,
+        }}
+        eyebrow={
+          <>
             <Layers3 size={16} />
             <span>Catalog Overview</span>
-          </div>
-          <h1 className={styles.title}>Bundles Library</h1>
-          <p className={styles.subtitle}>
-            Browse collections, season passes, and grouped releases across the
-            catalog with a clearer view of what each package contains.
-          </p>
-        </div>
-        <div className={styles.heroStats}>
-          <div className={styles.heroStat}>
-            <Package size={16} />
-            <span>{filteredBundles.length} bundles in view</span>
-          </div>
-          <div className={styles.heroStat}>
-            <Layers3 size={16} />
-            <span>{totalGames} total included titles</span>
-          </div>
-          <div className={styles.heroStat}>
-            <Puzzle size={16} />
-            <span>{totalDlcs} total DLC entries</span>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+        title="Bundles Library"
+        description="Browse collections, season passes, and grouped releases across the catalog with a clearer view of what each package contains."
+        stats={[
+          {
+            icon: <Package size={16} />,
+            label: `${filteredBundles.length} bundles in view`,
+          },
+          {
+            icon: <Layers3 size={16} />,
+            label: `${totalGames} total included titles`,
+          },
+          {
+            icon: <Puzzle size={16} />,
+            label: `${totalDlcs} total DLC entries`,
+          },
+        ]}
+      />
 
-      <section className={styles.filterPanel}>
-        <div className={styles.filterHeader}>
-          <div>
-            <p className={styles.filterEyebrow}>Refine Results</p>
-            <h2 className={styles.filterTitle}>Search and Filter</h2>
-          </div>
-          {hasActiveFilters && (
-            <button
-              onClick={() => {
-                setSearchQuery("");
-                setBundleType("");
-              }}
-              className={styles.clearBtn}
-            >
-              Clear Filters
-            </button>
-          )}
-        </div>
-
-        <div className={styles.filtersRow}>
-          <label className={styles.searchWrap}>
-            <Search size={16} className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search bundles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
-          </label>
-          <div className={styles.selectWrapper}>
-            <select
-              className={styles.filterSelect}
-              value={bundleType}
-              onChange={(e) => setBundleType(e.target.value)}
-            >
-              {bundleTypes.map((type) => (
-                <option key={type.value} value={type.value}>
-                  {type.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className={styles.selectIcon} size={16} />
-          </div>
-        </div>
-      </section>
+      <CatalogFilterPanel
+        eyebrow="Refine Results"
+        title="Search and Filter"
+        showClear={hasActiveFilters}
+        onClear={() => {
+          setSearchQuery("");
+          setBundleType("");
+        }}
+      >
+        <CatalogFilterRow>
+          <CatalogSearchField
+            placeholder="Search bundles..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          <CatalogSelectField
+            value={bundleType}
+            onChange={(e) => setBundleType(e.target.value)}
+            selectClassName={styles.typeSelect}
+          >
+            {bundleTypes.map((type) => (
+              <option key={type.value} value={type.value}>
+                {type.label}
+              </option>
+            ))}
+          </CatalogSelectField>
+        </CatalogFilterRow>
+      </CatalogFilterPanel>
 
       {loading && <LoadingSpinner text="Loading bundles..." />}
 

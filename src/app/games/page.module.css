@@ -1,11 +1,11 @@
 .container {
-  max-width: 1400px;
+  max-width: var(--page-shell-max-full);
   margin: 0 auto;
-  padding: 32px 24px 52px;
+  padding: var(--page-shell-padding-top-full) var(--page-shell-gutter) var(--page-shell-padding-bottom);
 }
 
 .hero {
-  margin-bottom: 22px;
+  margin-bottom: var(--page-block-gap);
   padding: 28px;
   border-radius: 28px;
   background:
@@ -74,8 +74,7 @@
   margin-top: 20px;
 }
 
-.heroStat,
-.filterPanel {
+.heroStat {
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
@@ -88,120 +87,6 @@
   padding: 14px 16px;
   background: rgba(255, 255, 255, 0.035);
   color: var(--text-secondary);
-}
-
-.filterPanel {
-  margin-bottom: 24px;
-  padding: 22px;
-  background: var(--bg-secondary);
-}
-
-.filterHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.filterEyebrow {
-  margin: 0 0 6px;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.filterTitle {
-  margin: 0;
-  color: var(--text-primary);
-  font-size: 1.2rem;
-}
-
-.filtersRow {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.searchWrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 260px;
-}
-
-.searchIcon {
-  position: absolute;
-  left: 14px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.searchInput {
-  width: 100%;
-  padding: 12px 14px 12px 40px;
-  font-size: 14px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  color: var(--text-primary);
-  transition: all 0.2s ease;
-}
-
-.searchInput::placeholder {
-  color: var(--text-muted);
-}
-
-.searchInput:focus,
-.filterSelect:focus {
-  outline: none;
-  border-color: rgba(179, 214, 255, 0.36);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
-}
-
-.selectWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.filterSelect {
-  min-width: 150px;
-  padding: 12px 38px 12px 14px;
-  font-size: 14px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  color: var(--text-primary);
-  cursor: pointer;
-  appearance: none;
-}
-
-.selectIcon {
-  position: absolute;
-  right: 12px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.clearBtn {
-  padding: 10px 16px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.clearBtn:hover {
-  border-color: rgba(179, 214, 255, 0.36);
-  color: #b3d6ff;
 }
 
 .gamesGrid {
@@ -228,7 +113,6 @@
 
 @media (max-width: 960px) {
   .heroTop,
-  .filterHeader,
   .heroStats {
     grid-template-columns: 1fr;
   }
@@ -248,18 +132,8 @@
     padding: 24px 16px 44px;
   }
 
-  .hero,
-  .filterPanel {
+  .hero {
     padding: 20px;
-  }
-
-  .filtersRow {
-    flex-direction: column;
-  }
-
-  .searchWrap,
-  .filterSelect {
-    min-width: 100%;
   }
 
   .gamesGrid {
