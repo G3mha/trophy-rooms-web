@@ -681,6 +681,7 @@ export default function AdminGamesPage() {
                 {newType === "BASE_GAME" && (
                   <FormField label="Platform" required error={newErrors.platformId}>
                     <Select
+                      modal={false}
                       value={newPlatformId}
                       onValueChange={(value) => {
                         setNewPlatformId(value || "");
@@ -710,6 +711,7 @@ export default function AdminGamesPage() {
 
                 <FormField label="Type" required>
                   <Select
+                    modal={false}
                     value={newType}
                     onValueChange={(value) => {
                       const nextType = value || "BASE_GAME";
