@@ -1,10 +1,10 @@
 .container {
   min-height: calc(100vh - 64px);
-  padding: 32px 24px 48px;
+  padding: var(--page-shell-padding-top-standard) var(--page-shell-gutter) var(--page-shell-padding-bottom);
 }
 
 .shell {
-  max-width: 1180px;
+  max-width: var(--page-shell-max-standard);
   margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(320px, 1fr) minmax(360px, 460px);

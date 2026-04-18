@@ -7,9 +7,9 @@
 }
 
 .container {
-  max-width: 1200px;
+  max-width: var(--page-shell-max-full);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--page-shell-gutter);
   height: 64px;
   display: flex;
   align-items: center;

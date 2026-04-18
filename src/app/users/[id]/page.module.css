@@ -1,11 +1,11 @@
 .container {
-  max-width: 1200px;
+  max-width: var(--page-shell-max-full);
   margin: 0 auto;
-  padding: 36px 24px 56px;
+  padding: var(--page-shell-padding-top-full) var(--page-shell-gutter) var(--page-shell-padding-bottom);
 }
 
 .hero {
-  margin-bottom: 24px;
+  margin-bottom: var(--page-block-gap);
   padding: 30px;
   border-radius: 30px;
   background:

@@ -1,7 +1,7 @@
 .container {
-  max-width: 1320px;
+  max-width: var(--page-shell-max-standard);
   margin: 0 auto;
-  padding: 32px 24px 56px;
+  padding: var(--page-shell-padding-top-standard) var(--page-shell-gutter) var(--page-shell-padding-bottom);
 }
 
 .hero,
@@ -16,7 +16,7 @@
   display: grid;
   grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
   gap: 28px;
-  margin-bottom: 24px;
+  margin-bottom: var(--page-block-gap);
   padding: 28px;
   border-radius: 32px;
   background:

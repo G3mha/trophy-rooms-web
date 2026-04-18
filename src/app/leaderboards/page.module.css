@@ -1,14 +1,14 @@
 .container {
-  max-width: 1120px;
+  max-width: var(--page-shell-max-full);
   margin: 0 auto;
-  padding: 36px 24px 52px;
+  padding: var(--page-shell-padding-top-full) var(--page-shell-gutter) var(--page-shell-padding-bottom);
 }
 
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.85fr);
   gap: 20px;
-  margin-bottom: 22px;
+  margin-bottom: var(--page-block-gap);
 }
 
 .heroLead,

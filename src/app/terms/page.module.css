@@ -1,7 +1,7 @@
 .container {
-  max-width: 800px;
+  max-width: var(--page-shell-max-reading);
   margin: 0 auto;
-  padding: 60px 24px 80px;
+  padding: var(--page-shell-padding-top-reading) var(--page-shell-gutter) var(--page-shell-padding-bottom-reading);
 }
 
 .header {

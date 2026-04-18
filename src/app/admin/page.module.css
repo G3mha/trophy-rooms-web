@@ -1,13 +1,13 @@
 /* Admin Dashboard Styles */
 
 .container {
-  max-width: 1480px;
+  max-width: var(--page-shell-max-full);
   margin: 0 auto;
-  padding: 36px 24px 56px;
+  padding: var(--page-shell-padding-top-full) var(--page-shell-gutter) var(--page-shell-padding-bottom);
 }
 
 .header {
-  margin-bottom: 32px;
+  margin-bottom: var(--page-block-gap-lg);
 }
 
 .title {

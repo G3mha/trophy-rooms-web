@@ -1,11 +1,11 @@
 .footer {
   border-top: 1px solid var(--border-color);
-  padding: 32px 24px;
+  padding: 32px var(--page-shell-gutter);
   margin-top: auto;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: var(--page-shell-max-full);
   margin: 0 auto;
   display: flex;
   align-items: center;

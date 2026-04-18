@@ -42,6 +42,19 @@
   --border-radius-lg: 16px;
   --border-radius-xl: 24px;
 
+  /* Shared page shell */
+  --page-shell-max-full: 1440px;
+  --page-shell-max-standard: 1280px;
+  --page-shell-max-reading: 800px;
+  --page-shell-gutter: clamp(16px, 2vw, 24px);
+  --page-shell-padding-top-full: 36px;
+  --page-shell-padding-top-standard: 32px;
+  --page-shell-padding-top-reading: 60px;
+  --page-shell-padding-bottom: 56px;
+  --page-shell-padding-bottom-reading: 80px;
+  --page-block-gap: 24px;
+  --page-block-gap-lg: 32px;
+
   /* shadcn/ui variables - Trophy Rooms Dark Theme */
   --background: #0E0E0E;
   --foreground: #FFFFFF;
