@@ -653,7 +653,7 @@ export default function AdminGamesPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <DialogBody className="flex flex-col gap-5 py-2">
+          <DialogBody className="flex flex-col gap-5 pt-2 pb-5 sm:pb-6">
             <div className="space-y-4">
               <div>
                 <h3 className="text-sm font-semibold text-[var(--text-primary)]">

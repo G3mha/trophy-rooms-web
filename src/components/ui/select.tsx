@@ -74,12 +74,12 @@ function SelectContent({
         align={align}
         alignOffset={alignOffset}
         alignItemWithTrigger={alignItemWithTrigger}
-        className="isolate z-50"
+        className="isolate z-[160]"
       >
         <SelectPrimitive.Popup
           data-slot="select-content"
           className={cn(
-            "relative isolate z-50 max-h-[var(--available-height)] w-[var(--anchor-width)] min-w-40 overflow-x-hidden overflow-y-auto rounded-[calc(var(--border-radius)+2px)] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)),var(--bg-card)] p-1.5 text-[var(--text-primary)] shadow-[0_18px_50px_rgba(0,0,0,0.42)] duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "relative isolate z-[160] max-h-[var(--available-height)] w-[var(--anchor-width)] min-w-40 overflow-x-hidden overflow-y-auto rounded-[calc(var(--border-radius)+2px)] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01)),var(--bg-card)] p-1.5 text-[var(--text-primary)] shadow-[0_18px_50px_rgba(0,0,0,0.42)] duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className
           )}
           {...props}
