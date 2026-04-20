@@ -14,7 +14,7 @@ import {
   CREATE_ACHIEVEMENT,
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
-import { AchievementCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText } from "@/components";
+import { AchievementCard, AppImage, Button, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, QueryState } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
@@ -255,50 +255,11 @@ export default function GameDetailPage({
     }
   };
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <LoadingSpinner text="Loading game..." />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.container}>
-        <ErrorState
-          title="Couldn’t load this game"
-          description={error.message}
-          action={
-            <Button href="/games" variant="secondary">
-              Back to Games
-            </Button>
-          }
-        />
-      </div>
-    );
-  }
-
-  if (!game) {
-    return (
-      <div className={styles.container}>
-        <EmptyState
-          icon={<Gamepad2 size={48} />}
-          title="Game not found"
-          description="This game doesn't exist or has been removed."
-          action={
-            <Button href="/games">Back to Games</Button>
-          }
-        />
-      </div>
-    );
-  }
-
-  const allAchievements = game.achievementSets.flatMap((set) => set.achievements);
+  const allAchievements = game?.achievementSets.flatMap((set) => set.achievements) ?? [];
   const completedCount = allAchievements.filter((a: Achievement) => a.isCompleted).length;
   const totalCount = allAchievements.length;
   const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-  const screenshotCount = game.screenshots.length;
+  const screenshotCount = game?.screenshots.length ?? 0;
 
   // Calculate total players for rarity (max userCount across all achievements)
   const totalPlayers = allAchievements.length > 0
@@ -356,6 +317,30 @@ export default function GameDetailPage({
 
   return (
     <div className={styles.container}>
+      <QueryState
+        isLoading={loading}
+        loadingText="Loading game..."
+        error={error}
+        errorTitle="Couldn’t load this game"
+        errorAction={
+          <Button href="/games" variant="secondary">
+            Back to Games
+          </Button>
+        }
+        isEmpty={!loading && !game}
+        emptyState={
+          <EmptyState
+            icon={<Gamepad2 size={48} />}
+            title="Game not found"
+            description="This game doesn't exist or has been removed."
+            action={
+              <Button href="/games">Back to Games</Button>
+            }
+          />
+        }
+      >
+        {game && (
+          <>
       <header className={styles.hero}>
         <div className={styles.coverCard}>
           <AppImage
@@ -833,6 +818,9 @@ export default function GameDetailPage({
           </div>
         </section>
       )}
+          </>
+        )}
+      </QueryState>
     </div>
   );
 }

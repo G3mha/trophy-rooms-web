@@ -6,7 +6,7 @@ import { useQuery } from "@apollo/client";
 import { ArrowLeft, Gamepad2, Layers3, Monitor, Star, Trophy } from "lucide-react";
 import { handlePlatformIconError } from "@/lib/image-utils";
 import { GET_GAMES_BY_TITLE } from "@/graphql/queries";
-import { LoadingSpinner, AppImage, Button, EmptyState, ErrorState } from "@/components";
+import { AppImage, Button, EmptyState, QueryState } from "@/components";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -46,51 +46,6 @@ export default function GameFamilyPage({
   const coverUrl = games.find((g) => g.coverUrl)?.coverUrl ?? null;
   const displayTitle = games[0]?.title ?? title;
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <LoadingSpinner text="Loading game..." />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.container}>
-        <ErrorState
-          title="Couldn’t load this game family"
-          description={error.message}
-          action={
-            <Button href="/games" variant="secondary">
-              Back to Games
-            </Button>
-          }
-        />
-      </div>
-    );
-  }
-
-  if (games.length === 0) {
-    return (
-      <div className={styles.container}>
-        <Link href="/games" className={styles.backLink}>
-          <ArrowLeft size={16} />
-          Back to Games
-        </Link>
-        <EmptyState
-          icon={<Gamepad2 size={48} />}
-          title="Game not found"
-          description="We couldn't find any games matching this title."
-          action={
-            <Button href="/games" variant="secondary">
-              Browse Games
-            </Button>
-          }
-        />
-      </div>
-    );
-  }
-
   // If there's only one version, redirect to that game's page
   if (games.length === 1) {
     return (
@@ -113,98 +68,129 @@ export default function GameFamilyPage({
 
   return (
     <div className={styles.container}>
-      <Link href="/games" className={styles.backLink}>
-        <ArrowLeft size={16} />
-        Back to Games
-      </Link>
-
-      <header className={styles.hero}>
-        <div className={styles.coverCard}>
-          <AppImage
-            src={coverUrl}
-            alt={displayTitle}
-            className={styles.cover}
-            fallback={
-              <div className={styles.coverPlaceholder}>
-                <Gamepad2 size={64} />
-              </div>
-            }
-          />
-        </div>
-        <div className={styles.heroContent}>
-          <div className={styles.eyebrow}>
-            <Layers3 size={14} />
-            <span>Game Family</span>
-          </div>
-          <h1 className={styles.title}>{displayTitle}</h1>
-          <p className={styles.subtitle}>
-            Compare platform variants, achievement totals, and trophy support for this title group.
-          </p>
-          <div className={styles.stats}>
-            <div className={styles.statCard}>
-              <span className={styles.statValue}>{games.length}</span>
-              <span className={styles.statLabel}>Platform Versions</span>
-            </div>
-            <div className={styles.statCard}>
-              <span className={styles.statValue}>{totalAchievements}</span>
-              <span className={styles.statLabel}>Total Achievements</span>
-            </div>
-            <div className={styles.statCard}>
-              <span className={styles.statValue}>{totalTrophies}</span>
-              <span className={styles.statLabel}>Total Trophies</span>
-            </div>
-          </div>
-          <div className={styles.platformCount}>
-            <Monitor size={16} />
-            <span>Available across {games.length} tracked platforms</span>
-          </div>
-        </div>
-      </header>
-
-      <section className={styles.sectionPanel}>
-        <div className={styles.sectionHeader}>
-          <div>
-            <p className={styles.sectionEyebrow}>Variants</p>
-            <h2 className={styles.sectionTitle}>Platform Versions</h2>
-          </div>
-          <span className={styles.countPill}>{games.length}</span>
-        </div>
-        <div className={styles.versionsList}>
-          {games.map((game) => (
-            <Link
-              key={game.id}
-              href={`/games/${game.id}`}
-              className={styles.versionCard}
-            >
-              <div className={styles.platformInfo}>
-                {game.platform && (
-                  <AppImage
-                    src={`/platforms/${game.platform.slug}.svg`}
-                    alt={game.platform.name}
-                    className={styles.platformIcon}
-                    onError={handlePlatformIconError}
-                  />
-                )}
-                <span className={styles.platformName}>
-                  {game.platform?.name ?? "Unknown Platform"}
-                </span>
-              </div>
-              <div className={styles.versionStats}>
-                <div className={styles.versionStat}>
-                  <Star size={16} className={styles.versionStatIcon} />
-                  <span>{game.achievementCount} achievements</span>
-                </div>
-                {game.trophyCount > 0 && (
-                  <div className={styles.versionStat}>
-                    <Trophy size={16} className={styles.versionStatIcon} />
-                    <span>{game.trophyCount} trophies</span>
-                  </div>
-                )}
-              </div>
+      <QueryState
+        isLoading={loading}
+        loadingText="Loading game..."
+        error={error}
+        errorTitle="Couldn’t load this game family"
+        errorAction={
+          <Button href="/games" variant="secondary">
+            Back to Games
+          </Button>
+        }
+        isEmpty={!loading && games.length === 0}
+        emptyState={
+          <>
+            <Link href="/games" className={styles.backLink}>
+              <ArrowLeft size={16} />
+              Back to Games
             </Link>
-          ))}
-        </div>
-      </section>
+            <EmptyState
+              icon={<Gamepad2 size={48} />}
+              title="Game not found"
+              description="We couldn't find any games matching this title."
+              action={
+                <Button href="/games" variant="secondary">
+                  Browse Games
+                </Button>
+              }
+            />
+          </>
+        }
+      >
+        <Link href="/games" className={styles.backLink}>
+          <ArrowLeft size={16} />
+          Back to Games
+        </Link>
+
+        <header className={styles.hero}>
+          <div className={styles.coverCard}>
+            <AppImage
+              src={coverUrl}
+              alt={displayTitle}
+              className={styles.cover}
+              fallback={
+                <div className={styles.coverPlaceholder}>
+                  <Gamepad2 size={64} />
+                </div>
+              }
+            />
+          </div>
+          <div className={styles.heroContent}>
+            <div className={styles.eyebrow}>
+              <Layers3 size={14} />
+              <span>Game Family</span>
+            </div>
+            <h1 className={styles.title}>{displayTitle}</h1>
+            <p className={styles.subtitle}>
+              Compare platform variants, achievement totals, and trophy support for this title group.
+            </p>
+            <div className={styles.stats}>
+              <div className={styles.statCard}>
+                <span className={styles.statValue}>{games.length}</span>
+                <span className={styles.statLabel}>Platform Versions</span>
+              </div>
+              <div className={styles.statCard}>
+                <span className={styles.statValue}>{totalAchievements}</span>
+                <span className={styles.statLabel}>Total Achievements</span>
+              </div>
+              <div className={styles.statCard}>
+                <span className={styles.statValue}>{totalTrophies}</span>
+                <span className={styles.statLabel}>Total Trophies</span>
+              </div>
+            </div>
+            <div className={styles.platformCount}>
+              <Monitor size={16} />
+              <span>Available across {games.length} tracked platforms</span>
+            </div>
+          </div>
+        </header>
+
+        <section className={styles.sectionPanel}>
+          <div className={styles.sectionHeader}>
+            <div>
+              <p className={styles.sectionEyebrow}>Variants</p>
+              <h2 className={styles.sectionTitle}>Platform Versions</h2>
+            </div>
+            <span className={styles.countPill}>{games.length}</span>
+          </div>
+          <div className={styles.versionsList}>
+            {games.map((game) => (
+              <Link
+                key={game.id}
+                href={`/games/${game.id}`}
+                className={styles.versionCard}
+              >
+                <div className={styles.platformInfo}>
+                  {game.platform && (
+                    <AppImage
+                      src={`/platforms/${game.platform.slug}.svg`}
+                      alt={game.platform.name}
+                      className={styles.platformIcon}
+                      onError={handlePlatformIconError}
+                    />
+                  )}
+                  <span className={styles.platformName}>
+                    {game.platform?.name ?? "Unknown Platform"}
+                  </span>
+                </div>
+                <div className={styles.versionStats}>
+                  <div className={styles.versionStat}>
+                    <Star size={16} className={styles.versionStatIcon} />
+                    <span>{game.achievementCount} achievements</span>
+                  </div>
+                  {game.trophyCount > 0 && (
+                    <div className={styles.versionStat}>
+                      <Trophy size={16} className={styles.versionStatIcon} />
+                      <span>{game.trophyCount} trophies</span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </QueryState>
     </div>
   );
 }

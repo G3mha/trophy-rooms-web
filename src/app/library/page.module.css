@@ -47,8 +47,7 @@
   line-height: 1.7;
 }
 
-.heroStats,
-.summaryGrid {
+.heroStats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
@@ -59,7 +58,6 @@
 }
 
 .heroStat,
-.summaryCard,
 .gameCard {
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -73,40 +71,6 @@
   padding: 14px 16px;
   background: rgba(255, 255, 255, 0.035);
   color: var(--text-secondary);
-}
-
-.summaryGrid {
-  margin-bottom: 24px;
-  gap: 16px;
-}
-
-.summaryCard {
-  padding: 20px;
-  background: var(--bg-secondary);
-}
-
-.summaryLabel {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.summaryValue {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--text-primary);
-  font-size: 1.7rem;
-  font-weight: 700;
-}
-
-.summaryText {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.6;
 }
 
 .tabs {
@@ -294,8 +258,7 @@
 }
 
 @media (max-width: 960px) {
-  .heroStats,
-  .summaryGrid {
+  .heroStats {
     grid-template-columns: 1fr;
   }
 }
@@ -305,8 +268,7 @@
     padding: 28px 16px 44px;
   }
 
-  .hero,
-  .summaryCard {
+  .hero {
     padding: 20px;
   }
 

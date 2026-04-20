@@ -8,7 +8,7 @@ import { useAuth } from "@clerk/nextjs";
 import { Puzzle, Gamepad2, Package, Calendar, DollarSign, Check, Plus, Award } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { AppImage, Button, LoadingSpinner, EmptyState, ErrorState, BuylistSelector, ExpandableText } from "@/components";
+import { AppImage, Button, EmptyState, BuylistSelector, ExpandableText, QueryState } from "@/components";
 import styles from "./page.module.css";
 
 const GET_DLC_DETAIL = gql`
@@ -207,49 +207,34 @@ export default function DLCDetailPage({
     }
   };
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <LoadingSpinner text="Loading DLC..." />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.container}>
-        <ErrorState
-          title="Couldn’t load this DLC"
-          description={error.message}
-          action={
-            <Button href="/games" variant="secondary">
-              Browse Games
-            </Button>
-          }
-        />
-      </div>
-    );
-  }
-
-  if (!dlc) {
-    return (
-      <div className={styles.container}>
-        <EmptyState
-          icon={<Puzzle size={48} />}
-          title="DLC not found"
-          description="This DLC doesn't exist or has been removed."
-          action={
-            <Button href="/games">Browse Games</Button>
-          }
-        />
-      </div>
-    );
-  }
-
-  const coverImage = dlc.effectiveCoverUrl || dlc.coverUrl;
+  const coverImage = dlc?.effectiveCoverUrl || dlc?.coverUrl;
 
   return (
     <div className={styles.container}>
+      <QueryState
+        isLoading={loading}
+        loadingText="Loading DLC..."
+        error={error}
+        errorTitle="Couldn’t load this DLC"
+        errorAction={
+          <Button href="/games" variant="secondary">
+            Browse Games
+          </Button>
+        }
+        isEmpty={!loading && !dlc}
+        emptyState={
+          <EmptyState
+            icon={<Puzzle size={48} />}
+            title="DLC not found"
+            description="This DLC doesn't exist or has been removed."
+            action={
+              <Button href="/games">Browse Games</Button>
+            }
+          />
+        }
+      >
+        {dlc && (
+          <>
       <header className={styles.hero}>
         <div className={styles.coverCard}>
           <AppImage
@@ -458,6 +443,9 @@ export default function DLCDetailPage({
           />
         </section>
       )}
+          </>
+        )}
+      </QueryState>
     </div>
   );
 }

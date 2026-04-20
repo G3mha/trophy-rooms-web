@@ -8,7 +8,7 @@ import { useAuth } from "@clerk/nextjs";
 import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { AppImage, Button, LoadingSpinner, EmptyState, ErrorState, BuylistSelector, ExpandableText } from "@/components";
+import { AppImage, Button, EmptyState, BuylistSelector, ExpandableText, QueryState } from "@/components";
 import styles from "./page.module.css";
 
 const GET_BUNDLE_DETAIL = gql`
@@ -225,47 +225,32 @@ export default function BundleDetailPage({
     }
   };
 
-  if (loading) {
-    return (
-      <div className={styles.container}>
-        <LoadingSpinner text="Loading bundle..." />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className={styles.container}>
-        <ErrorState
-          title="Couldn’t load this bundle"
-          description={error.message}
-          action={
-            <Button href="/bundles" variant="secondary">
-              Back to Bundles
-            </Button>
-          }
-        />
-      </div>
-    );
-  }
-
-  if (!bundle) {
-    return (
-      <div className={styles.container}>
-        <EmptyState
-          icon={<Package size={48} />}
-          title="Bundle not found"
-          description="This bundle doesn't exist or has been removed."
-          action={
-            <Button href="/bundles">Back to Bundles</Button>
-          }
-        />
-      </div>
-    );
-  }
-
   return (
     <div className={styles.container}>
+      <QueryState
+        isLoading={loading}
+        loadingText="Loading bundle..."
+        error={error}
+        errorTitle="Couldn’t load this bundle"
+        errorAction={
+          <Button href="/bundles" variant="secondary">
+            Back to Bundles
+          </Button>
+        }
+        isEmpty={!loading && !bundle}
+        emptyState={
+          <EmptyState
+            icon={<Package size={48} />}
+            title="Bundle not found"
+            description="This bundle doesn't exist or has been removed."
+            action={
+              <Button href="/bundles">Back to Bundles</Button>
+            }
+          />
+        }
+      >
+        {bundle && (
+          <>
       <header className={styles.hero}>
         <div className={styles.coverCard}>
           <AppImage
@@ -467,6 +452,9 @@ export default function BundleDetailPage({
           />
         </section>
       )}
+          </>
+        )}
+      </QueryState>
     </div>
   );
 }

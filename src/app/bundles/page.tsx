@@ -6,14 +6,13 @@ import { GET_BUNDLES } from "@/graphql/admin_queries";
 import {
   BundleCard,
   Button,
-  LoadingSpinner,
   EmptyState,
-  ErrorState,
   CatalogFilterPanel,
   CatalogFilterRow,
   CatalogSearchField,
   CatalogSelectField,
   CatalogHero,
+  QueryState,
 } from "@/components";
 import { Package, Layers3, Puzzle } from "lucide-react";
 import styles from "./page.module.css";
@@ -123,21 +122,42 @@ export default function BundlesPage() {
         </CatalogFilterRow>
       </CatalogFilterPanel>
 
-      {loading && <LoadingSpinner text="Loading bundles..." />}
-
-      {error && (
-        <ErrorState
-          title="Couldn’t load bundles"
-          description={error.message}
-          action={
-            <Button onClick={() => window.location.reload()} variant="secondary">
-              Try Again
-            </Button>
-          }
-        />
-      )}
-
-      {!loading && !error && filteredBundles.length > 0 && (
+      <QueryState
+        isLoading={loading}
+        loadingText="Loading bundles..."
+        error={error}
+        errorTitle="Couldn’t load bundles"
+        errorAction={
+          <Button onClick={() => window.location.reload()} variant="secondary">
+            Try Again
+          </Button>
+        }
+        isEmpty={!loading && !error && filteredBundles.length === 0}
+        emptyState={
+          <EmptyState
+            icon={<Package size={48} />}
+            title={searchQuery ? "No bundles found" : "No bundles yet"}
+            description={
+              searchQuery
+                ? `No bundles match "${searchQuery}". Try a different search.`
+                : "Browse available game bundles, season passes, and collections."
+            }
+            action={
+              searchQuery ? (
+                <Button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setBundleType("");
+                  }}
+                  variant="secondary"
+                >
+                  Clear Search
+                </Button>
+              ) : undefined
+            }
+          />
+        }
+      >
         <div className={styles.bundlesGrid}>
           {filteredBundles.map((bundle: Bundle) => (
             <BundleCard
@@ -152,32 +172,7 @@ export default function BundlesPage() {
             />
           ))}
         </div>
-      )}
-
-      {!loading && !error && filteredBundles.length === 0 && (
-        <EmptyState
-          icon={<Package size={48} />}
-          title={searchQuery ? "No bundles found" : "No bundles yet"}
-          description={
-            searchQuery
-              ? `No bundles match "${searchQuery}". Try a different search.`
-              : "Browse available game bundles, season passes, and collections."
-          }
-          action={
-            searchQuery ? (
-              <Button
-                onClick={() => {
-                  setSearchQuery("");
-                  setBundleType("");
-                }}
-                variant="secondary"
-              >
-                Clear Search
-              </Button>
-            ) : undefined
-          }
-        />
-      )}
+      </QueryState>
     </div>
   );
 }

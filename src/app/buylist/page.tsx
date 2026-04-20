@@ -31,6 +31,7 @@ import {
   FilterTabs,
   CatalogFilterPanel,
   CatalogHero,
+  SummaryStats,
   type FilterTab,
 } from "@/components";
 import { MarkAsPurchasedModal } from "@/components/MarkAsPurchasedModal";
@@ -281,23 +282,25 @@ export default function BuylistPage() {
         }
       />
 
-      <section className={styles.summaryGrid}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Games</span>
-          <strong className={styles.summaryValue}>{totalGames}</strong>
-          <p className={styles.summaryText}>Full releases currently on your list.</p>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>DLCs</span>
-          <strong className={styles.summaryValue}>{totalDlcs}</strong>
-          <p className={styles.summaryText}>Add-ons and expansions you still want.</p>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Bundles</span>
-          <strong className={styles.summaryValue}>{totalBundles}</strong>
-          <p className={styles.summaryText}>Collections and packages worth tracking.</p>
-        </div>
-      </section>
+      <SummaryStats
+        items={[
+          {
+            label: "Games",
+            value: totalGames,
+            text: "Full releases currently on your list.",
+          },
+          {
+            label: "DLCs",
+            value: totalDlcs,
+            text: "Add-ons and expansions you still want.",
+          },
+          {
+            label: "Bundles",
+            value: totalBundles,
+            text: "Collections and packages worth tracking.",
+          },
+        ]}
+      />
 
       <CatalogFilterPanel
         eyebrow="Refine Wishlist"

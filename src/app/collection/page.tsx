@@ -28,6 +28,7 @@ import {
   FilterTabs,
   CatalogFilterPanel,
   CatalogHero,
+  SummaryStats,
   type FilterTab,
 } from "@/components";
 import type { GameRegion } from "@/components/CollectionItemCard";
@@ -224,23 +225,25 @@ export default function CollectionPage() {
         ]}
       />
 
-      <section className={styles.summaryGrid}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Inventory</span>
-          <strong className={styles.summaryValue}>{stats.totalItems}</strong>
-          <p className={styles.summaryText}>Physical items currently logged in your archive.</p>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Regional Mix</span>
-          <strong className={styles.summaryValue}>{totalRegionalVariants}</strong>
-          <p className={styles.summaryText}>Copies distributed across your tracked regions.</p>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Completeness</span>
-          <strong className={styles.summaryValue}>{stats.completeCount}</strong>
-          <p className={styles.summaryText}>Entries with core components present and accounted for.</p>
-        </div>
-      </section>
+      <SummaryStats
+        items={[
+          {
+            label: "Inventory",
+            value: stats.totalItems,
+            text: "Physical items currently logged in your archive.",
+          },
+          {
+            label: "Regional Mix",
+            value: totalRegionalVariants,
+            text: "Copies distributed across your tracked regions.",
+          },
+          {
+            label: "Completeness",
+            value: stats.completeCount,
+            text: "Entries with core components present and accounted for.",
+          },
+        ]}
+      />
 
       <CatalogFilterPanel
         eyebrow="Refine Archive"

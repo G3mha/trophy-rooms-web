@@ -9,14 +9,13 @@ import {
   GameCard,
   GroupedGameCard,
   Button,
-  LoadingSpinner,
   EmptyState,
-  ErrorState,
   CatalogFilterPanel,
   CatalogFilterRow,
   CatalogSearchField,
   CatalogSelectField,
   CatalogHero,
+  QueryState,
 } from "@/components";
 import { Gamepad2, Swords, Trophy } from "lucide-react";
 import styles from "./page.module.css";
@@ -226,91 +225,79 @@ export default function GamesPage() {
         </CatalogFilterRow>
       </CatalogFilterPanel>
 
-      {/* Loading */}
-      {loading && (!rawGames || rawGames.length === 0) && (
-        <LoadingSpinner text="Loading games..." />
-      )}
-
-      {/* Error */}
-      {error && (
-        <ErrorState
-          title="Couldn’t load the games catalog"
-          description={error.message}
-          action={
-            <Button onClick={() => window.location.reload()} variant="secondary">
-              Try Again
-            </Button>
-          }
-        />
-      )}
-
-      {/* Games Grid */}
-      {gameGroups.length > 0 && (
-        <>
-          <div className={styles.gamesGrid}>
-            {gameGroups.map((group) =>
-              group.games.length === 1 ? (
-                <GameCard
-                  key={group.games[0].id}
-                  id={group.games[0].id}
-                  title={group.games[0].title}
-                  description={group.games[0].description}
-                  coverUrl={group.games[0].coverUrl}
-                  achievementCount={group.games[0].achievementCount}
-                  trophyCount={group.games[0].trophyCount}
-                  platform={group.games[0].platform}
-                />
+      <QueryState
+        isLoading={loading && (!rawGames || rawGames.length === 0)}
+        loadingText="Loading games..."
+        error={error}
+        errorTitle="Couldn’t load the games catalog"
+        errorAction={
+          <Button onClick={() => window.location.reload()} variant="secondary">
+            Try Again
+          </Button>
+        }
+        isEmpty={!loading && (!rawGames || rawGames.length === 0)}
+        emptyState={
+          <EmptyState
+            icon={<Gamepad2 size={48} />}
+            title={searchQuery ? "No games found" : "No games yet"}
+            description={
+              searchQuery
+                ? `No games match "${searchQuery}". Try a different search.`
+                : "Be the first to add a game to the library!"
+            }
+            action={
+              searchQuery ? (
+                <Button onClick={() => setSearchQuery("")} variant="secondary">
+                  Clear Search
+                </Button>
+              ) : isSignedIn ? (
+                <Button href="/games/new">Add First Game</Button>
               ) : (
-                <GroupedGameCard
-                  key={group.slug}
-                  title={group.title}
-                  slug={group.slug}
-                  coverUrl={group.coverUrl}
-                  platforms={group.platforms}
-                  totalAchievementCount={group.totalAchievementCount}
-                  totalTrophyCount={group.totalTrophyCount}
-                />
+                <Button href="/sign-up">Sign Up to Add Games</Button>
               )
-            )}
-          </div>
-
-          {hasMore && (
-            <div className={styles.loadMore}>
-              <Button
-                onClick={handleLoadMore}
-                variant="secondary"
-                loading={loading}
-              >
-                Load More Games
-              </Button>
-            </div>
-          )}
-        </>
-      )}
-
-      {/* Empty State */}
-      {!loading && (!rawGames || rawGames.length === 0) && (
-        <EmptyState
-          icon={<Gamepad2 size={48} />}
-          title={searchQuery ? "No games found" : "No games yet"}
-          description={
-            searchQuery
-              ? `No games match "${searchQuery}". Try a different search.`
-              : "Be the first to add a game to the library!"
-          }
-          action={
-            searchQuery ? (
-              <Button onClick={() => setSearchQuery("")} variant="secondary">
-                Clear Search
-              </Button>
-            ) : isSignedIn ? (
-              <Button href="/games/new">Add First Game</Button>
+            }
+          />
+        }
+      >
+        <div className={styles.gamesGrid}>
+          {gameGroups.map((group) =>
+            group.games.length === 1 ? (
+              <GameCard
+                key={group.games[0].id}
+                id={group.games[0].id}
+                title={group.games[0].title}
+                description={group.games[0].description}
+                coverUrl={group.games[0].coverUrl}
+                achievementCount={group.games[0].achievementCount}
+                trophyCount={group.games[0].trophyCount}
+                platform={group.games[0].platform}
+              />
             ) : (
-              <Button href="/sign-up">Sign Up to Add Games</Button>
+              <GroupedGameCard
+                key={group.slug}
+                title={group.title}
+                slug={group.slug}
+                coverUrl={group.coverUrl}
+                platforms={group.platforms}
+                totalAchievementCount={group.totalAchievementCount}
+                totalTrophyCount={group.totalTrophyCount}
+              />
             )
-          }
-        />
-      )}
+          )}
+        </div>
+
+        {hasMore && (
+          <div className={styles.loadMore}>
+            <Button
+              onClick={handleLoadMore}
+              variant="secondary"
+              loading={loading}
+            >
+              Load More Games
+            </Button>
+          </div>
+        )}
+      </QueryState>
     </div>
   );
 }

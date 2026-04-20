@@ -31,6 +31,7 @@ import {
   FilterTabs,
   CatalogFilterPanel,
   CatalogHero,
+  SummaryStats,
   type FilterTab,
 } from "@/components";
 import {
@@ -175,23 +176,25 @@ export default function LibraryPage() {
         ]}
       />
 
-      <section className={styles.summaryGrid}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Library Size</span>
-          <strong className={styles.summaryValue}>{games.length}</strong>
-          <p className={styles.summaryText}>Games with a tracked status in your library.</p>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Completed</span>
-          <strong className={styles.summaryValue}>{completedCount}</strong>
-          <p className={styles.summaryText}>Runs you&apos;ve already closed out.</p>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Backlog</span>
-          <strong className={styles.summaryValue}>{backlogCount}</strong>
-          <p className={styles.summaryText}>Games waiting for their turn in rotation.</p>
-        </div>
-      </section>
+      <SummaryStats
+        items={[
+          {
+            label: "Library Size",
+            value: games.length,
+            text: "Games with a tracked status in your library.",
+          },
+          {
+            label: "Completed",
+            value: completedCount,
+            text: "Runs you've already closed out.",
+          },
+          {
+            label: "Backlog",
+            value: backlogCount,
+            text: "Games waiting for their turn in rotation.",
+          },
+        ]}
+      />
 
       <CatalogFilterPanel
         eyebrow="View by Status"
