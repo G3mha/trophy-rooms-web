@@ -1,19 +1,59 @@
 "use client";
 
+import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@clerk/nextjs";
 import { ArrowRight, Gamepad2, Search, Star, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
-import { GameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch } from "@/components";
+import { GroupedGameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch } from "@/components";
 import styles from "./page.module.css";
+
+interface Platform {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 interface GameNode {
   id: string;
+  gameFamilyId: string;
   title: string;
   description?: string | null;
   coverUrl?: string | null;
   achievementCount: number;
   trophyCount: number;
+  platform?: Platform | null;
+}
+
+interface GameGroup {
+  title: string;
+  slug: string;
+  coverUrl: string | null;
+  platforms: Platform[];
+  totalAchievementCount: number;
+  totalTrophyCount: number;
+}
+
+function groupGamesByTitle(games: GameNode[]): GameGroup[] {
+  const groups = new Map<string, GameNode[]>();
+
+  for (const game of games) {
+    const key = game.title.trim().toLowerCase();
+    const existing = groups.get(key) || [];
+    existing.push(game);
+    groups.set(key, existing);
+  }
+
+  return Array.from(groups.values()).map((gameList) => ({
+    title: gameList[0].title,
+    slug: encodeURIComponent(gameList[0].title.toLowerCase().replace(/\s+/g, "-")),
+    coverUrl: gameList.find((game) => game.coverUrl)?.coverUrl ?? null,
+    platforms: gameList
+      .map((game) => game.platform)
+      .filter((platform): platform is Platform => Boolean(platform)),
+    totalAchievementCount: gameList.reduce((sum, game) => sum + game.achievementCount, 0),
+    totalTrophyCount: gameList.reduce((sum, game) => sum + game.trophyCount, 0),
+  }));
 }
 
 export default function Home() {
@@ -27,15 +67,22 @@ export default function Home() {
 
   const isAdmin =
     meData?.me?.role === "ADMIN" || meData?.me?.role === "TRUSTED";
-  const featuredGames = data?.games?.edges?.slice(0, 12) ?? [];
+  const rawGames = useMemo(
+    () => data?.games?.edges?.map(({ node }: { node: GameNode }) => node) ?? [],
+    [data?.games?.edges]
+  );
+  const featuredFamilies = useMemo(
+    () => groupGamesByTitle(rawGames).slice(0, 12),
+    [rawGames]
+  );
   const totalGames = data?.games?.totalCount ?? 0;
-  const trophyGames = featuredGames.filter(
-    ({ node }: { node: GameNode }) => node.trophyCount > 0
+  const trophyFamilies = featuredFamilies.filter(
+    (family) => family.totalTrophyCount > 0
   ).length;
-  const achievementRichGames = featuredGames.filter(
-    ({ node }: { node: GameNode }) => node.achievementCount >= 10
+  const achievementRichFamilies = featuredFamilies.filter(
+    (family) => family.totalAchievementCount >= 10
   ).length;
-  const spotlightGame = featuredGames[0]?.node;
+  const spotlightFamily = featuredFamilies[0];
 
   return (
     <div className={styles.container}>
@@ -59,11 +106,11 @@ export default function Home() {
             </div>
             <div className={styles.heroStat}>
               <Trophy size={16} />
-              <span>{trophyGames} featured with trophies</span>
+              <span>{trophyFamilies} featured families with trophies</span>
             </div>
             <div className={styles.heroStat}>
               <Star size={16} />
-              <span>{achievementRichGames} rich achievement profiles</span>
+              <span>{achievementRichFamilies} rich family profiles</span>
             </div>
           </div>
           <GlobalSearch className={styles.heroSearch} />
@@ -107,24 +154,27 @@ export default function Home() {
                 Explore
               </Button>
             </div>
-            {spotlightGame ? (
+            {spotlightFamily ? (
               <div className={styles.spotlightBody}>
                 <AppImage
-                  src={spotlightGame.coverUrl}
-                  alt={spotlightGame.title}
+                  src={spotlightFamily.coverUrl}
+                  alt={spotlightFamily.title}
                   className={styles.spotlightImage}
                 />
                 <div className={styles.spotlightContent}>
-                  <h2 className={styles.spotlightTitle}>{spotlightGame.title}</h2>
+                  <h2 className={styles.spotlightTitle}>{spotlightFamily.title}</h2>
                   <p className={styles.spotlightCopy}>
-                    {spotlightGame.achievementCount} achievements
-                    {spotlightGame.trophyCount > 0
-                      ? ` and ${spotlightGame.trophyCount} trophies`
-                      : " ready to track"}
+                    {spotlightFamily.platforms.length === 1
+                      ? "1 tracked platform"
+                      : `${spotlightFamily.platforms.length} tracked platforms`}
+                    , {spotlightFamily.totalAchievementCount} achievements
+                    {spotlightFamily.totalTrophyCount > 0
+                      ? `, and ${spotlightFamily.totalTrophyCount} trophies`
+                      : ""}
                     .
                   </p>
-                  <Button href={`/games/${spotlightGame.id}`} variant="secondary" size="sm">
-                    Open Game
+                  <Button href={`/games/title/${spotlightFamily.slug}`} variant="secondary" size="sm">
+                    Open Family
                     <ArrowRight size={14} />
                   </Button>
                 </div>
@@ -185,18 +235,18 @@ export default function Home() {
             <h2 className={styles.sectionTitle}>Start Somewhere Good</h2>
           </div>
           <div className={styles.sectionHeaderActions}>
-            <span className={styles.countPill}>{featuredGames.length || 0} picks</span>
+            <span className={styles.countPill}>{featuredFamilies.length || 0} picks</span>
             <Button href="/games" variant="outline" size="sm">
               View All
             </Button>
           </div>
         </div>
 
-        {loading && <LoadingSpinner text="Loading games..." />}
+        {loading && <LoadingSpinner text="Loading featured titles..." />}
 
         {error && (
           <ErrorState
-            title="Couldn’t load featured games"
+            title="Couldn’t load featured titles"
             description={error.message}
             action={
               <Button onClick={() => window.location.reload()} variant="secondary">
@@ -206,18 +256,17 @@ export default function Home() {
           />
         )}
 
-        {featuredGames.length > 0 && (
+        {featuredFamilies.length > 0 && (
           <div className={styles.gamesGrid}>
-            {featuredGames.map(({ node: game }: { node: GameNode }) => (
-              <GameCard
-                key={game.id}
-                id={game.id}
-                title={game.title}
-                description={game.description}
-                coverUrl={game.coverUrl}
-                achievementCount={game.achievementCount}
-                trophyCount={game.trophyCount}
-                compact
+            {featuredFamilies.map((family) => (
+              <GroupedGameCard
+                key={family.slug}
+                title={family.title}
+                slug={family.slug}
+                coverUrl={family.coverUrl}
+                platforms={family.platforms}
+                totalAchievementCount={family.totalAchievementCount}
+                totalTrophyCount={family.totalTrophyCount}
               />
             ))}
           </div>
