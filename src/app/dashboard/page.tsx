@@ -28,7 +28,7 @@ import styles from "./page.module.css";
 interface UserAchievementNode {
   id: string;
   createdAt: string;
-  achievement: {
+  achievement?: {
     id: string;
     title: string;
     description?: string | null;
@@ -36,13 +36,32 @@ interface UserAchievementNode {
     achievementSet: {
       id: string;
       title: string;
-      game: {
+      gameFamily?: {
         id: string;
         title: string;
+        slug: string;
       };
     };
   };
 }
+
+interface UserAchievementEdge {
+  node?: UserAchievementNode | null;
+}
+
+type ValidUserAchievementEdge = {
+  node: UserAchievementNode & {
+    achievement: NonNullable<UserAchievementNode["achievement"]> & {
+      achievementSet: {
+        gameFamily: {
+          id: string;
+          title: string;
+          slug: string;
+        };
+      };
+    };
+  };
+};
 
 interface TrophyNode {
   id: string;
@@ -87,7 +106,13 @@ export default function Dashboard() {
 
   const loading = userLoading || achievementsLoading || trophiesLoading;
   const user = userData?.me;
-  const achievements = achievementsData?.myAchievements?.edges || [];
+  const achievements: ValidUserAchievementEdge[] =
+    achievementsData?.myAchievements?.edges?.filter(
+      (
+        edge: UserAchievementEdge | null | undefined
+      ): edge is ValidUserAchievementEdge =>
+        Boolean(edge?.node?.achievement?.achievementSet?.gameFamily)
+    ) || [];
   const trophies = trophiesData?.myTrophies?.edges || [];
   const firstName = user?.name?.split(" ")[0] || "Player";
   const latestAchievement = achievements[0]?.node;
@@ -142,10 +167,10 @@ export default function Dashboard() {
             <div className={styles.milestoneCard}>
               <span className={styles.milestoneBadge}>Fresh Unlock</span>
               <h2 className={styles.milestoneTitle}>
-                {latestAchievement.node.achievement.title}
+                {latestAchievement.achievement.title}
               </h2>
               <p className={styles.milestoneText}>
-                From {latestAchievement.node.achievement.achievementSet.game.title}
+                From {latestAchievement.achievement.achievementSet.gameFamily.title}
               </p>
             </div>
           ) : (
@@ -206,14 +231,14 @@ export default function Dashboard() {
 
           {achievements.length > 0 ? (
             <div className={styles.achievementList}>
-              {achievements.map(({ node }: { node: UserAchievementNode }) => (
+              {achievements.map(({ node }) => (
                 <AchievementCard
                   key={node.id}
                   id={node.achievement.id}
                   title={node.achievement.title}
                   description={node.achievement.description}
                   iconUrl={node.achievement.iconUrl}
-                  gameName={node.achievement.achievementSet.game.title}
+                  gameName={node.achievement.achievementSet.gameFamily.title}
                   isCompleted={true}
                 />
               ))}

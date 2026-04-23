@@ -9,15 +9,16 @@ type AchievementTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 interface RecentAchievement {
   id: string;
   createdAt: string;
-  achievement: {
+  achievement?: {
     id: string;
     title: string;
     tier?: AchievementTier;
     points?: number;
     achievementSet: {
-      game: {
+      gameFamily?: {
         id: string;
         title: string;
+        slug: string;
       };
     };
   };
@@ -56,7 +57,21 @@ function getTierIcon(tier?: AchievementTier): React.ReactNode {
 }
 
 export function RecentActivity({ achievements }: RecentActivityProps) {
-  if (achievements.length === 0) {
+  const validAchievements = achievements.filter(
+    (item): item is RecentAchievement & {
+      achievement: NonNullable<RecentAchievement["achievement"]> & {
+        achievementSet: {
+          gameFamily: {
+            id: string;
+            title: string;
+            slug: string;
+          };
+        };
+      };
+    } => Boolean(item.achievement?.achievementSet?.gameFamily)
+  );
+
+  if (validAchievements.length === 0) {
     return null;
   }
 
@@ -64,13 +79,13 @@ export function RecentActivity({ achievements }: RecentActivityProps) {
     <div className={styles.container}>
       <h3 className={styles.title}>Recent Activity</h3>
       <div className={styles.timeline}>
-        {achievements.map((item, index) => (
+        {validAchievements.map((item, index) => (
           <div key={item.id} className={styles.timelineItem}>
             <div className={styles.timelineLine}>
               <div className={`${styles.timelineDot} ${styles[`dot${item.achievement.tier || "BRONZE"}`]}`}>
                 {getTierIcon(item.achievement.tier)}
               </div>
-              {index < achievements.length - 1 && <div className={styles.connector} />}
+              {index < validAchievements.length - 1 && <div className={styles.connector} />}
             </div>
             <div className={styles.content}>
               <div className={styles.achievementInfo}>
@@ -82,10 +97,10 @@ export function RecentActivity({ achievements }: RecentActivityProps) {
                 )}
               </div>
               <Link
-                href={`/games/${item.achievement.achievementSet.game.id}`}
+                href={`/games/title/${item.achievement.achievementSet.gameFamily.slug}`}
                 className={styles.gameLink}
               >
-                {item.achievement.achievementSet.game.title}
+                {item.achievement.achievementSet.gameFamily.title}
               </Link>
               <span className={styles.time}>{formatTimeAgo(item.createdAt)}</span>
             </div>
