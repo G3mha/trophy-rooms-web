@@ -115,7 +115,7 @@ export default function Dashboard() {
           <h1 className={styles.title}>Welcome back, {firstName}.</h1>
           <p className={styles.subtitle}>
             Track your momentum, revisit recent unlocks, and keep your next
-            Crimson Trophy in sight.
+            Platinum Trophy in sight.
           </p>
           <div className={styles.heroActions}>
             <Button href="/trophy-room">Open Trophy Room</Button>

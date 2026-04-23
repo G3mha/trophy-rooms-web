@@ -5,7 +5,7 @@ import { Trophy, Medal } from "lucide-react";
 import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
 import styles from "./ActivityFeedEntry.module.css";
 
-type AchievementTier = "BRONZE" | "SILVER" | "GOLD";
+type AchievementTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 type ActivityType = "achievement" | "trophy";
 
 interface ActivityFeedEntryProps {
@@ -43,6 +43,8 @@ function formatTimeAgo(dateString: string): string {
 
 function getTierColor(tier?: AchievementTier): string {
   switch (tier) {
+    case "PLATINUM":
+      return "#E5E4E2";
     case "GOLD":
       return "#FFD700";
     case "SILVER":
@@ -86,7 +88,7 @@ export function ActivityFeedEntry({
             {displayName}
           </Link>
           <span className={styles.action}>
-            {type === "trophy" ? "earned the Crimson Trophy for" : "unlocked"}
+            {type === "trophy" ? "earned the Platinum Trophy for" : "unlocked"}
           </span>
         </div>
 

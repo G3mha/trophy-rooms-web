@@ -32,6 +32,7 @@ interface Achievement {
 
 // Tier sort priority (higher = more rare = shown first)
 const tierPriority: Record<AchievementTier, number> = {
+  PLATINUM: 4,
   GOLD: 3,
   SILVER: 2,
   BRONZE: 1,
@@ -439,7 +440,7 @@ export default function GameDetailPage({
             </div>
             <div className={styles.statCard}>
               <span className={styles.statValue}>{game.trophyCount}</span>
-              <span className={styles.statLabel}>Crimson Trophies</span>
+              <span className={styles.statLabel}>Platinum Trophies</span>
             </div>
             <div className={styles.statCard}>
               <span className={styles.statValue}>{game.trophies.length}</span>
@@ -573,7 +574,7 @@ export default function GameDetailPage({
                 <Trophy size={32} />
               </div>
               <div className={styles.crimsonContent}>
-                <span className={styles.crimsonTitle}>Crimson Trophy Earned</span>
+                <span className={styles.crimsonTitle}>Platinum Trophy Earned</span>
                 <span className={styles.crimsonSubtitle}>100% completion achieved</span>
               </div>
             </div>

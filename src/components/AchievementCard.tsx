@@ -4,7 +4,7 @@ import { Medal } from "lucide-react";
 import { AppImage } from "./AppImage";
 import styles from "./AchievementCard.module.css";
 
-export type AchievementTier = "BRONZE" | "SILVER" | "GOLD";
+export type AchievementTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 
 interface AchievementCardProps {
   id: string;
@@ -25,6 +25,7 @@ const TIER_COLORS: Record<AchievementTier, string> = {
   BRONZE: "#CD7F32",
   SILVER: "#C0C0C0",
   GOLD: "#FFD700",
+  PLATINUM: "#E5E4E2",
 };
 
 const tierConfig: Record<AchievementTier, {
@@ -54,6 +55,13 @@ const tierConfig: Record<AchievementTier, {
     badgeClass: styles.badgeGold,
     color: TIER_COLORS.GOLD,
     iconClass: styles.iconGold,
+  },
+  PLATINUM: {
+    label: "Platinum",
+    cardClass: styles.tierPlatinum,
+    badgeClass: styles.badgePlatinum,
+    color: TIER_COLORS.PLATINUM,
+    iconClass: styles.iconPlatinum,
   },
 };
 

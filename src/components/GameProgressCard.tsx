@@ -63,7 +63,7 @@ export function GameProgressCard({
         <div className={styles.header}>
           <h3 className={styles.title}>{gameTitle}</h3>
           {hasTrophy && (
-            <span className={styles.trophyBadge}>Crimson Trophy</span>
+            <span className={styles.trophyBadge}>Platinum Trophy</span>
           )}
         </div>
 

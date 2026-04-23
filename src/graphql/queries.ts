@@ -128,6 +128,7 @@ export const USER_FRAGMENT = gql`
     createdAt
     stats {
       totalPoints
+      platinumCount
       goldCount
       silverCount
       bronzeCount
@@ -318,6 +319,7 @@ export const GET_USER = gql`
       createdAt
       stats {
         totalPoints
+        platinumCount
         goldCount
         silverCount
         bronzeCount

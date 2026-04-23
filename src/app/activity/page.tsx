@@ -29,7 +29,7 @@ interface ActivityEntry {
   userEmail: string;
   achievementId?: string;
   achievementTitle?: string;
-  achievementTier?: "BRONZE" | "SILVER" | "GOLD";
+  achievementTier?: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
   achievementPoints?: number;
   gameId: string;
   gameTitle: string;

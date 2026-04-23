@@ -48,8 +48,7 @@
   line-height: 1.7;
 }
 
-.heroStats,
-.summaryGrid {
+.heroStats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
@@ -60,7 +59,6 @@
 }
 
 .heroStat,
-.summaryCard,
 .activitySection,
 .trophyShowcase,
 .gamesSection,
@@ -80,7 +78,6 @@
 }
 
 .activitySection,
-.summaryCard,
 .trophyShowcase,
 .gamesSection {
   background: var(--bg-secondary);
@@ -93,35 +90,6 @@
 
 .summaryGrid {
   margin: 0 0 24px;
-  gap: 16px;
-}
-
-.summaryCard {
-  padding: 20px;
-}
-
-.summaryLabel {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.summaryValue {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--text-primary);
-  font-size: 1.7rem;
-  font-weight: 700;
-}
-
-.summaryText {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.6;
 }
 
 .trophyShowcase,
@@ -178,7 +146,7 @@
 }
 
 .crimsonIcon {
-  color: #ff5e83;
+  color: #e5e4e2;
 }
 
 .progressGrid {
@@ -222,7 +190,6 @@
 
   .hero,
   .activitySection,
-  .summaryCard,
   .trophyShowcase,
   .gamesSection {
     padding: 20px;

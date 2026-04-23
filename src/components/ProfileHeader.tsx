@@ -5,6 +5,7 @@ import styles from "./ProfileHeader.module.css";
 
 interface UserStats {
   totalPoints: number;
+  platinumCount: number;
   goldCount: number;
   silverCount: number;
   bronzeCount: number;
@@ -127,10 +128,29 @@ export function ProfileHeader({
       </div>
 
       {/* Tier Distribution */}
-      {stats && (stats.goldCount > 0 || stats.silverCount > 0 || stats.bronzeCount > 0) && (
+      {stats &&
+        (stats.platinumCount > 0 ||
+          stats.goldCount > 0 ||
+          stats.silverCount > 0 ||
+          stats.bronzeCount > 0) && (
         <div className={styles.tierDistribution}>
           <h3 className={styles.tierTitle}>Achievement Breakdown</h3>
           <div className={styles.tierBars}>
+            <div className={styles.tierBar}>
+              <div className={styles.tierLabel}>
+                <Medal className={styles.tierIcon} size={16} color="#E5E4E2" />
+                <span>Platinum</span>
+                <span className={styles.tierCount}>{stats.platinumCount}</span>
+              </div>
+              <div className={styles.barContainer}>
+                <div
+                  className={`${styles.barFill} ${styles.barPlatinum}`}
+                  style={{
+                    width: `${achievementCount > 0 ? (stats.platinumCount / achievementCount) * 100 : 0}%`,
+                  }}
+                />
+              </div>
+            </div>
             <div className={styles.tierBar}>
               <div className={styles.tierLabel}>
                 <Medal className={styles.tierIcon} size={16} color="#FFD700" />

@@ -23,6 +23,8 @@ import {
   ProfileHeader,
   RecentActivity,
   GameProgressCard,
+  CatalogHero,
+  SummaryStats,
 } from "@/components";
 import styles from "./page.module.css";
 
@@ -106,33 +108,39 @@ export default function PublicProfilePage({
 
   return (
     <div className={styles.container}>
-      <header className={styles.hero}>
-        <div className={styles.heroLead}>
-          <div className={styles.eyebrow}>
+      <CatalogHero
+        classes={{
+          root: styles.hero,
+          lead: styles.heroLead,
+          eyebrow: styles.eyebrow,
+          title: styles.heroTitle,
+          description: styles.heroSubtitle,
+          stats: styles.heroStats,
+          stat: styles.heroStat,
+        }}
+        eyebrow={
+          <>
             <Sparkles size={16} />
             <span>Public Profile</span>
-          </div>
-          <h1 className={styles.heroTitle}>{displayName}&apos;s Trophy Room</h1>
-          <p className={styles.heroSubtitle}>
-            Follow completed runs, active hunts, and the momentum behind this
-            player&apos;s next Crimson Trophy.
-          </p>
-        </div>
-        <div className={styles.heroStats}>
-          <div className={styles.heroStat}>
-            <Trophy size={16} />
-            <span>{completedGames.length} completed runs</span>
-          </div>
-          <div className={styles.heroStat}>
-            <Target size={16} />
-            <span>{totalPoints.toLocaleString()} points earned</span>
-          </div>
-          <div className={styles.heroStat}>
-            <TimerReset size={16} />
-            <span>{averageCompletion}% avg progress</span>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+        title={`${displayName}'s Trophy Room`}
+        description="Follow completed runs, active hunts, and the momentum behind this player's next Platinum Trophy."
+        stats={[
+          {
+            icon: <Trophy size={16} />,
+            label: `${completedGames.length} completed runs`,
+          },
+          {
+            icon: <Target size={16} />,
+            label: `${totalPoints.toLocaleString()} points earned`,
+          },
+          {
+            icon: <TimerReset size={16} />,
+            label: `${averageCompletion}% avg progress`,
+          },
+        ]}
+      />
 
       <ProfileHeader
         name={user.name}
@@ -159,29 +167,26 @@ export default function PublicProfilePage({
         </section>
       )}
 
-      <section className={styles.summaryGrid}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Crimson Shelf</span>
-          <strong className={styles.summaryValue}>{completedGames.length}</strong>
-          <p className={styles.summaryText}>
-            Games this player has fully completed and locked into their showcase.
-          </p>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>In Rotation</span>
-          <strong className={styles.summaryValue}>{inProgressGames.length}</strong>
-          <p className={styles.summaryText}>
-            Active progress cards still moving toward 100%.
-          </p>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Momentum</span>
-          <strong className={styles.summaryValue}>{averageCompletion}%</strong>
-          <p className={styles.summaryText}>
-            Average completion across the tracked library right now.
-          </p>
-        </div>
-      </section>
+      <SummaryStats
+        items={[
+          {
+            label: "Platinum Shelf",
+            value: completedGames.length,
+            text: "Games this player has fully completed and locked into their showcase.",
+          },
+          {
+            label: "In Rotation",
+            value: inProgressGames.length,
+            text: "Active progress cards still moving toward 100%.",
+          },
+          {
+            label: "Momentum",
+            value: `${averageCompletion}%`,
+            text: "Average completion across the tracked library right now.",
+          },
+        ]}
+        className={styles.summaryGrid}
+      />
 
       {completedGames.length > 0 && (
         <section className={styles.trophyShowcase}>
@@ -189,7 +194,7 @@ export default function PublicProfilePage({
             <div>
               <p className={styles.sectionEyebrow}>Completed</p>
               <h2 className={styles.sectionTitle}>
-                <Trophy className={styles.crimsonIcon} size={24} /> Crimson Trophy Collection
+                <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophy Collection
               </h2>
             </div>
             <span className={styles.sectionCount}>{completedGames.length} games</span>
@@ -225,7 +230,7 @@ export default function PublicProfilePage({
           </div>
           <span className={styles.sectionCount}>{inProgressGames.length} active</span>
         </div>
-        <p className={styles.sectionSubtitle}>Working towards more Crimson Trophies</p>
+        <p className={styles.sectionSubtitle}>Working towards more Platinum Trophies</p>
 
         {inProgressGames.length > 0 ? (
           <div className={styles.progressGrid}>

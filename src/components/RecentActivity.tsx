@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Medal } from "lucide-react";
 import styles from "./RecentActivity.module.css";
 
-type AchievementTier = "BRONZE" | "SILVER" | "GOLD";
+type AchievementTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 
 interface RecentAchievement {
   id: string;
@@ -46,6 +46,7 @@ function formatTimeAgo(dateString: string): string {
 
 function getTierIcon(tier?: AchievementTier): React.ReactNode {
   const colors: Record<AchievementTier, string> = {
+    PLATINUM: "#E5E4E2",
     GOLD: "#FFD700",
     SILVER: "#C0C0C0",
     BRONZE: "#CD7F32",

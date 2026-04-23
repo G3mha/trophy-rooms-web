@@ -178,6 +178,10 @@
   background: linear-gradient(90deg, #ffd700 0%, #daa520 100%);
 }
 
+.barPlatinum {
+  background: linear-gradient(90deg, #f2f2f0 0%, #bcc4cf 100%);
+}
+
 .barSilver {
   background: linear-gradient(90deg, #c0c0c0 0%, #a8a8a8 100%);
 }
