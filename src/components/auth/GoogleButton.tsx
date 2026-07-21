@@ -1,6 +1,10 @@
 "use client";
 
+import { Roboto } from "next/font/google";
+
 import styles from "./GoogleButton.module.css";
+
+const roboto = Roboto({ weight: "500", subsets: ["latin"] });
 
 interface GoogleButtonProps {
   onClick: () => void;
@@ -16,7 +20,7 @@ export function GoogleButton({
   return (
     <button
       type="button"
-      className={styles.button}
+      className={`${styles.button} ${roboto.className}`}
       onClick={onClick}
       disabled={loading}
     >
