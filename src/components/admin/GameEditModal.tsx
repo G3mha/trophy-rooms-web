@@ -50,6 +50,7 @@ interface GameFormErrors {
   title?: string;
   platformId?: string;
   coverUrl?: string;
+  platformCoverUrl?: string;
   baseGame?: string;
 }
 
@@ -73,6 +74,8 @@ export function GameEditModal({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
+  const [platformDescription, setPlatformDescription] = useState("");
+  const [platformCoverUrl, setPlatformCoverUrl] = useState("");
   const [platformId, setPlatformId] = useState("");
   const [type, setType] = useState("BASE_GAME");
   const [baseGame, setBaseGame] = useState<SearchableGame | null>(null);
@@ -126,6 +129,8 @@ export function GameEditModal({
       setTitle(game.title || "");
       setDescription(game.description || "");
       setCoverUrl(game.coverUrl || "");
+      setPlatformDescription(game.platformDescription || "");
+      setPlatformCoverUrl(game.platformCoverUrl || "");
       setPlatformId(game.platform?.id || "");
       setType(game.type || "BASE_GAME");
       // Initialize from baseGames array (new multi-select)
@@ -163,6 +168,10 @@ export function GameEditModal({
       newErrors.coverUrl = "Cover URL must start with http:// or https://.";
     }
 
+    if (platformCoverUrl.trim() && !isValidHttpUrl(platformCoverUrl.trim())) {
+      newErrors.platformCoverUrl = "Cover URL must start with http:// or https://.";
+    }
+
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) return;
 
@@ -186,6 +195,8 @@ export function GameEditModal({
             title: title.trim(),
             description: description.trim() || null,
             coverUrl: coverUrl.trim() || null,
+            platformDescription: platformDescription.trim() || null,
+            platformCoverUrl: platformCoverUrl.trim() || null,
             platformId: effectivePlatformId,
             type,
             baseGameIds,
@@ -542,6 +553,50 @@ export function GameEditModal({
             {coverUrl.trim() && (
               <FormField label="Cover Preview">
                 <CoverPreview url={coverUrl.trim()} alt="Game cover preview" />
+              </FormField>
+            )}
+          </div>
+
+          <div className="space-y-4 border-t border-[var(--border-color)] pt-4">
+            <div>
+              <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                Platform Overrides
+              </h3>
+              <p className="mt-1 text-sm text-[var(--text-muted)]">
+                Only for this platform release. Leave empty to inherit the
+                family values (e.g. a remake&apos;s own box art and text).
+              </p>
+            </div>
+
+            <FormField label="Platform Description">
+              <Textarea
+                placeholder="Description specific to this platform release"
+                value={platformDescription}
+                onChange={(e) => setPlatformDescription(e.target.value)}
+                rows={3}
+              />
+            </FormField>
+
+            <FormField
+              label="Platform Cover URL"
+              hint="Use a direct image URL starting with http:// or https://."
+              error={errors.platformCoverUrl}
+            >
+              <Input
+                placeholder="https://example.com/platform-cover.jpg"
+                value={platformCoverUrl}
+                onChange={(e) => {
+                  setPlatformCoverUrl(e.target.value);
+                  setErrors((prev) => ({ ...prev, platformCoverUrl: undefined }));
+                }}
+                className={getFieldErrorClass(Boolean(errors.platformCoverUrl))}
+                aria-invalid={Boolean(errors.platformCoverUrl)}
+              />
+            </FormField>
+
+            {platformCoverUrl.trim() && (
+              <FormField label="Platform Cover Preview">
+                <CoverPreview url={platformCoverUrl.trim()} alt="Platform cover preview" />
               </FormField>
             )}
           </div>

@@ -8,6 +8,8 @@ export const GAME_FRAGMENT = gql`
     title
     description
     coverUrl
+    platformCoverUrl
+    platformDescription
     releaseDate
     developer
     publisher
