@@ -63,8 +63,7 @@ interface Bundle {
   coverUrl?: string | null;
   releaseDate?: string | null;
   price?: number | null;
-  platform?: Platform | null;
-  platformId?: string | null;
+  platforms?: Platform[] | null;
   games?: SearchableGame[];
   gameCount: number;
   dlcCount: number;
@@ -277,7 +276,7 @@ export default function AdminBundlesPage() {
             coverUrl: newCoverUrl.trim() || null,
             releaseDate: newReleaseDate || null,
             price: newPrice.trim() ? Number(newPrice) : null,
-            platformId: newPlatformId || null,
+            platformIds: newPlatformId ? [newPlatformId] : [],
             gameFamilyIds:
               newGames.length > 0 ? toGameFamilyIds(newGames) : null,
           },
@@ -330,7 +329,7 @@ export default function AdminBundlesPage() {
             coverUrl: editCoverUrl.trim() || null,
             releaseDate: editReleaseDate || null,
             price: editPrice.trim() ? Number(editPrice) : null,
-            platformId: editPlatformId || null,
+            platformIds: editPlatformId ? [editPlatformId] : [],
             gameFamilyIds: toGameFamilyIds(editGames),
           },
         },
@@ -422,7 +421,7 @@ export default function AdminBundlesPage() {
       bundle.releaseDate ? bundle.releaseDate.split("T")[0] : ""
     );
     setEditPrice(bundle.price?.toString() || "");
-    setEditPlatformId(bundle.platformId || "");
+    setEditPlatformId(bundle.platforms?.[0]?.id || "");
     setEditGames(normalizeBundleGames(bundle.games || []));
     setEditErrors({});
     setIsEditModalOpen(true);
@@ -946,7 +945,7 @@ export default function AdminBundlesPage() {
             <div className={styles.itemInfo}>
               <span className={styles.itemName}>{bundle.name}</span>
               <span className={styles.itemSlug}>
-                {bundle.platform?.name || "No platform"} • {bundle.slug}
+                {bundle.platforms?.map((p) => p.name).join(", ") || "No platform"} • {bundle.slug}
               </span>
               <span className={`${styles.badge} ${styles.badgeCount}`}>
                 {bundle.type.replace("_", " ")}

@@ -110,11 +110,10 @@ export const BUNDLE_FRAGMENT = gql`
     coverUrl
     releaseDate
     price
-    platform {
+    platforms {
       id
       name
     }
-    platformId
     gameCount: gameFamilyCount
     dlcCount
     games: gameFamilies {
