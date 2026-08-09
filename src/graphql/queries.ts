@@ -809,3 +809,33 @@ export const GLOBAL_SEARCH = gql`
     }
   }
 `;
+
+export const GET_MY_PLAY_JOURNAL = gql`
+  query GetMyPlayJournal {
+    myPlaySessions {
+      id
+      gameId
+      game {
+        id
+        title
+        coverUrl
+        platform {
+          id
+          name
+          slug
+        }
+      }
+      playedOn
+      minutes
+      notes
+    }
+    myPlayStats {
+      totalMinutes
+      sessionCount
+      daysLogged
+      currentStreakDays
+      thisWeekMinutes
+    }
+  }
+`;
+

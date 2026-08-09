@@ -426,3 +426,26 @@ export const MARK_AS_PURCHASED = gql`
     }
   }
 `;
+
+export const LOG_PLAY_SESSION = gql`
+  mutation LogPlaySession($input: LogPlaySessionInput!) {
+    logPlaySession(input: $input) {
+      success
+      error {
+        message
+      }
+    }
+  }
+`;
+
+export const DELETE_PLAY_SESSION = gql`
+  mutation DeletePlaySession($id: ID!) {
+    deletePlaySession(id: $id) {
+      success
+      error {
+        message
+      }
+    }
+  }
+`;
+
