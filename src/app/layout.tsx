@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { ClerkProvider } from "@clerk/nextjs";
-import type { ComponentProps, ReactNode } from "react";
+import type { ReactNode } from "react";
+import { AuthProvider } from "@/lib/auth";
 import { ApolloWrapper } from "@/lib/apollo-wrapper";
 import { AdminModeProvider } from "@/contexts/AdminModeContext";
 import { Header } from "@/components/Header";
@@ -12,19 +12,6 @@ import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-const clerkPublishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-const clerkProviderProps = clerkPublishableKey
-  ? {
-      publishableKey: clerkPublishableKey,
-      signInUrl: "/sign-in",
-      signUpUrl: "/sign-up",
-    }
-  : {
-      signInUrl: "/sign-in",
-      signUpUrl: "/sign-up",
-      disableKeyless: true,
-      __internal_bypassMissingPublishableKey: true,
-    };
 
 export const metadata: Metadata = {
   title: "Trophy Rooms - Cross-Platform Achievement Tracker",
@@ -37,9 +24,9 @@ export default function RootLayout({
   children: ReactNode;
 }) {
   return (
-    <ClerkProvider {...(clerkProviderProps as ComponentProps<typeof ClerkProvider>)}>
-      <html lang="en" className={cn("font-sans", geist.variable)}>
-        <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+    <html lang="en" className={cn("font-sans", geist.variable)}>
+      <body style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <AuthProvider>
           <ApolloWrapper>
             <AdminModeProvider>
               <Header />
@@ -49,8 +36,8 @@ export default function RootLayout({
               <Toaster position="bottom-right" />
             </AdminModeProvider>
           </ApolloWrapper>
-        </body>
-      </html>
-    </ClerkProvider>
+        </AuthProvider>
+      </body>
+    </html>
   );
 }

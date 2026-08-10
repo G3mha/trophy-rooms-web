@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import { FilePlus2, Gamepad2, ImageIcon, Lock } from "lucide-react";
 import { CREATE_GAME_FAMILY } from "@/graphql/mutations";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";

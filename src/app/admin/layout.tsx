@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import { GET_ME } from "@/graphql/queries";
 import { LoadingSpinner, EmptyState, Button } from "@/components";
 import {

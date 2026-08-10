@@ -3,8 +3,8 @@
 import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink, from } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
-import { useAuth } from "@clerk/nextjs";
 import { useMemo } from "react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function createApolloClientWithAuth(getToken: () => Promise<string | null>) {
   const httpLink = createHttpLink({
@@ -78,12 +78,16 @@ function createApolloClientWithAuth(getToken: () => Promise<string | null>) {
   });
 }
 
-export function ApolloWrapper({ children }: { children: React.ReactNode }) {
-  const { getToken } = useAuth();
+async function getSupabaseToken(): Promise<string | null> {
+  const supabase = getSupabaseBrowserClient();
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
 
+export function ApolloWrapper({ children }: { children: React.ReactNode }) {
   const client = useMemo(() => {
-    return createApolloClientWithAuth(getToken);
-  }, [getToken]);
+    return createApolloClientWithAuth(getSupabaseToken);
+  }, []);
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }

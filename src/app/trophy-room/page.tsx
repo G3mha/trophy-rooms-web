@@ -2,7 +2,7 @@
 
 import { useQuery } from "@apollo/client";
 import { toast } from "sonner";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import {
   Trophy,
   Gamepad2,

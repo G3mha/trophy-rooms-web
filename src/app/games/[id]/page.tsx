@@ -3,7 +3,7 @@
 import { use, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/lib/auth";
 import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon } from "lucide-react";
 import { useAdminMode } from "@/contexts/AdminModeContext";
 import { GET_GAME, GET_ME } from "@/graphql/queries";

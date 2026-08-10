@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/lib/auth";
 import { ArrowRight, Gamepad2, Search, Star, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GroupedGameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch } from "@/components";

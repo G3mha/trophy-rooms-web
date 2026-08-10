@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/lib/auth";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
 import {

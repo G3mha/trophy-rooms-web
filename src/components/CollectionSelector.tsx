@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/lib/auth";
 import {
   Package,
   Plus,

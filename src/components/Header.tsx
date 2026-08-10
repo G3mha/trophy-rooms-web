@@ -3,10 +3,11 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { useQuery } from "@apollo/client";
-import { ChevronDown, LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield, CalendarClock } from "lucide-react";
+import { ChevronDown, LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield, CalendarClock, LogOut } from "lucide-react";
 import { GET_ME } from "@/graphql/queries";
+import { useAuth } from "@/lib/auth";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "./Header.module.css";
 
 const navLinks = [
@@ -25,9 +26,49 @@ const myStuffLinks = [
   { href: "/collection", label: "My Collection", Icon: Disc },
 ];
 
+function UserMenu() {
+  const { user } = useAuth();
+
+  const metadata = user?.user_metadata ?? {};
+  const avatarUrl = metadata.avatar_url ?? metadata.picture;
+  const displayName = metadata.full_name ?? metadata.name ?? user?.email ?? "";
+  const initial = displayName.charAt(0).toUpperCase() || "?";
+
+  const handleSignOut = async () => {
+    await getSupabaseBrowserClient().auth.signOut();
+    // Full reload so the Apollo cache drops the signed-in user's data
+    window.location.assign("/");
+  };
+
+  return (
+    <div className={styles.dropdown}>
+      <button type="button" className={styles.avatarButton} aria-label="Account">
+        {avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={avatarUrl} alt="" className={styles.avatarImage} />
+        ) : (
+          <span className={styles.avatarFallback}>{initial}</span>
+        )}
+      </button>
+      <div className={`${styles.dropdownMenu} ${styles.userMenuDropdown}`}>
+        <p className={styles.userEmail}>{user?.email}</p>
+        <button
+          type="button"
+          className={`${styles.dropdownItem} ${styles.signOutItem}`}
+          onClick={handleSignOut}
+        >
+          <LogOut className={styles.dropdownIcon} size={16} />
+          Sign out
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function Header() {
   const pathname = usePathname();
-  const { data } = useQuery(GET_ME);
+  const { isLoaded, isSignedIn } = useAuth();
+  const { data } = useQuery(GET_ME, { skip: !isSignedIn });
   const role = data?.me?.role;
   const isAdmin = role === "ADMIN" || role === "TRUSTED";
 
@@ -59,7 +100,7 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          <SignedIn>
+          {isSignedIn && (
             <div className={styles.dropdown}>
               <button
                 className={`${styles.navLink} ${styles.dropdownTrigger} ${
@@ -85,7 +126,7 @@ export function Header() {
                 ))}
               </div>
             </div>
-          </SignedIn>
+          )}
           {isAdmin && (
             <Link
               href="/admin"
@@ -99,30 +140,26 @@ export function Header() {
         </nav>
 
         <div className={styles.actions}>
-          <SignedOut>
-            <Link href="/sign-in" className={styles.signInBtn}>
-              Sign In
-            </Link>
-            <Link href="/sign-up" className={styles.signUpBtn}>
-              Sign Up
-            </Link>
-          </SignedOut>
-          <SignedIn>
+          {isLoaded && !isSignedIn && (
+            <>
+              <Link href="/sign-in" className={styles.signInBtn}>
+                Sign In
+              </Link>
+              <Link href="/sign-up" className={styles.signUpBtn}>
+                Sign Up
+              </Link>
+            </>
+          )}
+          {isSignedIn && (
             <div className={styles.userSection}>
               {isAdmin && (
                 <span className={styles.adminBadge} title="Admin">
                   <Shield size={14} />
                 </span>
               )}
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: styles.avatarBox,
-                  },
-                }}
-              />
+              <UserMenu />
             </div>
-          </SignedIn>
+          )}
         </div>
       </div>
     </header>

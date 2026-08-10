@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
-import { useAuth, RedirectToSignIn } from "@clerk/nextjs";
+import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import { toast } from "sonner";
 import { CalendarClock, Flame, Clock, Minus, Plus, Trash2 } from "lucide-react";
 import { GET_MY_PLAY_JOURNAL, GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";

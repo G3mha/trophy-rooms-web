@@ -174,9 +174,62 @@
   transform: scale(1.02);
 }
 
-.avatarBox {
+.avatarButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 36px;
   height: 36px;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  background: var(--bg-card);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarFallback {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.userMenuDropdown {
+  left: auto;
+  right: 0;
+  transform: translateY(-10px);
+}
+
+.dropdown:hover .userMenuDropdown {
+  transform: translateY(0);
+}
+
+.userEmail {
+  margin: 0;
+  padding: 10px 14px 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 240px;
+}
+
+.signOutItem {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
 }
 
 .userSection {
