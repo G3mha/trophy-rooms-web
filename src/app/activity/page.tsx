@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/lib/auth";
 import {
   Gamepad2,
   Trophy,
@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import {
   GET_ACTIVITY_FEED,
+  GET_ME,
   GET_RECENT_TROPHY_ACTIVITY,
 } from "@/graphql/queries";
 import { LoadingSpinner, ActivityFeedEntry } from "@/components";
@@ -48,7 +49,9 @@ interface TrophyEntry {
 
 export default function ActivityPage() {
   const [filter, setFilter] = useState<ActivityFilter>("all");
-  const { user } = useUser();
+  const { isSignedIn } = useAuth();
+  // Feed entries carry the database user id, so match against me.id
+  const { data: meData } = useQuery(GET_ME, { skip: !isSignedIn });
 
   const { data: allData, loading: allLoading } = useQuery(GET_ACTIVITY_FEED, {
     variables: { limit: 50 },
@@ -83,7 +86,7 @@ export default function ActivityPage() {
   };
 
   const activityData = getActivityData();
-  const currentUserId = user?.id;
+  const currentUserId = meData?.me?.id;
   const highlightedCount = currentUserId
     ? activityData.filter((entry) => entry.userId === currentUserId).length
     : 0;

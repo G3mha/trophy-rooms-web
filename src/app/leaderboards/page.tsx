@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@apollo/client";
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useAuth } from "@/lib/auth";
 import {
   Trophy,
   Star,
@@ -19,6 +19,7 @@ import {
   GET_LEADERBOARD_BY_POINTS,
   GET_LEADERBOARD_BY_GAMES,
   GET_FASTEST_COMPLETIONS,
+  GET_ME,
 } from "@/graphql/queries";
 import {
   LoadingSpinner,
@@ -111,7 +112,8 @@ const SECONDARY_LABELS: Record<LeaderboardTab, string> = {
 export default function LeaderboardsPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>("trophies");
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
+  // Leaderboard entries carry the database user id, so match against me.id
+  const { data: meData } = useQuery(GET_ME, { skip: !isSignedIn });
 
   const { data: trophiesData, loading: trophiesLoading } = useQuery(
     GET_LEADERBOARD_BY_TROPHIES,
@@ -191,7 +193,7 @@ export default function LeaderboardsPage() {
   const leaderboardData = getLeaderboardData();
   const loading = isLoading();
   const podium = leaderboardData?.slice(0, 3) || [];
-  const currentUserId = user?.id;
+  const currentUserId = meData?.me?.id;
 
   return (
     <div className={styles.container}>
