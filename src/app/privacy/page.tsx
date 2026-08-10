@@ -74,16 +74,16 @@ export default function PrivacyPolicy() {
             Trophy Rooms integrates with the following third-party services:
           </p>
           <p className={styles.paragraph}>
-            <strong>Clerk (Authentication):</strong> We use Clerk for user authentication.
-            When you sign up or sign in, Clerk processes your authentication data according
-            to their privacy policy. Visit{" "}
+            <strong>Supabase (Authentication &amp; Database):</strong> We use Supabase for
+            user authentication and data storage. When you sign up or sign in, Supabase
+            processes your authentication data according to their privacy policy. Visit{" "}
             <a
-              href="https://clerk.com/privacy"
+              href="https://supabase.com/privacy"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.link}
             >
-              clerk.com/privacy
+              supabase.com/privacy
             </a>{" "}
             for more information.
           </p>
@@ -91,6 +91,12 @@ export default function PrivacyPolicy() {
             <strong>Google OAuth:</strong> If you choose to sign in with Google, we receive
             limited profile information from Google (name, email, profile picture). We do not
             have access to your Google password or other Google account data.
+          </p>
+          <p className={styles.paragraph}>
+            <strong>Sign in with Apple:</strong> If you choose to sign in with Apple, we
+            receive limited profile information from Apple (name and email, which may be a
+            private relay address). We do not have access to your Apple ID password or other
+            Apple account data.
           </p>
         </section>
 
