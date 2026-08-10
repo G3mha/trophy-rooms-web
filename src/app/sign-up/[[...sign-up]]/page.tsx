@@ -1,108 +1,115 @@
 "use client";
 
 import { useState } from "react";
-import { useSignUp } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MailCheck, Sparkles, Trophy } from "lucide-react";
-import { GoogleButton, EmailForm, VerificationCodeInput } from "@/components/auth";
+import { GoogleButton, AppleButton, EmailForm, VerificationCodeInput } from "@/components/auth";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "./page.module.css";
 
 type SignUpStep = "form" | "verification";
+type OAuthProvider = "google" | "apple";
 
 export default function SignUpPage() {
-  const { isLoaded, signUp, setActive } = useSignUp();
   const router = useRouter();
   const [step, setStep] = useState<SignUpStep>("form");
+  const [pendingEmail, setPendingEmail] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
   const [verificationLoading, setVerificationLoading] = useState(false);
 
   const handleEmailSignUp = async (email: string, password: string) => {
-    if (!isLoaded || !signUp) return;
+    const supabase = getSupabaseBrowserClient();
 
     setLoading(true);
     setError(undefined);
 
-    try {
-      await signUp.create({
-        emailAddress: email,
-        password,
-      });
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-      await signUp.prepareEmailAddressVerification({
-        strategy: "email_code",
-      });
-
-      setStep("verification");
-    } catch (err: unknown) {
-      const clerkError = err as { errors?: Array<{ message: string }> };
-      const message = clerkError.errors?.[0]?.message || "Failed to create account";
-      setError(message);
-    } finally {
+    if (signUpError) {
+      setError(signUpError.message);
       setLoading(false);
+      return;
     }
+
+    // Supabase returns an obfuscated user with no identities when the email
+    // is already registered and confirmed
+    if (data.user && data.user.identities?.length === 0) {
+      setError("An account with this email already exists. Try signing in instead.");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
+
+    if (data.session) {
+      router.push("/dashboard");
+      router.refresh();
+      return;
+    }
+
+    setPendingEmail(email);
+    setStep("verification");
   };
 
   const handleVerification = async (code: string) => {
-    if (!isLoaded || !signUp) return;
+    const supabase = getSupabaseBrowserClient();
 
     setVerificationLoading(true);
     setError(undefined);
 
-    try {
-      const result = await signUp.attemptEmailAddressVerification({
-        code,
-      });
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      email: pendingEmail,
+      token: code,
+      type: "signup",
+    });
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.push("/dashboard");
-      } else {
-        setError("Verification incomplete. Please try again.");
-      }
-    } catch (err: unknown) {
-      const clerkError = err as { errors?: Array<{ message: string }> };
-      const message = clerkError.errors?.[0]?.message || "Invalid verification code";
-      setError(message);
-    } finally {
+    if (verifyError) {
+      setError(verifyError.message);
       setVerificationLoading(false);
+      return;
     }
+
+    router.push("/dashboard");
+    router.refresh();
   };
 
-  const handleGoogleSignUp = async () => {
-    if (!isLoaded || !signUp) return;
+  const handleOAuthSignUp = async (provider: OAuthProvider) => {
+    const supabase = getSupabaseBrowserClient();
 
-    setOauthLoading(true);
+    setOauthLoading(provider);
+    setError(undefined);
 
-    try {
-      await signUp.authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/dashboard",
-      });
-    } catch (err: unknown) {
-      const clerkError = err as { errors?: Array<{ message: string }> };
-      const message = clerkError.errors?.[0]?.message || "Failed to sign up with Google";
-      setError(message);
-      setOauthLoading(false);
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/sso-callback`,
+      },
+    });
+
+    if (oauthError) {
+      setError(oauthError.message);
+      setOauthLoading(null);
     }
   };
 
   const handleResendCode = async () => {
-    if (!isLoaded || !signUp) return;
+    const supabase = getSupabaseBrowserClient();
 
     setError(undefined);
 
-    try {
-      await signUp.prepareEmailAddressVerification({
-        strategy: "email_code",
-      });
-    } catch (err: unknown) {
-      const clerkError = err as { errors?: Array<{ message: string }> };
-      const message = clerkError.errors?.[0]?.message || "Failed to resend code";
-      setError(message);
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email: pendingEmail,
+    });
+
+    if (resendError) {
+      setError(resendError.message);
     }
   };
 
@@ -136,7 +143,7 @@ export default function SignUpPage() {
               <span className={styles.logo}><Trophy size={40} /></span>
               <h2 className={styles.title}>Verify your email</h2>
               <p className={styles.subtitle}>
-                We sent a verification code to your email address.
+                We sent a verification code to {pendingEmail}.
               </p>
             </div>
 
@@ -209,9 +216,15 @@ export default function SignUpPage() {
 
           <div className={styles.card}>
             <GoogleButton
-              onClick={handleGoogleSignUp}
-              loading={oauthLoading}
+              onClick={() => handleOAuthSignUp("google")}
+              loading={oauthLoading === "google"}
               label="Continue with Google"
+            />
+
+            <AppleButton
+              onClick={() => handleOAuthSignUp("apple")}
+              loading={oauthLoading === "apple"}
+              label="Continue with Apple"
             />
 
             <div className={styles.divider}>

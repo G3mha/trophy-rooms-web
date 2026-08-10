@@ -1,63 +1,58 @@
 "use client";
 
 import { useState } from "react";
-import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Gamepad2, ShieldCheck, Trophy } from "lucide-react";
-import { GoogleButton, EmailForm } from "@/components/auth";
+import { GoogleButton, AppleButton, EmailForm } from "@/components/auth";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "./page.module.css";
 
+type OAuthProvider = "google" | "apple";
+
 export default function SignInPage() {
-  const { isLoaded, signIn, setActive } = useSignIn();
   const router = useRouter();
   const [error, setError] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<OAuthProvider | null>(null);
 
   const handleEmailSignIn = async (email: string, password: string) => {
-    if (!isLoaded || !signIn) return;
+    const supabase = getSupabaseBrowserClient();
 
     setLoading(true);
     setError(undefined);
 
-    try {
-      const result = await signIn.create({
-        identifier: email,
-        password,
-      });
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.push("/dashboard");
-      } else {
-        setError("Sign in incomplete. Please try again.");
-      }
-    } catch (err: unknown) {
-      const clerkError = err as { errors?: Array<{ message: string }> };
-      const message = clerkError.errors?.[0]?.message || "Invalid email or password";
-      setError(message);
-    } finally {
+    if (signInError) {
+      setError(signInError.message);
       setLoading(false);
+      return;
     }
+
+    router.push("/dashboard");
+    router.refresh();
   };
 
-  const handleGoogleSignIn = async () => {
-    if (!isLoaded || !signIn) return;
+  const handleOAuthSignIn = async (provider: OAuthProvider) => {
+    const supabase = getSupabaseBrowserClient();
 
-    setOauthLoading(true);
+    setOauthLoading(provider);
+    setError(undefined);
 
-    try {
-      await signIn.authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/dashboard",
-      });
-    } catch (err: unknown) {
-      const clerkError = err as { errors?: Array<{ message: string }> };
-      const message = clerkError.errors?.[0]?.message || "Failed to sign in with Google";
-      setError(message);
-      setOauthLoading(false);
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/sso-callback`,
+      },
+    });
+
+    if (oauthError) {
+      setError(oauthError.message);
+      setOauthLoading(null);
     }
   };
 
@@ -100,9 +95,15 @@ export default function SignInPage() {
 
           <div className={styles.card}>
             <GoogleButton
-              onClick={handleGoogleSignIn}
-              loading={oauthLoading}
+              onClick={() => handleOAuthSignIn("google")}
+              loading={oauthLoading === "google"}
               label="Continue with Google"
+            />
+
+            <AppleButton
+              onClick={() => handleOAuthSignIn("apple")}
+              loading={oauthLoading === "apple"}
+              label="Continue with Apple"
             />
 
             <div className={styles.divider}>
