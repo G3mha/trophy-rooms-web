@@ -21,7 +21,7 @@ import {
   Gift,
   Sparkles,
 } from "lucide-react";
-import { GET_MY_BUYLIST, GET_BUYLIST_STATS } from "@/graphql/queries";
+import { GET_MY_BUYLIST, GET_BUYLIST_STATS, GET_ME } from "@/graphql/queries";
 import { REMOVE_FROM_BUYLIST } from "@/graphql/mutations";
 import {
   LoadingSpinner,
@@ -95,7 +95,7 @@ const ITEM_TYPE_COLORS: Record<string, string> = {
 };
 
 export default function BuylistPage() {
-  const { isSignedIn, isLoaded, userId } = useAuth();
+  const { isSignedIn, isLoaded } = useAuth();
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
   const [itemTypeFilter, setItemTypeFilter] = useState<ItemTypeFilter>("ALL");
   const [copiedLink, setCopiedLink] = useState(false);
@@ -119,6 +119,10 @@ export default function BuylistPage() {
   const { data: statsData } = useQuery(GET_BUYLIST_STATS, {
     skip: !isSignedIn,
   });
+
+  // The public share URL is keyed by the database user id, not the auth id
+  const { data: meData } = useQuery(GET_ME, { skip: !isSignedIn });
+  const publicUserId = meData?.me?.id;
 
   const [removeFromBuylist, { loading: removing }] = useMutation(
     REMOVE_FROM_BUYLIST,
@@ -163,12 +167,12 @@ export default function BuylistPage() {
   };
 
   const handleShare = async () => {
-    if (!userId) {
+    if (!publicUserId) {
       toast.error("Unable to build your public buylist link right now.");
       return;
     }
 
-    const shareUrl = `${window.location.origin}/users/${userId}/buylist`;
+    const shareUrl = `${window.location.origin}/users/${publicUserId}/buylist`;
     try {
       await navigator.clipboard.writeText(shareUrl);
       setCopiedLink(true);
