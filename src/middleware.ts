@@ -9,6 +9,8 @@ const PUBLIC_ROUTES = [
   /^\/sso-callback(\/.*)?$/,
   /^\/terms$/,
   /^\/privacy$/,
+  // Shared profile links (e.g. /users/<id>/buylist) must work signed-out
+  /^\/users(\/.*)?$/,
 ];
 
 function isPublicRoute(pathname: string): boolean {
