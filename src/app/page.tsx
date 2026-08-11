@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
 import { ArrowRight, Gamepad2, Search, Star, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
-import { GroupedGameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch } from "@/components";
+import { GroupedGameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch, TrophyShelf } from "@/components";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -88,12 +88,9 @@ export default function Home() {
     <div className={styles.container}>
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-          <div className={styles.eyebrow}>
-            <Trophy size={14} />
-            <span>Cross-Platform Achievement Tracking</span>
-          </div>
+          <div className={styles.eyebrow}>Your trophy room awaits</div>
           <h1 className={styles.heroTitle}>
-            Build a trophy room that actually feels like a gaming archive.
+            Every game you play. One room.
           </h1>
           <p className={styles.heroSubtitle}>
             Track achievements, surface platform variants, and turn your backlog,
@@ -289,6 +286,7 @@ export default function Home() {
           />
         )}
       </section>
+      <TrophyShelf />
     </div>
   );
 }
