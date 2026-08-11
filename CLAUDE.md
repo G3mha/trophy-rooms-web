@@ -55,3 +55,10 @@ git push origin main
 See `.claude/skills/lucide-icons.md` for usage patterns and common icons.
 
 Exception: third-party brand assets with mandated branding (e.g., the Google sign-in button's official "G" logo per Google's branding guidelines) keep their official artwork.
+
+## Visual Identity
+
+All visual/branding work follows the "trophy cabinet" design system: see
+`.claude/skills/trophy-cabinet-design/SKILL.md` (palette, fonts, motifs, rules)
+and `docs/branding/generate_cards.py` (App Store card generator + silhouette
+SVG library).
