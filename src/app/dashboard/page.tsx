@@ -113,7 +113,9 @@ export default function Dashboard() {
       ): edge is ValidUserAchievementEdge =>
         Boolean(edge?.node?.achievement?.achievementSet?.gameFamily)
     ) || [];
-  const trophies = trophiesData?.myTrophies?.edges || [];
+  const trophies = (trophiesData?.myTrophies?.edges || []).filter(
+    (edge: { node?: TrophyNode | null } | null) => Boolean(edge?.node)
+  );
   const firstName = user?.name?.split(" ")[0] || "Player";
   const latestAchievement = achievements[0]?.node;
   const latestTrophy = trophies[0]?.node;
@@ -158,9 +160,9 @@ export default function Dashboard() {
           {latestTrophy ? (
             <div className={styles.milestoneCard}>
               <span className={styles.milestoneBadge}>New Trophy</span>
-              <h2 className={styles.milestoneTitle}>{latestTrophy.node.game.title}</h2>
+              <h2 className={styles.milestoneTitle}>{latestTrophy.game.title}</h2>
               <p className={styles.milestoneText}>
-                Earned {new Date(latestTrophy.node.createdAt).toLocaleDateString()}
+                Earned {new Date(latestTrophy.createdAt).toLocaleDateString()}
               </p>
             </div>
           ) : latestAchievement ? (
