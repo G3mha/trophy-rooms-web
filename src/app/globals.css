@@ -42,6 +42,16 @@
   --border-radius-lg: 16px;
   --border-radius-xl: 24px;
 
+  /* Trophy cabinet identity (see .claude/skills/trophy-cabinet-design) */
+  --cabinet-walnut: #2b1b10;
+  --cabinet-walnut-deep: #241509;
+  --cabinet-ink: #0d0805;
+  --cabinet-bone: #efe7d2;
+  --cabinet-brass: #c9a45c;
+  --cabinet-brass-deep: #8a6a33;
+  --cabinet-crimson: #c92c3c;
+  --cabinet-shadow-red: rgba(122, 26, 34, 0.85);
+
   /* Shared page shell */
   --page-shell-max-full: 1440px;
   --page-shell-max-standard: 1280px;
