@@ -18,8 +18,8 @@
   padding: 28px;
   border-radius: 32px;
   background:
-    radial-gradient(circle at top left, rgba(230, 0, 18, 0.16), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.12), transparent 28%),
+    radial-gradient(circle at top left, rgba(201, 44, 60, 0.16), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(201, 164, 92, 0.12), transparent 28%),
     var(--bg-secondary);
 }
 
@@ -36,8 +36,8 @@
   width: fit-content;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(230, 0, 18, 0.14);
-  color: #ffb3bb;
+  background: rgba(201, 44, 60, 0.14);
+  color: #d9b98a;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -144,7 +144,7 @@
 .select:focus {
   outline: none;
   border-color: rgba(255, 159, 171, 0.36);
-  box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.12);
+  box-shadow: 0 0 0 3px rgba(201, 44, 60, 0.12);
 }
 
 .input::placeholder,

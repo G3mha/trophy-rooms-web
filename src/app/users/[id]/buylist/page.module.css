@@ -19,7 +19,7 @@
   border-radius: 32px;
   background:
     radial-gradient(circle at top left, rgba(34, 197, 94, 0.14), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.12), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(201, 164, 92, 0.12), transparent 28%),
     var(--bg-secondary);
 }
 

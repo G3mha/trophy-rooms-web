@@ -20,7 +20,7 @@
   padding: 28px;
   border-radius: 32px;
   background:
-    radial-gradient(circle at top left, rgba(230, 0, 18, 0.18), transparent 34%),
+    radial-gradient(circle at top left, rgba(201, 44, 60, 0.18), transparent 34%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 60%),
     var(--bg-secondary);
 }
@@ -76,8 +76,8 @@
   gap: 8px;
   padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(230, 0, 18, 0.16);
-  color: #ffb3bb;
+  background: rgba(201, 44, 60, 0.16);
+  color: #d9b98a;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -209,7 +209,7 @@
 
 .progressPanel {
   background:
-    radial-gradient(circle at top right, rgba(255, 205, 56, 0.12), transparent 30%),
+    radial-gradient(circle at top right, rgba(255, 208, 138, 0.12), transparent 30%),
     var(--bg-secondary);
 }
 
@@ -407,7 +407,7 @@
 }
 
 .metaBadge {
-  background: rgba(255, 205, 56, 0.14);
+  background: rgba(255, 208, 138, 0.14);
   color: #ffda75;
 }
 
@@ -472,7 +472,7 @@
 .select:focus {
   outline: none;
   border-color: rgba(255, 159, 171, 0.36);
-  box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.12);
+  box-shadow: 0 0 0 3px rgba(201, 44, 60, 0.12);
 }
 
 .textarea {
@@ -502,7 +502,7 @@
   width: 46px;
   height: 46px;
   border-radius: 14px;
-  background: rgba(255, 205, 56, 0.14);
+  background: rgba(255, 208, 138, 0.14);
   color: #ffda75;
   flex-shrink: 0;
 }
@@ -602,8 +602,8 @@
 .error {
   padding: 14px 16px;
   border-radius: 16px;
-  background: rgba(230, 0, 18, 0.08);
-  color: #ffb3bb;
+  background: rgba(201, 44, 60, 0.08);
+  color: #d9b98a;
 }
 
 .error p {

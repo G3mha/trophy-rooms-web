@@ -75,12 +75,12 @@
 }
 
 .navLinkActive {
-  background: rgba(230, 0, 18, 0.1);
+  background: rgba(201, 44, 60, 0.1);
   color: var(--nintendo-red);
 }
 
 .navLinkActive:hover {
-  background: rgba(230, 0, 18, 0.15);
+  background: rgba(201, 44, 60, 0.15);
 }
 
 .navArrow {

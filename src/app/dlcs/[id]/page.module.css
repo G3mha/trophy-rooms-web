@@ -18,7 +18,7 @@
   padding: 28px;
   border-radius: 32px;
   background:
-    radial-gradient(circle at top left, rgba(168, 85, 247, 0.18), transparent 34%),
+    radial-gradient(circle at top left, rgba(201, 44, 60, 0.18), transparent 34%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 58%),
     var(--bg-secondary);
 }
@@ -68,7 +68,7 @@
   gap: 8px;
   padding: 7px 12px;
   border-radius: 999px;
-  background: rgba(168, 85, 247, 0.16);
+  background: rgba(201, 44, 60, 0.16);
   color: #dec3ff;
   font-size: 12px;
   font-weight: 700;
@@ -88,12 +88,12 @@
 }
 
 .typeBadgeDLC {
-  background: rgba(59, 130, 246, 0.9);
+  background: rgba(201, 164, 92, 0.9);
   color: white;
 }
 
 .typeBadgeExpansion {
-  background: rgba(168, 85, 247, 0.9);
+  background: rgba(201, 44, 60, 0.9);
   color: white;
 }
 

@@ -32,7 +32,7 @@
 .input:focus {
   outline: none;
   border-color: rgba(255, 159, 171, 0.36);
-  box-shadow: 0 0 0 3px rgba(230, 0, 18, 0.12);
+  box-shadow: 0 0 0 3px rgba(201, 44, 60, 0.12);
 }
 
 .input::placeholder {
@@ -96,7 +96,7 @@
 
 .submitButton:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 14px 24px rgba(230, 0, 18, 0.22);
+  box-shadow: 0 14px 24px rgba(201, 44, 60, 0.22);
 }
 
 .submitButton:active:not(:disabled) {

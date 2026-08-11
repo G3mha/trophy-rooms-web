@@ -44,7 +44,7 @@
 }
 
 .dotGOLD {
-  background: rgba(255, 215, 0, 0.15);
+  background: rgba(201, 164, 92, 0.15);
   border-color: #ffd700;
 }
 
@@ -93,7 +93,7 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--nintendo-red);
-  background: rgba(230, 0, 18, 0.1);
+  background: rgba(201, 44, 60, 0.1);
   padding: 2px 8px;
   border-radius: 10px;
 }

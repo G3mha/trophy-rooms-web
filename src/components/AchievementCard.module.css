@@ -33,7 +33,7 @@
 
 .completed {
   border-color: var(--switch-gold);
-  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255, 215, 0, 0.1) 100%);
+  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(201, 164, 92, 0.1) 100%);
 }
 
 .icon {
@@ -84,7 +84,7 @@
 }
 
 .iconCompleted {
-  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 12px rgba(201, 164, 92, 0.5);
 }
 
 .iconImage {
@@ -219,7 +219,7 @@
 }
 
 .badgeGold {
-  background: rgba(255, 215, 0, 0.15);
+  background: rgba(201, 164, 92, 0.15);
   color: #d4a800;
 }
 
@@ -265,7 +265,7 @@
 }
 
 .rarityRare {
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(201, 164, 92, 0.15);
   color: #3b82f6;
 }
 

@@ -43,7 +43,7 @@
 }
 
 .clearButton:hover {
-  border-color: rgba(230, 0, 18, 0.32);
+  border-color: rgba(201, 44, 60, 0.32);
   color: var(--text-primary);
 }
 

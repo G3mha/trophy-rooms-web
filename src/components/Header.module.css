@@ -50,12 +50,12 @@
 
 .navLinkActive {
   color: var(--nintendo-red);
-  background: rgba(230, 0, 18, 0.1);
+  background: rgba(201, 44, 60, 0.1);
 }
 
 .navLinkActive:hover {
   color: var(--nintendo-red);
-  background: rgba(230, 0, 18, 0.15);
+  background: rgba(201, 44, 60, 0.15);
 }
 
 /* Dropdown styles */
@@ -126,12 +126,12 @@
 
 .dropdownItemActive {
   color: var(--nintendo-red);
-  background: rgba(230, 0, 18, 0.1);
+  background: rgba(201, 44, 60, 0.1);
 }
 
 .dropdownItemActive:hover {
   color: var(--nintendo-red);
-  background: rgba(230, 0, 18, 0.15);
+  background: rgba(201, 44, 60, 0.15);
 }
 
 .dropdownIcon {
@@ -244,7 +244,7 @@
   justify-content: center;
   width: 26px;
   height: 26px;
-  background: rgba(230, 0, 18, 0.15);
+  background: rgba(201, 44, 60, 0.15);
   border: 1px solid var(--nintendo-red);
   border-radius: 6px;
   color: var(--nintendo-red);

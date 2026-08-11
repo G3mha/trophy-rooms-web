@@ -7,7 +7,7 @@
   color: var(--text-secondary);
   border-radius: 28px;
   background:
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 34%),
+    radial-gradient(circle at top left, rgba(201, 164, 92, 0.08), transparent 34%),
     rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);

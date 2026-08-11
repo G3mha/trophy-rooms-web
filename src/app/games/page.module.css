@@ -9,7 +9,7 @@
   padding: 28px;
   border-radius: 28px;
   background:
-    radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 36%),
+    radial-gradient(circle at top left, rgba(201, 164, 92, 0.16), transparent 36%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 55%),
     var(--bg-secondary);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -34,7 +34,7 @@
   padding: 7px 12px;
   margin-bottom: 16px;
   border-radius: 999px;
-  background: rgba(59, 130, 246, 0.16);
+  background: rgba(201, 164, 92, 0.16);
   color: #b3d6ff;
   font-size: 12px;
   font-weight: 700;
