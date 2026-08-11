@@ -108,6 +108,11 @@
   color: var(--text-primary);
   font-size: clamp(2.2rem, 4vw, 3.6rem);
   line-height: 1;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--cabinet-bone);
+  text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
 }
 
 .subtitle {
@@ -234,6 +239,11 @@
   margin: 0;
   color: var(--text-primary);
   font-size: clamp(1.4rem, 2vw, 1.9rem);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--cabinet-bone);
+  text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
 }
 
 .countPill,

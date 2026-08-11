@@ -205,6 +205,11 @@
   margin: 0;
   color: var(--text-primary);
   font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--cabinet-bone);
+  text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
 }
 
 .sectionCopy {

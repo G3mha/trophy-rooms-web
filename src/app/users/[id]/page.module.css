@@ -40,6 +40,11 @@
   color: var(--text-primary);
   font-size: clamp(2.1rem, 4vw, 3.7rem);
   line-height: 0.96;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--cabinet-bone);
+  text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
 }
 
 .heroSubtitle {
