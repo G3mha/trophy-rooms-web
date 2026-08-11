@@ -1,0 +1,26 @@
+.band {
+  margin-top: var(--page-block-gap-lg);
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(201, 164, 92, 0.18);
+}
+
+.ledge {
+  height: 14px;
+  background: linear-gradient(180deg, #e8d5ac 0%, #b08d54 30%, #5c3f22 70%, var(--cabinet-walnut-deep) 100%);
+}
+
+.compartment {
+  position: relative;
+  height: 190px;
+  background:
+    radial-gradient(ellipse 80% 120% at 50% 100%, rgba(255, 196, 116, 0.34), rgba(255, 190, 110, 0.08) 60%, transparent 85%),
+    repeating-linear-gradient(90deg, transparent 0 216px, rgba(0, 0, 0, 0.3) 216px 221px),
+    linear-gradient(90deg, var(--cabinet-walnut-deep) 0%, #33200f 30%, #2a1a0c 60%, var(--cabinet-walnut-deep) 100%);
+}
+
+.silhouette {
+  position: absolute;
+  bottom: 0;
+  fill: var(--cabinet-ink);
+}
