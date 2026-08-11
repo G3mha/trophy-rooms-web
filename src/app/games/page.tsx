@@ -80,8 +80,9 @@ export default function GamesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [platformId, setPlatformId] = useState("");
   const [hasAchievements, setHasAchievements] = useState<"all" | "with" | "without">("all");
+  // Curated games first - alphabetical puts ASCII-symbol titles on top
   const [orderBy, setOrderBy] = useState(
-    "TITLE_ASC"
+    "ACHIEVEMENT_COUNT_DESC"
   );
 
   const { data: meData } = useQuery(GET_ME, {

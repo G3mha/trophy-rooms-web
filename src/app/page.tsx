@@ -62,7 +62,7 @@ export default function Home() {
     skip: !isSignedIn,
   });
   const { data, loading, error } = useQuery(GET_GAMES, {
-    variables: { first: 40 },
+    variables: { first: 40, orderBy: "ACHIEVEMENT_COUNT_DESC" },
   });
 
   const isAdmin =
