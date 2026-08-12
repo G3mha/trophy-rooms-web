@@ -17,6 +17,9 @@ export function Footer() {
           <Link href="/terms" className={styles.link}>
             Terms of Service
           </Link>
+          <Link href="/age-rating" className={styles.link}>
+            Age Suitability
+          </Link>
         </nav>
       </div>
     </footer>
