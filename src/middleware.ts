@@ -9,6 +9,7 @@ const PUBLIC_ROUTES = [
   /^\/sso-callback(\/.*)?$/,
   /^\/terms$/,
   /^\/privacy$/,
+  /^\/age-rating$/,
   // Shared profile links (e.g. /users/<id>/buylist) must work signed-out
   /^\/users(\/.*)?$/,
 ];
