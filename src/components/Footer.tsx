@@ -20,6 +20,9 @@ export function Footer() {
           <Link href="/age-rating" className={styles.link}>
             Age Suitability
           </Link>
+          <Link href="/accessibility" className={styles.link}>
+            Accessibility
+          </Link>
         </nav>
       </div>
     </footer>
