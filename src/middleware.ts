@@ -10,6 +10,7 @@ const PUBLIC_ROUTES = [
   /^\/terms$/,
   /^\/privacy$/,
   /^\/age-rating$/,
+  /^\/accessibility$/,
   // Shared profile links (e.g. /users/<id>/buylist) must work signed-out
   /^\/users(\/.*)?$/,
 ];
