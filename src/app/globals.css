@@ -21,8 +21,8 @@
   /* Accent Colors */
   --switch-blue: #C9A45C;
   --switch-neon-blue: #E8C87C;
-  --switch-neon-red: #FF3C28;
-  --switch-neon-green: #1EDC00;
+  --switch-neon-red: #C92C3C;
+  --switch-neon-green: #80B37E;
   --switch-gold: #C9A45C;
 
   /* Background */
@@ -50,7 +50,33 @@
   --cabinet-brass: #c9a45c;
   --cabinet-brass-deep: #8a6a33;
   --cabinet-crimson: #c92c3c;
+  --cabinet-brass-light: #d9b98a;
   --cabinet-shadow-red: rgba(122, 26, 34, 0.85);
+
+  /* Semantic tints - the single source for every categorical colour.
+     Mirrors Cabinet.Tint in the iOS app exactly, so a status is the same
+     colour on both platforms. Each keeps its hue identity (blue still reads
+     as blue) but is desaturated and warmed so it sits inside the cabinet
+     instead of glowing neon against the walnut. Never add a new hue here -
+     use the nearest existing tint. */
+  --tint-neutral: #c9a45c;  /* brass - default, editions */
+  --tint-info: #769dba;     /* muted steel - games, base content, backlog */
+  --tint-violet: #a383b3;   /* muted plum - DLC, completed */
+  --tint-amber: #d9a25a;    /* warm amber - bundles, prices */
+  --tint-positive: #80b37e; /* muted sage - playing, owned, complete */
+  --tint-alert: #c92c3c;    /* crimson - high priority, poor condition */
+  --tint-warm: #da854a;     /* burnt orange - paused, in progress */
+  --tint-muted: #8b7e6d;    /* warm gray - dropped, inactive, unknown */
+
+  /* Text-safe variants. Crimson (2.94:1) and warm gray (3.99:1) are legible
+     as fills and borders but fall under the 4.5:1 that small text needs on
+     --bg-card. Use these for `color:` only; fills keep the base tint. */
+  --tint-alert-text: #d76470;
+  --tint-muted-text: #938777;
+
+  /* Deeper ends of the ramp, for gradients that need two stops of one hue */
+  --tint-positive-deep: #5c8a5a;
+  --tint-muted-deep: #6b6153;
 
   /* Shared page shell */
   --page-shell-max-full: 1440px;
@@ -80,7 +106,7 @@
   --muted-foreground: #B3A48D;
   --accent: #3A2E1F;
   --accent-foreground: #F4EDE0;
-  --destructive: #FF3C28;
+  --destructive: #C92C3C;
   --border: #3A2E1F;
   --input: #3A2E1F;
   --ring: #C92C3C;
