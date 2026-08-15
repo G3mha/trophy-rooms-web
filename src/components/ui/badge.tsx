@@ -18,7 +18,7 @@ const badgeVariants = cva(
         // Trophy tiers
         gold: "bg-[var(--switch-gold)] text-[var(--switch-darkest)]",
         silver: "bg-[#C0C0C0] text-[var(--switch-darkest)]",
-        bronze: "bg-[#CD7F32] text-white",
+        bronze: "bg-[#CD7F32] text-[var(--switch-darkest)]",
         // Status variants
         success: "bg-[var(--tint-positive)] text-[var(--switch-darkest)]",
         destructive: "bg-[var(--tint-alert)] text-white",

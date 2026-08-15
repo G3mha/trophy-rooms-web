@@ -210,7 +210,9 @@
 
 .badgeBronze {
   background: rgba(205, 127, 50, 0.15);
-  color: #cd7f32;
+  /* Lifted from #cd7f32, which reads 4.03:1 on its own tint - just under AA.
+     Silver, gold and platinum already clear it and are left alone. */
+  color: #d28b44;
 }
 
 .badgeSilver {
