@@ -9,7 +9,7 @@
   padding: 30px;
   border-radius: 30px;
   background:
-    radial-gradient(circle at top left, rgba(245, 158, 11, 0.14), transparent 34%),
+    radial-gradient(circle at top left, rgba(217, 162, 90, 0.14), transparent 34%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%),
     var(--bg-secondary);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -27,7 +27,7 @@
   padding: 7px 12px;
   margin-bottom: 16px;
   border-radius: 999px;
-  background: rgba(245, 158, 11, 0.16);
+  background: rgba(217, 162, 90, 0.16);
   color: #ffd38f;
   font-size: 12px;
   font-weight: 700;
@@ -116,7 +116,7 @@
 }
 
 .typeFilterActive {
-  background: rgba(245, 158, 11, 0.16);
+  background: rgba(217, 162, 90, 0.16);
   border-color: rgba(255, 211, 143, 0.34);
   color: #ffd38f;
 }

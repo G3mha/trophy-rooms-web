@@ -172,7 +172,7 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--accent-color, #a855f7);
+  border-color: var(--accent-color, var(--tint-violet));
 }
 
 .input:disabled {
@@ -200,7 +200,7 @@
 
 .textarea:focus {
   outline: none;
-  border-color: var(--accent-color, #a855f7);
+  border-color: var(--accent-color, var(--tint-violet));
 }
 
 .textarea:disabled {
@@ -216,7 +216,7 @@
   gap: 8px;
   width: 100%;
   padding: 12px 14px;
-  background: #a855f7;
+  background: var(--tint-violet);
   border: none;
   cursor: pointer;
   font-size: 14px;
@@ -226,7 +226,7 @@
 }
 
 .addButton:hover:not(:disabled) {
-  background: #9333ea;
+  background: var(--tint-violet);
 }
 
 .addButton:disabled {
@@ -240,7 +240,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 14px;
-  color: #a855f7;
+  color: var(--tint-violet);
   font-size: 14px;
   font-weight: 500;
 }
@@ -287,8 +287,8 @@
 }
 
 .removeOption:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: rgba(201, 44, 60, 0.1);
+  color: var(--tint-alert-text);
 }
 
 /* Divider */

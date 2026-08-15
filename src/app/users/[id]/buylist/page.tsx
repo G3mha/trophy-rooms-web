@@ -39,15 +39,15 @@ interface BuylistItem {
 type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
 
 const PRIORITY_COLORS: Record<string, string> = {
-  HIGH: "#ef4444",
-  MEDIUM: "#f97316",
-  LOW: "#22c55e",
+  HIGH: "var(--tint-alert)",
+  MEDIUM: "var(--tint-warm)",
+  LOW: "var(--tint-positive)",
 };
 
 const ITEM_TYPE_COLORS: Record<string, string> = {
-  GAME: "#3b82f6",
-  DLC: "#8b5cf6",
-  BUNDLE: "#ec4899",
+  GAME: "var(--tint-info)",
+  DLC: "var(--tint-violet)",
+  BUNDLE: "var(--tint-violet)",
 };
 
 export default function PublicBuylistPage({

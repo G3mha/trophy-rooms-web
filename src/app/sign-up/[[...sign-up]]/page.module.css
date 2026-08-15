@@ -104,7 +104,7 @@
   margin-bottom: 16px;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.04);
-  color: #dec3ff;
+  color: var(--tint-violet);
 }
 
 .title {
@@ -160,7 +160,7 @@
 
 .link,
 .resendButton {
-  color: #dec3ff;
+  color: var(--tint-violet);
   text-decoration: none;
   font-weight: 600;
 }

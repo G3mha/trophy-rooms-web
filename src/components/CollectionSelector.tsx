@@ -194,7 +194,7 @@ export function CollectionSelector({
         disabled={loading}
         style={
           isInCollection
-            ? ({ "--status-color": "#10b981" } as React.CSSProperties)
+            ? ({ "--status-color": "var(--tint-positive)" } as React.CSSProperties)
             : undefined
         }
       >

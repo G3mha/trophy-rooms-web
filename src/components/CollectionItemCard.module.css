@@ -47,7 +47,7 @@
   position: absolute;
   top: 8px;
   left: 8px;
-  background: var(--region-color, #3b82f6);
+  background: var(--region-color, var(--tint-info));
   color: white;
   padding: 3px 8px;
   border-radius: 4px;
@@ -186,6 +186,6 @@
 }
 
 .removeButton:hover {
-  background: rgba(239, 68, 68, 0.2);
-  color: #ef4444;
+  background: rgba(201, 44, 60, 0.2);
+  color: var(--tint-alert-text);
 }

@@ -22,7 +22,7 @@
   margin-bottom: 18px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.05);
-  color: #b3d6ff;
+  color: var(--tint-info);
   opacity: 1;
 }
 

@@ -16,10 +16,10 @@ const REGION_LABELS: Record<GameRegion, string> = {
 };
 
 const REGION_COLORS: Record<GameRegion, string> = {
-  NTSC_U: "#3b82f6",
-  PAL: "#22c55e",
-  NTSC_J: "#ef4444",
-  OTHER: "#6b7280",
+  NTSC_U: "var(--tint-info)",
+  PAL: "var(--tint-positive)",
+  NTSC_J: "var(--tint-alert)",
+  OTHER: "var(--tint-muted)",
 };
 
 interface Platform {

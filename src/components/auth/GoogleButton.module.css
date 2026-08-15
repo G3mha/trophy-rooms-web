@@ -1,5 +1,5 @@
 /* Google dark-theme button spec (developers.google.com/identity/branding-guidelines):
-   fill #131314, 1px #8E918F stroke, #E3E3E3 text at Roboto Medium 14px,
+   fill #131314, 1px var(--tint-muted) stroke, #E3E3E3 text at Roboto Medium 14px,
    40px height, 20px logo, 12px side padding, 10px logo-to-text gap. */
 .button {
   display: flex;
@@ -14,7 +14,7 @@
   letter-spacing: 0.25px;
   color: #e3e3e3;
   background: #131314;
-  border: 1px solid #8e918f;
+  border: 1px solid var(--tint-muted);
   border-radius: var(--border-radius);
   cursor: pointer;
   transition:

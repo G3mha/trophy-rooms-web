@@ -30,9 +30,9 @@ interface PriorityConfig {
 }
 
 const PRIORITY_CONFIG: Record<BuylistPriority, PriorityConfig> = {
-  HIGH: { label: "High", icon: ArrowUp, color: "#ef4444" },
-  MEDIUM: { label: "Medium", icon: ArrowRight, color: "#f97316" },
-  LOW: { label: "Low", icon: ArrowDown, color: "#22c55e" },
+  HIGH: { label: "High", icon: ArrowUp, color: "var(--tint-alert)" },
+  MEDIUM: { label: "Medium", icon: ArrowRight, color: "var(--tint-warm)" },
+  LOW: { label: "Low", icon: ArrowDown, color: "var(--tint-positive)" },
 };
 
 interface BuylistSelectorProps {
@@ -198,7 +198,7 @@ export function BuylistSelector({
         disabled={loading}
         style={
           isInBuylist
-            ? ({ "--status-color": "#a855f7" } as React.CSSProperties)
+            ? ({ "--status-color": "var(--tint-violet)" } as React.CSSProperties)
             : undefined
         }
       >

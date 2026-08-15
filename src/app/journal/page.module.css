@@ -92,8 +92,8 @@
 
 .chipActive {
   color: #fff;
-  background: var(--nintendo-red, #dc143c);
-  border-color: var(--nintendo-red, #dc143c);
+  background: var(--nintendo-red, var(--tint-alert));
+  border-color: var(--nintendo-red, var(--tint-alert));
   font-weight: 600;
 }
 
@@ -181,7 +181,7 @@
 .sessionMinutes {
   font-size: 14px;
   font-weight: 700;
-  color: var(--nintendo-red, #dc143c);
+  color: var(--nintendo-red, var(--tint-alert));
   flex-shrink: 0;
 }
 

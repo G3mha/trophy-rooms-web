@@ -21,7 +21,7 @@
   margin-bottom: 18px;
   border-radius: 24px;
   background: rgba(201, 44, 60, 0.1);
-  color: #d9b98a;
+  color: var(--cabinet-brass-light);
 }
 
 .title {

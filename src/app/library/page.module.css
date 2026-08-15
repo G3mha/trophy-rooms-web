@@ -257,9 +257,9 @@
   width: 48px;
   height: 48px;
   margin-bottom: 8px;
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(201, 44, 60, 0.1);
   border-radius: 50%;
-  color: #ef4444;
+  color: var(--tint-alert-text);
 }
 
 @media (max-width: 960px) {

@@ -78,7 +78,7 @@
   padding: 8px 12px;
   border-radius: 999px;
   background: rgba(201, 44, 60, 0.14);
-  color: #d9b98a;
+  color: var(--cabinet-brass-light);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;

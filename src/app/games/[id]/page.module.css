@@ -77,7 +77,7 @@
   padding: 7px 12px;
   border-radius: 999px;
   background: rgba(201, 44, 60, 0.16);
-  color: #d9b98a;
+  color: var(--cabinet-brass-light);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -613,7 +613,7 @@
   padding: 14px 16px;
   border-radius: 16px;
   background: rgba(201, 44, 60, 0.08);
-  color: #d9b98a;
+  color: var(--cabinet-brass-light);
 }
 
 .error p {

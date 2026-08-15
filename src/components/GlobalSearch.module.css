@@ -169,17 +169,17 @@
 
 .typeGAME {
   background: rgba(201, 164, 92, 0.2);
-  color: #3b82f6;
+  color: var(--tint-info);
 }
 
 .typeBUNDLE {
   background: rgba(201, 44, 60, 0.2);
-  color: #a855f7;
+  color: var(--tint-violet);
 }
 
 .typeDLC {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  background: rgba(128, 179, 126, 0.2);
+  color: var(--tint-positive);
 }
 
 /* Footer */

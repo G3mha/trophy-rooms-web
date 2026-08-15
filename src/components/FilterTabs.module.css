@@ -32,8 +32,8 @@
 }
 
 .tabActive:hover {
-  background: var(--nintendo-red-dark, #cc0000);
-  border-color: var(--nintendo-red-dark, #cc0000);
+  background: var(--nintendo-red-dark, #a32330);
+  border-color: var(--nintendo-red-dark, #a32330);
   color: white;
 }
 

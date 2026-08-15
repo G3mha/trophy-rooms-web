@@ -186,7 +186,7 @@
 
 .platformSelect:focus {
   outline: none;
-  border-color: var(--accent-color, #3b82f6);
+  border-color: var(--accent-color, var(--tint-info));
 }
 
 .platformSelect:disabled {
@@ -200,8 +200,8 @@
 }
 
 .removeOption:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  background: rgba(201, 44, 60, 0.1);
+  color: var(--tint-alert-text);
 }
 
 /* Compact variant */

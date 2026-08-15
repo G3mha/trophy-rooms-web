@@ -177,7 +177,7 @@ export default function JournalPage() {
       {stats && (
         <div className={styles.statsRow}>
           <div className={styles.statTile}>
-            <Flame size={16} color="#f5a623" />
+            <Flame size={16} color="var(--tint-amber)" />
             <span className={styles.statValue}>
               {stats.currentStreakDays} {stats.currentStreakDays === 1 ? "day" : "days"}
             </span>

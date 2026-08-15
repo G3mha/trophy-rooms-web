@@ -246,7 +246,7 @@
   margin-bottom: 16px;
   border-radius: 18px;
   background: rgba(201, 44, 60, 0.1);
-  color: #d9b98a;
+  color: var(--cabinet-brass-light);
 }
 
 .featureTitle {
