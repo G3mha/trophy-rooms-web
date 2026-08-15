@@ -75,11 +75,11 @@ const STATUS_TABS: FilterTab<FilterStatus>[] = [
 ];
 
 const STATUS_COLORS: Record<GameStatus, string> = {
-  BACKLOG: "#f97316",
-  PLAYING: "#22c55e",
-  PAUSED: "#a855f7",
-  COMPLETED: "#eab308",
-  DROPPED: "#6b7280",
+  BACKLOG: "var(--tint-info)",
+  PLAYING: "var(--tint-positive)",
+  PAUSED: "var(--tint-warm)",
+  COMPLETED: "var(--tint-violet)",
+  DROPPED: "var(--tint-muted)",
 };
 
 export default function LibraryPage() {

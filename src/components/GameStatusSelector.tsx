@@ -36,11 +36,11 @@ interface StatusConfig {
 }
 
 const STATUS_CONFIG: Record<GameStatus, StatusConfig> = {
-  BACKLOG: { label: "Backlog", icon: BookMarked, color: "#f97316" },
-  PLAYING: { label: "Playing", icon: Gamepad2, color: "#22c55e" },
-  PAUSED: { label: "Paused", icon: Pause, color: "#a855f7" },
-  COMPLETED: { label: "Completed", icon: Trophy, color: "#eab308" },
-  DROPPED: { label: "Dropped", icon: XCircle, color: "#6b7280" },
+  BACKLOG: { label: "Backlog", icon: BookMarked, color: "var(--tint-info)" },
+  PLAYING: { label: "Playing", icon: Gamepad2, color: "var(--tint-positive)" },
+  PAUSED: { label: "Paused", icon: Pause, color: "var(--tint-warm)" },
+  COMPLETED: { label: "Completed", icon: Trophy, color: "var(--tint-violet)" },
+  DROPPED: { label: "Dropped", icon: XCircle, color: "var(--tint-muted)" },
 };
 
 interface Platform {
