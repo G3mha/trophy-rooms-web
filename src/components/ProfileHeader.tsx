@@ -42,14 +42,17 @@ function getAvatarColor(name: string | null | undefined, email: string): string 
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
+  // Cabinet tints only. Crimson is deliberately absent: every colour here
+  // carries dark ink initials, and crimson is the one tint that needs light
+  // text instead.
   const colors = [
-    "#e60012", // Nintendo red
-    "#00a651", // Green
-    "#0066b3", // Blue
-    "#f5a623", // Orange
-    "#9b59b6", // Purple
-    "#e91e63", // Pink
-    "#00bcd4", // Cyan
+    "#c9a45c", // brass
+    "#769dba", // steel
+    "#a383b3", // plum
+    "#d9a25a", // amber
+    "#80b37e", // sage
+    "#da854a", // burnt orange
+    "#8b7e6d", // warm gray
   ];
   return colors[Math.abs(hash) % colors.length];
 }

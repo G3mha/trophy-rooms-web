@@ -29,8 +29,10 @@
 .initials {
   font-size: 36px;
   font-weight: 700;
-  color: white;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  /* Dark ink, not white: the avatar tints are light enough that white
+     initials land at 2.4:1, under the 3:1 large text needs. */
+  color: var(--cabinet-ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .badge {
