@@ -12,7 +12,7 @@ export default function Accessibility() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Accessibility</h1>
-        <p className={styles.lastUpdated}>Last Updated: August 12, 2026</p>
+        <p className={styles.lastUpdated}>Last Updated: August 20, 2026</p>
       </header>
 
       <div className={styles.content}>
@@ -67,16 +67,24 @@ export default function Accessibility() {
             ownership are never signalled by colour on its own. Each carries a distinct
             icon and a text label as well.
           </p>
+
+          <p className={styles.paragraph}>
+            <strong>Larger Text.</strong> Text scales with the Dynamic Type setting,
+            including the small labels on game covers, and layouts are built to hold at
+            the largest accessibility sizes. Rows of tags wrap onto another line rather
+            than running off the edge, and tags are never abbreviated part-way — a
+            half-read label is worse than a wrapped one.
+          </p>
         </section>
 
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Known Gaps</h2>
           <p className={styles.paragraph}>
-            <strong>Larger Text.</strong> Text throughout the app scales with the
-            Dynamic Type setting, including the small labels on game covers. We are
-            still verifying that every layout holds at the largest accessibility sizes,
-            so we are not yet claiming full support. If a screen breaks or clips at your
-            text size, please tell us — it helps us prioritise.
+            <strong>Labels on cover art.</strong> The small badges drawn over a game&apos;s
+            cover — status, region, condition — scale with your text size but stop at a
+            ceiling, because the artwork underneath is a fixed size and they would
+            otherwise cover it. Everything they show is also on the game&apos;s own screen
+            at full size, and VoiceOver reads all of it aloud.
           </p>
           <p className={styles.paragraph}>
             <strong>Captions and Audio Descriptions.</strong> Not applicable. Trophy
