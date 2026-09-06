@@ -171,7 +171,6 @@ export const GET_GAME = gql`
         user {
           id
           name
-          email
         }
       }
     }
@@ -313,7 +312,6 @@ export const GET_USER = gql`
     user(id: $id) {
       id
       name
-      email
       achievementCount
       trophyCount
       gamesWithAchievementsCount
@@ -416,7 +414,6 @@ export const GET_LEADERBOARD_BY_TROPHIES = gql`
       rank
       userId
       userName
-      userEmail
       value
       secondaryValue
     }
@@ -429,7 +426,6 @@ export const GET_LEADERBOARD_BY_ACHIEVEMENTS = gql`
       rank
       userId
       userName
-      userEmail
       value
       secondaryValue
     }
@@ -442,7 +438,6 @@ export const GET_LEADERBOARD_BY_POINTS = gql`
       rank
       userId
       userName
-      userEmail
       value
       secondaryValue
     }
@@ -455,7 +450,6 @@ export const GET_LEADERBOARD_BY_GAMES = gql`
       rank
       userId
       userName
-      userEmail
       value
       secondaryValue
     }
@@ -468,7 +462,6 @@ export const GET_FASTEST_COMPLETIONS = gql`
       rank
       userId
       userName
-      userEmail
       gameId
       gameTitle
       completionTimeHours
@@ -485,7 +478,6 @@ export const GET_ACTIVITY_FEED = gql`
       type
       userId
       userName
-      userEmail
       achievementId
       achievementTitle
       achievementTier
@@ -503,7 +495,6 @@ export const GET_RECENT_ACHIEVEMENT_ACTIVITY = gql`
       id
       userId
       userName
-      userEmail
       achievementId
       achievementTitle
       achievementTier
@@ -521,7 +512,6 @@ export const GET_RECENT_TROPHY_ACTIVITY = gql`
       id
       userId
       userName
-      userEmail
       gameFamilyId
       gameTitle
       earnedAt
