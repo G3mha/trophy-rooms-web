@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { Medal } from "lucide-react";
-import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
+import { getInitials, getAvatarColor, getDisplayName } from "@/lib/avatar-utils";
 import styles from "./LeaderboardEntry.module.css";
 
 interface LeaderboardEntryProps {
   rank: number;
   userId: string;
   userName: string | null;
-  userEmail: string;
   value: number;
   valueLabel: string;
   secondaryValue?: number;
@@ -34,16 +33,15 @@ export function LeaderboardEntry({
   rank,
   userId,
   userName,
-  userEmail,
   value,
   valueLabel,
   secondaryValue,
   secondaryLabel,
   highlight = false,
 }: LeaderboardEntryProps) {
-  const initials = getInitials(userName, userEmail);
-  const avatarColor = getAvatarColor(userName, userEmail);
-  const displayName = userName || userEmail.split("@")[0];
+  const initials = getInitials(userName, userId);
+  const avatarColor = getAvatarColor(userName, userId);
+  const displayName = getDisplayName(userName, userId);
   const rankInfo = getRankDisplay(rank);
 
   return (
@@ -87,7 +85,6 @@ interface FastestCompletionEntryProps {
   rank: number;
   userId: string;
   userName: string | null;
-  userEmail: string;
   gameId: string;
   gameTitle: string;
   completionTimeHours: number;
@@ -114,16 +111,15 @@ export function FastestCompletionEntry({
   rank,
   userId,
   userName,
-  userEmail,
   gameId,
   gameTitle,
   completionTimeHours,
   completedAt,
   highlight = false,
 }: FastestCompletionEntryProps) {
-  const initials = getInitials(userName, userEmail);
-  const avatarColor = getAvatarColor(userName, userEmail);
-  const displayName = userName || userEmail.split("@")[0];
+  const initials = getInitials(userName, userId);
+  const avatarColor = getAvatarColor(userName, userId);
+  const displayName = getDisplayName(userName, userId);
   const rankInfo = getRankDisplay(rank);
 
   return (

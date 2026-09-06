@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Trophy, Medal } from "lucide-react";
-import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
+import { getInitials, getAvatarColor, getDisplayName } from "@/lib/avatar-utils";
 import styles from "./ActivityFeedEntry.module.css";
 
 type AchievementTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
@@ -13,7 +13,6 @@ interface ActivityFeedEntryProps {
   type: ActivityType;
   userId: string;
   userName: string | null;
-  userEmail: string;
   achievementId?: string;
   achievementTitle?: string;
   achievementTier?: AchievementTier;
@@ -59,7 +58,6 @@ export function ActivityFeedEntry({
   type,
   userId,
   userName,
-  userEmail,
   achievementTitle,
   achievementTier,
   achievementPoints,
@@ -68,9 +66,9 @@ export function ActivityFeedEntry({
   earnedAt,
   highlight = false,
 }: ActivityFeedEntryProps) {
-  const initials = getInitials(userName, userEmail);
-  const avatarColor = getAvatarColor(userName, userEmail);
-  const displayName = userName || userEmail.split("@")[0];
+  const initials = getInitials(userName, userId);
+  const avatarColor = getAvatarColor(userName, userId);
+  const displayName = getDisplayName(userName, userId);
 
   return (
     <div className={`${styles.entry} ${highlight ? styles.highlight : ""}`}>

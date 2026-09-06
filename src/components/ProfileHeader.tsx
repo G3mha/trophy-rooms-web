@@ -1,6 +1,7 @@
 "use client";
 
 import { Trophy, Share2, Medal } from "lucide-react";
+import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./ProfileHeader.module.css";
 
 interface UserStats {
@@ -15,7 +16,7 @@ interface UserStats {
 
 interface ProfileHeaderProps {
   name: string | null | undefined;
-  email: string;
+  userId: string;
   memberSince: string;
   achievementCount: number;
   trophyCount: number;
@@ -25,7 +26,7 @@ interface ProfileHeaderProps {
   onShare?: () => void;
 }
 
-function getInitials(name: string | null | undefined, email: string): string {
+function getInitials(name: string | null | undefined, userId: string): string {
   if (name) {
     const parts = name.trim().split(" ");
     if (parts.length >= 2) {
@@ -33,11 +34,11 @@ function getInitials(name: string | null | undefined, email: string): string {
     }
     return name.slice(0, 2).toUpperCase();
   }
-  return email.slice(0, 2).toUpperCase();
+  return userId.slice(-2).toUpperCase();
 }
 
-function getAvatarColor(name: string | null | undefined, email: string): string {
-  const str = name || email;
+function getAvatarColor(name: string | null | undefined, userId: string): string {
+  const str = name || userId;
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -59,7 +60,7 @@ function getAvatarColor(name: string | null | undefined, email: string): string 
 
 export function ProfileHeader({
   name,
-  email,
+  userId,
   memberSince,
   achievementCount,
   trophyCount,
@@ -68,9 +69,9 @@ export function ProfileHeader({
   isOwnProfile = false,
   onShare,
 }: ProfileHeaderProps) {
-  const initials = getInitials(name, email);
-  const avatarColor = getAvatarColor(name, email);
-  const displayName = name || email.split("@")[0];
+  const initials = getInitials(name, userId);
+  const avatarColor = getAvatarColor(name, userId);
+  const displayName = getDisplayName(name, userId);
 
   const memberDate = new Date(memberSince);
   const formattedDate = memberDate.toLocaleDateString("en-US", {
