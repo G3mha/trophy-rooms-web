@@ -26,6 +26,7 @@ import {
   LeaderboardEntry,
   FastestCompletionEntry,
 } from "@/components";
+import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./page.module.css";
 
 type LeaderboardTab =
@@ -39,7 +40,6 @@ interface LeaderboardEntryData {
   rank: number;
   userId: string;
   userName: string | null;
-  userEmail: string;
   value: number;
   secondaryValue?: number;
 }
@@ -48,7 +48,6 @@ interface FastestCompletionData {
   rank: number;
   userId: string;
   userName: string | null;
-  userEmail: string;
   gameId: string;
   gameTitle: string;
   completionTimeHours: number;
@@ -222,7 +221,7 @@ export default function LeaderboardsPage() {
                 >
                   <span className={styles.heroPodiumRank}>#{index + 1}</span>
                   <span className={styles.heroPodiumName}>
-                    {entry.userName || entry.userEmail.split("@")[0]}
+                    {getDisplayName(entry.userName, entry.userId)}
                   </span>
                 </div>
               ))}
@@ -266,7 +265,7 @@ export default function LeaderboardsPage() {
                   <span className={styles.podiumRank}>#{index + 1}</span>
                 </div>
                 <h3 className={styles.podiumName}>
-                  {entry.userName || entry.userEmail.split("@")[0]}
+                  {getDisplayName(entry.userName, entry.userId)}
                 </h3>
                 {"value" in entry && (
                   <p className={styles.podiumValue}>
@@ -305,7 +304,6 @@ export default function LeaderboardsPage() {
                 rank={entry.rank}
                 userId={entry.userId}
                 userName={entry.userName}
-                userEmail={entry.userEmail}
                 gameId={entry.gameId}
                 gameTitle={entry.gameTitle}
                 completionTimeHours={entry.completionTimeHours}
@@ -322,7 +320,6 @@ export default function LeaderboardsPage() {
                 rank={entry.rank}
                 userId={entry.userId}
                 userName={entry.userName}
-                userEmail={entry.userEmail}
                 value={entry.value}
                 valueLabel={VALUE_LABELS[activeTab]}
                 secondaryValue={entry.secondaryValue}

@@ -26,6 +26,7 @@ import {
   CatalogHero,
   SummaryStats,
 } from "@/components";
+import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./page.module.css";
 
 interface GameProgressData {
@@ -83,7 +84,7 @@ export default function PublicProfilePage({
           gameProgress.length
       )
     : 0;
-  const displayName = user?.name || user?.email?.split("@")[0] || "Player";
+  const displayName = getDisplayName(user?.name, id);
 
   if (loading) {
     return (
@@ -144,7 +145,7 @@ export default function PublicProfilePage({
 
       <ProfileHeader
         name={user.name}
-        email={user.email}
+        userId={id}
         memberSince={user.createdAt || new Date().toISOString()}
         achievementCount={user.achievementCount || 0}
         trophyCount={trophyCount}

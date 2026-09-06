@@ -138,7 +138,7 @@ export default function TrophyRoom() {
 
       <ProfileHeader
         name={user?.name}
-        email={user?.email || ""}
+        userId={user?.id || ""}
         memberSince={user?.createdAt || new Date().toISOString()}
         achievementCount={user?.achievementCount || 0}
         trophyCount={trophyCount}

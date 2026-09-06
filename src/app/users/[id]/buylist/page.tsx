@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { GET_USER_BUYLIST, GET_USER } from "@/graphql/queries";
 import { LoadingSpinner, EmptyState, AppImage, Button } from "@/components";
+import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./page.module.css";
 
 interface BuylistItem {
@@ -169,7 +170,7 @@ export default function PublicBuylistPage({
             <span>Shared Buylist</span>
           </div>
           <h1 className={styles.title}>
-            {user.name || user.email}&apos;s Buylist
+            {getDisplayName(user.name, id)}&apos;s Buylist
           </h1>
           <p className={styles.subtitle}>
             Games, DLCs, and bundles they want to pick up or receive as gifts.

@@ -27,7 +27,6 @@ interface ActivityEntry {
   type: "achievement" | "trophy";
   userId: string;
   userName: string | null;
-  userEmail: string;
   achievementId?: string;
   achievementTitle?: string;
   achievementTier?: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
@@ -41,7 +40,6 @@ interface TrophyEntry {
   id: string;
   userId: string;
   userName: string | null;
-  userEmail: string;
   gameId: string;
   gameTitle: string;
   earnedAt: string;
@@ -78,7 +76,6 @@ export default function ActivityPage() {
       type: "trophy" as const,
       userId: t.userId,
       userName: t.userName,
-      userEmail: t.userEmail,
       gameId: t.gameId,
       gameTitle: t.gameTitle,
       earnedAt: t.earnedAt,
@@ -163,7 +160,6 @@ export default function ActivityPage() {
                 type={entry.type}
                 userId={entry.userId}
                 userName={entry.userName}
-                userEmail={entry.userEmail}
                 achievementId={entry.achievementId}
                 achievementTitle={entry.achievementTitle}
                 achievementTier={entry.achievementTier}

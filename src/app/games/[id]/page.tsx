@@ -16,6 +16,7 @@ import {
 } from "@/graphql/mutations";
 import { AchievementCard, AppImage, Button, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, QueryState } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
+import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./page.module.css";
 
 interface Achievement {
@@ -60,7 +61,6 @@ interface Trophy {
   user: {
     id: string;
     name?: string | null;
-    email: string;
   };
 }
 
@@ -808,7 +808,7 @@ export default function GameDetailPage({
                 </div>
                 <div className={styles.trophyInfo}>
                   <span className={styles.trophyName}>
-                    {trophy.user.name || trophy.user.email}
+                    {getDisplayName(trophy.user.name, trophy.user.id)}
                   </span>
                   <span className={styles.trophyDate}>
                     Earned on {new Date(trophy.createdAt).toLocaleDateString()}
