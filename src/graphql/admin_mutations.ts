@@ -155,6 +155,23 @@ export const DELETE_ACHIEVEMENT_SET = gql`
   }
 `;
 
+export const SET_ACHIEVEMENT_SET_TYPE = gql`
+  mutation SetAchievementSetType($id: ID!, $type: AchievementSetType!) {
+    setAchievementSetType(id: $id, type: $type) {
+      success
+      achievementSet {
+        ...AchievementSetFields
+      }
+      error {
+        code
+        message
+        field
+      }
+    }
+  }
+  ${ACHIEVEMENT_SET_FRAGMENT}
+`;
+
 export const CREATE_ACHIEVEMENT = gql`
   mutation CreateAchievement($input: CreateAchievementInput!) {
     createAchievement(input: $input) {
