@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
 import { ArrowRight, Gamepad2, Search, Star, Trophy } from "lucide-react";
-import { GET_GAMES, GET_ME } from "@/graphql/queries";
+import { GET_GAMES, GET_GAME_FAMILY_COUNT, GET_ME } from "@/graphql/queries";
 import { GroupedGameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch, TrophyShelf } from "@/components";
 import styles from "./page.module.css";
 
@@ -64,6 +64,7 @@ export default function Home() {
   const { data, loading, error } = useQuery(GET_GAMES, {
     variables: { first: 40, orderBy: "ACHIEVEMENT_COUNT_DESC" },
   });
+  const { data: familyCountData } = useQuery(GET_GAME_FAMILY_COUNT);
 
   const isAdmin =
     meData?.me?.role === "ADMIN" || meData?.me?.role === "TRUSTED";
@@ -75,7 +76,7 @@ export default function Home() {
     () => groupGamesByTitle(rawGames).slice(0, 12),
     [rawGames]
   );
-  const totalGames = data?.games?.totalCount ?? 0;
+  const totalGames = familyCountData?.gameFamiliesPage?.totalCount ?? 0;
   const trophyFamilies = featuredFamilies.filter(
     (family) => family.totalTrophyCount > 0
   ).length;
@@ -99,7 +100,7 @@ export default function Home() {
           <div className={styles.heroStats}>
             <div className={styles.heroStat}>
               <Gamepad2 size={16} />
-              <span>{totalGames} games indexed</span>
+              <span>{totalGames.toLocaleString("en-US")} games indexed</span>
             </div>
             <div className={styles.heroStat}>
               <Trophy size={16} />
