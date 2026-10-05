@@ -137,7 +137,7 @@ export default function Home() {
           <div className={styles.heroVisual}>
             <AppImage
               src="/hero-platforms.png"
-              alt="Trophy Rooms - Track achievements across Nintendo, PlayStation, Xbox, Steam, GOG, and RetroAchievements"
+              alt="Trophy cups marked with game platform logos"
               className={styles.heroImage}
             />
           </div>
