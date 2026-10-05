@@ -36,6 +36,7 @@ import styles from "../page.module.css";
 
 interface Game {
   id: string;
+  gameFamilyId?: string | null;
   title: string;
   coverUrl?: string | null;
   platform?: { name: string } | null;
@@ -172,12 +173,18 @@ export default function AdminAchievementSetsPage() {
 
   const handleCreateSet = async () => {
     if (!newTitle || !newGameId) return;
+    // Sets belong to the game family; the picker lists per-platform games
+    const gameFamilyId = games.find((g) => g.id === newGameId)?.gameFamilyId;
+    if (!gameFamilyId) {
+      toast.error("This game isn't linked to a game family yet.");
+      return;
+    }
     await createSet({
       variables: {
         input: {
           title: newTitle,
           type: newType,
-          gameId: newGameId,
+          gameFamilyId,
         },
       },
     });
