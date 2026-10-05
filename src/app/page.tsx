@@ -5,7 +5,7 @@ import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
 import { ArrowRight, Gamepad2, Search, Star, Trophy } from "lucide-react";
 import { GET_GAMES, GET_GAME_FAMILY_COUNT, GET_ME } from "@/graphql/queries";
-import { GroupedGameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch, TrophyShelf } from "@/components";
+import { GroupedGameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch, TrophyCase, TrophyShelf } from "@/components";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -135,13 +135,7 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.heroPanel}>
-          <div className={styles.heroVisual}>
-            <AppImage
-              src="/hero-platforms.png"
-              alt="Trophy cups marked with game platform logos"
-              className={styles.heroImage}
-            />
-          </div>
+          <TrophyCase />
           <div className={styles.spotlightCard}>
             <div className={styles.spotlightHeader}>
               <div className={styles.spotlightLabel}>
