@@ -10,7 +10,7 @@ interface Silhouette {
   width: number;
 }
 
-const SHAPES = {
+export const SHAPES = {
   cup: {
     viewBox: "0 0 95 165",
     paths: (
