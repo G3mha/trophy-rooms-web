@@ -39,7 +39,7 @@ import styles from "../page.module.css";
 interface AchievementSet {
   id: string;
   title: string;
-  game?: { title: string } | null;
+  gameFamily?: { title: string } | null;
 }
 
 interface Achievement {
@@ -377,7 +377,7 @@ export default function AdminAchievementsPage() {
               {(() => {
                 const selectedSet = sets.find((s) => s.id === selectedSetId);
                 return selectedSet
-                  ? `${selectedSet.title} (${selectedSet.game?.title || "No game"})`
+                  ? `${selectedSet.title} (${selectedSet.gameFamily?.title || "No game"})`
                   : "Select an achievement set...";
               })()}
             </span>
@@ -385,7 +385,7 @@ export default function AdminAchievementsPage() {
           <SelectContent>
             {sets.map((s) => (
               <SelectItem key={s.id} value={s.id}>
-                {s.title} ({s.game?.title || "No game"})
+                {s.title} ({s.gameFamily?.title || "No game"})
               </SelectItem>
             ))}
           </SelectContent>
