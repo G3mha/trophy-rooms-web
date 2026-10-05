@@ -269,10 +269,11 @@ export default function AdminAchievementsPage() {
         title,
         description: description || null,
         points: points ? parseInt(points) : 0,
-        achievementSetId: selectedSetId,
       };
     });
-    await bulkCreate({ variables: { input: { achievements: achievementsToCreate } } });
+    await bulkCreate({
+      variables: { achievementSetId: selectedSetId, achievements: achievementsToCreate },
+    });
   };
 
   const handleSetChange = (setId: string | null) => {
