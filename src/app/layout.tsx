@@ -16,8 +16,9 @@ const anton = Anton({ weight: "400", subsets: ["latin"], variable: "--font-displ
 const yellowtail = Yellowtail({ weight: "400", subsets: ["latin"], variable: "--font-script" });
 
 export const metadata: Metadata = {
-  title: "Trophy Rooms - Cross-Platform Achievement Tracker",
-  description: "Track achievements and trophies across retro classics and modern platforms",
+  title: "Trophy Rooms - Game Library and Collection Tracker",
+  description:
+    "Track the games you play and the copies you own, log your play time, and mark achievements as you earn them.",
 };
 
 export default function RootLayout({
