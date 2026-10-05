@@ -276,12 +276,18 @@ export default function GameDetailPage({
       return;
     }
 
+    // Sets belong to the game family, so they show up on every platform's page
+    if (!game?.gameFamilyId) {
+      setSetError("This game isn't linked to a game family yet");
+      return;
+    }
+
     await createAchievementSet({
       variables: {
         input: {
           title: newSetTitle.trim(),
           type: "CUSTOM",
-          gameId: id,
+          gameFamilyId: game.gameFamilyId,
         },
       },
     });
