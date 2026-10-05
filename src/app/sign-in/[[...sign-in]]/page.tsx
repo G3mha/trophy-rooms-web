@@ -71,7 +71,7 @@ export default function SignInPage() {
           <div className={styles.showcasePoints}>
             <div className={styles.showcasePoint}>
               <Gamepad2 size={18} />
-              <span>Continue tracking games across every platform family.</span>
+              <span>Pick up your library and collection where you left off.</span>
             </div>
             <div className={styles.showcasePoint}>
               <ShieldCheck size={18} />
@@ -79,7 +79,7 @@ export default function SignInPage() {
             </div>
             <div className={styles.showcasePoint}>
               <Trophy size={18} />
-              <span>Keep your collection, buylist, and trophy room in sync.</span>
+              <span>Same collection, buylist and trophy room on the web and in the iOS app.</span>
             </div>
           </div>
         </aside>
