@@ -1,0 +1,62 @@
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 56px;
+  height: 40px;
+  flex: none;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(201, 164, 92, 0.25);
+  background:
+    radial-gradient(ellipse 80% 90% at 50% 100%, rgba(255, 196, 116, 0.45), rgba(255, 190, 110, 0.1) 60%, transparent 85%),
+    linear-gradient(90deg, var(--cabinet-walnut-deep) 0%, #33200f 45%, var(--cabinet-walnut-deep) 100%);
+}
+
+.row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+}
+
+.silhouette {
+  display: block;
+  flex: none;
+  fill: var(--cabinet-ink);
+}
+
+.ledge {
+  height: 3px;
+  background: linear-gradient(180deg, #e8d5ac 0%, #b08d54 45%, #5c3f22 100%);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--cabinet-bone);
+  text-shadow: 2px 2px 0 var(--cabinet-shadow-red);
+}
+
+/* Keeps the lockup no wider than the old 180px logo image at phone width,
+   where the header is already tight */
+@media (max-width: 480px) {
+  .lockup {
+    gap: 8px;
+  }
+
+  .wordmark {
+    font-size: 17px;
+    letter-spacing: 1px;
+  }
+}
