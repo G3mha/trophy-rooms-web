@@ -161,6 +161,15 @@ export const GET_GAMES = gql`
   ${GAME_FRAGMENT}
 `;
 
+// Counts games (families), not the per-platform editions `games` returns
+export const GET_GAME_FAMILY_COUNT = gql`
+  query GetGameFamilyCount {
+    gameFamiliesPage(pageSize: 1) {
+      totalCount
+    }
+  }
+`;
+
 export const GET_GAME = gql`
   query GetGame($id: ID!) {
     game(id: $id) {
