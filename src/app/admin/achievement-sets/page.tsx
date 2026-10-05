@@ -49,7 +49,7 @@ interface AchievementSet {
   type: string;
   visibility: string;
   achievementCount: number;
-  game?: { id: string; title: string } | null;
+  gameFamily?: { id: string; title: string } | null;
 }
 
 const SET_TYPE_LABELS: Record<string, string> = {
@@ -139,7 +139,7 @@ export default function AdminAchievementSetsPage() {
     return sets.filter(
       (s) =>
         s.title.toLowerCase().includes(query) ||
-        s.game?.title.toLowerCase().includes(query) ||
+        s.gameFamily?.title.toLowerCase().includes(query) ||
         s.type.toLowerCase().includes(query)
     );
   }, [searchQuery, sets]);
@@ -436,7 +436,7 @@ export default function AdminAchievementSetsPage() {
             />
             <div className={styles.itemInfo}>
               <span className={styles.itemName}>{set.title}</span>
-              <span className={styles.itemSlug}>{set.game?.title || "No game"}</span>
+              <span className={styles.itemSlug}>{set.gameFamily?.title || "No game"}</span>
               <span className={`${styles.badge} ${styles.badgeCount}`}>
                 {SET_TYPE_LABELS[set.type] || set.type}
               </span>
