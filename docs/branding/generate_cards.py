@@ -69,7 +69,7 @@ CARDS_DEF = [
                ("cup", "right", 90, 155)],
          flanks=[]),
     dict(slug="search", shot="search", kicker="Find anything",
-         headline="Every platform.<br>One search.", plaque="The Archive",
+         headline="28,000 games.<br>One search.", plaque="The Archive",
          sils=[("cup", "left", 90, 165), ("medal", "left", 290, 135),
                ("obelisk", "right", 90, 120), ("cup", "right", 230, 190), ("star", "right", 430, 110)],
          flanks=[("bigcup", "left", -90, 215), ("bigcup", "right", -100, 245)]),
