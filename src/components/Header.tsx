@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@apollo/client";
 import { ChevronDown, LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield, CalendarClock, LogOut } from "lucide-react";
 import { GET_ME } from "@/graphql/queries";
 import { useAuth } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { BrandLogo } from "./BrandLogo";
 import styles from "./Header.module.css";
 
 const navLinks = [
@@ -78,14 +78,7 @@ export function Header() {
     <header className={styles.header}>
       <div className={styles.container}>
         <Link href="/" className={styles.logo}>
-          <Image
-            src="/logo.png"
-            alt="Trophy Rooms"
-            width={180}
-            height={40}
-            className={styles.logoImage}
-            priority
-          />
+          <BrandLogo />
         </Link>
 
         <nav className={styles.nav}>

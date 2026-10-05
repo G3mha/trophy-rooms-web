@@ -22,12 +22,6 @@
   text-decoration: none;
 }
 
-.logoImage {
-  height: 40px;
-  width: auto;
-  object-fit: contain;
-}
-
 .nav {
   display: flex;
   gap: 8px;
