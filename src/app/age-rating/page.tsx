@@ -38,8 +38,8 @@ export default function AgeSuitability() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>About the Game Catalog</h2>
           <p className={styles.paragraph}>
-            The app searches a reference catalog of more than 47,000 published video
-            games. That catalog spans every age rating, so it includes titles rated
+            The app searches a reference catalog of more than 28,000 video games. That
+            catalog spans every age rating, so it includes titles rated
             Mature by the ESRB or PEGI 18 alongside titles rated Everyone.
           </p>
           <p className={styles.paragraph}>
