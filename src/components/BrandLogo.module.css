@@ -60,3 +60,19 @@
     letter-spacing: 1px;
   }
 }
+
+/* No room for the wordmark: beside the auth buttons on the narrowest phones,
+   or beside the nav links between the header's 768px nav breakpoint and
+   960px. Keep the cabinet mark and hide the text visually, so the link
+   keeps its accessible name. */
+@media (max-width: 360px), (min-width: 769px) and (max-width: 959px) {
+  .wordmark {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
