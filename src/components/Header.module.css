@@ -134,6 +134,7 @@
 
 .actions {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 12px;
 }
@@ -145,6 +146,7 @@
   text-decoration: none;
   font-weight: 500;
   font-size: 14px;
+  white-space: nowrap;
   transition: all 0.2s ease;
 }
 
@@ -160,6 +162,7 @@
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
+  white-space: nowrap;
   transition: all 0.2s ease;
 }
 
@@ -251,5 +254,20 @@
 
   .container {
     padding: 0 16px;
+  }
+}
+
+/* Phone width: the logo and both auth buttons have to share one line */
+@media (max-width: 480px) {
+  .actions {
+    gap: 8px;
+  }
+
+  .signInBtn {
+    padding: 8px 10px;
+  }
+
+  .signUpBtn {
+    padding: 8px 14px;
   }
 }
