@@ -7,6 +7,7 @@ import { GET_GAMES_ADMIN, GET_ACHIEVEMENT_SETS_ADMIN } from "@/graphql/admin_que
 import {
   CREATE_ACHIEVEMENT_SET,
   UPDATE_ACHIEVEMENT_SET,
+  SET_ACHIEVEMENT_SET_TYPE,
   DELETE_ACHIEVEMENT_SET,
   BULK_DELETE_ACHIEVEMENT_SETS,
 } from "@/graphql/admin_mutations";
@@ -71,7 +72,6 @@ export default function AdminAchievementSetsPage() {
   const [editingSet, setEditingSet] = useState<AchievementSet | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editType, setEditType] = useState("OFFICIAL");
-  const [editGameId, setEditGameId] = useState("");
 
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -101,15 +101,9 @@ export default function AdminAchievementSetsPage() {
     onError: (error) => toast.error(error.message || "Failed to create achievement set."),
   });
 
-  const [updateSet, { loading: updating }] = useMutation(UPDATE_ACHIEVEMENT_SET, {
-    onCompleted: () => {
-      refetch();
-      setIsEditModalOpen(false);
-      resetEditForm();
-      toast.success("Achievement set updated.");
-    },
-    onError: (error) => toast.error(error.message || "Failed to update achievement set."),
-  });
+  const [updateSet, { loading: updatingTitle }] = useMutation(UPDATE_ACHIEVEMENT_SET);
+  const [setSetType, { loading: updatingType }] = useMutation(SET_ACHIEVEMENT_SET_TYPE);
+  const updating = updatingTitle || updatingType;
 
   const [deleteSet] = useMutation(DELETE_ACHIEVEMENT_SET, {
     onCompleted: () => {
@@ -160,14 +154,12 @@ export default function AdminAchievementSetsPage() {
     setEditingSet(null);
     setEditTitle("");
     setEditType("OFFICIAL");
-    setEditGameId("");
   };
 
   const openEditModal = (set: AchievementSet) => {
     setEditingSet(set);
     setEditTitle(set.title);
     setEditType(set.type);
-    setEditGameId(set.game?.id || "");
     setIsEditModalOpen(true);
   };
 
@@ -192,16 +184,34 @@ export default function AdminAchievementSetsPage() {
 
   const handleUpdateSet = async () => {
     if (!editingSet || !editTitle) return;
-    await updateSet({
-      variables: {
-        id: editingSet.id,
-        input: {
-          title: editTitle,
-          type: editType,
-          gameId: editGameId || null,
-        },
-      },
-    });
+    try {
+      // updateAchievementSet only takes title and visibility; type has its own mutation
+      const { data } = await updateSet({
+        variables: { id: editingSet.id, input: { title: editTitle } },
+      });
+      if (!data?.updateAchievementSet.success) {
+        toast.error(data?.updateAchievementSet.error?.message || "Failed to update achievement set.");
+        return;
+      }
+
+      if (editType !== editingSet.type) {
+        const { data: typeData } = await setSetType({
+          variables: { id: editingSet.id, type: editType },
+        });
+        if (!typeData?.setAchievementSetType.success) {
+          refetch();
+          toast.error(typeData?.setAchievementSetType.error?.message || "Failed to change set type.");
+          return;
+        }
+      }
+
+      refetch();
+      setIsEditModalOpen(false);
+      resetEditForm();
+      toast.success("Achievement set updated.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update achievement set.");
+    }
   };
 
   const openDeleteConfirm = (set: AchievementSet) => {
@@ -364,15 +374,6 @@ export default function AdminAchievementSetsPage() {
                   <SelectItem value="CUSTOM">Custom</SelectItem>
                 </SelectContent>
               </Select>
-            </FormField>
-
-            <FormField label="Game">
-              <GameCombobox
-                games={games}
-                value={editGameId}
-                onChange={setEditGameId}
-                placeholder="Search for a game..."
-              />
             </FormField>
           </DialogBody>
 
