@@ -68,6 +68,47 @@ const ARRANGEMENT: Silhouette[] = [
   { shape: "cup", left: "90%", width: 84 },
 ];
 
+interface CaseItem {
+  shape: keyof typeof SHAPES;
+  // Share of the row's width; height follows the shape's proportions
+  width: string;
+}
+
+const CASE_ARRANGEMENT: CaseItem[] = [
+  { shape: "medal", width: "15%" },
+  { shape: "star", width: "11%" },
+  { shape: "cup", width: "24%" },
+  { shape: "obelisk", width: "11%" },
+  { shape: "cup", width: "18%" },
+];
+
+// A single cabinet compartment for hero panels. The trophies sit in a flex
+// row on a lit shelf, so the cluster scales with the panel instead of
+// overlapping at phone width the way the absolutely placed band would.
+export function TrophyCase() {
+  return (
+    <div className={styles.case} aria-hidden="true">
+      <div className={styles.caseRow}>
+        {CASE_ARRANGEMENT.map((item, index) => {
+          const { viewBox, paths } = SHAPES[item.shape];
+          const [, , vw, vh] = viewBox.split(" ").map(Number);
+          return (
+            <svg
+              key={index}
+              className={styles.caseSilhouette}
+              style={{ width: item.width, aspectRatio: `${vw} / ${vh}` }}
+              viewBox={viewBox}
+            >
+              {paths}
+            </svg>
+          );
+        })}
+      </div>
+      <div className={styles.caseShelf} />
+    </div>
+  );
+}
+
 export function TrophyShelf() {
   return (
     <div className={styles.band} aria-hidden="true">
