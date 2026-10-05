@@ -194,7 +194,7 @@ export default function SignUpPage() {
           <div className={styles.showcasePoints}>
             <div className={styles.showcasePoint}>
               <Trophy size={18} />
-              <span>Track achievements and trophies across your games and DLC.</span>
+              <span>Tick off achievements on games that have lists, or build your own challenge set.</span>
             </div>
             <div className={styles.showcasePoint}>
               <Sparkles size={18} />
