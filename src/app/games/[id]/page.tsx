@@ -199,9 +199,13 @@ export default function GameDetailPage({
   const [publishAchievementSet, { loading: publishingSet }] = useMutation(
     PUBLISH_ACHIEVEMENT_SET,
     {
-      onCompleted: () => {
-        refetch();
-        toast.success("Achievement set published.");
+      onCompleted: (result) => {
+        if (result.publishAchievementSet.success) {
+          refetch();
+          toast.success("Achievement set published.");
+        } else {
+          toast.error(result.publishAchievementSet.error?.message || "Failed to publish achievement set.");
+        }
       },
       onError: (error) => toast.error(error.message || "Failed to publish achievement set."),
     }
