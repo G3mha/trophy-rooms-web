@@ -13,6 +13,7 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Star, Cloud } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
+import { getMutationMessage } from "@/lib/mutation-utils";
 import { Button, LoadingSpinner } from "@/components";
 import { AdminConfirmDialog, AdminImage, CoverPreview } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
@@ -92,7 +93,12 @@ export default function AdminGameVersionsPage() {
   });
 
   const [createVersion, { loading: creating }] = useMutation(CREATE_GAME_VERSION, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.createGameVersion;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setIsAddModalOpen(false);
       resetAddForm();
@@ -102,7 +108,12 @@ export default function AdminGameVersionsPage() {
   });
 
   const [updateVersion, { loading: updating }] = useMutation(UPDATE_GAME_VERSION, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.updateGameVersion;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
@@ -112,7 +123,12 @@ export default function AdminGameVersionsPage() {
   });
 
   const [deleteVersion] = useMutation(DELETE_GAME_VERSION, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.deleteGameVersion;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       toast.success("Version deleted.");
     },
@@ -120,7 +136,12 @@ export default function AdminGameVersionsPage() {
   });
 
   const [setDefaultVersion] = useMutation(SET_DEFAULT_VERSION, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.setDefaultVersion;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       toast.success("Default version updated.");
     },
@@ -129,6 +150,11 @@ export default function AdminGameVersionsPage() {
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_GAME_VERSIONS, {
     onCompleted: (data) => {
+      const payload = data?.bulkDeleteGameVersions;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setSelectedIds(new Set());
       toast.success(`Deleted ${data?.bulkDeleteGameVersions?.deletedCount || 0} version(s).`);
