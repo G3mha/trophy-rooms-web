@@ -102,10 +102,14 @@ export default function Home() {
               <Gamepad2 size={16} />
               <span>{totalGames.toLocaleString("en-US")} games indexed</span>
             </div>
-            <div className={styles.heroStat}>
-              <Trophy size={16} />
-              <span>{trophyFamilies} featured families with trophies</span>
-            </div>
+            {/* Trophies are earned by finishing an achievement list, so this is
+                often zero - and a zero in the hero reads as an empty site */}
+            {trophyFamilies > 0 && (
+              <div className={styles.heroStat}>
+                <Trophy size={16} />
+                <span>{trophyFamilies} featured families with trophies</span>
+              </div>
+            )}
             <div className={styles.heroStat}>
               <Star size={16} />
               <span>{achievementRichFamilies} rich family profiles</span>
