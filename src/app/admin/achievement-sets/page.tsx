@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/select";
 import { GameCombobox } from "@/components/ui/game-combobox";
 import styles from "../page.module.css";
+import { getMutationMessage } from "@/lib/mutation-utils";
 
 interface Game {
   id: string;
@@ -92,7 +93,12 @@ export default function AdminAchievementSetsPage() {
   } = useQuery(GET_ACHIEVEMENT_SETS_ADMIN);
 
   const [createSet, { loading: creating }] = useMutation(CREATE_ACHIEVEMENT_SET, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.createAchievementSet;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setIsAddModalOpen(false);
       resetAddForm();
@@ -106,7 +112,12 @@ export default function AdminAchievementSetsPage() {
   const updating = updatingTitle || updatingType;
 
   const [deleteSet] = useMutation(DELETE_ACHIEVEMENT_SET, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.deleteAchievementSet;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       toast.success("Achievement set deleted.");
     },
@@ -115,6 +126,11 @@ export default function AdminAchievementSetsPage() {
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_ACHIEVEMENT_SETS, {
     onCompleted: (data) => {
+      const payload = data?.bulkDeleteAchievementSets;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setSelectedIds(new Set());
       toast.success(`Deleted ${data?.bulkDeleteAchievementSets?.deletedCount || 0} set(s).`);
