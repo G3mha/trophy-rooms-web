@@ -64,7 +64,9 @@
 
 .heroStats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* One equal column per stat shown - a stat can be left out */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 12px;
 }
 
@@ -299,6 +301,10 @@
   .heroStats,
   .featureGrid {
     grid-template-columns: 1fr;
+  }
+
+  .heroStats {
+    grid-auto-flow: row;
   }
 }
 
