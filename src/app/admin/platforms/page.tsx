@@ -15,6 +15,7 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Gamepad2 } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
+import { getMutationMessage } from "@/lib/mutation-utils";
 import { Button, LoadingSpinner } from "@/components";
 import { AdminConfirmDialog, AdminImage, CoverPreview } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
@@ -91,7 +92,12 @@ export default function AdminPlatformsPage() {
   } = useQuery(GET_PLATFORMS);
 
   const [createPlatform, { loading: creating }] = useMutation(CREATE_PLATFORM, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.createPlatform;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setIsAddModalOpen(false);
       resetAddForm();
@@ -101,7 +107,12 @@ export default function AdminPlatformsPage() {
   });
 
   const [updatePlatform, { loading: updating }] = useMutation(UPDATE_PLATFORM, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.updatePlatform;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
@@ -111,7 +122,12 @@ export default function AdminPlatformsPage() {
   });
 
   const [deletePlatform] = useMutation(DELETE_PLATFORM, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.deletePlatform;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       toast.success("Platform deleted.");
     },
@@ -120,6 +136,11 @@ export default function AdminPlatformsPage() {
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_PLATFORMS, {
     onCompleted: (data) => {
+      const payload = data?.bulkDeletePlatforms;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setSelectedIds(new Set());
       toast.success(`Deleted ${data?.bulkDeletePlatforms?.deletedCount || 0} platform(s).`);
@@ -128,7 +149,12 @@ export default function AdminPlatformsPage() {
   });
 
   const [createRelease, { loading: creatingRelease }] = useMutation(CREATE_PLATFORM_RELEASE, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.createPlatformRelease;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setNewReleaseRegion("");
       setNewReleaseDate("");
@@ -138,7 +164,12 @@ export default function AdminPlatformsPage() {
   });
 
   const [updateRelease, { loading: updatingRelease }] = useMutation(UPDATE_PLATFORM_RELEASE, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.updatePlatformRelease;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setEditingReleaseId(null);
       setEditReleaseRegion("");
@@ -149,7 +180,12 @@ export default function AdminPlatformsPage() {
   });
 
   const [deleteRelease] = useMutation(DELETE_PLATFORM_RELEASE, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.deletePlatformRelease;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       toast.success("Release date deleted.");
     },
