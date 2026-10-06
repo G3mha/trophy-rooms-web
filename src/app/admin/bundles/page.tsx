@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "@apollo/client";
 import { Package, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
+import { getMutationMessage } from "@/lib/mutation-utils";
 
 import { toast } from "sonner";
 import {
@@ -81,10 +82,6 @@ interface BundleFormErrors {
   slug?: string;
   coverUrl?: string;
   price?: string;
-}
-
-function getMutationMessage(error?: { message?: string | null } | null) {
-  return error?.message || "Something went wrong. Please try again.";
 }
 
 function validateBundleForm(input: {

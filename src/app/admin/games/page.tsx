@@ -29,6 +29,7 @@ import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
 import { Button, LoadingSpinner, Pagination } from "@/components";
 import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
+import { getMutationMessage } from "@/lib/mutation-utils";
 import { GET_ADMIN_GAMES, GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
   BULK_DELETE_GAMES,
@@ -119,10 +120,6 @@ interface GameFormErrors {
 }
 
 const DEFAULT_PAGE_SIZE = 20;
-
-function getMutationMessage(error?: { message?: string | null } | null) {
-  return error?.message || "Something went wrong. Please try again.";
-}
 
 function validateGameForm(input: {
   title: string;
