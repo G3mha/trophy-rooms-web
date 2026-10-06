@@ -35,6 +35,7 @@ import {
   
 } from "@/components/ui/select";
 import styles from "../page.module.css";
+import { getMutationMessage } from "@/lib/mutation-utils";
 
 interface AchievementSet {
   id: string;
@@ -135,7 +136,12 @@ export default function AdminAchievementsPage() {
   });
 
   const [createAchievement, { loading: creating }] = useMutation(CREATE_ACHIEVEMENT, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.createAchievement;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setCurrentPage(1);
       setCursors(new Map([[1, null]]));
@@ -147,7 +153,12 @@ export default function AdminAchievementsPage() {
   });
 
   const [updateAchievement, { loading: updating }] = useMutation(UPDATE_ACHIEVEMENT, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.updateAchievement;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
@@ -157,7 +168,12 @@ export default function AdminAchievementsPage() {
   });
 
   const [deleteAchievement] = useMutation(DELETE_ACHIEVEMENT, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.deleteAchievement;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       toast.success("Achievement deleted.");
     },
@@ -166,6 +182,11 @@ export default function AdminAchievementsPage() {
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_ACHIEVEMENTS, {
     onCompleted: (data) => {
+      const payload = data?.bulkDeleteAchievements;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setSelectedIds(new Set());
       toast.success(`Deleted ${data?.bulkDeleteAchievements?.deletedCount || 0} achievement(s).`);
@@ -175,6 +196,11 @@ export default function AdminAchievementsPage() {
 
   const [bulkCreate, { loading: importing }] = useMutation(BULK_CREATE_ACHIEVEMENTS, {
     onCompleted: (data) => {
+      const payload = data?.bulkCreateAchievements;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setCsvData("");
       setShowImport(false);
