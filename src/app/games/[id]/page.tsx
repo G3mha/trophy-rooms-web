@@ -274,8 +274,10 @@ export default function GameDetailPage({
     game?.achievementSets.filter(countsTowardTrophy).flatMap((set) => set.achievements) ?? [];
   const trophyAchievementCount = trophyAchievements.length;
   const completedCount = trophyAchievements.filter((a: Achievement) => a.isCompleted).length;
+  const isTrophyComplete = trophyAchievementCount > 0 && completedCount === trophyAchievementCount;
+  // Round down, so 199 of 200 reads 99% rather than 100%
   const progress =
-    trophyAchievementCount > 0 ? Math.round((completedCount / trophyAchievementCount) * 100) : 0;
+    trophyAchievementCount > 0 ? Math.floor((completedCount / trophyAchievementCount) * 100) : 0;
   const screenshotCount = game?.screenshots.length ?? 0;
 
   // Calculate total players for rarity (max userCount across all achievements)
@@ -590,7 +592,7 @@ export default function GameDetailPage({
           <p className={styles.progressCopy}>
             You have cleared {progress}% of the achievements that count toward this game&rsquo;s trophy.
           </p>
-          {progress === 100 && (
+          {isTrophyComplete && (
             <div className={styles.crimsonTrophy}>
               <div className={styles.crimsonIcon}>
                 <Trophy size={32} />
