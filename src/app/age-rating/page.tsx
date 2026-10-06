@@ -12,7 +12,7 @@ export default function AgeSuitability() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Age Suitability</h1>
-        <p className={styles.lastUpdated}>Last Updated: August 12, 2026</p>
+        <p className={styles.lastUpdated}>Last Updated: October 5, 2026</p>
       </header>
 
       <div className={styles.content}>
