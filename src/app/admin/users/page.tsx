@@ -14,6 +14,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select";
 import styles from "../page.module.css";
+import { getMutationMessage } from "@/lib/mutation-utils";
 
 interface User {
   id: string;
@@ -71,7 +72,12 @@ export default function AdminUsersPage() {
   });
 
   const [setUserRole, { loading: updatingRole }] = useMutation(SET_USER_ROLE, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.setUserRole;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetchUsers();
       toast.success("User role updated.");
     },
