@@ -12,6 +12,7 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Puzzle } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
+import { getMutationMessage } from "@/lib/mutation-utils";
 import { FormField } from "@/components/ui/form-field";
 import { Button, LoadingSpinner } from "@/components";
 import {
@@ -105,7 +106,12 @@ export default function AdminDLCsPage() {
   const [createDLC, { loading: creating }] = useMutation(CREATE_DLC);
 
   const [updateDLC, { loading: updating }] = useMutation(UPDATE_DLC, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.updateDLC;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
@@ -115,7 +121,12 @@ export default function AdminDLCsPage() {
   });
 
   const [deleteDLC, { loading: deleting }] = useMutation(DELETE_DLC, {
-    onCompleted: () => {
+    onCompleted: (data) => {
+      const payload = data?.deleteDLC;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       toast.success("DLC deleted.");
     },
@@ -124,6 +135,11 @@ export default function AdminDLCsPage() {
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_DLCS, {
     onCompleted: (data) => {
+      const payload = data?.bulkDeleteDLCs;
+      if (!payload?.success) {
+        toast.error(getMutationMessage(payload?.error));
+        return;
+      }
       refetch();
       setSelectedIds(new Set());
       toast.success(`Deleted ${data?.bulkDeleteDLCs?.deletedCount || 0} DLC(s).`);
