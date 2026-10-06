@@ -73,6 +73,13 @@ interface AchievementSet {
   achievements: Achievement[];
 }
 
+// Sets that count towards the game's trophy, the rule the backend awards it
+// by: official and completionist sets, plus custom sets their creator has
+// published. A private custom set is a personal checklist.
+function countsTowardTrophy(set: AchievementSet): boolean {
+  return set.type !== "CUSTOM" || set.visibility === "PUBLIC";
+}
+
 interface Platform {
   id: string;
   name: string;
@@ -261,9 +268,14 @@ export default function GameDetailPage({
   };
 
   const allAchievements = game?.achievementSets.flatMap((set) => set.achievements) ?? [];
-  const completedCount = allAchievements.filter((a: Achievement) => a.isCompleted).length;
   const totalCount = allAchievements.length;
-  const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  // Progress only counts the sets that award the trophy
+  const trophyAchievements =
+    game?.achievementSets.filter(countsTowardTrophy).flatMap((set) => set.achievements) ?? [];
+  const trophyAchievementCount = trophyAchievements.length;
+  const completedCount = trophyAchievements.filter((a: Achievement) => a.isCompleted).length;
+  const progress =
+    trophyAchievementCount > 0 ? Math.round((completedCount / trophyAchievementCount) * 100) : 0;
   const screenshotCount = game?.screenshots.length ?? 0;
 
   // Calculate total players for rarity (max userCount across all achievements)
@@ -460,7 +472,7 @@ export default function GameDetailPage({
               <span className={styles.statValue}>{screenshotCount}</span>
               <span className={styles.statLabel}>Screenshots</span>
             </div>
-            {isSignedIn && totalCount > 0 && (
+            {isSignedIn && trophyAchievementCount > 0 && (
               <div className={styles.statCard}>
                 <span className={styles.statValue}>{progress}%</span>
                 <span className={styles.statLabel}>Your Progress</span>
@@ -558,7 +570,7 @@ export default function GameDetailPage({
         </div>
       )}
 
-      {isSignedIn && totalCount > 0 && (
+      {isSignedIn && trophyAchievementCount > 0 && (
         <section className={styles.progressPanel}>
           <div className={styles.sectionHeader}>
             <div>
@@ -566,7 +578,7 @@ export default function GameDetailPage({
               <h2 className={styles.sectionTitle}>Your Progress</h2>
             </div>
             <span className={styles.progressSummary}>
-              {completedCount} / {totalCount} complete
+              {completedCount} / {trophyAchievementCount} complete
             </span>
           </div>
           <div className={styles.progressBar}>
@@ -576,7 +588,7 @@ export default function GameDetailPage({
             />
           </div>
           <p className={styles.progressCopy}>
-            You have cleared {progress}% of this game&rsquo;s tracked achievements.
+            You have cleared {progress}% of the achievements that count toward this game&rsquo;s trophy.
           </p>
           {progress === 100 && (
             <div className={styles.crimsonTrophy}>
