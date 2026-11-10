@@ -121,7 +121,7 @@ export default function PublicProfilePage({
         <section className={styles.trophyShowcase}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
-              <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophy Collection
+              <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophies
             </h2>
             <span className={styles.sectionCount}>{completedGames.length} {completedGames.length === 1 ? "game" : "games"}</span>
           </div>
