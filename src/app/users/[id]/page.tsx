@@ -7,9 +7,6 @@ import {
   Gamepad2,
   PartyPopper,
   User,
-  Sparkles,
-  Target,
-  TimerReset,
 } from "lucide-react";
 import {
   GET_USER,
@@ -23,10 +20,8 @@ import {
   ProfileHeader,
   RecentActivity,
   GameProgressCard,
-  CatalogHero,
   SummaryStats,
 } from "@/components";
-import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./page.module.css";
 
 interface GameProgressData {
@@ -77,14 +72,12 @@ export default function PublicProfilePage({
   const gameProgress: GameProgressData[] = progressData?.userGameProgress || [];
   const completedGames = gameProgress.filter((g) => g.hasTrophy);
   const inProgressGames = gameProgress.filter((g) => !g.hasTrophy);
-  const totalPoints = gameProgress.reduce((sum, game) => sum + game.earnedPoints, 0);
   const averageCompletion = gameProgress.length
     ? Math.round(
         gameProgress.reduce((sum, game) => sum + game.percentComplete, 0) /
           gameProgress.length
       )
     : 0;
-  const displayName = getDisplayName(user?.name, id);
 
   if (loading) {
     return (
@@ -109,40 +102,6 @@ export default function PublicProfilePage({
 
   return (
     <div className={styles.container}>
-      <CatalogHero
-        classes={{
-          root: styles.hero,
-          lead: styles.heroLead,
-          eyebrow: styles.eyebrow,
-          title: styles.heroTitle,
-          description: styles.heroSubtitle,
-          stats: styles.heroStats,
-          stat: styles.heroStat,
-        }}
-        eyebrow={
-          <>
-            <Sparkles size={16} />
-            <span>Public Profile</span>
-          </>
-        }
-        title={`${displayName}'s Trophy Room`}
-        description="Follow completed runs, active hunts, and the momentum behind this player's next Platinum Trophy."
-        stats={[
-          {
-            icon: <Trophy size={16} />,
-            label: `${completedGames.length} completed runs`,
-          },
-          {
-            icon: <Target size={16} />,
-            label: `${totalPoints.toLocaleString()} points earned`,
-          },
-          {
-            icon: <TimerReset size={16} />,
-            label: `${averageCompletion}% avg progress`,
-          },
-        ]}
-      />
-
       <ProfileHeader
         name={user.name}
         userId={id}
