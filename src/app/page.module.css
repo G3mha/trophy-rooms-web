@@ -302,4 +302,17 @@
   .spotlightBody {
     display: flex;
   }
+
+  /* The picks heading shares its row with View All. The text is about 9.65em
+     wide in Anton, so it scales to the row: the header's width less View All
+     (90px), the gap (16px) and the 4px text shadow. It only shrinks once the
+     row is narrower than the heading at full size. */
+  .sectionHeader {
+    container-type: inline-size;
+    align-items: center;
+  }
+
+  .picksTitle {
+    font-size: min(1.6rem, calc((100cqi - 110px) / 9.8));
+  }
 }

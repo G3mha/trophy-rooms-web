@@ -249,7 +249,7 @@ export default function Home() {
 
       <section className={styles.gamesSection}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Start Somewhere Good</h2>
+          <h2 className={`${styles.sectionTitle} ${styles.picksTitle}`}>Start Somewhere Good</h2>
           <div className={styles.sectionHeaderActions}>
             <Button href="/games" variant="outline" size="sm">
               View All
