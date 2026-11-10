@@ -131,10 +131,7 @@ export default function GameFamilyPage({
 
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Variants</p>
-              <h2 className={styles.sectionTitle}>Platform Versions</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Platform Versions</h2>
             <span className={styles.countPill}>{games.length}</span>
           </div>
           <div className={styles.versionsList}>
