@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Gamepad2, Trophy, Star } from "lucide-react";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { AppImage } from "./AppImage";
+import { PlatformIcon } from "./PlatformIcon";
 import styles from "./GroupedGameCard.module.css";
 
 interface Platform {
@@ -64,13 +64,11 @@ export function GroupedGameCard({
         </div>
         <div className={styles.platformsRow}>
           {displayPlatforms.map((platform) => (
-            <AppImage
+            <PlatformIcon
               key={platform.id}
-              src={`/platforms/${platform.slug}.svg`}
-              alt={platform.name}
-              title={platform.name}
+              slug={platform.slug}
+              name={platform.name}
               className={styles.platformIcon}
-              onError={handlePlatformIconError}
             />
           ))}
           {remainingCount > 0 && (

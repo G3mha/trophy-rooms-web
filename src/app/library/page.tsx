@@ -20,7 +20,6 @@ import {
   Target,
   Compass,
 } from "lucide-react";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
 import {
@@ -33,6 +32,7 @@ import {
   CatalogHero,
   SummaryStats,
   type FilterTab,
+  PlatformIcon,
 } from "@/components";
 import {
   Dialog,
@@ -243,12 +243,7 @@ export default function LibraryPage() {
                     {item.platformName && (
                       <div className={styles.platformBadge}>
                         {item.platformSlug ? (
-                          <AppImage
-                            src={`/platforms/${item.platformSlug}.svg`}
-                            alt={item.platformName}
-                            className={styles.platformIcon}
-                            onError={handlePlatformIconError}
-                          />
+                          <PlatformIcon slug={item.platformSlug} className={styles.platformIcon} />
                         ) : (
                           <Monitor size={12} />
                         )}

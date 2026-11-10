@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Gamepad2, Trophy, Star } from "lucide-react";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { AppImage } from "./AppImage";
+import { PlatformIcon } from "./PlatformIcon";
 import styles from "./GameCard.module.css";
 
 interface Platform {
@@ -66,12 +66,7 @@ export function GameCard({
             </div>
             {platform && (
               <div className={styles.stat}>
-              <AppImage
-                src={`/platforms/${platform.slug}.svg`}
-                alt={platform.name}
-                className={styles.platformIcon}
-                onError={handlePlatformIconError}
-              />
+              <PlatformIcon slug={platform.slug} className={styles.platformIcon} />
               <span>{platform.name}</span>
             </div>
             )}

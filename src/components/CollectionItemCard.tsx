@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Disc, Package, BookOpen, Gift, Lock, Pencil, Trash2 } from "lucide-react";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { AppImage } from "./AppImage";
+import { PlatformIcon } from "./PlatformIcon";
 import styles from "./CollectionItemCard.module.css";
 
 export type GameRegion = "NTSC_U" | "PAL" | "NTSC_J" | "OTHER";
@@ -97,12 +97,7 @@ export function CollectionItemCard({
 
         {platform && (
           <div className={styles.platform}>
-            <AppImage
-              src={`/platforms/${platform.slug}.svg`}
-              alt={platform.name}
-              className={styles.platformIcon}
-              onError={handlePlatformIconError}
-            />
+            <PlatformIcon slug={platform.slug} className={styles.platformIcon} />
             <span>{platform.name}</span>
           </div>
         )}

@@ -5,9 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
 import { ArrowLeft, Gamepad2, Layers3, Monitor, Star, Trophy } from "lucide-react";
-import { handlePlatformIconError } from "@/lib/image-utils";
 import { GET_GAMES_BY_TITLE } from "@/graphql/queries";
-import { AppImage, Button, EmptyState, QueryState } from "@/components";
+import { AppImage, Button, EmptyState, PlatformIcon, QueryState } from "@/components";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -154,12 +153,7 @@ export default function GameFamilyPage({
               >
                 <div className={styles.platformInfo}>
                   {game.platform && (
-                    <AppImage
-                      src={`/platforms/${game.platform.slug}.svg`}
-                      alt={game.platform.name}
-                      className={styles.platformIcon}
-                      onError={handlePlatformIconError}
-                    />
+                    <PlatformIcon slug={game.platform.slug} className={styles.platformIcon} />
                   )}
                   <span className={styles.platformName}>
                     {game.platform?.name ?? "Unknown Platform"}
