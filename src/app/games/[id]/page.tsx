@@ -69,15 +69,17 @@ interface AchievementSet {
   title: string;
   type: "OFFICIAL" | "COMPLETIONIST" | "CUSTOM";
   visibility: "PRIVATE" | "PUBLIC";
+  countsTowardTrophy: boolean;
   createdByUserId?: string | null;
   achievements: Achievement[];
 }
 
 // Sets that count towards the game's trophy, the rule the backend awards it
 // by: official and completionist sets, plus custom sets their creator has
-// published. A private custom set is a personal checklist.
+// published. A private custom set is a personal checklist, and a set flagged
+// off restates another list.
 function countsTowardTrophy(set: AchievementSet): boolean {
-  return set.type !== "CUSTOM" || set.visibility === "PUBLIC";
+  return set.countsTowardTrophy && (set.type !== "CUSTOM" || set.visibility === "PUBLIC");
 }
 
 interface Platform {
@@ -268,7 +270,6 @@ export default function GameDetailPage({
   };
 
   const allAchievements = game?.achievementSets.flatMap((set) => set.achievements) ?? [];
-  const totalCount = allAchievements.length;
   // Progress only counts the sets that award the trophy
   const trophyAchievements =
     game?.achievementSets.filter(countsTowardTrophy).flatMap((set) => set.achievements) ?? [];
@@ -455,7 +456,7 @@ export default function GameDetailPage({
 
           <div className={styles.statGrid}>
             <div className={styles.statCard}>
-              <span className={styles.statValue}>{totalCount}</span>
+              <span className={styles.statValue}>{trophyAchievementCount}</span>
               <span className={styles.statLabel}>Achievements</span>
             </div>
             <div className={styles.statCard}>

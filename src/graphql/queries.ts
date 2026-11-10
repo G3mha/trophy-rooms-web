@@ -70,6 +70,7 @@ export const GAME_WITH_ACHIEVEMENTS_FRAGMENT = gql`
       title
       type
       visibility
+      countsTowardTrophy
       createdByUserId
       achievements {
         id
