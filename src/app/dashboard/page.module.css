@@ -26,21 +26,6 @@
   padding: 34px;
 }
 
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  margin-bottom: 18px;
-  border-radius: 999px;
-  background: rgba(201, 44, 60, 0.12);
-  color: #ff908c;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .title {
   margin: 0 0 12px;
   font-size: clamp(2.2rem, 4vw, 3.5rem);
@@ -51,14 +36,6 @@
   letter-spacing: 0.02em;
   color: var(--cabinet-bone);
   text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
-}
-
-.subtitle {
-  max-width: 58ch;
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 1rem;
-  line-height: 1.7;
 }
 
 .heroActions {
@@ -115,33 +92,6 @@
   margin: 0;
   color: var(--text-secondary);
   line-height: 1.6;
-}
-
-.heroMiniStats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.heroMiniStat {
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.heroMiniValue {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--text-primary);
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.heroMiniLabel {
-  color: var(--text-muted);
-  font-size: 0.9rem;
 }
 
 .stats {

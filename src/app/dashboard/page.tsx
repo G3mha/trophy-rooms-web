@@ -6,7 +6,6 @@ import {
   Trophy,
   Star,
   Gamepad2,
-  Sparkles,
   ArrowRight,
   Clock3,
 } from "lucide-react";
@@ -135,15 +134,7 @@ export default function Dashboard() {
     <div className={styles.container}>
       <header className={styles.hero}>
         <div className={styles.heroLead}>
-          <div className={styles.eyebrow}>
-            <Sparkles size={16} />
-            <span>Personal Dashboard</span>
-          </div>
           <h1 className={styles.title}>Welcome back, {firstName}.</h1>
-          <p className={styles.subtitle}>
-            Track your momentum, revisit recent unlocks, and keep your next
-            Platinum Trophy in sight.
-          </p>
           <div className={styles.heroActions}>
             <Button href="/trophy-room">Open Trophy Room</Button>
             <Button href="/activity" variant="outline">
@@ -184,17 +175,6 @@ export default function Dashboard() {
               </p>
             </div>
           )}
-
-          <div className={styles.heroMiniStats}>
-            <div className={styles.heroMiniStat}>
-              <span className={styles.heroMiniValue}>{achievementCount}</span>
-              <span className={styles.heroMiniLabel}>Total unlocks</span>
-            </div>
-            <div className={styles.heroMiniStat}>
-              <span className={styles.heroMiniValue}>{gamesTracked}</span>
-              <span className={styles.heroMiniLabel}>Games tracked</span>
-            </div>
-          </div>
         </aside>
       </header>
 
