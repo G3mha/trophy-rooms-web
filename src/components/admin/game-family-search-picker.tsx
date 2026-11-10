@@ -6,7 +6,7 @@ import * as React from "react";
 
 import { GET_GAME_FAMILIES } from "@/graphql/admin_queries";
 import { cn } from "@/lib/utils";
-import { AdminImage } from "./admin-image";
+import { AppImage } from "../AppImage";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
@@ -155,7 +155,7 @@ export function GameFamilySearchPicker({
 
         {value && !isOpen ? (
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <AdminImage
+            <AppImage
               src={value.coverUrl}
               alt=""
               className="w-6 h-6 rounded object-cover flex-shrink-0"
@@ -233,7 +233,7 @@ export function GameFamilySearchPicker({
                   value?.id === family.id && "bg-[var(--bg-secondary)]"
                 )}
               >
-                <AdminImage
+                <AppImage
                   src={family.coverUrl}
                   alt=""
                   className="w-10 h-10 rounded object-cover flex-shrink-0"

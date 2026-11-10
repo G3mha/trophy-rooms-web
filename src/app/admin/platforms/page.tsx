@@ -16,8 +16,8 @@ import {
 import { Trash2, Pencil, Plus, Search, Gamepad2 } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { getMutationMessage } from "@/lib/mutation-utils";
-import { Button, LoadingSpinner } from "@/components";
-import { AdminConfirmDialog, AdminImage, CoverPreview } from "@/components/admin";
+import { AppImage, Button, LoadingSpinner } from "@/components";
+import { AdminConfirmDialog, CoverPreview } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import {
   Dialog,
@@ -471,7 +471,7 @@ export default function AdminPlatformsPage() {
                   {newPromotionalPictures.map((url, index) => (
                     <div key={index} className={styles.mediaRow}>
                       <div className={styles.mediaThumb}>
-                        <AdminImage
+                        <AppImage
                           src={url}
                           alt={`Promo ${index + 1}`}
                           fallback={
@@ -612,7 +612,7 @@ export default function AdminPlatformsPage() {
                   {editPromotionalPictures.map((url, index) => (
                     <div key={index} className={styles.mediaRow}>
                       <div className={styles.mediaThumb}>
-                        <AdminImage
+                        <AppImage
                           src={url}
                           alt={`Promo ${index + 1}`}
                           fallback={
@@ -810,7 +810,7 @@ export default function AdminPlatformsPage() {
               }}
             />
             <div className="w-8 h-8 flex-shrink-0 bg-[var(--bg-secondary)] rounded flex items-center justify-center overflow-hidden">
-              <AdminImage
+              <AppImage
                 src={platform.consolePictureUrl}
                 alt=""
                 className="w-full h-full object-contain p-1"

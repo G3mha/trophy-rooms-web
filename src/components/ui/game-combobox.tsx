@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Search, X, ChevronDown } from "lucide-react";
-import { AdminImage } from "@/components/admin/admin-image";
+import { AppImage } from "@/components/AppImage";
 import { cn } from "@/lib/utils";
 
 interface Game {
@@ -137,7 +137,7 @@ export function GameCombobox({
                 )}
                 onClick={() => handleSelect(game.id)}
               >
-                <AdminImage
+                <AppImage
                   src={game.coverUrl}
                   alt=""
                   className="size-8 rounded object-cover shrink-0"

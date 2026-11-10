@@ -7,7 +7,7 @@ import * as React from "react";
 import { GET_GAMES_ADMIN } from "@/graphql/admin_queries";
 import { cn } from "@/lib/utils";
 import { PlatformIcon } from "../PlatformIcon";
-import { AdminImage } from "./admin-image";
+import { AppImage } from "../AppImage";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
@@ -432,7 +432,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                       onClick={() => handleSelect(game)}
                     >
                       {game.coverUrl ? (
-                        <AdminImage
+                        <AppImage
                           src={game.coverUrl}
                           alt=""
                           className="size-10 shrink-0 rounded object-cover"
@@ -481,7 +481,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                         <ChevronDown className="size-4 shrink-0 text-[var(--text-muted)]" />
                       )}
                       {group.coverUrl ? (
-                        <AdminImage
+                        <AppImage
                           src={group.coverUrl}
                           alt=""
                           className="size-10 shrink-0 rounded object-cover"

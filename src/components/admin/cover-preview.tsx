@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageOff } from "lucide-react";
-import { AdminImage } from "./admin-image";
+import { AppImage } from "../AppImage";
 
 interface CoverPreviewProps {
   url: string;
@@ -15,7 +15,7 @@ export function CoverPreview({ url, alt }: CoverPreviewProps) {
 
   return (
     <div className="w-full overflow-hidden rounded-[var(--border-radius)] bg-[var(--bg-secondary)]">
-      <AdminImage
+      <AppImage
         src={url}
         alt={alt}
         className="max-h-[150px] w-full object-contain"

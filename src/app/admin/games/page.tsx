@@ -17,7 +17,6 @@ import {
 
 import { toast } from "sonner";
 import {
-  AdminImage,
   AdminConfirmDialog,
   CoverPreview,
   GameCloneModal,
@@ -27,7 +26,7 @@ import {
 } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
-import { Button, LoadingSpinner, Pagination, PlatformIcon } from "@/components";
+import { AppImage, Button, LoadingSpinner, Pagination, PlatformIcon } from "@/components";
 import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
 import { getMutationMessage } from "@/lib/mutation-utils";
 import { GET_ADMIN_GAMES, GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
@@ -174,7 +173,7 @@ function GameCoverThumbnail({ coverUrl, title }: { coverUrl?: string | null; tit
   if (coverUrl) {
     return (
       <div className={styles.itemCover}>
-        <AdminImage src={coverUrl} alt={title} className="h-full w-full object-cover" />
+        <AppImage src={coverUrl} alt={title} className="h-full w-full object-cover" />
       </div>
     );
   }
