@@ -227,6 +227,20 @@
 }
 
 .countPill,
+.progressHeading {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.progressPercent {
+  color: var(--cabinet-brass);
+  font-family: var(--font-script);
+  font-size: 1.35rem;
+  line-height: 1;
+  transform: rotate(-2.5deg);
+}
+
 .progressSummary {
   display: inline-flex;
   align-items: center;
@@ -290,7 +304,6 @@
 
 .progressBar {
   height: 14px;
-  margin-bottom: 14px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
   overflow: hidden;
@@ -301,12 +314,6 @@
   border-radius: 999px;
   background: linear-gradient(90deg, #ff6b77 0%, #ffcd38 100%);
   transition: width 0.35s ease;
-}
-
-.progressCopy {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.6;
 }
 
 .crimsonTrophy {

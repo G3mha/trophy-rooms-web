@@ -570,7 +570,10 @@ export default function GameDetailPage({
           <div className={styles.sectionHeader}>
             <div>
               <p className={styles.sectionEyebrow}>Tracking</p>
-              <h2 className={styles.sectionTitle}>Your Progress</h2>
+              <div className={styles.progressHeading}>
+                <h2 className={styles.sectionTitle}>Your Progress</h2>
+                <span className={styles.progressPercent}>{progress}%</span>
+              </div>
             </div>
             <span className={styles.progressSummary}>
               {completedCount} / {trophyAchievementCount} complete
@@ -582,9 +585,6 @@ export default function GameDetailPage({
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className={styles.progressCopy}>
-            You have cleared {progress}% of the achievements that count toward this game&rsquo;s trophy.
-          </p>
           {isTrophyComplete && (
             <div className={styles.crimsonTrophy}>
               <div className={styles.crimsonIcon}>
