@@ -4,82 +4,12 @@
   padding: var(--page-shell-padding-top-full) var(--page-shell-gutter) var(--page-shell-padding-bottom);
 }
 
-.hero {
-  margin-bottom: var(--page-block-gap);
-  padding: 30px;
-  border-radius: 30px;
-  background:
-    radial-gradient(circle at top left, rgba(220, 20, 60, 0.16), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 52%),
-    var(--bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
-}
-
-.heroLead {
-  max-width: 60ch;
-}
-
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  margin-bottom: 16px;
-  border-radius: 999px;
-  background: rgba(220, 20, 60, 0.16);
-  color: #ffb4c4;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.heroTitle {
-  margin: 0 0 10px;
-  color: var(--text-primary);
-  font-size: clamp(2.2rem, 4vw, 3.8rem);
-  line-height: 0.96;
-  font-family: var(--font-display);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  color: var(--cabinet-bone);
-  text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
-}
-
-.heroSubtitle {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.7;
-}
-
-.heroStats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.heroStat,
 .allComplete,
 .gamesSection,
 .trophyShowcase {
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
-}
-
-.heroStat {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  background: rgba(255, 255, 255, 0.035);
-  color: var(--text-secondary);
-}
-
-.summaryGrid {
-  margin: 24px 0;
 }
 
 .trophyShowcase,
@@ -158,18 +88,11 @@
   font-size: 1rem;
 }
 
-@media (max-width: 960px) {
-  .heroStats {
-    grid-template-columns: 1fr;
-  }
-}
-
 @media (max-width: 768px) {
   .container {
     padding: 28px 16px 44px;
   }
 
-  .hero,
   .trophyShowcase,
   .gamesSection {
     padding: 20px;
