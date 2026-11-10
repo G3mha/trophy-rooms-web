@@ -188,8 +188,8 @@ export default function Home() {
         <div className={styles.sectionIntro}>
           <h2 className={styles.sectionTitle}>One place for the whole game loop</h2>
           <p className={styles.sectionCopy}>
-            Trophy Rooms is not just a game list. It keeps discovery, ownership, and completion
-            in the same rhythm so your progress does not get fragmented by platform.
+            Trophy Rooms keeps discovery, ownership, and completion in the same rhythm so your
+            progress does not get fragmented by platform.
           </p>
         </div>
         <div className={styles.featureGrid}>
