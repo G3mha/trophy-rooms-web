@@ -50,9 +50,12 @@
   overflow: hidden;
 }
 
+/* Dims a locked achievement's icon. It sits above the icon and inside the
+   tier ring, so the tier stays readable. */
 .iconShade {
   position: absolute;
-  inset: 0;
+  inset: 3px;
+  z-index: 2;
   background: rgba(0, 0, 0, 0.5);
   border-radius: 50%;
 }
