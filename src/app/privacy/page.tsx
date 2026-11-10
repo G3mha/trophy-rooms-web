@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Privacy Policy</h1>
-        <p className={styles.lastUpdated}>Last Updated: March 15, 2026</p>
+        <p className={styles.lastUpdated}>Last Updated: November 10, 2026</p>
       </header>
 
       <div className={styles.content}>
@@ -97,6 +97,21 @@ export default function PrivacyPolicy() {
             receive limited profile information from Apple (name and email, which may be a
             private relay address). We do not have access to your Apple ID password or other
             Apple account data.
+          </p>
+          <p className={styles.paragraph}>
+            <strong>Cloudflare (Images):</strong> Achievement images are served from
+            Cloudflare&apos;s network at assets.trophyrooms.org. When the website or app loads
+            one, Cloudflare receives your IP address and standard request details, like your
+            browser type, to deliver it. Visit{" "}
+            <a
+              href="https://www.cloudflare.com/privacypolicy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.link}
+            >
+              cloudflare.com/privacypolicy
+            </a>{" "}
+            for more information.
           </p>
         </section>
 
