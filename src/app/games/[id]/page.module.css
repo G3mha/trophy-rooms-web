@@ -219,6 +219,8 @@
 
 .countPill,
 .progressHeading {
+  flex-shrink: 0;
+  white-space: nowrap;
   display: flex;
   align-items: baseline;
   gap: 12px;
@@ -233,6 +235,8 @@
 }
 
 .progressSummary {
+  flex-shrink: 0;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -619,11 +623,6 @@
   .progressPanel,
   .creatorPanel {
     padding: 20px;
-  }
-
-  .sectionHeader {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .inlineFields {

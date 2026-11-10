@@ -31,7 +31,6 @@
   display: flex;
   align-items: baseline;
   gap: 12px;
-  flex-wrap: wrap;
 }
 
 .title {
@@ -46,6 +45,7 @@
 }
 
 .subtitle {
+  white-space: nowrap;
   color: var(--text-muted);
   font-size: 0.95rem;
   font-weight: 600;
@@ -99,11 +99,6 @@
   .heroTop,
   .heroStats {
     grid-template-columns: 1fr;
-  }
-
-  .heroTop {
-    display: flex;
-    flex-direction: column;
   }
 
   .heroStats {

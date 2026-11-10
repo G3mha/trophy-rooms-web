@@ -210,9 +210,4 @@
   .stats {
     grid-template-columns: 1fr;
   }
-
-  .sectionHeader {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }

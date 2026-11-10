@@ -247,6 +247,8 @@
 }
 
 .countPill {
+  flex-shrink: 0;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -302,7 +304,6 @@
   }
 
   .heroActions,
-  .sectionHeader,
   .sectionHeaderActions,
   .spotlightBody {
     flex-direction: column;

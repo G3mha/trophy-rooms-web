@@ -140,6 +140,8 @@
 }
 
 .countPill {
+  flex-shrink: 0;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -251,7 +253,6 @@
     padding: 20px;
   }
 
-  .sectionHeader,
   .versionCard {
     flex-direction: column;
     align-items: flex-start;
