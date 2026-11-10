@@ -16,9 +16,7 @@ import {
   Plus,
   Monitor,
   AlertTriangle,
-  Sparkles,
   Target,
-  Compass,
 } from "lucide-react";
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
@@ -146,32 +144,15 @@ export default function LibraryPage() {
         classes={{
           root: styles.hero,
           lead: styles.heroLead,
-          eyebrow: styles.eyebrow,
           title: styles.title,
-          description: styles.subtitle,
           stats: styles.heroStats,
           stat: styles.heroStat,
         }}
-        eyebrow={
-          <>
-            <Sparkles size={16} />
-            <span>Progress Tracker</span>
-          </>
-        }
         title="My Library"
-        description="Keep your playing queue organized, separate active hunts from the backlog, and track which games are already finished."
         stats={[
-          {
-            icon: <Library size={16} />,
-            label: `${games.length} tracked games`,
-          },
           {
             icon: <Target size={16} />,
             label: `${activeCount} currently playing`,
-          },
-          {
-            icon: <Compass size={16} />,
-            label: `${backlogCount} in backlog`,
           },
         ]}
       />
