@@ -568,12 +568,9 @@ export default function GameDetailPage({
       {isSignedIn && trophyAchievementCount > 0 && (
         <section className={styles.progressPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Tracking</p>
-              <div className={styles.progressHeading}>
-                <h2 className={styles.sectionTitle}>Your Progress</h2>
-                <span className={styles.progressPercent}>{progress}%</span>
-              </div>
+            <div className={styles.progressHeading}>
+              <h2 className={styles.sectionTitle}>Your Progress</h2>
+              <span className={styles.progressPercent}>{progress}%</span>
             </div>
             <span className={styles.progressSummary}>
               {completedCount} / {trophyAchievementCount} complete
@@ -601,10 +598,7 @@ export default function GameDetailPage({
 
       <section className={styles.sectionPanel}>
         <div className={styles.sectionHeader}>
-          <div>
-            <p className={styles.sectionEyebrow}>Challenges</p>
-            <h2 className={styles.sectionTitle}>Achievement Sets</h2>
-          </div>
+          <h2 className={styles.sectionTitle}>Achievement Sets</h2>
           <span className={styles.countPill}>{game.achievementSets.length}</span>
         </div>
 
