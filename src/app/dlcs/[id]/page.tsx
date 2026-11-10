@@ -258,12 +258,7 @@ export default function DLCDetailPage({
               {getDLCTypeLabel(dlc.type)}
             </span>
           </div>
-          <div className={styles.titleBlock}>
-            <h1 className={styles.title}>{dlc.name}</h1>
-            <p className={styles.subtitle}>
-              Expansion context, achievement support, and bundle coverage at a glance.
-            </p>
-          </div>
+          <h1 className={styles.title}>{dlc.name}</h1>
           {dlc.description && (
             <ExpandableText text={dlc.description} maxLines={4} className={styles.description} />
           )}
