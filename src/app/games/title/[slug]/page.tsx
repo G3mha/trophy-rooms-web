@@ -43,7 +43,8 @@ export default function GameFamilyPage({
   const games: Game[] = data?.gamesByTitle || [];
 
   // Calculate totals
-  const totalAchievements = games.reduce((sum, g) => sum + g.achievementCount, 0);
+  // Achievements belong to the family, so every platform repeats the same count
+  const totalAchievements = Math.max(0, ...games.map((g) => g.achievementCount));
   const totalTrophies = games.reduce((sum, g) => sum + g.trophyCount, 0);
   const coverUrl = games.find((g) => g.coverUrl)?.coverUrl ?? null;
   const displayTitle = games[0]?.title ?? title;

@@ -70,7 +70,8 @@ function groupGamesByTitle(games: GameNode[]): GameGroup[] {
       .map((g) => g.platform)
       .filter((p): p is Platform => p !== null && p !== undefined),
     coverUrl: gameList.find((g) => g.coverUrl)?.coverUrl ?? null,
-    totalAchievementCount: gameList.reduce((sum, g) => sum + g.achievementCount, 0),
+    // Achievements belong to the family, so every platform repeats the same count
+    totalAchievementCount: Math.max(0, ...gameList.map((g) => g.achievementCount)),
     totalTrophyCount: gameList.reduce((sum, g) => sum + g.trophyCount, 0),
   }));
 }
