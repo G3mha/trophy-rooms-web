@@ -34,15 +34,6 @@
   gap: 18px;
 }
 
-.eyebrow {
-  width: fit-content;
-  font-family: var(--font-script);
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
-  color: var(--cabinet-brass);
-  transform: rotate(-2.5deg);
-  text-shadow: 0 3px 16px rgba(0, 0, 0, 0.6);
-}
-
 .heroTitle {
   margin: 0;
   font-family: var(--font-display);

@@ -90,7 +90,6 @@ export default function Home() {
     <div className={styles.container}>
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-          <div className={styles.eyebrow}>Your trophy room awaits</div>
           <h1 className={styles.heroTitle}>
             Every game you play. One room.
           </h1>
