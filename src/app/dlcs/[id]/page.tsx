@@ -329,10 +329,7 @@ export default function DLCDetailPage({
       {dlc.gameFamily && (
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Base Title</p>
-              <h2 className={styles.sectionTitle}>Parent Game</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Parent Game</h2>
           </div>
           <Link
             href={`/games/title/${dlc.gameFamily.slug}`}
@@ -387,10 +384,7 @@ export default function DLCDetailPage({
       {dlc.bundles.length > 0 && (
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Packaging</p>
-              <h2 className={styles.sectionTitle}>Available In</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Available In</h2>
             <span className={styles.countPill}>{dlc.bundles.length}</span>
           </div>
           <div className={styles.contentList}>
