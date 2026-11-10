@@ -19,7 +19,6 @@ import {
   DollarSign,
   StickyNote,
   Gift,
-  Sparkles,
 } from "lucide-react";
 import { GET_MY_BUYLIST, GET_BUYLIST_STATS, GET_ME } from "@/graphql/queries";
 import { REMOVE_FROM_BUYLIST } from "@/graphql/mutations";
@@ -242,20 +241,11 @@ export default function BuylistPage() {
           root: styles.hero,
           top: styles.heroTop,
           lead: styles.heroLead,
-          eyebrow: styles.eyebrow,
           title: styles.title,
-          description: styles.subtitle,
           stats: styles.heroStats,
           stat: styles.heroStat,
         }}
-        eyebrow={
-          <>
-            <Sparkles size={16} />
-            <span>Wish List Planner</span>
-          </>
-        }
         title="My Buylist"
-        description="Keep your most wanted games, DLCs, and bundles in one place, with priorities and prices ready when it&apos;s time to buy."
         action={
           <button
             className={styles.shareButton}
