@@ -27,21 +27,6 @@
   max-width: 64ch;
 }
 
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  margin-bottom: 16px;
-  border-radius: 999px;
-  background: rgba(201, 164, 92, 0.16);
-  color: var(--tint-info);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .titleRow {
   display: flex;
   align-items: baseline;
@@ -64,12 +49,6 @@
   color: var(--text-muted);
   font-size: 0.95rem;
   font-weight: 600;
-}
-
-.description {
-  margin: 12px 0 0;
-  color: var(--text-secondary);
-  line-height: 1.7;
 }
 
 .heroStats {

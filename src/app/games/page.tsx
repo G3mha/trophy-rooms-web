@@ -144,23 +144,14 @@ export default function GamesPage() {
           root: styles.hero,
           top: styles.heroTop,
           lead: styles.heroLead,
-          eyebrow: styles.eyebrow,
           titleRow: styles.titleRow,
           title: styles.title,
           titleMeta: styles.subtitle,
-          description: styles.description,
           stats: styles.heroStats,
           stat: styles.heroStat,
         }}
-        eyebrow={
-          <>
-            <Gamepad2 size={16} />
-            <span>Catalog Browser</span>
-          </>
-        }
         title="Games Library"
         titleMeta={`${totalGames} games`}
-        description="Browse the full library, compare platform variants, and surface the games with the richest achievement support."
         action={isSignedIn && isAdmin ? <Button href="/games/new">Add Game</Button> : undefined}
         stats={[
           {
