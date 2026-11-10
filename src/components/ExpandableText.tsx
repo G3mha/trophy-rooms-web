@@ -24,10 +24,28 @@ export function ExpandableText({
     const element = textRef.current;
     if (!element) return;
 
-    // Check if text overflows the collapsed height
-    const lineHeight = parseInt(getComputedStyle(element).lineHeight) || 20;
-    const maxHeight = lineHeight * maxLines;
-    setNeedsExpansion(element.scrollHeight > maxHeight + 4); // 4px tolerance
+    // scrollHeight is the full text height whether or not it's clamped. Half a
+    // line of slack absorbs rounding, since a real extra line is a whole line.
+    const measure = () => {
+      const lineHeight = parseFloat(getComputedStyle(element).lineHeight) || 20;
+      setNeedsExpansion(element.scrollHeight > lineHeight * (maxLines + 0.5));
+    };
+
+    measure();
+
+    // Text rewraps when the width changes or a web font arrives
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+
+    let isActive = true;
+    document.fonts.ready.then(() => {
+      if (isActive) measure();
+    });
+
+    return () => {
+      isActive = false;
+      observer.disconnect();
+    };
   }, [text, maxLines]);
 
   if (!text) return null;
