@@ -218,10 +218,7 @@ export default function PublicBuylistPage({
       {items.length > 0 ? (
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Wishlist</p>
-              <h2 className={styles.sectionTitle}>Wanted Items</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Wanted Items</h2>
             <span className={styles.countPill}>{items.length}</span>
           </div>
           <div className={styles.itemsGrid}>
