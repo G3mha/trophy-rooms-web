@@ -1,6 +1,7 @@
 export { Header } from "./Header";
 export { Footer } from "./Footer";
 export { AppImage } from "./AppImage";
+export { PlatformIcon } from "./PlatformIcon";
 export { LoadingSpinner } from "./LoadingSpinner";
 export { GameCard } from "./GameCard";
 export { GroupedGameCard } from "./GroupedGameCard";
