@@ -187,7 +187,6 @@ export default function Home() {
 
       <section className={styles.features}>
         <div className={styles.sectionIntro}>
-          <p className={styles.sectionEyebrow}>Why It Works</p>
           <h2 className={styles.sectionTitle}>One place for the whole collecting loop</h2>
           <p className={styles.sectionCopy}>
             Trophy Rooms is not just a game list. It keeps discovery, ownership, and completion
@@ -227,10 +226,7 @@ export default function Home() {
 
       <section className={styles.gamesSection}>
         <div className={styles.sectionHeader}>
-          <div>
-            <p className={styles.sectionEyebrow}>Featured Catalog</p>
-            <h2 className={styles.sectionTitle}>Start Somewhere Good</h2>
-          </div>
+          <h2 className={styles.sectionTitle}>Start Somewhere Good</h2>
           <div className={styles.sectionHeaderActions}>
             <span className={styles.countPill}>{featuredFamilies.length || 0} picks</span>
             <Button href="/games" variant="outline" size="sm">
