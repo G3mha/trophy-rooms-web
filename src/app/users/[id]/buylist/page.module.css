@@ -12,7 +12,7 @@
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 24px;
   margin-bottom: var(--page-block-gap);
   padding: 28px;
@@ -29,21 +29,6 @@
   gap: 18px;
 }
 
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  width: fit-content;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(128, 179, 126, 0.14);
-  color: #a7f3c7;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .title {
   margin: 0;
   color: var(--text-primary);
@@ -54,13 +39,6 @@
   letter-spacing: 0.02em;
   color: var(--cabinet-bone);
   text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.75;
-  max-width: 60ch;
 }
 
 .statsGrid {
@@ -94,38 +72,6 @@
 
 .heroSidebar {
   display: flex;
-}
-
-.contextCard {
-  width: 100%;
-  padding: 20px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.contextHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-
-.contextLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.contextCopy {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.7;
 }
 
 .profileLink {
@@ -337,7 +283,6 @@
     padding: 20px;
   }
 
-  .contextHeader,
   .sectionHeader {
     flex-direction: column;
     align-items: flex-start;

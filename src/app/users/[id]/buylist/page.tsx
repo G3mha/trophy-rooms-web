@@ -4,7 +4,6 @@ import { use } from "react";
 import { useQuery } from "@apollo/client";
 import Link from "next/link";
 import {
-  BookmarkPlus,
   ShoppingCart,
   Gamepad2,
   Package,
@@ -165,16 +164,9 @@ export default function PublicBuylistPage({
     <div className={styles.container}>
       <header className={styles.hero}>
         <div className={styles.heroContent}>
-          <div className={styles.eyebrow}>
-            <ShoppingCart size={14} />
-            <span>Shared Buylist</span>
-          </div>
           <h1 className={styles.title}>
             {getDisplayName(user.name, id)}&apos;s Buylist
           </h1>
-          <p className={styles.subtitle}>
-            Games, DLCs, and bundles they want to pick up or receive as gifts.
-          </p>
 
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
@@ -197,21 +189,10 @@ export default function PublicBuylistPage({
           </div>
         </div>
         <div className={styles.heroSidebar}>
-          <div className={styles.contextCard}>
-            <div className={styles.contextHeader}>
-              <div className={styles.contextLabel}>
-                <BookmarkPlus size={14} />
-                <span>Share Context</span>
-              </div>
-              <Link href={`/users/${id}`} className={styles.profileLink}>
-                <User size={16} />
-                <span>View Profile</span>
-              </Link>
-            </div>
-            <p className={styles.contextCopy}>
-              Use this page as a quick reference for gifting ideas, backlog help, or wishlist comparisons.
-            </p>
-          </div>
+          <Link href={`/users/${id}`} className={styles.profileLink}>
+            <User size={16} />
+            <span>View Profile</span>
+          </Link>
         </div>
       </header>
 
