@@ -108,7 +108,7 @@ export default function TrophyRoom() {
             <h2 className={styles.sectionTitle}>
               <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophy Collection
             </h2>
-            <span className={styles.sectionCount}>{completedGames.length} games</span>
+            <span className={styles.sectionCount}>{completedGames.length} {completedGames.length === 1 ? "game" : "games"}</span>
           </div>
           <p className={styles.sectionSubtitle}>100% completion achieved in these games</p>
           <div className={styles.progressGrid}>
