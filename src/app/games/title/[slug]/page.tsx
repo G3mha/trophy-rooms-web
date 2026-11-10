@@ -112,9 +112,6 @@ export default function GameFamilyPage({
               <span>Game Family</span>
             </div>
             <h1 className={styles.title}>{displayTitle}</h1>
-            <p className={styles.subtitle}>
-              Compare platform variants, achievement totals, and trophy support for this title group.
-            </p>
             <div className={styles.stats}>
               <div className={styles.statCard}>
                 <span className={styles.statValue}>{games.length}</span>
