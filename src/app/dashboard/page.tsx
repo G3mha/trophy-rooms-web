@@ -222,10 +222,7 @@ export default function Dashboard() {
       <div className={styles.columns}>
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Recent Unlocks</p>
-              <h2 className={styles.sectionTitle}>Achievements</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Achievements</h2>
             <Button href="/activity" variant="ghost" className={styles.sectionLink}>
               View feed <ArrowRight size={14} />
             </Button>
@@ -257,10 +254,7 @@ export default function Dashboard() {
 
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Completion Shelf</p>
-              <h2 className={styles.sectionTitle}>Your Trophies</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Your Trophies</h2>
             <Button href="/trophy-room" variant="ghost" className={styles.sectionLink}>
               Open room <ArrowRight size={14} />
             </Button>
