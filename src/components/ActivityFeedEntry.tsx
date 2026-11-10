@@ -16,7 +16,6 @@ interface ActivityFeedEntryProps {
   achievementId?: string;
   achievementTitle?: string;
   achievementTier?: AchievementTier;
-  achievementPoints?: number;
   gameId: string;
   gameTitle: string;
   earnedAt: string;
@@ -60,7 +59,6 @@ export function ActivityFeedEntry({
   userName,
   achievementTitle,
   achievementTier,
-  achievementPoints,
   gameId,
   gameTitle,
   earnedAt,
@@ -102,9 +100,6 @@ export function ActivityFeedEntry({
           <div className={styles.achievementInfo}>
             <Medal className={styles.tierIcon} size={16} color={getTierColor(achievementTier)} />
             <span className={styles.achievementTitle}>{achievementTitle}</span>
-            {achievementPoints && achievementPoints > 0 && (
-              <span className={styles.points}>+{achievementPoints} pts</span>
-            )}
           </div>
         )}
 

@@ -475,7 +475,6 @@ export const GET_ACTIVITY_FEED = gql`
       achievementId
       achievementTitle
       achievementTier
-      achievementPoints
       gameFamilyId
       gameTitle
       earnedAt
@@ -492,7 +491,6 @@ export const GET_RECENT_ACHIEVEMENT_ACTIVITY = gql`
       achievementId
       achievementTitle
       achievementTier
-      achievementPoints
       gameFamilyId
       gameTitle
       earnedAt

@@ -29,7 +29,6 @@ interface ActivityEntry {
   achievementId?: string;
   achievementTitle?: string;
   achievementTier?: "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
-  achievementPoints?: number;
   gameId: string;
   gameTitle: string;
   earnedAt: string;
@@ -154,7 +153,6 @@ export default function ActivityPage() {
                 achievementId={entry.achievementId}
                 achievementTitle={entry.achievementTitle}
                 achievementTier={entry.achievementTier}
-                achievementPoints={entry.achievementPoints}
                 gameId={entry.gameId}
                 gameTitle={entry.gameTitle}
                 earnedAt={entry.earnedAt}

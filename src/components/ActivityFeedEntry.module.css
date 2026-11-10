@@ -93,15 +93,6 @@
   color: var(--text-primary);
 }
 
-.points {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--nintendo-red);
-  background: rgba(201, 44, 60, 0.1);
-  padding: 2px 8px;
-  border-radius: 12px;
-}
-
 .gameName {
   font-size: 13px;
   color: var(--text-secondary);
