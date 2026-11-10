@@ -224,8 +224,6 @@ export default function CollectionPage() {
       />
 
       <CatalogFilterPanel
-        eyebrow="Refine Archive"
-        title="Region and Condition"
         bodyClassName={styles.filters}
       >
           <FilterTabs

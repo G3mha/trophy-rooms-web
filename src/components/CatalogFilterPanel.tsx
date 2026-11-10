@@ -7,8 +7,6 @@ import { cn } from "@/lib/utils";
 import styles from "./CatalogFilterPanel.module.css";
 
 type CatalogFilterPanelProps = {
-  eyebrow: string;
-  title: string;
   children: React.ReactNode;
   className?: string;
   bodyClassName?: string;
@@ -18,8 +16,6 @@ type CatalogFilterPanelProps = {
 };
 
 function CatalogFilterPanel({
-  eyebrow,
-  title,
   children,
   className,
   bodyClassName,
@@ -28,19 +24,13 @@ function CatalogFilterPanel({
   showClear = false,
 }: CatalogFilterPanelProps) {
   return (
-    <section className={cn(styles.panel, className)}>
-      <div className={styles.header}>
-        <div>
-          <p className={styles.eyebrow}>{eyebrow}</p>
-          <h2 className={styles.title}>{title}</h2>
-        </div>
-        {showClear && onClear ? (
-          <button type="button" onClick={onClear} className={styles.clearButton}>
-            {clearLabel}
-          </button>
-        ) : null}
-      </div>
+    <section className={cn(styles.panel, className)} aria-label="Filters">
       <div className={cn(styles.body, bodyClassName)}>{children}</div>
+      {showClear && onClear ? (
+        <button type="button" onClick={onClear} className={styles.clearButton}>
+          {clearLabel}
+        </button>
+      ) : null}
     </section>
   );
 }

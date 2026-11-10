@@ -85,8 +85,6 @@ export default function BundlesPage() {
       />
 
       <CatalogFilterPanel
-        eyebrow="Refine Results"
-        title="Search and Filter"
         showClear={hasActiveFilters}
         onClear={() => {
           setSearchQuery("");

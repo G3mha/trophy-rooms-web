@@ -294,8 +294,6 @@ export default function BuylistPage() {
       />
 
       <CatalogFilterPanel
-        eyebrow="Refine Wishlist"
-        title="Priority and Type"
         bodyClassName={styles.filters}
       >
           <div className={styles.filterGroup}>

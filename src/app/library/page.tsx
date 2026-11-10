@@ -174,10 +174,7 @@ export default function LibraryPage() {
         ]}
       />
 
-      <CatalogFilterPanel
-        eyebrow="View by Status"
-        title="Current Library Slice"
-      >
+      <CatalogFilterPanel>
         <FilterTabs
           tabs={STATUS_TABS}
           value={activeFilter}

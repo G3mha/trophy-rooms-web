@@ -170,8 +170,6 @@ export default function GamesPage() {
       />
 
       <CatalogFilterPanel
-        eyebrow="Refine Results"
-        title="Search and Filter"
         showClear={Boolean(searchQuery || platformId || hasAchievements !== "all")}
         onClear={() => {
           setSearchQuery("");
