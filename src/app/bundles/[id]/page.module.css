@@ -107,12 +107,6 @@
   color: white;
 }
 
-.titleBlock {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .title {
   margin: 0;
   color: var(--text-primary);
@@ -123,13 +117,6 @@
   letter-spacing: 0.02em;
   color: var(--cabinet-bone);
   text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 1rem;
-  font-weight: 600;
 }
 
 .description {

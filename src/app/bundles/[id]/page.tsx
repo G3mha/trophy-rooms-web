@@ -274,12 +274,7 @@ export default function BundleDetailPage({
               {getBundleTypeLabel(bundle.type)}
             </span>
           </div>
-          <div className={styles.titleBlock}>
-            <h1 className={styles.title}>{bundle.name}</h1>
-            <p className={styles.subtitle}>
-              Included games, add-on coverage, and ownership status in one view.
-            </p>
-          </div>
+          <h1 className={styles.title}>{bundle.name}</h1>
           {bundle.description && (
             <ExpandableText text={bundle.description} maxLines={4} className={styles.description} />
           )}
