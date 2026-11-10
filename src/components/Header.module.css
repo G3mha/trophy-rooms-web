@@ -19,7 +19,14 @@
 .logo {
   display: flex;
   align-items: center;
+  flex: none;
   text-decoration: none;
+}
+
+.logoImage {
+  display: block;
+  height: 40px;
+  width: auto;
 }
 
 .nav {
@@ -257,8 +264,28 @@
   }
 }
 
+/* Above the phone layout the full nav shares a line with the wide six-trophy
+   logo, and at these widths there isn't room for both at full size. */
+@media (min-width: 769px) and (max-width: 959px) {
+  .logoImage {
+    height: 28px;
+  }
+
+  .nav {
+    gap: 2px;
+  }
+
+  .navLink {
+    padding: 8px 10px;
+  }
+}
+
 /* Phone width: the logo and both auth buttons have to share one line */
 @media (max-width: 480px) {
+  .logoImage {
+    height: 32px;
+  }
+
   .actions {
     gap: 8px;
   }
@@ -269,5 +296,11 @@
 
   .signUpBtn {
     padding: 8px 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .logoImage {
+    height: 24px;
   }
 }
