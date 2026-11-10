@@ -162,17 +162,14 @@ export default function LibraryPage() {
           {
             label: "Library Size",
             value: games.length,
-            text: "Games with a tracked status in your library.",
           },
           {
             label: "Completed",
             value: completedCount,
-            text: "Runs you've already closed out.",
           },
           {
             label: "Backlog",
             value: backlogCount,
-            text: "Games waiting for their turn in rotation.",
           },
         ]}
       />

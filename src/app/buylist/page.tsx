@@ -281,17 +281,14 @@ export default function BuylistPage() {
           {
             label: "Games",
             value: totalGames,
-            text: "Full releases currently on your list.",
           },
           {
             label: "DLCs",
             value: totalDlcs,
-            text: "Add-ons and expansions you still want.",
           },
           {
             label: "Bundles",
             value: totalBundles,
-            text: "Collections and packages worth tracking.",
           },
         ]}
       />

@@ -211,17 +211,14 @@ export default function CollectionPage() {
           {
             label: "Inventory",
             value: stats.totalItems,
-            text: "Physical items currently logged in your archive.",
           },
           {
             label: "Regional Mix",
             value: totalRegionalVariants,
-            text: "Copies distributed across your tracked regions.",
           },
           {
             label: "Completeness",
             value: stats.completeCount,
-            text: "Entries with core components present and accounted for.",
           },
         ]}
       />
