@@ -71,7 +71,7 @@
 }
 
 .heroSidebar {
-  display: flex;
+  align-self: start;
 }
 
 .profileLink {
