@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@/lib/auth";
-import { FilePlus2, Gamepad2, ImageIcon, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { CREATE_GAME_FAMILY } from "@/graphql/mutations";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
@@ -119,28 +119,7 @@ export default function NewGamePage() {
     <div className={styles.container}>
       <header className={styles.hero}>
         <div className={styles.heroContent}>
-          <div className={styles.eyebrow}>
-            <FilePlus2 size={14} />
-            <span>Catalog Admin</span>
-          </div>
           <h1 className={styles.title}>Add New Game</h1>
-          <p className={styles.subtitle}>
-            Create a new library entry with its platform context, cover art, and base description.
-          </p>
-        </div>
-        <div className={styles.heroStats}>
-          <div className={styles.heroStat}>
-            <Gamepad2 size={16} />
-            <span>
-              {platformIds.size > 0
-                ? `${platformIds.size} selected`
-                : `${platforms.length} platforms available`}
-            </span>
-          </div>
-          <div className={styles.heroStat}>
-            <ImageIcon size={16} />
-            <span>Cover preview updates live</span>
-          </div>
         </div>
       </header>
 
