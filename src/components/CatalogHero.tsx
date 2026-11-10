@@ -11,9 +11,9 @@ type CatalogHeroClasses = {
   root: string;
   top?: string;
   lead: string;
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
-  description: string;
+  description?: string;
   stats: string;
   stat: string;
   titleRow?: string;
@@ -22,9 +22,9 @@ type CatalogHeroClasses = {
 
 type CatalogHeroProps = {
   classes: CatalogHeroClasses;
-  eyebrow: React.ReactNode;
+  eyebrow?: React.ReactNode;
   title: React.ReactNode;
-  description: React.ReactNode;
+  description?: React.ReactNode;
   titleMeta?: React.ReactNode;
   action?: React.ReactNode;
   stats?: CatalogHeroStat[];
@@ -43,7 +43,7 @@ function CatalogHero({
     <header className={classes.root}>
       <div className={classes.top}>
         <div className={classes.lead}>
-          <div className={classes.eyebrow}>{eyebrow}</div>
+          {eyebrow ? <div className={classes.eyebrow}>{eyebrow}</div> : null}
           {titleMeta ? (
             <div className={classes.titleRow}>
               <h1 className={classes.title}>{title}</h1>
@@ -52,7 +52,7 @@ function CatalogHero({
           ) : (
             <h1 className={classes.title}>{title}</h1>
           )}
-          <p className={classes.description}>{description}</p>
+          {description ? <p className={classes.description}>{description}</p> : null}
         </div>
         {action ? <div>{action}</div> : null}
       </div>
