@@ -47,7 +47,6 @@ interface Achievement {
   id: string;
   title: string;
   description?: string | null;
-  points?: number | null;
   tier?: string | null;
   iconUrl?: string | null;
 }
@@ -79,7 +78,6 @@ export default function AdminAchievementsPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [newPoints, setNewPoints] = useState("");
   const [newIconUrl, setNewIconUrl] = useState("");
 
   // Edit modal state
@@ -87,7 +85,6 @@ export default function AdminAchievementsPage() {
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
-  const [editPoints, setEditPoints] = useState("");
   const [editIconUrl, setEditIconUrl] = useState("");
 
   // Selection state
@@ -235,7 +232,6 @@ export default function AdminAchievementsPage() {
   const resetAddForm = () => {
     setNewTitle("");
     setNewDescription("");
-    setNewPoints("");
     setNewIconUrl("");
   };
 
@@ -243,7 +239,6 @@ export default function AdminAchievementsPage() {
     setEditingAchievement(null);
     setEditTitle("");
     setEditDescription("");
-    setEditPoints("");
     setEditIconUrl("");
   };
 
@@ -251,7 +246,6 @@ export default function AdminAchievementsPage() {
     setEditingAchievement(achievement);
     setEditTitle(achievement.title);
     setEditDescription(achievement.description || "");
-    setEditPoints(achievement.points?.toString() || "0");
     setEditIconUrl(achievement.iconUrl || "");
     setIsEditModalOpen(true);
   };
@@ -263,7 +257,6 @@ export default function AdminAchievementsPage() {
         input: {
           title: newTitle,
           description: newDescription || null,
-          points: newPoints ? parseInt(newPoints) : 0,
           iconUrl: newIconUrl || null,
           achievementSetId: selectedSetId,
         },
@@ -279,7 +272,6 @@ export default function AdminAchievementsPage() {
         input: {
           title: editTitle,
           description: editDescription || null,
-          points: editPoints ? parseInt(editPoints) : 0,
           iconUrl: editIconUrl || null,
         },
       },
@@ -290,11 +282,10 @@ export default function AdminAchievementsPage() {
     if (!csvData || !selectedSetId) return;
     const lines = csvData.trim().split("\n");
     const achievementsToCreate = lines.map((line) => {
-      const [title, description, points] = line.split(",").map((s) => s.trim());
+      const [title, description] = line.split(",").map((s) => s.trim());
       return {
         title,
         description: description || null,
-        points: points ? parseInt(points) : 0,
       };
     });
     await bulkCreate({
@@ -424,13 +415,13 @@ export default function AdminAchievementsPage() {
           <div className={styles.contextPanelHeader}>
             <h2 className={styles.contextPanelTitle}>CSV Import</h2>
             <p className={styles.contextPanelDescription}>
-              Paste rows in the format `title,description,points` to create achievements in bulk.
+              Paste rows in the format `title,description` to create achievements in bulk.
             </p>
           </div>
           <Textarea
             value={csvData}
             onChange={(e) => setCsvData(e.target.value)}
-            placeholder="Beat the game,Complete the main story,100&#10;Find all secrets,Discover every hidden item,50"
+            placeholder="Beat the game,Complete the main story&#10;Find all secrets,Discover every hidden item"
             className="min-h-[140px]"
           />
           <div className={styles.actionsRow}>
@@ -492,15 +483,6 @@ export default function AdminAchievementsPage() {
                   />
                 </FormField>
 
-                <FormField label="Points">
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={newPoints}
-                    onChange={(e) => setNewPoints(e.target.value)}
-                  />
-                </FormField>
-
                 <FormField label="Icon URL" hint="Optional direct image URL for the achievement icon.">
                   <Input
                     placeholder="https://example.com/icon.png"
@@ -559,15 +541,6 @@ export default function AdminAchievementsPage() {
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                     rows={2}
-                  />
-                </FormField>
-
-                <FormField label="Points">
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={editPoints}
-                    onChange={(e) => setEditPoints(e.target.value)}
                   />
                 </FormField>
 
@@ -660,9 +633,6 @@ export default function AdminAchievementsPage() {
                         </span>
                       )}
                     </div>
-                    <span className={styles.itemMeta}>
-                      {achievement.points || 0} pts
-                    </span>
                     <div className={styles.itemActions}>
                       <button
                         className={styles.actionBtn}

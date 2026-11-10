@@ -121,7 +121,6 @@ export default function GameDetailPage({
   const [achievementSetId, setAchievementSetId] = useState("");
   const [achievementTitle, setAchievementTitle] = useState("");
   const [achievementDescription, setAchievementDescription] = useState("");
-  const [achievementPoints, setAchievementPoints] = useState("0");
   const [achievementIconUrl, setAchievementIconUrl] = useState("");
   const [achievementError, setAchievementError] = useState<string | null>(null);
   const [selectedScreenshot, setSelectedScreenshot] = useState<number | null>(null);
@@ -187,7 +186,6 @@ export default function GameDetailPage({
         if (result.createAchievement.success) {
           setAchievementTitle("");
           setAchievementDescription("");
-          setAchievementPoints("0");
           setAchievementIconUrl("");
           setAchievementError(null);
           refetch();
@@ -326,15 +324,12 @@ export default function GameDetailPage({
       return;
     }
 
-    const points = Number.parseInt(achievementPoints, 10);
-
     await createAchievement({
       variables: {
         input: {
           title: achievementTitle.trim(),
           description: achievementDescription.trim() || null,
           iconUrl: achievementIconUrl.trim() || null,
-          points: Number.isFinite(points) ? points : 0,
           achievementSetId,
         },
       },
@@ -759,32 +754,17 @@ export default function GameDetailPage({
                       rows={3}
                     />
                   </div>
-                  <div className={styles.inlineFields}>
-                    <div className={styles.field}>
-                      <label htmlFor="achievementPoints" className={styles.label}>
-                        Points
-                      </label>
-                      <input
-                        id="achievementPoints"
-                        type="number"
-                        min="0"
-                        value={achievementPoints}
-                        onChange={(e) => setAchievementPoints(e.target.value)}
-                        className={styles.input}
-                      />
-                    </div>
-                    <div className={styles.field}>
-                      <label htmlFor="achievementIconUrl" className={styles.label}>
-                        Icon URL
-                      </label>
-                      <input
-                        id="achievementIconUrl"
-                        type="url"
-                        value={achievementIconUrl}
-                        onChange={(e) => setAchievementIconUrl(e.target.value)}
-                        className={styles.input}
-                      />
-                    </div>
+                  <div className={styles.field}>
+                    <label htmlFor="achievementIconUrl" className={styles.label}>
+                      Icon URL
+                    </label>
+                    <input
+                      id="achievementIconUrl"
+                      type="url"
+                      value={achievementIconUrl}
+                      onChange={(e) => setAchievementIconUrl(e.target.value)}
+                      className={styles.input}
+                    />
                   </div>
                   <Button type="submit" loading={creatingAchievement}>
                     Add Achievement
