@@ -258,7 +258,6 @@ export default function Home() {
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Start Somewhere Good</h2>
           <div className={styles.sectionHeaderActions}>
-            <span className={styles.countPill}>{visiblePicks.length} picks</span>
             <Button href="/games" variant="outline" size="sm">
               View All
             </Button>
