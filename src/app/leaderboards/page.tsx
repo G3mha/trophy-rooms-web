@@ -198,36 +198,8 @@ export default function LeaderboardsPage() {
     <div className={styles.container}>
       <header className={styles.hero}>
         <div className={styles.heroLead}>
-          <div className={styles.eyebrow}>
-            <Crown size={16} />
-            <span>Competitive Snapshot</span>
-          </div>
           <h1 className={styles.title}>Leaderboards</h1>
-          <p className={styles.subtitle}>
-            Track the most decorated players, fastest completions, and the people
-            setting the pace across Trophy Rooms.
-          </p>
         </div>
-        <aside className={styles.heroPanel}>
-          <div className={styles.heroPanelLabel}>Now Tracking</div>
-          <div className={styles.heroPanelValue}>{currentTab.label}</div>
-          <p className={styles.heroPanelText}>{currentTab.description}</p>
-          {!loading && podium.length > 0 && (
-            <div className={styles.heroPodium}>
-              {podium.map((entry, index) => (
-                <div
-                  key={`${activeTab}-${entry.userId}-${index}`}
-                  className={styles.heroPodiumEntry}
-                >
-                  <span className={styles.heroPodiumRank}>#{index + 1}</span>
-                  <span className={styles.heroPodiumName}>
-                    {getDisplayName(entry.userName, entry.userId)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </aside>
       </header>
 
       <nav className={styles.tabNav}>

@@ -5,14 +5,10 @@
 }
 
 .hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.85fr);
-  gap: 20px;
   margin-bottom: var(--page-block-gap);
 }
 
 .heroLead,
-.heroPanel,
 .podiumSection,
 .leaderboardSection,
 .signInPrompt {
@@ -22,7 +18,6 @@
 }
 
 .heroLead,
-.heroPanel,
 .podiumSection,
 .leaderboardSection {
   background: var(--bg-secondary);
@@ -36,23 +31,8 @@
     var(--bg-secondary);
 }
 
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  margin-bottom: 16px;
-  border-radius: 999px;
-  background: rgba(255, 196, 86, 0.14);
-  color: #ffd99a;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 .title {
-  margin: 0 0 10px;
+  margin: 0;
   color: var(--text-primary);
   font-size: clamp(2rem, 3vw, 3.2rem);
   font-family: var(--font-display);
@@ -60,64 +40,6 @@
   letter-spacing: 0.02em;
   color: var(--cabinet-bone);
   text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.7;
-  max-width: 58ch;
-}
-
-.heroPanel {
-  padding: 24px;
-}
-
-.heroPanelLabel {
-  color: var(--text-muted);
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.heroPanelValue {
-  margin-top: 8px;
-  color: var(--text-primary);
-  font-size: 1.45rem;
-  font-weight: 700;
-}
-
-.heroPanelText {
-  margin: 8px 0 0;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.heroPodium {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.heroPodiumEntry {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.035);
-}
-
-.heroPodiumRank {
-  color: #ffd99a;
-  font-weight: 700;
-}
-
-.heroPodiumName {
-  color: var(--text-primary);
-  font-weight: 600;
 }
 
 .tabNav {
@@ -292,7 +214,6 @@
   }
 
   .heroLead,
-  .heroPanel,
   .podiumSection,
   .leaderboardSection {
     padding: 20px;
