@@ -32,7 +32,9 @@ export function GameProgressCard({
   trophyEarnedAt,
   compact = false,
 }: GameProgressCardProps) {
-  const isComplete = percentComplete === 100;
+  // The API reports 0 to 1. Round down, so 199 of 200 reads 99% rather than 100%
+  const percent = Math.floor(percentComplete * 100);
+  const isComplete = percent === 100;
 
   return (
     <Link
@@ -72,10 +74,10 @@ export function GameProgressCard({
           <div className={styles.progressBar}>
             <div
               className={`${styles.progressFill} ${isComplete ? styles.progressComplete : ""}`}
-              style={{ width: `${percentComplete}%` }}
+              style={{ width: `${percent}%` }}
             />
           </div>
-          <span className={styles.progressText}>{percentComplete}%</span>
+          <span className={styles.progressText}>{percent}%</span>
         </div>
 
         {/* Stats */}
