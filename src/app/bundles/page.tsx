@@ -63,20 +63,11 @@ export default function BundlesPage() {
         classes={{
           root: styles.hero,
           lead: styles.heroLead,
-          eyebrow: styles.eyebrow,
           title: styles.title,
-          description: styles.subtitle,
           stats: styles.heroStats,
           stat: styles.heroStat,
         }}
-        eyebrow={
-          <>
-            <Layers3 size={16} />
-            <span>Catalog Overview</span>
-          </>
-        }
         title="Bundles Library"
-        description="Browse collections, season passes, and grouped releases across the catalog with a clearer view of what each package contains."
         stats={[
           {
             icon: <Package size={16} />,
