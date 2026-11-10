@@ -570,7 +570,7 @@ export default function GameDetailPage({
               <span className={styles.progressPercent}>{progress}%</span>
             </div>
             <span className={styles.progressSummary}>
-              {completedCount} / {trophyAchievementCount} complete
+              {completedCount} / {trophyAchievementCount}
             </span>
           </div>
           <div className={styles.progressBar}>
