@@ -77,7 +77,6 @@ export function RecentActivity({ achievements }: RecentActivityProps) {
 
   return (
     <div className={styles.container}>
-      <h3 className={styles.title}>Recent Activity</h3>
       <div className={styles.timeline}>
         {validAchievements.map((item, index) => (
           <div key={item.id} className={styles.timelineItem}>
