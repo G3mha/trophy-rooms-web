@@ -130,12 +130,10 @@ export const USER_FRAGMENT = gql`
     gamesWithAchievementsCount
     createdAt
     stats {
-      totalPoints
       goldCount
       silverCount
       bronzeCount
       completionRate
-      averagePointsPerGame
     }
   }
 `;
@@ -327,12 +325,10 @@ export const GET_USER = gql`
       gamesWithAchievementsCount
       createdAt
       stats {
-        totalPoints
         goldCount
         silverCount
         bronzeCount
         completionRate
-        averagePointsPerGame
       }
       recentAchievements {
         id

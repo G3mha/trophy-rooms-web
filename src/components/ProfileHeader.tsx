@@ -5,13 +5,11 @@ import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./ProfileHeader.module.css";
 
 interface UserStats {
-  totalPoints: number;
   platinumCount?: number;
   goldCount: number;
   silverCount: number;
   bronzeCount: number;
   completionRate: number;
-  averagePointsPerGame: number;
 }
 
 interface ProfileHeaderProps {
@@ -115,12 +113,6 @@ export function ProfileHeader({
               <span className={styles.quickStatValue}>{gamesPlayed}</span>
               <span className={styles.quickStatLabel}>Games</span>
             </div>
-            {stats && (
-              <div className={styles.quickStat}>
-                <span className={styles.quickStatValue}>{stats.totalPoints.toLocaleString()}</span>
-                <span className={styles.quickStatLabel}>Points</span>
-              </div>
-            )}
           </div>
         </div>
 
@@ -208,10 +200,6 @@ export function ProfileHeader({
             <div className={styles.extraStat}>
               <span className={styles.extraStatValue}>{stats.completionRate}%</span>
               <span className={styles.extraStatLabel}>Completion Rate</span>
-            </div>
-            <div className={styles.extraStat}>
-              <span className={styles.extraStatValue}>{stats.averagePointsPerGame}</span>
-              <span className={styles.extraStatLabel}>Avg Points/Game</span>
             </div>
           </div>
         </div>
