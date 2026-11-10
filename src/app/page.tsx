@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
 import { ArrowRight, Gamepad2, Search, Star, Trophy } from "lucide-react";
@@ -57,14 +57,42 @@ function groupGamesByTitle(games: GameNode[]): GameGroup[] {
   }));
 }
 
+// Two full rows at the widest layout, where the picks grid fits 10 columns
+const MAX_PICKS = 20;
+const PICK_ROWS = 2;
+
+// The picks grid fits as many columns as its width allows. Reading the live
+// count lets the section show whole rows at any screen size.
+function useGridColumnCount() {
+  const [grid, setGrid] = useState<HTMLDivElement | null>(null);
+  const [columns, setColumns] = useState(0);
+
+  useLayoutEffect(() => {
+    if (!grid) return;
+
+    const measure = () =>
+      setColumns(getComputedStyle(grid).gridTemplateColumns.split(" ").length);
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(grid);
+    return () => observer.disconnect();
+  }, [grid]);
+
+  return [setGrid, columns] as const;
+}
+
 export default function Home() {
   const { isSignedIn } = useAuth();
   const { data: meData } = useQuery(GET_ME, {
     skip: !isSignedIn,
   });
+  // The API returns one row per platform, so fetch enough rows to group into
+  // MAX_PICKS games with every platform included
   const { data, loading, error } = useQuery(GET_GAMES, {
-    variables: { first: 40, orderBy: "ACHIEVEMENT_COUNT_DESC" },
+    variables: { first: 60, orderBy: "ACHIEVEMENT_COUNT_DESC" },
   });
+  const [setPicksGrid, picksColumns] = useGridColumnCount();
   const { data: familyCountData } = useQuery(GET_GAME_FAMILY_COUNT);
 
   const isAdmin =
@@ -74,7 +102,7 @@ export default function Home() {
     [data?.games?.edges]
   );
   const featuredFamilies = useMemo(
-    () => groupGamesByTitle(rawGames).slice(0, 12),
+    () => groupGamesByTitle(rawGames).slice(0, MAX_PICKS),
     [rawGames]
   );
   const totalGames = familyCountData?.gameFamiliesPage?.totalCount ?? 0;
@@ -85,6 +113,9 @@ export default function Home() {
     (family) => family.totalAchievementCount >= 10
   ).length;
   const spotlightFamily = featuredFamilies[0];
+  const visiblePicks = picksColumns
+    ? featuredFamilies.slice(0, picksColumns * PICK_ROWS)
+    : featuredFamilies;
 
   return (
     <div className={styles.container}>
@@ -227,7 +258,7 @@ export default function Home() {
         <div className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>Start Somewhere Good</h2>
           <div className={styles.sectionHeaderActions}>
-            <span className={styles.countPill}>{featuredFamilies.length || 0} picks</span>
+            <span className={styles.countPill}>{visiblePicks.length} picks</span>
             <Button href="/games" variant="outline" size="sm">
               View All
             </Button>
@@ -249,8 +280,8 @@ export default function Home() {
         )}
 
         {featuredFamilies.length > 0 && (
-          <div className={styles.gamesGrid}>
-            {featuredFamilies.map((family) => (
+          <div ref={setPicksGrid} className={styles.gamesGrid}>
+            {visiblePicks.map((family) => (
               <GroupedGameCard
                 key={family.slug}
                 title={family.title}
