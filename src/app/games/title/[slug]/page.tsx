@@ -1,7 +1,8 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
 import { ArrowLeft, Gamepad2, Layers3, Monitor, Star, Trophy } from "lucide-react";
 import { handlePlatformIconError } from "@/lib/image-utils";
@@ -31,6 +32,7 @@ export default function GameFamilyPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const router = useRouter();
   // Decode the slug back to title
   const title = decodeURIComponent(slug.replace(/-/g, " "));
 
@@ -46,30 +48,18 @@ export default function GameFamilyPage({
   const coverUrl = games.find((g) => g.coverUrl)?.coverUrl ?? null;
   const displayTitle = games[0]?.title ?? title;
 
-  // If there's only one version, redirect to that game's page
-  if (games.length === 1) {
-    return (
-      <div className={styles.container}>
-        <Link href="/games" className={styles.backLink}>
-          <ArrowLeft size={16} />
-          Back to Games
-        </Link>
-        <EmptyState
-          icon={<Gamepad2 size={48} />}
-          title="Single version found"
-          description="This game only exists on one platform."
-          action={
-            <Button href={`/games/${games[0].id}`}>View Game</Button>
-          }
-        />
-      </div>
-    );
-  }
+  // One platform leaves nothing to compare, so go straight to the game. Replace
+  // rather than push, or Back would land here and bounce forward again.
+  const singleGameId = games.length === 1 ? games[0].id : null;
+
+  useEffect(() => {
+    if (singleGameId) router.replace(`/games/${singleGameId}`);
+  }, [router, singleGameId]);
 
   return (
     <div className={styles.container}>
       <QueryState
-        isLoading={loading}
+        isLoading={loading || singleGameId !== null}
         loadingText="Loading game..."
         error={error}
         errorTitle="Couldn’t load this game family"
