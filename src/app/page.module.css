@@ -246,6 +246,10 @@
   gap: 12px;
 }
 
+.sectionHeaderActions > * {
+  white-space: nowrap;
+}
+
 .countPill {
   flex-shrink: 0;
   white-space: nowrap;
