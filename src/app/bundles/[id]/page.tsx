@@ -266,15 +266,11 @@ export default function BundleDetailPage({
         </div>
         <div className={styles.heroContent}>
           <div className={styles.heroHeader}>
-            <div className={styles.eyebrow}>
-              <Package size={14} />
-              <span>Bundle Detail</span>
-            </div>
+            <h1 className={styles.title}>{bundle.name}</h1>
             <span className={`${styles.typeBadge} ${getBundleTypeClass(bundle.type)}`}>
               {getBundleTypeLabel(bundle.type)}
             </span>
           </div>
-          <h1 className={styles.title}>{bundle.name}</h1>
           {bundle.description && (
             <ExpandableText text={bundle.description} maxLines={4} className={styles.description} />
           )}
