@@ -251,7 +251,6 @@ export default function LeaderboardsPage() {
       {!loading && podium.length > 0 && (
         <section className={styles.podiumSection}>
           <div className={styles.podiumHeader}>
-            <p className={styles.sectionEyebrow}>Top Three</p>
             <h2 className={styles.sectionTitle}>Current Podium</h2>
           </div>
           <div className={styles.podiumGrid}>
