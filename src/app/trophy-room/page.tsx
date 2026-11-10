@@ -28,8 +28,6 @@ interface GameProgressData {
   gameCoverUrl: string | null;
   earnedCount: number;
   totalCount: number;
-  earnedPoints: number;
-  totalPoints: number;
   percentComplete: number;
   hasTrophy: boolean;
   trophyEarnedAt: string | null;
@@ -120,8 +118,6 @@ export default function TrophyRoom() {
                 gameCoverUrl={game.gameCoverUrl}
                 earnedCount={game.earnedCount}
                 totalCount={game.totalCount}
-                earnedPoints={game.earnedPoints}
-                totalPoints={game.totalPoints}
                 percentComplete={game.percentComplete}
                 hasTrophy={game.hasTrophy}
                 trophyEarnedAt={game.trophyEarnedAt}
@@ -150,8 +146,6 @@ export default function TrophyRoom() {
                 gameCoverUrl={game.gameCoverUrl}
                 earnedCount={game.earnedCount}
                 totalCount={game.totalCount}
-                earnedPoints={game.earnedPoints}
-                totalPoints={game.totalPoints}
                 percentComplete={game.percentComplete}
                 hasTrophy={game.hasTrophy}
                 trophyEarnedAt={game.trophyEarnedAt}

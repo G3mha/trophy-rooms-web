@@ -11,8 +11,6 @@ interface GameProgressCardProps {
   gameCoverUrl?: string | null;
   earnedCount: number;
   totalCount: number;
-  earnedPoints: number;
-  totalPoints: number;
   percentComplete: number;
   hasTrophy: boolean;
   trophyEarnedAt?: string | null;
@@ -25,8 +23,6 @@ export function GameProgressCard({
   gameCoverUrl,
   earnedCount,
   totalCount,
-  earnedPoints,
-  totalPoints,
   percentComplete,
   hasTrophy,
   trophyEarnedAt,
@@ -87,12 +83,6 @@ export function GameProgressCard({
               {earnedCount}/{totalCount}
             </span>
             <span className={styles.statLabel}>Achievements</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statValue}>
-              {earnedPoints.toLocaleString()}/{totalPoints.toLocaleString()}
-            </span>
-            <span className={styles.statLabel}>Points</span>
           </div>
         </div>
 

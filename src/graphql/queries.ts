@@ -522,8 +522,6 @@ export const GET_MY_GAME_PROGRESS = gql`
       gameCoverUrl
       earnedCount
       totalCount
-      earnedPoints
-      totalPoints
       percentComplete
       hasTrophy
       trophyEarnedAt
@@ -540,8 +538,6 @@ export const GET_USER_GAME_PROGRESS = gql`
       gameCoverUrl
       earnedCount
       totalCount
-      earnedPoints
-      totalPoints
       percentComplete
       hasTrophy
       trophyEarnedAt
