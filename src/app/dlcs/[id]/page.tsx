@@ -250,15 +250,11 @@ export default function DLCDetailPage({
         </div>
         <div className={styles.heroContent}>
           <div className={styles.heroHeader}>
-            <div className={styles.eyebrow}>
-              <Puzzle size={14} />
-              <span>DLC Detail</span>
-            </div>
+            <h1 className={styles.title}>{dlc.name}</h1>
             <span className={`${styles.typeBadge} ${getDLCTypeClass(dlc.type)}`}>
               {getDLCTypeLabel(dlc.type)}
             </span>
           </div>
-          <h1 className={styles.title}>{dlc.name}</h1>
           {dlc.description && (
             <ExpandableText text={dlc.description} maxLines={4} className={styles.description} />
           )}
