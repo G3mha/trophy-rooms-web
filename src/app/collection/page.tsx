@@ -7,10 +7,8 @@ import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import {
   Package,
   Lock,
-  CheckCircle,
   Globe,
   Plus,
-  Sparkles,
   Disc3,
   BookOpenCheck,
 } from "lucide-react";
@@ -195,32 +193,15 @@ export default function CollectionPage() {
         classes={{
           root: styles.hero,
           lead: styles.heroLead,
-          eyebrow: styles.eyebrow,
           title: styles.title,
-          description: styles.subtitle,
           stats: styles.heroStats,
           stat: styles.heroStat,
         }}
-        eyebrow={
-          <>
-            <Sparkles size={16} />
-            <span>Physical Archive</span>
-          </>
-        }
         title="My Collection"
-        description="Catalog your physical library, track condition and completeness, and keep regional variants organized in one place."
         stats={[
-          {
-            icon: <Package size={16} />,
-            label: `${stats.totalItems} items tracked`,
-          },
           {
             icon: <Lock size={16} />,
             label: `${stats.sealedCount} sealed copies`,
-          },
-          {
-            icon: <CheckCircle size={16} />,
-            label: `${stats.completeCount} complete sets`,
           },
         ]}
       />
