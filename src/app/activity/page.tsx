@@ -8,7 +8,6 @@ import {
   Trophy,
   Inbox,
   Lightbulb,
-  Radar,
   Flame,
   Users,
 } from "lucide-react";
@@ -94,15 +93,7 @@ export default function ActivityPage() {
     <div className={styles.container}>
       <header className={styles.hero}>
         <div className={styles.heroLead}>
-          <div className={styles.eyebrow}>
-            <Radar size={16} />
-            <span>Live Community Pulse</span>
-          </div>
           <h1 className={styles.title}>Activity Feed</h1>
-          <p className={styles.subtitle}>
-            See what the community is achieving right now, with your own unlocks
-            called out in the stream.
-          </p>
         </div>
 
         <div className={styles.filters}>
