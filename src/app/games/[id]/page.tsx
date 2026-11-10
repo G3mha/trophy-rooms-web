@@ -381,23 +381,18 @@ export default function GameDetailPage({
           />
         </div>
         <div className={styles.heroContent}>
-          <div className={styles.titleBlock}>
-            <div className={styles.heroHeader}>
-              <h1 className={styles.title}>{game.title}</h1>
-              {game.platform && (
-                <span className={styles.platformBadge}>
-                  <PlatformIcon
-                    slug={game.platform.slug}
-                    name={game.platform.name}
-                    className={styles.platformIcon}
-                    fallback={game.platform.name}
-                  />
-                </span>
-              )}
-            </div>
-            <p className={styles.subtitle}>
-              Achievement tracking, release context, and community completion in one place.
-            </p>
+          <div className={styles.heroHeader}>
+            <h1 className={styles.title}>{game.title}</h1>
+            {game.platform && (
+              <span className={styles.platformBadge}>
+                <PlatformIcon
+                  slug={game.platform.slug}
+                  name={game.platform.name}
+                  className={styles.platformIcon}
+                  fallback={game.platform.name}
+                />
+              </span>
+            )}
           </div>
           {game.description && (
             <ExpandableText text={game.description} maxLines={4} className={styles.description} />
