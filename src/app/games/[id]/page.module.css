@@ -97,6 +97,13 @@
   text-transform: uppercase;
 }
 
+.platformIcon {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
 .titleBlock {
   display: flex;
   flex-direction: column;
@@ -643,7 +650,6 @@
     padding: 20px;
   }
 
-  .heroHeader,
   .sectionHeader {
     flex-direction: column;
     align-items: flex-start;

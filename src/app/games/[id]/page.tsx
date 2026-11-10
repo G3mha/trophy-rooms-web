@@ -14,7 +14,7 @@ import {
   CREATE_ACHIEVEMENT,
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
-import { AchievementCard, AppImage, Button, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, QueryState } from "@/components";
+import { AchievementCard, AppImage, Button, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, PlatformIcon, QueryState } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./page.module.css";
@@ -387,7 +387,14 @@ export default function GameDetailPage({
               <span>Game Detail</span>
             </div>
             {game.platform && (
-              <span className={styles.platformBadge}>{game.platform.name}</span>
+              <span className={styles.platformBadge}>
+                <PlatformIcon
+                  slug={game.platform.slug}
+                  name={game.platform.name}
+                  className={styles.platformIcon}
+                  fallback={game.platform.name}
+                />
+              </span>
             )}
           </div>
           <div className={styles.titleBlock}>
