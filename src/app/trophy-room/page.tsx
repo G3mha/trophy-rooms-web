@@ -172,12 +172,9 @@ export default function TrophyRoom() {
       {completedGames.length > 0 && (
         <section className={styles.trophyShowcase}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Completed</p>
-              <h2 className={styles.sectionTitle}>
-                <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophy Collection
-              </h2>
-            </div>
+            <h2 className={styles.sectionTitle}>
+              <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophy Collection
+            </h2>
             <span className={styles.sectionCount}>{completedGames.length} games</span>
           </div>
           <p className={styles.sectionSubtitle}>100% completion achieved in these games</p>
@@ -203,10 +200,7 @@ export default function TrophyRoom() {
 
       <section className={styles.gamesSection}>
         <div className={styles.sectionHeader}>
-          <div>
-            <p className={styles.sectionEyebrow}>Active Hunts</p>
-            <h2 className={styles.sectionTitle}>Games In Progress</h2>
-          </div>
+          <h2 className={styles.sectionTitle}>Games In Progress</h2>
           <span className={styles.sectionCount}>{inProgressGames.length} active</span>
         </div>
         <p className={styles.sectionSubtitle}>
