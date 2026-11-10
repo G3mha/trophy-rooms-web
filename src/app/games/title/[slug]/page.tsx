@@ -4,7 +4,7 @@ import { use, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
-import { ArrowLeft, Gamepad2, Layers3, Monitor, Star, Trophy } from "lucide-react";
+import { ArrowLeft, Gamepad2, Monitor, Star, Trophy } from "lucide-react";
 import { GET_GAMES_BY_TITLE } from "@/graphql/queries";
 import { AppImage, Button, EmptyState, PlatformIcon, QueryState } from "@/components";
 import styles from "./page.module.css";
@@ -107,10 +107,6 @@ export default function GameFamilyPage({
             />
           </div>
           <div className={styles.heroContent}>
-            <div className={styles.eyebrow}>
-              <Layers3 size={14} />
-              <span>Game Family</span>
-            </div>
             <h1 className={styles.title}>{displayTitle}</h1>
             <div className={styles.stats}>
               <div className={styles.statCard}>
