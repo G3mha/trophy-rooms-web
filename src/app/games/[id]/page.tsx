@@ -492,10 +492,7 @@ export default function GameDetailPage({
       {game.screenshots.length > 0 && (
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Visuals</p>
-              <h2 className={styles.sectionTitle}>Screenshot Gallery</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Screenshot Gallery</h2>
             <span className={styles.countPill}>{game.screenshots.length}</span>
           </div>
           <div className={styles.screenshotsGrid}>
@@ -674,10 +671,7 @@ export default function GameDetailPage({
       {isSignedIn && (
         <section className={styles.creatorPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Create</p>
-              <h2 className={styles.sectionTitle}>Build Your Custom Challenge Set</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Build Your Custom Challenge Set</h2>
           </div>
 
           <div className={styles.creatorGrid}>
@@ -805,10 +799,7 @@ export default function GameDetailPage({
       {game.trophies.length > 0 && (
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Community</p>
-              <h2 className={styles.sectionTitle}>Trophy Holders</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Trophy Holders</h2>
             <span className={styles.countPill}>{game.trophies.length}</span>
           </div>
           <div className={styles.trophyHolders}>
