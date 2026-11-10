@@ -473,12 +473,6 @@ export default function GameDetailPage({
               <span className={styles.statValue}>{screenshotCount}</span>
               <span className={styles.statLabel}>Screenshots</span>
             </div>
-            {isSignedIn && trophyAchievementCount > 0 && (
-              <div className={styles.statCard}>
-                <span className={styles.statValue}>{progress}%</span>
-                <span className={styles.statLabel}>Your Progress</span>
-              </div>
-            )}
           </div>
 
           <div className={styles.headerActions}>
