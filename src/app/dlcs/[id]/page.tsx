@@ -363,10 +363,7 @@ export default function DLCDetailPage({
       {dlc.achievementSets.length > 0 && (
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Challenges</p>
-              <h2 className={styles.sectionTitle}>Achievement Sets</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Achievement Sets</h2>
             <span className={styles.countPill}>{dlc.achievementSets.length}</span>
           </div>
           <div className={styles.contentList}>
