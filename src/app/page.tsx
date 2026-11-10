@@ -109,9 +109,6 @@ export default function Home() {
   const trophyFamilies = featuredFamilies.filter(
     (family) => family.totalTrophyCount > 0
   ).length;
-  const achievementRichFamilies = featuredFamilies.filter(
-    (family) => family.totalAchievementCount >= 10
-  ).length;
   const spotlightFamily = featuredFamilies[0];
   const visiblePicks = picksColumns
     ? featuredFamilies.slice(0, picksColumns * PICK_ROWS)
@@ -141,10 +138,6 @@ export default function Home() {
                 <span>{trophyFamilies} featured families with trophies</span>
               </div>
             )}
-            <div className={styles.heroStat}>
-              <Star size={16} />
-              <span>{achievementRichFamilies} rich family profiles</span>
-            </div>
           </div>
           <GlobalSearch className={styles.heroSearch} />
           <div className={styles.heroActions}>
