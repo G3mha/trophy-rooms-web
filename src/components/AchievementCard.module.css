@@ -115,17 +115,6 @@
   margin: 0;
 }
 
-.points {
-  flex-shrink: 0;
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--bg-secondary);
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-
 .description {
   font-size: 14px;
   color: var(--text-secondary);

@@ -11,7 +11,6 @@ interface AchievementCardProps {
   title: string;
   description?: string | null;
   iconUrl?: string | null;
-  points?: number;
   tier?: AchievementTier;
   isCompleted?: boolean;
   userCount?: number;
@@ -78,7 +77,6 @@ export function AchievementCard({
   title,
   description,
   iconUrl,
-  points = 0,
   tier = "BRONZE",
   isCompleted = false,
   userCount = 0,
@@ -111,9 +109,6 @@ export function AchievementCard({
       <div className={styles.info}>
         <div className={styles.titleRow}>
           <h4 className={styles.title}>{title}</h4>
-          {points > 0 && (
-            <span className={styles.points}>{points} pts</span>
-          )}
         </div>
         {description && (
           <p className={styles.description}>{description}</p>

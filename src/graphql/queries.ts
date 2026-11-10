@@ -77,7 +77,6 @@ export const GAME_WITH_ACHIEVEMENTS_FRAGMENT = gql`
         title
         description
         iconUrl
-        points
         tier
         isCompleted
         userCount
@@ -95,7 +94,6 @@ export const ACHIEVEMENT_FRAGMENT = gql`
     title
     description
     iconUrl
-    points
     tier
     achievementSetId
     isCompleted
@@ -266,7 +264,6 @@ export const GET_MY_ACHIEVEMENTS = gql`
             title
             description
             iconUrl
-            points
             tier
             achievementSet {
               id
@@ -337,7 +334,6 @@ export const GET_USER = gql`
           id
           title
           tier
-          points
           achievementSet {
             gameFamilyId
             gameFamily {
@@ -365,7 +361,6 @@ export const GET_USER_ACHIEVEMENTS = gql`
             title
             description
             iconUrl
-            points
             tier
             achievementSet {
               id

@@ -13,7 +13,6 @@ interface RecentAchievement {
     id: string;
     title: string;
     tier?: AchievementTier;
-    points?: number;
     achievementSet: {
       gameFamily?: {
         id: string;
@@ -91,9 +90,6 @@ export function RecentActivity({ achievements }: RecentActivityProps) {
                 <span className={styles.achievementTitle}>
                   {item.achievement.title}
                 </span>
-                {item.achievement.points && item.achievement.points > 0 && (
-                  <span className={styles.points}>+{item.achievement.points} pts</span>
-                )}
               </div>
               <Link
                 href={`/games/title/${item.achievement.achievementSet.gameFamily.slug}`}

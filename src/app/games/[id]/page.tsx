@@ -24,7 +24,6 @@ interface Achievement {
   title: string;
   description?: string | null;
   iconUrl?: string | null;
-  points?: number;
   tier?: AchievementTier;
   isCompleted?: boolean;
   userCount: number;
@@ -634,7 +633,6 @@ export default function GameDetailPage({
                         title={achievement.title}
                         description={achievement.description}
                         iconUrl={achievement.iconUrl}
-                        points={achievement.points}
                         tier={achievement.tier}
                         isCompleted={achievement.isCompleted}
                         userCount={achievement.userCount}
