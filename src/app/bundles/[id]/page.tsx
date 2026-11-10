@@ -345,10 +345,7 @@ export default function BundleDetailPage({
       {bundle.games.length > 0 && (
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Catalog</p>
-              <h2 className={styles.sectionTitle}>Included Titles</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Included Titles</h2>
             <span className={styles.countPill}>{bundle.games.length}</span>
           </div>
           <div className={styles.contentList}>
@@ -396,10 +393,7 @@ export default function BundleDetailPage({
       {bundle.dlcs.length > 0 && (
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Add-Ons</p>
-              <h2 className={styles.sectionTitle}>Included DLCs</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Included DLCs</h2>
             <span className={styles.countPill}>{bundle.dlcs.length}</span>
           </div>
           <div className={styles.contentList}>
