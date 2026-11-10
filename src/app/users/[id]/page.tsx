@@ -20,7 +20,6 @@ import {
   ProfileHeader,
   RecentActivity,
   GameProgressCard,
-  SummaryStats,
 } from "@/components";
 import styles from "./page.module.css";
 
@@ -72,12 +71,6 @@ export default function PublicProfilePage({
   const gameProgress: GameProgressData[] = progressData?.userGameProgress || [];
   const completedGames = gameProgress.filter((g) => g.hasTrophy);
   const inProgressGames = gameProgress.filter((g) => !g.hasTrophy);
-  const averageCompletion = gameProgress.length
-    ? Math.round(
-        gameProgress.reduce((sum, game) => sum + game.percentComplete, 0) /
-          gameProgress.length
-      )
-    : 0;
 
   if (loading) {
     return (
@@ -123,27 +116,6 @@ export default function PublicProfilePage({
           <RecentActivity achievements={user.recentAchievements} />
         </section>
       )}
-
-      <SummaryStats
-        items={[
-          {
-            label: "Platinum Shelf",
-            value: completedGames.length,
-            text: "Games this player has fully completed and locked into their showcase.",
-          },
-          {
-            label: "In Rotation",
-            value: inProgressGames.length,
-            text: "Active progress cards still moving toward 100%.",
-          },
-          {
-            label: "Momentum",
-            value: `${averageCompletion}%`,
-            text: "Average completion across the tracked library right now.",
-          },
-        ]}
-        className={styles.summaryGrid}
-      />
 
       {completedGames.length > 0 && (
         <section className={styles.trophyShowcase}>

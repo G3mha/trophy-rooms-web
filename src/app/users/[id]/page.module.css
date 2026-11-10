@@ -24,10 +24,6 @@
   padding: 24px;
 }
 
-.summaryGrid {
-  margin: 0 0 24px;
-}
-
 .trophyShowcase,
 .gamesSection {
   padding: 24px;
@@ -101,12 +97,6 @@
   margin: 0;
   color: var(--text-secondary);
   font-size: 1rem;
-}
-
-@media (max-width: 960px) {
-  .summaryGrid {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 768px) {
