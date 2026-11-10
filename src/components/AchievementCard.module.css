@@ -87,9 +87,10 @@
   box-shadow: 0 0 12px rgba(201, 164, 92, 0.5);
 }
 
+/* Inset so the tier gradient behind it shows as a ring */
 .iconImage {
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
   object-fit: cover;
   border-radius: 50%;
   position: relative;
