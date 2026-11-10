@@ -6,7 +6,6 @@ import { useAuth } from "@/lib/auth";
 import {
   Trophy,
   Star,
-  Gem,
   Gamepad2,
   Zap,
   LucideIcon,
@@ -16,7 +15,6 @@ import {
 import {
   GET_LEADERBOARD_BY_TROPHIES,
   GET_LEADERBOARD_BY_ACHIEVEMENTS,
-  GET_LEADERBOARD_BY_POINTS,
   GET_LEADERBOARD_BY_GAMES,
   GET_FASTEST_COMPLETIONS,
   GET_ME,
@@ -32,7 +30,6 @@ import styles from "./page.module.css";
 type LeaderboardTab =
   | "trophies"
   | "achievements"
-  | "points"
   | "games"
   | "fastest";
 
@@ -73,12 +70,6 @@ const TABS: {
     description: "Most achievements earned",
   },
   {
-    id: "points",
-    label: "Point Leaders",
-    Icon: Gem,
-    description: "Highest total achievement points",
-  },
-  {
     id: "games",
     label: "Game Explorers",
     Icon: Gamepad2,
@@ -95,7 +86,6 @@ const TABS: {
 const VALUE_LABELS: Record<LeaderboardTab, string> = {
   trophies: "Trophies",
   achievements: "Achievements",
-  points: "Points",
   games: "Games",
   fastest: "",
 };
@@ -103,7 +93,6 @@ const VALUE_LABELS: Record<LeaderboardTab, string> = {
 const SECONDARY_LABELS: Record<LeaderboardTab, string> = {
   trophies: "Achievements",
   achievements: "Trophies",
-  points: "Achievements",
   games: "Trophies",
   fastest: "",
 };
@@ -130,14 +119,6 @@ export default function LeaderboardsPage() {
     }
   );
 
-  const { data: pointsData, loading: pointsLoading } = useQuery(
-    GET_LEADERBOARD_BY_POINTS,
-    {
-      variables: { limit: 25 },
-      skip: activeTab !== "points",
-    }
-  );
-
   const { data: gamesData, loading: gamesLoading } = useQuery(
     GET_LEADERBOARD_BY_GAMES,
     {
@@ -160,8 +141,6 @@ export default function LeaderboardsPage() {
         return trophiesData?.leaderboardByTrophies || null;
       case "achievements":
         return achievementsData?.leaderboardByAchievements || null;
-      case "points":
-        return pointsData?.leaderboardByPoints || null;
       case "games":
         return gamesData?.leaderboardByGamesPlayed || null;
       case "fastest":
@@ -177,8 +156,6 @@ export default function LeaderboardsPage() {
         return trophiesLoading;
       case "achievements":
         return achievementsLoading;
-      case "points":
-        return pointsLoading;
       case "games":
         return gamesLoading;
       case "fastest":

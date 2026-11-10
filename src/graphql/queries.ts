@@ -442,18 +442,6 @@ export const GET_LEADERBOARD_BY_ACHIEVEMENTS = gql`
   }
 `;
 
-export const GET_LEADERBOARD_BY_POINTS = gql`
-  query GetLeaderboardByPoints($limit: Int) {
-    leaderboardByPoints(limit: $limit) {
-      rank
-      userId
-      userName
-      value
-      secondaryValue
-    }
-  }
-`;
-
 export const GET_LEADERBOARD_BY_GAMES = gql`
   query GetLeaderboardByGames($limit: Int) {
     leaderboardByGamesPlayed(limit: $limit) {
