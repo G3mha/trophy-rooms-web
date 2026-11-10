@@ -156,10 +156,7 @@ export default function PublicProfilePage({
       {user.recentAchievements && user.recentAchievements.length > 0 && (
         <section className={styles.activitySection}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Latest Unlocks</p>
-              <h2 className={styles.sectionTitle}>Recent Activity</h2>
-            </div>
+            <h2 className={styles.sectionTitle}>Recent Activity</h2>
             <span className={styles.sectionCount}>
               {user.recentAchievements.length} recent
             </span>
@@ -192,12 +189,9 @@ export default function PublicProfilePage({
       {completedGames.length > 0 && (
         <section className={styles.trophyShowcase}>
           <div className={styles.sectionHeader}>
-            <div>
-              <p className={styles.sectionEyebrow}>Completed</p>
-              <h2 className={styles.sectionTitle}>
-                <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophy Collection
-              </h2>
-            </div>
+            <h2 className={styles.sectionTitle}>
+              <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophy Collection
+            </h2>
             <span className={styles.sectionCount}>{completedGames.length} games</span>
           </div>
           <p className={styles.sectionSubtitle}>
@@ -225,10 +219,7 @@ export default function PublicProfilePage({
 
       <section className={styles.gamesSection}>
         <div className={styles.sectionHeader}>
-          <div>
-            <p className={styles.sectionEyebrow}>Active Hunts</p>
-            <h2 className={styles.sectionTitle}>Games In Progress</h2>
-          </div>
+          <h2 className={styles.sectionTitle}>Games In Progress</h2>
           <span className={styles.sectionCount}>{inProgressGames.length} active</span>
         </div>
         <p className={styles.sectionSubtitle}>Working towards more Platinum Trophies</p>
