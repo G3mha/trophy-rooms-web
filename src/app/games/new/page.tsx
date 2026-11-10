@@ -146,10 +146,7 @@ export default function NewGamePage() {
 
       <form onSubmit={handleSubmit} className={styles.formPanel}>
         <div className={styles.formHeader}>
-          <div>
-            <p className={styles.sectionEyebrow}>Entry Setup</p>
-            <h2 className={styles.formTitle}>Core Metadata</h2>
-          </div>
+          <h2 className={styles.formTitle}>Core Metadata</h2>
         </div>
 
         {error && <FormAlert message={error} className={styles.formAlert} />}
