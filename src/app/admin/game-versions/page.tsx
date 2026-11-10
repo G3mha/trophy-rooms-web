@@ -14,8 +14,8 @@ import {
 import { Trash2, Pencil, Plus, Search, Star, Cloud } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { getMutationMessage } from "@/lib/mutation-utils";
-import { Button, LoadingSpinner } from "@/components";
-import { AdminConfirmDialog, AdminImage, CoverPreview } from "@/components/admin";
+import { Button, LoadingSpinner, PlatformIcon } from "@/components";
+import { AdminConfirmDialog, CoverPreview } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import {
   Dialog,
@@ -580,11 +580,10 @@ export default function AdminGameVersionsPage() {
                           <span className="inline-flex items-center gap-0.5">
                             {games.map((game) =>
                               game.platform?.slug ? (
-                                <AdminImage
+                                <PlatformIcon
                                   key={game.id}
-                                  src={`/platforms/${game.platform.slug}.svg`}
-                                  alt={game.platform.name || ""}
-                                  title={game.platform.name || ""}
+                                  slug={game.platform.slug}
+                                  name={game.platform.name}
                                   className="size-3.5"
                                 />
                               ) : null

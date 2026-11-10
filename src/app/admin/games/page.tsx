@@ -27,7 +27,7 @@ import {
 } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
-import { Button, LoadingSpinner, Pagination } from "@/components";
+import { Button, LoadingSpinner, Pagination, PlatformIcon } from "@/components";
 import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
 import { getMutationMessage } from "@/lib/mutation-utils";
 import { GET_ADMIN_GAMES, GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
@@ -187,18 +187,14 @@ function GameCoverThumbnail({ coverUrl, title }: { coverUrl?: string | null; tit
   );
 }
 
-// Platform icon component
-function PlatformIcon({ slug, name }: { slug?: string | null; name?: string | null }) {
+// Platform icon with its name beside it
+function PlatformLabel({ slug, name }: { slug?: string | null; name?: string | null }) {
   if (!slug) {
     return <span className={styles.itemSlug}>{name || "No platform"}</span>;
   }
   return (
     <span className={styles.platformBadge}>
-      <AdminImage
-        src={`/platforms/${slug}.svg`}
-        alt={name || slug}
-        className={styles.platformIcon}
-      />
+      <PlatformIcon slug={slug} className={styles.platformIcon} />
       <span>{name || slug}</span>
     </span>
   );
@@ -218,12 +214,11 @@ function PlatformIconsRow({ games }: { games: AdminGameItem[] }) {
   return (
     <div className={styles.platformIconsRow}>
       {visible.map((p, idx) => (
-        <AdminImage
+        <PlatformIcon
           key={`${p.slug}-${idx}`}
-          src={`/platforms/${p.slug}.svg`}
-          alt={p.name || p.slug}
+          slug={p.slug}
+          name={p.name || p.slug}
           className={styles.platformIconSmall}
-          title={p.name || p.slug}
         />
       ))}
       {overflow > 0 && (
@@ -783,11 +778,7 @@ export default function AdminGamesPage() {
                         }}
                         icon={
                           game.platform?.slug && (
-                            <AdminImage
-                              src={`/platforms/${game.platform.slug}.svg`}
-                              alt=""
-                              className="w-[18px] h-[18px]"
-                            />
+                            <PlatformIcon slug={game.platform.slug} className="w-[18px] h-[18px]" />
                           )
                         }
                       >
@@ -942,7 +933,7 @@ export default function AdminGamesPage() {
                       <span className={styles.itemName}>
                         {group.games[0].title}
                       </span>
-                      <PlatformIcon
+                      <PlatformLabel
                         slug={group.games[0].platformSlug}
                         name={group.games[0].platformName}
                       />
@@ -1042,7 +1033,7 @@ export default function AdminGamesPage() {
                               }}
                             />
                             <div className={styles.itemInfo}>
-                              <PlatformIcon
+                              <PlatformLabel
                                 slug={game.platformSlug}
                                 name={game.platformName}
                               />
@@ -1123,7 +1114,7 @@ export default function AdminGamesPage() {
               <GameCoverThumbnail coverUrl={game.coverUrl} title={game.title} />
               <div className={styles.itemInfo}>
                 <span className={styles.itemName}>{game.title}</span>
-                <PlatformIcon slug={game.platformSlug} name={game.platformName} />
+                <PlatformLabel slug={game.platformSlug} name={game.platformName} />
                 {game.type && game.type !== "BASE_GAME" && (
                   <span className={styles.badge}>
                     {GAME_TYPE_LABELS[game.type]}

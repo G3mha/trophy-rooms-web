@@ -6,6 +6,7 @@ import * as React from "react";
 
 import { GET_GAMES_ADMIN } from "@/graphql/admin_queries";
 import { cn } from "@/lib/utils";
+import { PlatformIcon } from "../PlatformIcon";
 import { AdminImage } from "./admin-image";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
@@ -296,11 +297,10 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
               <span className="inline-flex items-center gap-1">
                 {group.games.map((game) =>
                   game.platform?.slug ? (
-                    <AdminImage
+                    <PlatformIcon
                       key={game.id}
-                      src={`/platforms/${game.platform.slug}.svg`}
-                      alt={game.platform.name || ""}
-                      title={game.platform.name || ""}
+                      slug={game.platform.slug}
+                      name={game.platform.name}
                       className="size-4 shrink-0"
                     />
                   ) : null
@@ -341,11 +341,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
             selectedSingle ? (
               <div className="flex flex-1 items-center gap-2 truncate">
                 {selectedSingle.platform?.slug && (
-                  <AdminImage
-                    src={`/platforms/${selectedSingle.platform.slug}.svg`}
-                    alt=""
-                    className="size-4 shrink-0"
-                  />
+                  <PlatformIcon slug={selectedSingle.platform.slug} className="size-4 shrink-0" />
                 )}
                 <span className="truncate">
                   {selectedSingle.title}
@@ -402,11 +398,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                 className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[rgba(255,255,255,0.03)] px-3 py-1.5 text-xs font-medium text-[var(--text-primary)] transition-colors hover:bg-[rgba(255,255,255,0.08)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {game.platform?.slug && (
-                  <AdminImage
-                    src={`/platforms/${game.platform.slug}.svg`}
-                    alt=""
-                    className="size-3.5"
-                  />
+                  <PlatformIcon slug={game.platform.slug} className="size-3.5" />
                 )}
                 <span>{game.platform?.name || "Unknown"}</span>
               </button>
@@ -456,11 +448,7 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
                           {game.platform?.slug && (
-                            <AdminImage
-                              src={`/platforms/${game.platform.slug}.svg`}
-                              alt=""
-                              className="size-3.5"
-                            />
+                            <PlatformIcon slug={game.platform.slug} className="size-3.5" />
                           )}
                           <span>
                             {[
@@ -524,9 +512,8 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
                             onClick={() => handleSelect(game)}
                           >
                             {game.platform?.slug ? (
-                              <AdminImage
-                                src={`/platforms/${game.platform.slug}.svg`}
-                                alt=""
+                              <PlatformIcon
+                                slug={game.platform.slug}
                                 className="size-4 shrink-0"
                                 fallback={
                                   <Gamepad2 className="size-4 shrink-0 text-[var(--text-muted)]" />
