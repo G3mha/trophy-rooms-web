@@ -1,0 +1,107 @@
+.page {
+  display: grid;
+  place-items: start center;
+  min-height: calc(100vh - 64px);
+  padding: clamp(28px, 9vh, 96px) 16px 48px;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(201, 164, 92, 0.3);
+  background:
+    radial-gradient(ellipse 85% 42% at 50% 0%, rgba(255, 208, 138, 0.12), transparent 70%),
+    linear-gradient(180deg, #2b1b0e 0%, #1b1108 100%);
+  box-shadow: 8px 8px 0 rgba(13, 8, 5, 0.6);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 36px 32px 28px;
+}
+
+.title {
+  margin: 0 0 16px;
+  font-family: var(--font-display);
+  font-size: 2.3rem;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--cabinet-bone);
+  text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
+}
+
+.subtitle {
+  margin: -8px 0 12px;
+  text-align: center;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* "or" with a brass hairline on each side */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(201, 164, 92, 0.2);
+}
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer a,
+.footer button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  color: var(--cabinet-brass-light);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.footer a:hover,
+.footer button:hover {
+  text-decoration: underline;
+}
+
+.shelf {
+  height: 10px;
+  background: linear-gradient(180deg, #e8d5ac 0%, #b08d54 22%, #5c3f22 60%, #1c1108 100%);
+}
+
+@media (max-width: 480px) {
+  .body {
+    padding: 28px 20px 22px;
+  }
+}
