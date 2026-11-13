@@ -3,8 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MailCheck, Sparkles, Trophy } from "lucide-react";
-import { GoogleButton, AppleButton, EmailForm, VerificationCodeInput } from "@/components/auth";
+import {
+  AuthCard,
+  AuthDivider,
+  GoogleButton,
+  AppleButton,
+  EmailForm,
+  VerificationCodeInput,
+} from "@/components/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import styles from "./page.module.css";
 
@@ -115,141 +121,68 @@ export default function SignUpPage() {
 
   if (step === "verification") {
     return (
-      <div className={styles.container}>
-        <div className={styles.shell}>
-          <aside className={styles.showcase}>
-            <div className={styles.showcaseBadge}>
-              <MailCheck size={14} />
-              <span>Almost there</span>
-            </div>
-            <h1 className={styles.showcaseTitle}>Verify your email and open the room.</h1>
-            <p className={styles.showcaseCopy}>
-              Finish verification to activate your account and unlock the full dashboard.
+      <AuthCard
+        title="Verify your email"
+        subtitle={<>We sent a verification code to {pendingEmail}.</>}
+        footer={
+          <>
+            <p>
+              Didn&apos;t receive a code?{" "}
+              <button type="button" onClick={handleResendCode}>
+                Resend
+              </button>
             </p>
-            <div className={styles.showcasePoints}>
-              <div className={styles.showcasePoint}>
-                <MailCheck size={18} />
-                <span>Use the code we sent to confirm ownership of your email.</span>
-              </div>
-              <div className={styles.showcasePoint}>
-                <Sparkles size={18} />
-                <span>Your dashboard, library, and collection will be ready right after this step.</span>
-              </div>
-            </div>
-          </aside>
-
-          <div className={styles.content}>
-            <div className={styles.header}>
-              <span className={styles.logo}><Trophy size={40} /></span>
-              <h2 className={styles.title}>Verify your email</h2>
-              <p className={styles.subtitle}>
-                We sent a verification code to {pendingEmail}.
-              </p>
-            </div>
-
-            <div className={styles.card}>
-              <VerificationCodeInput
-                onComplete={handleVerification}
-                loading={verificationLoading}
-                error={error}
-              />
-
-              <p className={styles.resendText}>
-                Didn&apos;t receive a code?{" "}
-                <button
-                  type="button"
-                  className={styles.resendButton}
-                  onClick={handleResendCode}
-                >
-                  Resend
-                </button>
-              </p>
-
-              <button
-                type="button"
-                className={styles.backButton}
-                onClick={() => setStep("form")}
-              >
+            <p>
+              <button type="button" onClick={() => setStep("form")}>
                 Back to sign up
               </button>
-            </div>
-          </div>
-        </div>
-      </div>
+            </p>
+          </>
+        }
+      >
+        <VerificationCodeInput
+          onComplete={handleVerification}
+          loading={verificationLoading}
+          error={error}
+        />
+      </AuthCard>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.shell}>
-        <aside className={styles.showcase}>
-          <div className={styles.showcaseBadge}>
-            <Sparkles size={14} />
-            <span>Start your trophy room</span>
-          </div>
-          <h1 className={styles.showcaseTitle}>Create an account and start curating.</h1>
-          <p className={styles.showcaseCopy}>
-            Build your library, manage the backlog, and make your completion history worth revisiting.
+    <AuthCard
+      title="Create account"
+      footer={
+        <>
+          <p>
+            Already have an account? <Link href="/sign-in">Sign in</Link>
           </p>
-          <div className={styles.showcasePoints}>
-            <div className={styles.showcasePoint}>
-              <Trophy size={18} />
-              <span>Tick off achievements on games that have lists, or build your own challenge set.</span>
-            </div>
-            <div className={styles.showcasePoint}>
-              <Sparkles size={18} />
-              <span>Keep buylist, collection, and dashboard progress in one system.</span>
-            </div>
-            <div className={styles.showcasePoint}>
-              <MailCheck size={18} />
-              <span>Verify once, then jump directly into your personalized dashboard.</span>
-            </div>
-          </div>
-        </aside>
-
-        <div className={styles.content}>
-          <div className={styles.header}>
-            <span className={styles.logo}><Trophy size={40} /></span>
-            <h2 className={styles.title}>Create account</h2>
-            <p className={styles.subtitle}>Join Trophy Rooms and start tracking with intent.</p>
-          </div>
-
-          <div className={styles.card}>
-            <GoogleButton
-              onClick={() => handleOAuthSignUp("google")}
-              loading={oauthLoading === "google"}
-              label="Continue with Google"
-            />
-
-            <AppleButton
-              onClick={() => handleOAuthSignUp("apple")}
-              loading={oauthLoading === "apple"}
-              label="Continue with Apple"
-            />
-
-            <div className={styles.divider}>
-              <span className={styles.dividerLine} />
-              <span className={styles.dividerText}>or</span>
-              <span className={styles.dividerLine} />
-            </div>
-
-            <EmailForm
-              onSubmit={handleEmailSignUp}
-              loading={loading}
-              error={error}
-              submitLabel="Create Account"
-              showPasswordRequirements
-            />
-
-            <p className={styles.footer}>
-              Already have an account?{" "}
-              <Link href="/sign-in" className={styles.link}>
-                Sign in
-              </Link>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
+          <p className={styles.legal}>
+            By creating an account you agree to the{" "}
+            <Link href="/terms">Terms of Service</Link> and{" "}
+            <Link href="/privacy">Privacy Policy</Link>.
+          </p>
+        </>
+      }
+    >
+      <GoogleButton
+        onClick={() => handleOAuthSignUp("google")}
+        loading={oauthLoading === "google"}
+        label="Continue with Google"
+      />
+      <AppleButton
+        onClick={() => handleOAuthSignUp("apple")}
+        loading={oauthLoading === "apple"}
+        label="Continue with Apple"
+      />
+      <AuthDivider />
+      <EmailForm
+        onSubmit={handleEmailSignUp}
+        loading={loading}
+        error={error}
+        submitLabel="Create Account"
+        showPasswordRequirements
+      />
+    </AuthCard>
   );
 }
