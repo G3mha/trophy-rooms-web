@@ -110,6 +110,13 @@
   padding: 0 16px;
 }
 
+.caseCovers {
+  display: flex;
+  align-items: flex-end;
+  gap: 28px;
+  padding: 28px 28px 0;
+}
+
 .caseSilhouette {
   display: block;
   flex: none;
@@ -125,5 +132,10 @@
 @media (max-width: 768px) {
   .case {
     min-height: 220px;
+  }
+
+  .caseCovers {
+    gap: 16px;
+    padding: 20px 16px 0;
   }
 }

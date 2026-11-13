@@ -91,28 +91,32 @@ const CASE_ARRANGEMENT: CaseItem[] = [
   { shape: "cup", width: "18%" },
 ];
 
-// A single cabinet compartment for hero panels. The trophies sit in a flex
-// row on a lit shelf, so the cluster scales with the panel instead of
-// overlapping at phone width the way the absolutely placed band would.
-export function TrophyCase() {
+// A single cabinet compartment for hero panels. Pass children (game covers)
+// to stand them on the shelf; with none it falls back to trophy silhouettes,
+// which sit in a flex row so the cluster scales with the panel.
+export function TrophyCase({ children }: { children?: React.ReactNode }) {
   return (
-    <div className={styles.case} aria-hidden="true">
-      <div className={styles.caseRow}>
-        {CASE_ARRANGEMENT.map((item, index) => {
-          const { viewBox, paths } = SHAPES[item.shape];
-          const [, , vw, vh] = viewBox.split(" ").map(Number);
-          return (
-            <svg
-              key={index}
-              className={styles.caseSilhouette}
-              style={{ width: item.width, aspectRatio: `${vw} / ${vh}` }}
-              viewBox={viewBox}
-            >
-              {paths}
-            </svg>
-          );
-        })}
-      </div>
+    <div className={styles.case} aria-hidden={children ? undefined : true}>
+      {children ? (
+        <div className={styles.caseCovers}>{children}</div>
+      ) : (
+        <div className={styles.caseRow}>
+          {CASE_ARRANGEMENT.map((item, index) => {
+            const { viewBox, paths } = SHAPES[item.shape];
+            const [, , vw, vh] = viewBox.split(" ").map(Number);
+            return (
+              <svg
+                key={index}
+                className={styles.caseSilhouette}
+                style={{ width: item.width, aspectRatio: `${vw} / ${vh}` }}
+                viewBox={viewBox}
+              >
+                {paths}
+              </svg>
+            );
+          })}
+        </div>
+      )}
       <div className={styles.caseShelf} />
     </div>
   );
