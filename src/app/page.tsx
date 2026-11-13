@@ -1,10 +1,11 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
-import { ArrowRight, Gamepad2, Search, Star, Trophy } from "lucide-react";
-import { GET_GAMES, GET_GAME_FAMILY_COUNT, GET_ME } from "@/graphql/queries";
+import { ArrowRight, ChevronLeft, ChevronRight, Gamepad2, Star, Trophy } from "lucide-react";
+import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GroupedGameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch, TrophyCase, TrophyShelf } from "@/components";
 import styles from "./page.module.css";
 
@@ -82,6 +83,137 @@ function useGridColumnCount() {
   return [setGrid, columns] as const;
 }
 
+const HERO_WORDS = ["play", "collect", "love"];
+const LONGEST_HERO_WORD = HERO_WORDS.reduce((a, b) => (b.length > a.length ? b : a));
+
+// Types a word, holds it, erases it, then moves to the next. It lives in its
+// own component so each keystroke re-renders only the word, not the page.
+function TypedWord() {
+  const [index, setIndex] = useState(0);
+  const [length, setLength] = useState(HERO_WORDS[0].length);
+  const [erasing, setErasing] = useState(false);
+
+  useEffect(() => {
+    // Reduced motion keeps the first word still
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const word = HERO_WORDS[index];
+    const complete = !erasing && length === word.length;
+    const timer = setTimeout(
+      () => {
+        if (complete) setErasing(true);
+        else if (!erasing) setLength(length + 1);
+        else if (length > 0) setLength(length - 1);
+        else {
+          setErasing(false);
+          setIndex((index + 1) % HERO_WORDS.length);
+        }
+      },
+      complete ? 1800 : erasing ? 60 : 110
+    );
+    return () => clearTimeout(timer);
+  }, [index, length, erasing]);
+
+  return (
+    <span className={styles.typedSlot}>
+      {/* Invisible longest word holds the width so the headline never reflows */}
+      <span className={styles.typedSizer}>{LONGEST_HERO_WORD},</span>
+      <span className={styles.typedWord}>
+        {HERO_WORDS[index].slice(0, length)}
+        <span className={styles.typedCaret} />,
+      </span>
+    </span>
+  );
+}
+
+const SPOTLIGHT_INTERVAL_MS = 6000;
+
+// The hero cabinet: loops through every featured game without end. It stops
+// while the pointer or keyboard focus is on it, and never auto-advances under
+// reduced motion - the arrows still switch games by hand.
+function HeroSpotlight({ families }: { families: GameGroup[] }) {
+  const [index, setIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const count = families.length;
+
+  useEffect(() => {
+    if (paused || count < 2) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const timer = setTimeout(
+      () => setIndex((index + 1) % count),
+      SPOTLIGHT_INTERVAL_MS
+    );
+    return () => clearTimeout(timer);
+  }, [index, paused, count]);
+
+  const family = families[index % count];
+
+  return (
+    <div
+      className={styles.heroPanel}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <TrophyCase>
+        {family && (
+          <>
+            <Link
+              key={family.slug}
+              href={`/games/title/${family.slug}`}
+              className={styles.shelfCover}
+              aria-label={family.title}
+            >
+              <AppImage src={family.coverUrl} alt="" />
+            </Link>
+            <div className={styles.shelfInfo}>
+              <div key={family.slug} className={styles.spotlightText}>
+                <h2 className={styles.spotlightTitle}>{family.title}</h2>
+                <p className={styles.spotlightCopy}>
+                  {family.platforms.length === 1
+                    ? "1 tracked platform"
+                    : `${family.platforms.length} tracked platforms`}
+                  , {family.totalAchievementCount} achievements
+                  {family.totalTrophyCount > 0
+                    ? `, and ${family.totalTrophyCount} trophies`
+                    : ""}
+                  .
+                </p>
+                <Button href={`/games/title/${family.slug}`} variant="secondary" size="sm">
+                  Open Family
+                  <ArrowRight size={14} />
+                </Button>
+              </div>
+              {count > 1 && (
+                <div className={styles.spotlightNav}>
+                  <button
+                    type="button"
+                    className={styles.spotlightArrow}
+                    aria-label="Previous game"
+                    onClick={() => setIndex((index - 1 + count) % count)}
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.spotlightArrow}
+                    aria-label="Next game"
+                    onClick={() => setIndex((index + 1) % count)}
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </TrophyCase>
+    </div>
+  );
+}
+
 export default function Home() {
   const { isSignedIn } = useAuth();
   const { data: meData } = useQuery(GET_ME, {
@@ -93,7 +225,6 @@ export default function Home() {
     variables: { first: 60, orderBy: "ACHIEVEMENT_COUNT_DESC" },
   });
   const [setPicksGrid, picksColumns] = useGridColumnCount();
-  const { data: familyCountData } = useQuery(GET_GAME_FAMILY_COUNT);
 
   const isAdmin =
     meData?.me?.role === "ADMIN" || meData?.me?.role === "TRUSTED";
@@ -105,11 +236,7 @@ export default function Home() {
     () => groupGamesByTitle(rawGames).slice(0, MAX_PICKS),
     [rawGames]
   );
-  const totalGames = familyCountData?.gameFamiliesPage?.totalCount ?? 0;
-  const trophyFamilies = featuredFamilies.filter(
-    (family) => family.totalTrophyCount > 0
-  ).length;
-  const spotlightFamily = featuredFamilies[0];
+  const spotlightFamilies = featuredFamilies.filter((family) => family.coverUrl);
   const visiblePicks = picksColumns
     ? featuredFamilies.slice(0, picksColumns * PICK_ROWS)
     : featuredFamilies;
@@ -118,133 +245,33 @@ export default function Home() {
     <div className={styles.container}>
       <section className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>
-            Every game you play. One room.
+          <h1
+            className={styles.heroTitle}
+            aria-label={`Every game you ${HERO_WORDS.slice(0, -1).join(", ")} and ${HERO_WORDS.at(-1)}, in one place.`}
+          >
+            <span aria-hidden="true">
+              Every game you <TypedWord />
+              <span className={styles.heroTitleLine}>in one place.</span>
+            </span>
           </h1>
           <p className={styles.heroSubtitle}>
-            Track achievements, surface platform variants, and turn your backlog,
-            buylist, and collection into one coherent place.
+            Track achievements, platform variants, and turn your backlog,
+            buylist, and collection into a single place.
           </p>
-          <div className={styles.heroStats}>
-            <div className={styles.heroStat}>
-              <Gamepad2 size={16} />
-              <span>{totalGames.toLocaleString("en-US")} games indexed</span>
-            </div>
-            {/* Trophies are earned by finishing an achievement list, so this is
-                often zero - and a zero in the hero reads as an empty site */}
-            {trophyFamilies > 0 && (
-              <div className={styles.heroStat}>
-                <Trophy size={16} />
-                <span>{trophyFamilies} featured families with trophies</span>
-              </div>
-            )}
-          </div>
           <GlobalSearch className={styles.heroSearch} />
-          <div className={styles.heroActions}>
-            {isSignedIn ? (
-              <>
-                <Button href="/games" size="lg">
-                  Browse Games
-                </Button>
-                <Button href="/dashboard" variant="outline" size="lg">
-                  My Dashboard
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button href="/sign-up" size="lg">
-                  Get Started
-                </Button>
-                <Button href="/sign-in" variant="outline" size="lg">
-                  Sign In
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
-        <div className={styles.heroPanel}>
-          <TrophyCase />
-          <div className={styles.spotlightCard}>
-            <div className={styles.spotlightHeader}>
-              <div className={styles.spotlightLabel}>
-                <Search size={14} />
-                <span>Spotlight</span>
-              </div>
-              <Button href="/games" variant="ghost" size="sm">
-                Explore
+          {/* Signed-out visitors already have Sign In and Sign Up in the header */}
+          {isSignedIn && (
+            <div className={styles.heroActions}>
+              <Button href="/games" size="lg">
+                Browse Games
+              </Button>
+              <Button href="/dashboard" variant="outline" size="lg">
+                My Dashboard
               </Button>
             </div>
-            {spotlightFamily ? (
-              <div className={styles.spotlightBody}>
-                <AppImage
-                  src={spotlightFamily.coverUrl}
-                  alt={spotlightFamily.title}
-                  className={styles.spotlightImage}
-                />
-                <div className={styles.spotlightContent}>
-                  <h2 className={styles.spotlightTitle}>{spotlightFamily.title}</h2>
-                  <p className={styles.spotlightCopy}>
-                    {spotlightFamily.platforms.length === 1
-                      ? "1 tracked platform"
-                      : `${spotlightFamily.platforms.length} tracked platforms`}
-                    , {spotlightFamily.totalAchievementCount} achievements
-                    {spotlightFamily.totalTrophyCount > 0
-                      ? `, and ${spotlightFamily.totalTrophyCount} trophies`
-                      : ""}
-                    .
-                  </p>
-                  <Button href={`/games/title/${spotlightFamily.slug}`} variant="secondary" size="sm">
-                    Open Family
-                    <ArrowRight size={14} />
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <p className={styles.spotlightCopy}>
-                Browse the catalog to start curating your own trophy room.
-              </p>
-            )}
-          </div>
+          )}
         </div>
-      </section>
-
-      <section className={styles.features}>
-        <div className={styles.sectionIntro}>
-          <h2 className={styles.sectionTitle}>One place for the whole game loop</h2>
-          <p className={styles.sectionCopy}>
-            Trophy Rooms keeps discovery, ownership, and completion in the same rhythm so your
-            progress does not get fragmented by platform.
-          </p>
-        </div>
-        <div className={styles.featureGrid}>
-          <div className={styles.feature}>
-            <div className={styles.featureIcon}>
-              <Gamepad2 size={28} />
-            </div>
-            <h3 className={styles.featureTitle}>Track Games</h3>
-            <p className={styles.featureDescription}>
-              Group platform variants, browse full game families, and keep the library readable.
-            </p>
-          </div>
-          <div className={styles.feature}>
-            <div className={styles.featureIcon}>
-              <Star size={28} />
-            </div>
-            <h3 className={styles.featureTitle}>Shape Your Challenges</h3>
-            <p className={styles.featureDescription}>
-              Follow official sets, build custom challenge lists, and keep rare runs visible.
-            </p>
-          </div>
-          <div className={styles.feature}>
-            <div className={styles.featureIcon}>
-              <Trophy size={28} />
-            </div>
-            <h3 className={styles.featureTitle}>Show Completion</h3>
-            <p className={styles.featureDescription}>
-              Turn finished hunts into trophies, public profile moments, and dashboard milestones.
-            </p>
-          </div>
-        </div>
+        <HeroSpotlight families={spotlightFamilies} />
       </section>
 
       <section className={styles.gamesSection}>
@@ -303,6 +330,45 @@ export default function Home() {
             }
           />
         )}
+      </section>
+
+      <section className={styles.features}>
+        <div className={styles.sectionIntro}>
+          <h2 className={styles.sectionTitle}>One place for the whole game loop</h2>
+          <p className={styles.sectionCopy}>
+            Trophy Rooms keeps discovery, ownership, and completion in the same rhythm so your
+            progress does not get fragmented by platform.
+          </p>
+        </div>
+        <div className={styles.featureGrid}>
+          <div className={styles.feature}>
+            <div className={styles.featureIcon}>
+              <Gamepad2 size={28} />
+            </div>
+            <h3 className={styles.featureTitle}>Track Games</h3>
+            <p className={styles.featureDescription}>
+              Group platform variants, browse full game families, and keep the library readable.
+            </p>
+          </div>
+          <div className={styles.feature}>
+            <div className={styles.featureIcon}>
+              <Star size={28} />
+            </div>
+            <h3 className={styles.featureTitle}>Shape Your Challenges</h3>
+            <p className={styles.featureDescription}>
+              Follow official sets, build custom challenge lists, and keep rare runs visible.
+            </p>
+          </div>
+          <div className={styles.feature}>
+            <div className={styles.featureIcon}>
+              <Trophy size={28} />
+            </div>
+            <h3 className={styles.featureTitle}>Show Completion</h3>
+            <p className={styles.featureDescription}>
+              Turn finished hunts into trophies, public profile moments, and dashboard milestones.
+            </p>
+          </div>
+        </div>
       </section>
       <TrophyShelf />
     </div>

@@ -45,36 +45,53 @@
   text-shadow: 5px 5px 0 var(--cabinet-shadow-red);
 }
 
+.heroTitleLine {
+  display: block;
+}
+
+/* The sizer and the typed word share one grid cell */
+.typedSlot {
+  display: inline-grid;
+}
+
+.typedSizer,
+.typedWord {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.typedSizer {
+  visibility: hidden;
+  padding-right: 0.14em;
+}
+
+.typedCaret {
+  display: inline-block;
+  width: 0.07em;
+  height: 0.82em;
+  margin: 0 0.035em;
+  background: var(--cabinet-crimson);
+  animation: caretBlink 1s steps(1) infinite;
+}
+
+@keyframes caretBlink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typedCaret {
+    display: none;
+  }
+}
+
 .heroSubtitle {
   max-width: 62ch;
   margin: 0;
   color: var(--text-secondary);
   font-size: 1.05rem;
   line-height: 1.8;
-}
-
-.heroStats {
-  display: grid;
-  /* One equal column per stat shown - a stat can be left out */
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  gap: 12px;
-}
-
-.heroStat {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 20px;
-  background: rgba(13, 8, 5, 0.45);
-  border: 1px solid rgba(201, 164, 92, 0.18);
-  color: var(--cabinet-bone);
-  font-size: 0.94rem;
-}
-
-.heroStat svg {
-  color: var(--cabinet-brass);
 }
 
 .heroSearch {
@@ -90,60 +107,107 @@
 .heroPanel {
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
-.spotlightCard {
+/* The cabinet fills the hero's height instead of leaving a gap under it */
+.heroPanel > * {
+  flex: 1;
+}
+
+/* The spotlight game: one cover in the cabinet */
+.shelfCover {
+  flex: none;
+  width: clamp(110px, 38%, 240px);
+  aspect-ratio: 3 / 4;
+  align-self: center;
+  margin-bottom: 24px;
+  /* Same treatment as the covers in the picks grid */
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  background: var(--bg-secondary);
+}
+
+.shelfCover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shelfInfo {
+  flex: 1;
+  min-width: 0;
+  align-self: center;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px;
-  border-radius: 28px;
-  background: rgba(13, 8, 5, 0.45);
-  border: 1px solid rgba(201, 164, 92, 0.22);
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 24px;
 }
 
-.spotlightHeader {
+.shelfInfo a {
+  white-space: nowrap;
+}
+
+.spotlightText {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 12px;
 }
 
-.spotlightLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+/* Each new game fades in; the key on the element restarts the animation */
+.shelfCover,
+.spotlightText {
+  animation: spotlightFade 0.45s ease-out;
 }
 
-.spotlightBody {
-  display: grid;
-  grid-template-columns: 90px minmax(0, 1fr);
-  gap: 14px;
+@keyframes spotlightFade {
+  from {
+    opacity: 0;
+  }
 }
 
-.spotlightImage {
-  width: 90px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 16px;
-}
-
-.spotlightContent {
+.spotlightNav {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+}
+
+.spotlightArrow {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(201, 164, 92, 0.3);
+  border-radius: 50%;
+  background: rgba(13, 8, 5, 0.45);
+  color: var(--cabinet-bone);
+  cursor: pointer;
+}
+
+.spotlightArrow:hover {
+  border-color: var(--cabinet-brass);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shelfCover,
+  .spotlightText {
+    animation: none;
+  }
 }
 
 .spotlightTitle {
   margin: 0;
-  color: var(--text-primary);
-  font-size: 1.1rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+  font-weight: 400;
+  line-height: 1.08;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cabinet-bone);
+  text-shadow: 3px 3px 0 var(--cabinet-shadow-red);
 }
 
 .spotlightCopy {
@@ -159,7 +223,7 @@
   background: var(--bg-secondary);
 }
 
-.features {
+.gamesSection {
   margin-bottom: 24px;
 }
 
@@ -271,13 +335,8 @@
     grid-template-columns: 1fr;
   }
 
-  .heroStats,
   .featureGrid {
     grid-template-columns: 1fr;
-  }
-
-  .heroStats {
-    grid-auto-flow: row;
   }
 }
 
@@ -293,14 +352,9 @@
   }
 
   .heroActions,
-  .sectionHeaderActions,
-  .spotlightBody {
+  .sectionHeaderActions {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .spotlightBody {
-    display: flex;
   }
 
   /* The picks heading shares its row with View All. The text is about 9.65em
