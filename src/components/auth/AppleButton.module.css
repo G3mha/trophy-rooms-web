@@ -14,7 +14,7 @@
   color: #fff;
   background: #000;
   border: 1px solid var(--tint-muted);
-  border-radius: var(--border-radius);
+  border-radius: 8px;
   cursor: pointer;
   transition:
     background-color 0.218s,

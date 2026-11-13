@@ -1,38 +1,36 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: var(--cabinet-bone);
 }
 
 .input {
   width: 100%;
-  padding: 14px 18px;
+  padding: 12px 14px;
   font-size: 16px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  background: rgba(13, 8, 5, 0.55);
+  border: 1px solid rgba(201, 164, 92, 0.24);
+  border-radius: 8px;
   color: var(--text-primary);
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: rgba(255, 159, 171, 0.36);
-  box-shadow: 0 0 0 3px rgba(201, 44, 60, 0.12);
+  border-color: var(--cabinet-brass);
+  box-shadow: 0 0 0 3px rgba(201, 164, 92, 0.22);
 }
 
 .input::placeholder {
@@ -49,12 +47,12 @@
 }
 
 .passwordWrapper .input {
-  padding-right: 50px;
+  padding-right: 46px;
 }
 
 .togglePassword {
   position: absolute;
-  right: 14px;
+  right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
@@ -80,31 +78,40 @@
 
 .submitButton {
   width: 100%;
-  padding: 14px 24px;
+  min-height: 46px;
+  margin-top: 4px;
+  padding: 12px 24px;
   font-size: 16px;
-  font-weight: 600;
-  color: white;
-  background: linear-gradient(135deg, var(--nintendo-red), var(--switch-neon-red));
+  font-weight: 700;
+  color: #fff;
+  background: var(--cabinet-crimson);
   border: none;
-  border-radius: 16px;
+  border-radius: 8px;
+  /* Print-style hard shadow, as on the display type */
+  box-shadow: 4px 4px 0 var(--cabinet-shadow-red);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .submitButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 24px rgba(201, 44, 60, 0.22);
+  background: color-mix(in srgb, var(--cabinet-crimson), #fff 10%);
 }
 
 .submitButton:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--cabinet-shadow-red);
+}
+
+.submitButton:focus-visible {
+  outline: 2px solid var(--cabinet-bone);
+  outline-offset: 3px;
 }
 
 .submitButton:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 

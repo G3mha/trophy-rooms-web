@@ -17,17 +17,17 @@
   font-size: 24px;
   font-weight: 600;
   text-align: center;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  background: rgba(13, 8, 5, 0.55);
+  border: 1px solid rgba(201, 164, 92, 0.24);
+  border-radius: 8px;
   color: var(--text-primary);
-  transition: all 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input:focus {
   outline: none;
-  border-color: rgba(222, 195, 255, 0.4);
-  box-shadow: 0 0 0 3px rgba(201, 44, 60, 0.14);
+  border-color: var(--cabinet-brass);
+  box-shadow: 0 0 0 3px rgba(201, 164, 92, 0.22);
 }
 
 .input:disabled {
