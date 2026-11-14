@@ -1,0 +1,33 @@
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  background: rgba(239, 231, 210, 0.06);
+}
+
+/* A slow warm sweep, like light moving across a shelf */
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(239, 231, 210, 0.07),
+    transparent
+  );
+  animation: sweep 1.6s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}

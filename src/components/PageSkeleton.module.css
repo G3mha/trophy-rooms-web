@@ -1,0 +1,154 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.heading {
+  width: min(320px, 80%);
+  height: 36px;
+}
+
+.subheading {
+  width: min(460px, 95%);
+  height: 14px;
+}
+
+.line {
+  width: 100%;
+  max-width: 260px;
+  height: 12px;
+}
+
+.lineShort {
+  width: 55%;
+  height: 12px;
+}
+
+.lines {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.covers {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.coverCard,
+.card,
+.row {
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.coverCard {
+  overflow: hidden;
+}
+
+.cover {
+  aspect-ratio: 3 / 4;
+  border-radius: 0;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+}
+
+.thumb {
+  flex: none;
+  width: 64px;
+  aspect-ratio: 3 / 4;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+}
+
+.avatar {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.rowEnd {
+  flex: none;
+  width: 64px;
+  height: 14px;
+}
+
+.detail {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.detailCover {
+  flex: none;
+  width: clamp(120px, 26%, 240px);
+  aspect-ratio: 3 / 4;
+  border-radius: var(--border-radius);
+}
+
+.detailInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 8px;
+}
+
+.button {
+  width: 140px;
+  height: 36px;
+  border-radius: var(--border-radius);
+}
+
+@media (max-width: 600px) {
+  .rowEnd {
+    display: none;
+  }
+
+  .detail {
+    gap: 16px;
+  }
+}
