@@ -2,7 +2,7 @@ import { Skeleton } from "./Skeleton";
 import styles from "./PageSkeleton.module.css";
 
 type PageSkeletonProps = {
-  // covers: game cover grid; cards: wide cards with a thumbnail;
+  // covers: game cover grid; cards: wide cards with a cover banner on top;
   // rows: stacked list or table rows; detail: one game, bundle or profile
   variant: "covers" | "cards" | "rows" | "detail";
   label?: string;
@@ -62,8 +62,8 @@ export function PageSkeleton({
         <div className={styles.cards}>
           {items.map((i) => (
             <div key={i} className={styles.card}>
-              <Skeleton className={styles.thumb} />
-              <div className={styles.lines}>
+              <Skeleton className={styles.banner} />
+              <div className={styles.cardBody}>
                 <Skeleton className={styles.line} />
                 <Skeleton className={styles.lineShort} />
                 <Skeleton className={styles.lineShort} />

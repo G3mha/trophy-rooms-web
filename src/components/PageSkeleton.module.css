@@ -70,6 +70,10 @@
   padding: 10px;
 }
 
+.card .cardBody {
+  padding: 16px 20px 20px;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -77,16 +81,13 @@
 }
 
 .card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px;
+  overflow: hidden;
 }
 
-.thumb {
-  flex: none;
-  width: 64px;
-  aspect-ratio: 3 / 4;
+/* Library, buylist and bundle cards all lead with a ~180px cover strip */
+.banner {
+  height: 180px;
+  border-radius: 0;
 }
 
 .rows {
