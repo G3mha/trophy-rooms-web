@@ -142,7 +142,7 @@ export default function PublicBuylistPage({
   if (loading) {
     return (
       <div className={styles.container}>
-        <PageSkeleton variant="cards" label="Loading buylist" />
+        <PageSkeleton variant="cards" label="Loading buylist" gridClassName={styles.itemsGrid} />
       </div>
     );
   }

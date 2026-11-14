@@ -218,7 +218,7 @@ export default function GamesPage() {
 
       <QueryState
         isLoading={loading && (!rawGames || rawGames.length === 0)}
-        skeleton={<PageSkeleton variant="covers" label="Loading games" header={false} count={18} />}
+        skeleton={<PageSkeleton variant="covers" label="Loading games" header={false} count={18} gridClassName={styles.gamesGrid} />}
         error={error}
         errorTitle="Couldn’t load the games catalog"
         errorAction={

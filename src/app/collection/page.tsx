@@ -156,7 +156,7 @@ export default function CollectionPage() {
   const totalRegionalVariants = stats.byRegion.reduce((sum, item) => sum + item.count, 0);
 
   if (!isLoaded) {
-    return <div className={styles.container}><PageSkeleton variant="covers" label="Loading your collection" /></div>;
+    return <div className={styles.container}><PageSkeleton variant="covers" label="Loading your collection" gridClassName={styles.grid} /></div>;
   }
 
   if (!isSignedIn) {
@@ -166,7 +166,7 @@ export default function CollectionPage() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <PageSkeleton variant="covers" label="Loading your collection" />
+        <PageSkeleton variant="covers" label="Loading your collection" gridClassName={styles.grid} />
       </div>
     );
   }

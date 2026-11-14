@@ -9,6 +9,8 @@ type PageSkeletonProps = {
   // Off when the page already shows its own heading while loading
   header?: boolean;
   count?: number;
+  // The page's own grid class, so skeleton columns follow its breakpoints
+  gridClassName?: string;
 };
 
 const DEFAULT_COUNT = { covers: 12, cards: 6, rows: 8, detail: 4 };
@@ -32,6 +34,7 @@ export function PageSkeleton({
   // A detail page's title sits beside its cover, not above it
   header = variant !== "detail",
   count = DEFAULT_COUNT[variant],
+  gridClassName,
 }: PageSkeletonProps) {
   const items = Array.from({ length: count }, (_, i) => i);
 
@@ -45,7 +48,7 @@ export function PageSkeleton({
       )}
 
       {variant === "covers" && (
-        <div className={styles.covers}>
+        <div className={gridClassName ?? styles.covers}>
           {items.map((i) => (
             <div key={i} className={styles.coverCard}>
               <Skeleton className={styles.cover} />
@@ -59,7 +62,7 @@ export function PageSkeleton({
       )}
 
       {variant === "cards" && (
-        <div className={styles.cards}>
+        <div className={gridClassName ?? styles.cards}>
           {items.map((i) => (
             <div key={i} className={styles.card}>
               <Skeleton className={styles.banner} />

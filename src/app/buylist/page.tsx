@@ -135,7 +135,7 @@ export default function BuylistPage() {
   );
 
   if (!isLoaded) {
-    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your buylist" /></div>;
+    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your buylist" gridClassName={styles.itemsGrid} /></div>;
   }
 
   if (!isSignedIn) {
@@ -145,7 +145,7 @@ export default function BuylistPage() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <PageSkeleton variant="cards" label="Loading your buylist" />
+        <PageSkeleton variant="cards" label="Loading your buylist" gridClassName={styles.itemsGrid} />
       </div>
     );
   }

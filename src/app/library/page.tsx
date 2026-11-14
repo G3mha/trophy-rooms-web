@@ -102,7 +102,7 @@ export default function LibraryPage() {
   );
 
   if (!isLoaded) {
-    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your library" /></div>;
+    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your library" gridClassName={styles.gamesGrid} /></div>;
   }
 
   if (!isSignedIn) {
@@ -112,7 +112,7 @@ export default function LibraryPage() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <PageSkeleton variant="cards" label="Loading your library" />
+        <PageSkeleton variant="cards" label="Loading your library" gridClassName={styles.gamesGrid} />
       </div>
     );
   }

@@ -113,7 +113,7 @@ export default function BundlesPage() {
 
       <QueryState
         isLoading={loading}
-        skeleton={<PageSkeleton variant="cards" label="Loading bundles" header={false} />}
+        skeleton={<PageSkeleton variant="cards" label="Loading bundles" header={false} gridClassName={styles.bundlesGrid} />}
         error={error}
         errorTitle="Couldn’t load bundles"
         errorAction={
