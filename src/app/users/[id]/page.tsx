@@ -73,7 +73,7 @@ export default function PublicProfilePage({
   if (loading) {
     return (
       <div className={styles.container}>
-        <PageSkeleton variant="detail" label="Loading profile" />
+        <PageSkeleton variant="profile" label="Loading profile" />
       </div>
     );
   }

@@ -3,8 +3,9 @@ import styles from "./PageSkeleton.module.css";
 
 type PageSkeletonProps = {
   // covers: game cover grid; cards: wide cards with a cover banner on top;
-  // rows: stacked list or table rows; detail: one game, bundle or profile
-  variant: "covers" | "cards" | "rows" | "detail";
+  // rows: stacked list or table rows; detail: one game, bundle or DLC;
+  // profile: a user's header card
+  variant: "covers" | "cards" | "rows" | "detail" | "profile";
   label?: string;
   // Off when the page already shows its own heading while loading
   header?: boolean;
@@ -13,7 +14,7 @@ type PageSkeletonProps = {
   gridClassName?: string;
 };
 
-const DEFAULT_COUNT = { covers: 12, cards: 6, rows: 8, detail: 4 };
+const DEFAULT_COUNT = { covers: 12, cards: 6, rows: 8, detail: 4, profile: 4 };
 
 function Row() {
   return (
@@ -32,7 +33,7 @@ export function PageSkeleton({
   variant,
   label = "Loading",
   // A detail page's title sits beside its cover, not above it
-  header = variant !== "detail",
+  header = variant !== "detail" && variant !== "profile",
   count = DEFAULT_COUNT[variant],
   gridClassName,
 }: PageSkeletonProps) {
@@ -82,6 +83,24 @@ export function PageSkeleton({
             <Row key={i} />
           ))}
         </div>
+      )}
+
+      {variant === "profile" && (
+        <>
+          <div className={styles.profile}>
+            <Skeleton className={styles.profileAvatar} />
+            <div className={styles.profileInfo}>
+              <Skeleton className={styles.subheading} />
+              <Skeleton className={styles.lineShort} />
+              <Skeleton className={styles.profileStats} />
+            </div>
+          </div>
+          <div className={styles.rows}>
+            {items.map((i) => (
+              <Row key={i} />
+            ))}
+          </div>
+        </>
       )}
 
       {variant === "detail" && (
