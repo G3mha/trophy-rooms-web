@@ -14,7 +14,7 @@ import {
 import { Trash2, Pencil, Plus, Search, Star, Cloud } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { getMutationMessage } from "@/lib/mutation-utils";
-import { Button, LoadingSpinner, PlatformIcon } from "@/components";
+import { Button, PageSkeleton, PlatformIcon } from "@/components";
 import { AdminConfirmDialog, CoverPreview } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import {
@@ -520,7 +520,7 @@ export default function AdminGameVersionsPage() {
       </Dialog>
 
       {loading ? (
-        <LoadingSpinner text="Loading versions..." />
+        <PageSkeleton variant="rows" label="Loading versions" header={false} />
       ) : (
         <>
           {/* Select All Bar */}

@@ -14,7 +14,7 @@ import { Trash2, Pencil, Plus, Search, Puzzle } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { getMutationMessage } from "@/lib/mutation-utils";
 import { FormField } from "@/components/ui/form-field";
-import { Button, LoadingSpinner } from "@/components";
+import { Button, PageSkeleton } from "@/components";
 import {
   AdminConfirmDialog,
   GameFamilySearchPicker,
@@ -514,7 +514,7 @@ export default function AdminDLCsPage() {
           </Dialog>
 
           {loading ? (
-            <LoadingSpinner text="Loading DLCs..." />
+            <PageSkeleton variant="rows" label="Loading DLCs" header={false} />
           ) : (
             <>
               {/* Select All Bar */}

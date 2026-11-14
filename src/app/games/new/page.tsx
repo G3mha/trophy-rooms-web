@@ -9,7 +9,7 @@ import { Lock } from "lucide-react";
 import { CREATE_GAME_FAMILY } from "@/graphql/mutations";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GET_PLATFORMS } from "@/graphql/admin_queries";
-import { Button, LoadingSpinner, EmptyState, FormAlert } from "@/components";
+import { Button, PageSkeleton, EmptyState, FormAlert } from "@/components";
 import { CoverPreview } from "@/components/admin";
 import { generateSlug } from "@/lib/slug-utils";
 import styles from "./page.module.css";
@@ -91,7 +91,7 @@ export default function NewGamePage() {
   };
 
   if (!isLoaded) {
-    return <LoadingSpinner text="Loading..." />;
+    return <PageSkeleton variant="rows" label="Loading" />;
   }
 
   if (!isSignedIn) {
@@ -99,7 +99,7 @@ export default function NewGamePage() {
   }
 
   if (meLoading) {
-    return <LoadingSpinner text="Checking access..." />;
+    return <PageSkeleton variant="rows" label="Checking access" />;
   }
 
   if (!isAdmin) {

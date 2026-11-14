@@ -5,7 +5,7 @@ import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { GET_USERS_ADMIN } from "@/graphql/admin_queries";
 import { SET_USER_ROLE } from "@/graphql/admin_mutations";
-import { LoadingSpinner, Pagination } from "@/components";
+import { PageSkeleton, Pagination } from "@/components";
 import { Search } from "lucide-react";
 import {
   Select,
@@ -125,7 +125,7 @@ export default function AdminUsersPage() {
   };
 
   if (usersLoading && users.length === 0) {
-    return <LoadingSpinner text="Loading users..." />;
+    return <PageSkeleton variant="rows" label="Loading users" />;
   }
 
   return (

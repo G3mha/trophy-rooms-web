@@ -26,7 +26,7 @@ import {
 } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import { SelectableButton } from "@/components/ui/selectable-button";
-import { AppImage, Button, LoadingSpinner, Pagination, PlatformIcon } from "@/components";
+import { AppImage, Button, PageSkeleton, Pagination, PlatformIcon } from "@/components";
 import { isValidHttpUrl, getFieldErrorClass } from "@/lib/validation-utils";
 import { getMutationMessage } from "@/lib/mutation-utils";
 import { GET_ADMIN_GAMES, GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
@@ -533,7 +533,7 @@ export default function AdminGamesPage() {
   const isInitialLoad = loading && adminGames.length === 0 && !debouncedSearch;
 
   if (isInitialLoad) {
-    return <LoadingSpinner text="Loading games..." />;
+    return <PageSkeleton variant="rows" label="Loading games" />;
   }
 
   return (

@@ -13,7 +13,7 @@ import {
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { Button, LoadingSpinner } from "@/components";
+import { Button, PageSkeleton } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
 import {
   Dialog,
@@ -252,7 +252,7 @@ export default function AdminAchievementSetsPage() {
   };
 
   if (loading && sets.length === 0) {
-    return <LoadingSpinner text="Loading achievement sets..." />;
+    return <PageSkeleton variant="rows" label="Loading achievement sets" />;
   }
 
   return (

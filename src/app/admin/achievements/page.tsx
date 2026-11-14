@@ -13,7 +13,7 @@ import {
   BULK_CREATE_ACHIEVEMENTS,
 } from "@/graphql/admin_mutations";
 import { Trash2, Pencil, Plus, Search, Upload } from "lucide-react";
-import { Button, LoadingSpinner, Pagination } from "@/components";
+import { Button, PageSkeleton, Pagination } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
 import {
   Dialog,
@@ -575,7 +575,7 @@ export default function AdminAchievementsPage() {
           </Dialog>
 
           {loading ? (
-            <LoadingSpinner text="Loading achievements..." />
+            <PageSkeleton variant="rows" label="Loading achievements" header={false} />
           ) : (
             <>
               {/* Select All Bar */}

@@ -15,7 +15,7 @@ import {
   type SearchableGame,
 } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
-import { Button, LoadingSpinner } from "@/components";
+import { Button, PageSkeleton } from "@/components";
 import { GET_BUNDLES, GET_PLATFORMS } from "@/graphql/admin_queries";
 import {
   BULK_DELETE_BUNDLES,
@@ -425,7 +425,7 @@ export default function AdminBundlesPage() {
   };
 
   if (loading && bundles.length === 0) {
-    return <LoadingSpinner text="Loading bundles..." />;
+    return <PageSkeleton variant="rows" label="Loading bundles" />;
   }
 
   return (

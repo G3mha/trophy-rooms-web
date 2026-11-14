@@ -16,7 +16,7 @@ import {
 import { Trash2, Pencil, Plus, Search, Gamepad2 } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
 import { getMutationMessage } from "@/lib/mutation-utils";
-import { AppImage, Button, LoadingSpinner } from "@/components";
+import { AppImage, Button, PageSkeleton } from "@/components";
 import { AdminConfirmDialog, CoverPreview } from "@/components/admin";
 import { FormField } from "@/components/ui/form-field";
 import {
@@ -339,7 +339,7 @@ export default function AdminPlatformsPage() {
   };
 
   if (loading) {
-    return <LoadingSpinner text="Loading platforms..." />;
+    return <PageSkeleton variant="rows" label="Loading platforms" />;
   }
 
   return (

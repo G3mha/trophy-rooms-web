@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import { GET_ME } from "@/graphql/queries";
-import { LoadingSpinner, EmptyState, Button } from "@/components";
+import { PageSkeleton, EmptyState, Button } from "@/components";
 import {
   Gamepad,
   Layers,
@@ -78,7 +78,7 @@ export default function AdminLayout({
   }, [sidebarOpen]);
 
   if (!isLoaded || meLoading) {
-    return <LoadingSpinner text="Checking access..." />;
+    return <PageSkeleton variant="rows" label="Checking access" />;
   }
 
   if (!isSignedIn) {
