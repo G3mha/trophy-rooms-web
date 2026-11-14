@@ -12,7 +12,7 @@ import {
   CatalogSearchField,
   CatalogSelectField,
   CatalogHero,
-  QueryState,
+  PageSkeleton, QueryState,
 } from "@/components";
 import { Package, Layers3, Puzzle } from "lucide-react";
 import styles from "./page.module.css";
@@ -113,7 +113,7 @@ export default function BundlesPage() {
 
       <QueryState
         isLoading={loading}
-        loadingText="Loading bundles..."
+        skeleton={<PageSkeleton variant="cards" label="Loading bundles" header={false} />}
         error={error}
         errorTitle="Couldn’t load bundles"
         errorAction={

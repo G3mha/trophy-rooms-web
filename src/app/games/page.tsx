@@ -15,7 +15,7 @@ import {
   CatalogSearchField,
   CatalogSelectField,
   CatalogHero,
-  QueryState,
+  PageSkeleton, QueryState,
 } from "@/components";
 import { Gamepad2, Swords, Trophy } from "lucide-react";
 import styles from "./page.module.css";
@@ -218,7 +218,7 @@ export default function GamesPage() {
 
       <QueryState
         isLoading={loading && (!rawGames || rawGames.length === 0)}
-        loadingText="Loading games..."
+        skeleton={<PageSkeleton variant="covers" label="Loading games" header={false} count={18} />}
         error={error}
         errorTitle="Couldn’t load the games catalog"
         errorAction={

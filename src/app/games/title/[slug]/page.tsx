@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
 import { ArrowLeft, Gamepad2, Monitor, Star, Trophy } from "lucide-react";
 import { GET_GAMES_BY_TITLE } from "@/graphql/queries";
-import { AppImage, Button, EmptyState, PlatformIcon, QueryState } from "@/components";
+import { AppImage, Button, EmptyState, PlatformIcon, PageSkeleton, QueryState } from "@/components";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -60,7 +60,7 @@ export default function GameFamilyPage({
     <div className={styles.container}>
       <QueryState
         isLoading={loading || singleGameId !== null}
-        loadingText="Loading game..."
+        skeleton={<PageSkeleton variant="detail" label="Loading game" />}
         error={error}
         errorTitle="Couldn’t load this game family"
         errorAction={

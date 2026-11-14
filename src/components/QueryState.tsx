@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { ErrorState } from "./ErrorState";
-import { LoadingSpinner } from "./LoadingSpinner";
+import { PageSkeleton } from "./PageSkeleton";
 
 type QueryLikeError = {
   message?: string;
@@ -11,7 +11,8 @@ type QueryLikeError = {
 
 type QueryStateProps = {
   isLoading?: boolean;
-  loadingText?: string;
+  // What to show while loading; defaults to plain rows
+  skeleton?: React.ReactNode;
   error?: QueryLikeError;
   errorTitle?: string;
   errorDescription?: string;
@@ -23,7 +24,7 @@ type QueryStateProps = {
 
 function QueryState({
   isLoading = false,
-  loadingText = "Loading...",
+  skeleton = <PageSkeleton variant="rows" />,
   error,
   errorTitle = "Couldn’t load this page",
   errorDescription,
@@ -33,7 +34,7 @@ function QueryState({
   children,
 }: QueryStateProps) {
   if (isLoading) {
-    return <LoadingSpinner text={loadingText} />;
+    return <>{skeleton}</>;
   }
 
   if (error) {

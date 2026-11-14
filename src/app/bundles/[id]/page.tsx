@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { AppImage, Button, EmptyState, BuylistSelector, ExpandableText, QueryState } from "@/components";
+import { AppImage, Button, EmptyState, BuylistSelector, ExpandableText, PageSkeleton, QueryState } from "@/components";
 import styles from "./page.module.css";
 
 const GET_BUNDLE_DETAIL = gql`
@@ -229,7 +229,7 @@ export default function BundleDetailPage({
     <div className={styles.container}>
       <QueryState
         isLoading={loading}
-        loadingText="Loading bundle..."
+        skeleton={<PageSkeleton variant="detail" label="Loading bundle" />}
         error={error}
         errorTitle="Couldn’t load this bundle"
         errorAction={

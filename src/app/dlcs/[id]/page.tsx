@@ -8,7 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { Puzzle, Gamepad2, Package, Calendar, DollarSign, Check, Plus, Award } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { AppImage, Button, EmptyState, BuylistSelector, ExpandableText, QueryState } from "@/components";
+import { AppImage, Button, EmptyState, BuylistSelector, ExpandableText, PageSkeleton, QueryState } from "@/components";
 import styles from "./page.module.css";
 
 const GET_DLC_DETAIL = gql`
@@ -213,7 +213,7 @@ export default function DLCDetailPage({
     <div className={styles.container}>
       <QueryState
         isLoading={loading}
-        loadingText="Loading DLC..."
+        skeleton={<PageSkeleton variant="detail" label="Loading DLC" />}
         error={error}
         errorTitle="Couldn’t load this DLC"
         errorAction={

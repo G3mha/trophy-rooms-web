@@ -14,7 +14,7 @@ import {
   CREATE_ACHIEVEMENT,
   PUBLISH_ACHIEVEMENT_SET,
 } from "@/graphql/mutations";
-import { AchievementCard, AppImage, Button, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, PlatformIcon, QueryState } from "@/components";
+import { AchievementCard, AppImage, Button, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, PlatformIcon, PageSkeleton, QueryState } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./page.module.css";
@@ -339,7 +339,7 @@ export default function GameDetailPage({
     <div className={styles.container}>
       <QueryState
         isLoading={loading}
-        loadingText="Loading game..."
+        skeleton={<PageSkeleton variant="detail" label="Loading game" />}
         error={error}
         errorTitle="Couldn’t load this game"
         errorAction={
