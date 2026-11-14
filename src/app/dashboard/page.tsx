@@ -18,7 +18,7 @@ import {
   AppImage,
   StatCard,
   AchievementCard,
-  LoadingSpinner,
+  PageSkeleton,
   EmptyState,
   Button,
 } from "@/components";
@@ -96,7 +96,7 @@ export default function Dashboard() {
   );
 
   if (!isLoaded) {
-    return <LoadingSpinner text="Loading..." />;
+    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your dashboard" /></div>;
   }
 
   if (!isSignedIn) {
@@ -125,7 +125,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <LoadingSpinner text="Loading your dashboard..." />
+        <PageSkeleton variant="cards" label="Loading your dashboard" />
       </div>
     );
   }

@@ -23,7 +23,7 @@ import {
 import { GET_MY_BUYLIST, GET_BUYLIST_STATS, GET_ME } from "@/graphql/queries";
 import { REMOVE_FROM_BUYLIST } from "@/graphql/mutations";
 import {
-  LoadingSpinner,
+  PageSkeleton,
   EmptyState,
   AppImage,
   Button,
@@ -135,7 +135,7 @@ export default function BuylistPage() {
   );
 
   if (!isLoaded) {
-    return <LoadingSpinner text="Loading..." />;
+    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your buylist" /></div>;
   }
 
   if (!isSignedIn) {
@@ -145,7 +145,7 @@ export default function BuylistPage() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <LoadingSpinner text="Loading your buylist..." />
+        <PageSkeleton variant="cards" label="Loading your buylist" />
       </div>
     );
   }

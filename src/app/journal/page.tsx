@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { CalendarClock, Flame, Clock, Minus, Plus, Trash2 } from "lucide-react";
 import { GET_MY_PLAY_JOURNAL, GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { LOG_PLAY_SESSION, DELETE_PLAY_SESSION } from "@/graphql/mutations";
-import { LoadingSpinner, EmptyState, Button, AppImage } from "@/components";
+import { PageSkeleton, EmptyState, Button, AppImage } from "@/components";
 import styles from "./page.module.css";
 
 interface PlaySessionData {
@@ -126,7 +126,7 @@ export default function JournalPage() {
     }));
   }, [sessions]);
 
-  if (!isLoaded) return <LoadingSpinner />;
+  if (!isLoaded) return <div className={styles.container}><PageSkeleton variant="rows" label="Loading journal" /></div>;
   if (!isSignedIn) return <RedirectToSignIn />;
 
   const playedOn = () => {
@@ -289,7 +289,7 @@ export default function JournalPage() {
       </div>
 
       {loading && sessions.length === 0 ? (
-        <LoadingSpinner />
+        <PageSkeleton variant="rows" label="Loading sessions" header={false} />
       ) : sessions.length === 0 ? (
         <EmptyState
           icon={<CalendarClock size={48} />}

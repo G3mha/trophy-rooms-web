@@ -14,7 +14,7 @@ import {
   GET_USER_GAME_PROGRESS,
 } from "@/graphql/queries";
 import {
-  LoadingSpinner,
+  PageSkeleton,
   EmptyState,
   Button,
   ProfileHeader,
@@ -73,7 +73,7 @@ export default function PublicProfilePage({
   if (loading) {
     return (
       <div className={styles.container}>
-        <LoadingSpinner text="Loading profile..." />
+        <PageSkeleton variant="detail" label="Loading profile" />
       </div>
     );
   }

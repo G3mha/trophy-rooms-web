@@ -20,7 +20,7 @@ import {
   GET_ME,
 } from "@/graphql/queries";
 import {
-  LoadingSpinner,
+  PageSkeleton,
   LeaderboardEntry,
   FastestCompletionEntry,
 } from "@/components";
@@ -233,9 +233,7 @@ export default function LeaderboardsPage() {
 
       <section className={styles.leaderboardSection}>
         {loading ? (
-          <div className={styles.loadingContainer}>
-            <LoadingSpinner text="Loading leaderboard..." />
-          </div>
+          <PageSkeleton variant="rows" label="Loading leaderboard" header={false} count={10} />
         ) : !leaderboardData || leaderboardData.length === 0 ? (
           <div className={styles.emptyState}>
             <currentTab.Icon className={styles.emptyIcon} size={48} />

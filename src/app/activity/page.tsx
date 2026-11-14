@@ -16,7 +16,7 @@ import {
   GET_ME,
   GET_RECENT_TROPHY_ACTIVITY,
 } from "@/graphql/queries";
-import { LoadingSpinner, ActivityFeedEntry } from "@/components";
+import { PageSkeleton, ActivityFeedEntry } from "@/components";
 import styles from "./page.module.css";
 
 type ActivityFilter = "all" | "trophies";
@@ -130,9 +130,7 @@ export default function ActivityPage() {
 
       <section className={styles.feedSection}>
         {loading ? (
-          <div className={styles.loadingContainer}>
-            <LoadingSpinner text="Loading activity..." />
-          </div>
+          <PageSkeleton variant="rows" label="Loading activity" header={false} />
         ) : activityData.length === 0 ? (
           <div className={styles.emptyState}>
             <Inbox className={styles.emptyIcon} size={48} />

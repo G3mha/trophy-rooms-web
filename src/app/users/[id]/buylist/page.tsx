@@ -16,7 +16,7 @@ import {
   StickyNote,
 } from "lucide-react";
 import { GET_USER_BUYLIST, GET_USER } from "@/graphql/queries";
-import { LoadingSpinner, EmptyState, AppImage, Button } from "@/components";
+import { PageSkeleton, EmptyState, AppImage, Button } from "@/components";
 import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./page.module.css";
 
@@ -142,7 +142,7 @@ export default function PublicBuylistPage({
   if (loading) {
     return (
       <div className={styles.container}>
-        <LoadingSpinner text="Loading buylist..." />
+        <PageSkeleton variant="cards" label="Loading buylist" />
       </div>
     );
   }

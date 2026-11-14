@@ -155,13 +155,6 @@
   gap: 8px;
 }
 
-.loadingContainer {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 320px;
-}
-
 .emptyState {
   display: flex;
   flex-direction: column;

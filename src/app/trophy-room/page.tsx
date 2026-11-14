@@ -14,7 +14,7 @@ import {
   GET_MY_GAME_PROGRESS,
 } from "@/graphql/queries";
 import {
-  LoadingSpinner,
+  PageSkeleton,
   EmptyState,
   Button,
   ProfileHeader,
@@ -57,7 +57,7 @@ export default function TrophyRoom() {
   );
 
   if (!isLoaded) {
-    return <LoadingSpinner text="Loading..." />;
+    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your trophy room" /></div>;
   }
 
   if (!isSignedIn) {
@@ -75,7 +75,7 @@ export default function TrophyRoom() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <LoadingSpinner text="Loading your trophy room..." />
+        <PageSkeleton variant="cards" label="Loading your trophy room" />
       </div>
     );
   }

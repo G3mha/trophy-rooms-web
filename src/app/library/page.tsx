@@ -21,7 +21,7 @@ import {
 import { GET_MY_GAMES_BY_STATUS } from "@/graphql/queries";
 import { CLEAR_GAME_STATUS } from "@/graphql/mutations";
 import {
-  LoadingSpinner,
+  PageSkeleton,
   EmptyState,
   AppImage,
   Button,
@@ -102,7 +102,7 @@ export default function LibraryPage() {
   );
 
   if (!isLoaded) {
-    return <LoadingSpinner text="Loading..." />;
+    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your library" /></div>;
   }
 
   if (!isSignedIn) {
@@ -112,7 +112,7 @@ export default function LibraryPage() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <LoadingSpinner text="Loading your library..." />
+        <PageSkeleton variant="cards" label="Loading your library" />
       </div>
     );
   }
