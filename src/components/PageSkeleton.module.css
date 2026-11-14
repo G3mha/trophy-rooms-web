@@ -144,12 +144,21 @@
   border-radius: var(--border-radius);
 }
 
+/* Detail pages drop the cover above the title at this width */
+@media (max-width: 960px) {
+  .detail {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .detailCover {
+    width: 100%;
+    min-height: 280px;
+  }
+}
+
 @media (max-width: 600px) {
   .rowEnd {
     display: none;
-  }
-
-  .detail {
-    gap: 16px;
   }
 }
