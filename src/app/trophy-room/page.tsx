@@ -57,7 +57,7 @@ export default function TrophyRoom() {
   );
 
   if (!isLoaded) {
-    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your trophy room" /></div>;
+    return <div className={styles.container}><PageSkeleton variant="rows" label="Loading your trophy room" /></div>;
   }
 
   if (!isSignedIn) {
@@ -75,7 +75,7 @@ export default function TrophyRoom() {
   if (loading) {
     return (
       <div className={styles.container}>
-        <PageSkeleton variant="cards" label="Loading your trophy room" />
+        <PageSkeleton variant="rows" label="Loading your trophy room" />
       </div>
     );
   }
