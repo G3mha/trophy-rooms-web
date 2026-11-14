@@ -211,3 +211,31 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Loading placeholders, sized like the hero, stat cards and section titles */
+.skeletonTitle {
+  width: min(420px, 85%);
+  height: 48px;
+}
+
+.skeletonButton {
+  width: 150px;
+  height: 44px;
+  border-radius: var(--border-radius);
+}
+
+.skeletonLabel {
+  width: 140px;
+  height: 18px;
+  margin-bottom: 18px;
+}
+
+.skeletonMilestone {
+  height: 120px;
+  border-radius: 22px;
+}
+
+.skeletonStat {
+  height: 132px;
+  border-radius: var(--border-radius-lg);
+}

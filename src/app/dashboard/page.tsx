@@ -19,6 +19,7 @@ import {
   StatCard,
   AchievementCard,
   PageSkeleton,
+  Skeleton,
   EmptyState,
   Button,
 } from "@/components";
@@ -72,6 +73,41 @@ interface TrophyNode {
   };
 }
 
+// Loading placeholder built from the dashboard's own layout classes, so the
+// hero, stats and list columns sit exactly where the real ones will
+function DashboardSkeleton() {
+  return (
+    <div className={styles.container} role="status" aria-label="Loading your dashboard">
+      <div className={styles.hero}>
+        <div className={styles.heroLead}>
+          <Skeleton className={styles.skeletonTitle} />
+          <div className={styles.heroActions}>
+            <Skeleton className={styles.skeletonButton} />
+            <Skeleton className={styles.skeletonButton} />
+          </div>
+        </div>
+        <div className={styles.heroPanel}>
+          <Skeleton className={styles.skeletonLabel} />
+          <Skeleton className={styles.skeletonMilestone} />
+        </div>
+      </div>
+      <div className={styles.stats}>
+        {[0, 1, 2].map((i) => (
+          <Skeleton key={i} className={styles.skeletonStat} />
+        ))}
+      </div>
+      <div className={styles.columns}>
+        {[0, 1].map((i) => (
+          <div key={i} className={styles.section}>
+            <Skeleton className={styles.skeletonLabel} />
+            <PageSkeleton variant="rows" header={false} count={3} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { isSignedIn, isLoaded } = useAuth();
 
@@ -96,7 +132,7 @@ export default function Dashboard() {
   );
 
   if (!isLoaded) {
-    return <div className={styles.container}><PageSkeleton variant="cards" label="Loading your dashboard" /></div>;
+    return <DashboardSkeleton />;
   }
 
   if (!isSignedIn) {
@@ -123,11 +159,7 @@ export default function Dashboard() {
   const trophyCount = user?.trophyCount || 0;
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <PageSkeleton variant="cards" label="Loading your dashboard" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
