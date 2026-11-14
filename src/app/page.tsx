@@ -6,7 +6,7 @@ import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
 import { ArrowRight, ChevronLeft, ChevronRight, Gamepad2, Star, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
-import { GroupedGameCard, AppImage, Button, LoadingSpinner, EmptyState, ErrorState, GlobalSearch, TrophyCase, TrophyShelf } from "@/components";
+import { GroupedGameCard, AppImage, Button, Skeleton, EmptyState, ErrorState, GlobalSearch, TrophyCase, TrophyShelf } from "@/components";
 import styles from "./page.module.css";
 
 interface Platform {
@@ -131,7 +131,7 @@ const SPOTLIGHT_INTERVAL_MS = 6000;
 // The hero cabinet: loops through every featured game without end. It stops
 // while the pointer or keyboard focus is on it, and never auto-advances under
 // reduced motion - the arrows still switch games by hand.
-function HeroSpotlight({ families }: { families: GameGroup[] }) {
+function HeroSpotlight({ families, loading }: { families: GameGroup[]; loading: boolean }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const count = families.length;
@@ -158,6 +158,16 @@ function HeroSpotlight({ families }: { families: GameGroup[] }) {
       onBlur={() => setPaused(false)}
     >
       <TrophyCase>
+        {loading && (
+          <>
+            <Skeleton className={styles.shelfCover} />
+            <div className={styles.shelfInfo} role="status" aria-label="Loading featured game">
+              <Skeleton className={styles.skeletonTitle} />
+              <Skeleton className={styles.skeletonLine} />
+              <Skeleton className={styles.skeletonButton} />
+            </div>
+          </>
+        )}
         {family && (
           <>
             <Link
@@ -271,7 +281,7 @@ export default function Home() {
             </div>
           )}
         </div>
-        <HeroSpotlight families={spotlightFamilies} />
+        <HeroSpotlight families={spotlightFamilies} loading={loading} />
       </section>
 
       <section className={styles.gamesSection}>
@@ -284,7 +294,24 @@ export default function Home() {
           </div>
         </div>
 
-        {loading && <LoadingSpinner text="Loading featured titles..." />}
+        {loading && (
+          <div
+            ref={setPicksGrid}
+            className={styles.gamesGrid}
+            role="status"
+            aria-label="Loading featured titles"
+          >
+            {Array.from({ length: picksColumns ? picksColumns * PICK_ROWS : MAX_PICKS }, (_, i) => (
+              <div key={i} className={styles.skeletonCard}>
+                <Skeleton className={styles.skeletonCover} />
+                <div className={styles.skeletonCardBody}>
+                  <Skeleton className={styles.skeletonLine} />
+                  <Skeleton className={styles.skeletonShort} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {error && (
           <ErrorState

@@ -370,3 +370,45 @@
     font-size: min(1.6rem, calc((100cqi - 110px) / 9.8));
   }
 }
+
+/* Loading placeholders, shaped like the hero spotlight and the picks cards */
+.skeletonTitle {
+  width: min(260px, 90%);
+  height: 30px;
+}
+
+.skeletonLine {
+  width: 100%;
+  max-width: 220px;
+  height: 12px;
+}
+
+.skeletonShort {
+  width: 55%;
+  height: 12px;
+}
+
+.skeletonButton {
+  width: 120px;
+  height: 32px;
+  border-radius: var(--border-radius);
+}
+
+.skeletonCard {
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.skeletonCover {
+  aspect-ratio: 3 / 4;
+  border-radius: 0;
+}
+
+.skeletonCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
