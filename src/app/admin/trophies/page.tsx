@@ -426,7 +426,7 @@ export default function AdminAchievementsPage() {
           />
           <div className={styles.actionsRow}>
             <Button loading={importing} onClick={handleImport}>
-              Import Achievements
+              Import Trophies
             </Button>
             <Button variant="secondary" onClick={() => setShowImport(false)}>
               Cancel
@@ -451,7 +451,7 @@ export default function AdminAchievementsPage() {
             </div>
             <Button onClick={() => setIsAddModalOpen(true)}>
               <Plus size={18} />
-              Add Achievement
+              Add Trophy
             </Button>
           </div>
 
@@ -507,7 +507,7 @@ export default function AdminAchievementsPage() {
                   loading={creating}
                   disabled={!newTitle}
                 >
-                  Create Achievement
+                  Create Trophy
                 </Button>
               </DialogFooter>
             </DialogContent>

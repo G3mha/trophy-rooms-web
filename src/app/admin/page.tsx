@@ -177,7 +177,7 @@ export default function AdminDashboardPage() {
         <div>
           <h1 className={styles.pageTitle}>Admin Dashboard</h1>
           <p className={styles.sectionSubtitle}>
-            Manage platforms, games, achievements, and users.
+            Manage platforms, games, trophies, and users.
           </p>
         </div>
       </div>

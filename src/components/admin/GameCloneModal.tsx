@@ -219,7 +219,7 @@ export function GameCloneModal({
             {copyAchievements ? (
               <>
                 <Copy size={14} />
-                Clone with Achievements
+                Clone with Trophies
               </>
             ) : targetPlatformIds.size > 0 ? (
               `Add to ${targetPlatformIds.size} Platform${targetPlatformIds.size > 1 ? "s" : ""}`
