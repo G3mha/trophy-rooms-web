@@ -187,6 +187,9 @@
 }
 
 .achievementCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: var(--nintendo-red);
   font-size: 13px;
   font-weight: 600;

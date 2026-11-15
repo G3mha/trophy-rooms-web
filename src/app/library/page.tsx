@@ -229,8 +229,10 @@ export default function LibraryPage() {
                       <p className={styles.gameDescription}>{item.gameDescription}</p>
                     )}
                     <div className={styles.gameMeta}>
-                      <span className={styles.achievementCount}>
-                        {item.achievementCount} achievements
+                      <span className={styles.achievementCount} title={`${item.achievementCount} trophies`}>
+                        <Trophy size={13} aria-hidden />
+                        {item.achievementCount}
+                        <span className="sr-only"> trophies</span>
                       </span>
                       <span className={styles.addedDate}>
                         Added {new Date(item.addedAt).toLocaleDateString()}
