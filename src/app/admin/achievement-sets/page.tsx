@@ -102,9 +102,9 @@ export default function AdminAchievementSetsPage() {
       refetch();
       setIsAddModalOpen(false);
       resetAddForm();
-      toast.success("Achievement set created.");
+      toast.success("Trophy list created.");
     },
-    onError: (error) => toast.error(error.message || "Failed to create achievement set."),
+    onError: (error) => toast.error(error.message || "Failed to create trophy list."),
   });
 
   const [updateSet, { loading: updatingTitle }] = useMutation(UPDATE_ACHIEVEMENT_SET);
@@ -119,9 +119,9 @@ export default function AdminAchievementSetsPage() {
         return;
       }
       refetch();
-      toast.success("Achievement set deleted.");
+      toast.success("Trophy list deleted.");
     },
-    onError: (error) => toast.error(error.message || "Failed to delete achievement set."),
+    onError: (error) => toast.error(error.message || "Failed to delete trophy list."),
   });
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_ACHIEVEMENT_SETS, {
@@ -135,7 +135,7 @@ export default function AdminAchievementSetsPage() {
       setSelectedIds(new Set());
       toast.success(`Deleted ${data?.bulkDeleteAchievementSets?.deletedCount || 0} set(s).`);
     },
-    onError: (error) => toast.error(error.message || "Failed to delete achievement sets."),
+    onError: (error) => toast.error(error.message || "Failed to delete trophy lists."),
   });
 
   const games: Game[] = useMemo(
@@ -206,7 +206,7 @@ export default function AdminAchievementSetsPage() {
         variables: { id: editingSet.id, input: { title: editTitle } },
       });
       if (!data?.updateAchievementSet.success) {
-        toast.error(data?.updateAchievementSet.error?.message || "Failed to update achievement set.");
+        toast.error(data?.updateAchievementSet.error?.message || "Failed to update trophy list.");
         return;
       }
 
@@ -216,7 +216,7 @@ export default function AdminAchievementSetsPage() {
         });
         if (!typeData?.setAchievementSetType.success) {
           refetch();
-          toast.error(typeData?.setAchievementSetType.error?.message || "Failed to change set type.");
+          toast.error(typeData?.setAchievementSetType.error?.message || "Failed to change list type.");
           return;
         }
       }
@@ -224,9 +224,9 @@ export default function AdminAchievementSetsPage() {
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
-      toast.success("Achievement set updated.");
+      toast.success("Trophy list updated.");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to update achievement set.");
+      toast.error(error instanceof Error ? error.message : "Failed to update trophy list.");
     }
   };
 
@@ -252,15 +252,15 @@ export default function AdminAchievementSetsPage() {
   };
 
   if (loading && sets.length === 0) {
-    return <PageSkeleton variant="rows" label="Loading achievement sets" />;
+    return <PageSkeleton variant="rows" label="Loading trophy lists" />;
   }
 
   return (
     <div>
       <div className={styles.sectionHeader}>
         <div>
-          <h1 className={styles.pageTitle}>Achievement Sets</h1>
-          <p className={styles.sectionSubtitle}>Create and manage achievement sets for games.</p>
+          <h1 className={styles.pageTitle}>Trophy Lists</h1>
+          <p className={styles.sectionSubtitle}>Create and manage trophy lists for games.</p>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           {selectedIds.size > 0 && (
@@ -283,7 +283,7 @@ export default function AdminAchievementSetsPage() {
           <input
             type="text"
             className={styles.searchInput}
-            placeholder="Search achievement sets..."
+            placeholder="Search trophy lists..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -294,20 +294,20 @@ export default function AdminAchievementSetsPage() {
         </Button>
       </div>
 
-      {/* Add Achievement Set Modal */}
+      {/* Add Trophy List Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
         <DialogContent className="sm:max-w-[480px]" onEnterKeySubmit={handleCreateSet}>
           <DialogHeader>
-            <DialogTitle>Add New Achievement Set</DialogTitle>
+            <DialogTitle>Add New Trophy List</DialogTitle>
             <DialogDescription>
-              Create a new achievement set for a game.
+              Create a new trophy list for a game.
             </DialogDescription>
           </DialogHeader>
 
           <DialogBody className={styles.modalForm}>
             <FormField label="Title" required>
               <Input
-                placeholder="e.g. Main Achievements"
+                placeholder="e.g. Main Trophies"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
               />
@@ -357,23 +357,23 @@ export default function AdminAchievementSetsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Achievement Set Modal */}
+      {/* Edit Trophy List Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={(open) => {
         setIsEditModalOpen(open);
         if (!open) resetEditForm();
       }}>
         <DialogContent className="sm:max-w-[480px]" onEnterKeySubmit={handleUpdateSet}>
           <DialogHeader>
-            <DialogTitle>Edit Achievement Set</DialogTitle>
+            <DialogTitle>Edit Trophy List</DialogTitle>
             <DialogDescription>
-              Update achievement set details.
+              Update trophy list details.
             </DialogDescription>
           </DialogHeader>
 
           <DialogBody className={styles.modalForm}>
             <FormField label="Title" required>
               <Input
-                placeholder="e.g. Main Achievements"
+                placeholder="e.g. Main Trophies"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
               />
@@ -432,7 +432,7 @@ export default function AdminAchievementSetsPage() {
         </div>
       )}
 
-      {/* Achievement Sets List */}
+      {/* Trophy lists */}
       <div className={styles.itemsGrid}>
         {filteredSets.map((set) => (
           <div
@@ -458,13 +458,13 @@ export default function AdminAchievementSetsPage() {
               </span>
             </div>
             <span className={styles.itemMeta}>
-              {set.achievementCount} {set.achievementCount === 1 ? "achievement" : "achievements"}
+              {set.achievementCount} {set.achievementCount === 1 ? "trophy" : "trophies"}
             </span>
             <div className={styles.itemActions}>
               <Link
                 href={`/admin/achievements?setId=${set.id}`}
                 className={styles.actionBtn}
-                title="View Achievements"
+                title="View Trophies"
               >
                 <ExternalLink size={14} />
               </Link>
@@ -488,8 +488,8 @@ export default function AdminAchievementSetsPage() {
         {filteredSets.length === 0 && !loading && (
           <p className={styles.emptyState}>
             {searchQuery
-              ? `No achievement sets found matching "${searchQuery}"`
-              : "No achievement sets yet. Click Add Set to create one."}
+              ? `No trophy lists found matching "${searchQuery}"`
+              : "No trophy lists yet. Click Add List to create one."}
           </p>
         )}
       </div>
@@ -507,8 +507,8 @@ export default function AdminAchievementSetsPage() {
         }
         description={
           confirmAction === "bulk"
-            ? "All selected achievement sets and their achievements will be permanently deleted."
-            : "This achievement set and all its achievements will be permanently deleted."
+            ? "All selected trophy lists and their trophies will be permanently deleted."
+            : "This trophy list and all its trophies will be permanently deleted."
         }
         confirmLabel="Delete"
       />
