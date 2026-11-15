@@ -8,6 +8,7 @@ import { GET_GAMES_ADMIN } from "@/graphql/admin_queries";
 import { cn } from "@/lib/utils";
 import { PlatformIcon } from "../PlatformIcon";
 import { AppImage } from "../AppImage";
+import { Skeleton } from "../Skeleton";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
@@ -409,8 +410,16 @@ export function GameSearchPicker(props: GameSearchPickerProps) {
         {isOpen && (
           <div className="absolute z-50 mt-2 max-h-80 w-full overflow-auto rounded-[calc(var(--border-radius)+4px)] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01)),var(--bg-card)] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.45)]">
             {loading ? (
-              <div className="px-3 py-6 text-center text-sm text-[var(--text-muted)]">
-                Searching games...
+<div role="status" aria-label="Searching games" >
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="flex items-center gap-3 px-3 py-2">
+                    <Skeleton className="size-10 shrink-0 rounded" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-3.5 w-2/3" />
+                      <Skeleton className="h-3 w-1/3" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : options.length === 0 ? (
               <div className="px-3 py-6 text-center text-sm text-[var(--text-muted)]">

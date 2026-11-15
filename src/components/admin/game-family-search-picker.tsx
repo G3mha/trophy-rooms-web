@@ -7,6 +7,7 @@ import * as React from "react";
 import { GET_GAME_FAMILIES } from "@/graphql/admin_queries";
 import { cn } from "@/lib/utils";
 import { AppImage } from "../AppImage";
+import { Skeleton } from "../Skeleton";
 
 const GAME_TYPE_LABELS: Record<string, string> = {
   BASE_GAME: "Base Game",
@@ -214,8 +215,16 @@ export function GameFamilySearchPicker({
           )}
         >
           {loading && options.length === 0 ? (
-            <div className="px-3 py-4 text-center text-sm text-[var(--text-muted)]">
-              Loading...
+<div role="status" aria-label="Loading games" className="py-1">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2">
+                  <Skeleton className="size-10 shrink-0 rounded" />
+                  <div className="flex-1 space-y-1.5">
+                    <Skeleton className="h-3.5 w-2/3" />
+                    <Skeleton className="h-3 w-1/3" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : options.length === 0 ? (
             <div className="px-3 py-4 text-center text-sm text-[var(--text-muted)]">
