@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
   const miniStats = [
     { label: "Platforms", count: platformCount, loading: platformsLoading },
     { label: "Games", count: gameCount, loading: gamesLoading },
-    { label: "Sets", count: setCount, loading: setsLoading },
+    { label: "Lists", count: setCount, loading: setsLoading },
     { label: "Bundles", count: bundleCount, loading: bundlesLoading },
   ];
 
@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
     },
     {
       eyebrow: "Progress",
-      title: "Achievement Sets",
+      title: "Trophy Lists",
       count: setCount,
       icon: <Trophy size={24} />,
       href: "/admin/achievement-sets",
@@ -140,14 +140,14 @@ export default function AdminDashboardPage() {
       icon: <Layers size={20} />,
     },
     {
-      title: "Achievement Sets",
+      title: "Trophy Lists",
       description: "Organize official, custom, and completionist progression tracks.",
       href: "/admin/achievement-sets",
       icon: <Trophy size={20} />,
     },
     {
-      title: "Achievements",
-      description: "Edit individual tasks, imports, and point values inside each set.",
+      title: "Trophies",
+      description: "Edit individual tasks, imports, and point values inside each list.",
       href: "/admin/achievements",
       icon: <Star size={20} />,
     },
