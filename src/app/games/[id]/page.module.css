@@ -698,6 +698,12 @@
   font-weight: 700;
 }
 
+.trophyDescription {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
 .trophyFooter {
   display: flex;
   flex-wrap: wrap;
