@@ -61,7 +61,7 @@ export function GameProgressCard({
         <div className={styles.header}>
           <h3 className={styles.title}>{gameTitle}</h3>
           {hasTrophy && (
-            <span className={styles.trophyBadge}>Platinum Trophy</span>
+            <span className={styles.trophyBadge}>Platinum</span>
           )}
         </div>
 
@@ -82,7 +82,7 @@ export function GameProgressCard({
             <span className={styles.statValue}>
               {earnedCount}/{totalCount}
             </span>
-            <span className={styles.statLabel}>Achievements</span>
+            <span className={styles.statLabel}>Trophies</span>
           </div>
         </div>
 

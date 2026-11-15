@@ -88,7 +88,7 @@ export function ProfileHeader({
         >
           <span className={styles.initials}>{initials}</span>
           {trophyCount >= 10 && (
-            <div className={styles.badge} title="Trophy Master">
+            <div className={styles.badge} title="Platinum Master">
               <Trophy size={14} />
             </div>
           )}
@@ -103,13 +103,13 @@ export function ProfileHeader({
           <div className={styles.quickStats}>
             <div className={styles.quickStat}>
               <span className={styles.quickStatValue}>{trophyCount}</span>
-              <span className={styles.quickStatLabel}>Trophies</span>
+              <span className={styles.quickStatLabel}>Platinums</span>
             </div>
             <div className={styles.quickStat}>
               <span className={styles.quickStatValue}>{achievementCount}</span>
               <span className={styles.quickStatLabel}>
                 <Trophy size={14} aria-hidden />
-                <span className="sr-only">Achievements</span>
+                <span className="sr-only">Trophies</span>
               </span>
             </div>
             <div className={styles.quickStat}>
@@ -134,7 +134,7 @@ export function ProfileHeader({
           stats.silverCount > 0 ||
           stats.bronzeCount > 0) && (
         <div className={styles.tierDistribution}>
-          <h3 className={styles.tierTitle}>Achievement Breakdown</h3>
+          <h3 className={styles.tierTitle}>Trophy Breakdown</h3>
           <div className={styles.tierBars}>
             <div className={styles.tierBar}>
               <div className={styles.tierLabel}>

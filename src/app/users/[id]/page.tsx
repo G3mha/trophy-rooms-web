@@ -119,7 +119,7 @@ export default function PublicProfilePage({
         <section className={styles.trophyShowcase}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
-              <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophies
+              <Trophy className={styles.crimsonIcon} size={24} /> Platinums
             </h2>
             <span className={styles.sectionCount}>{completedGames.length} {completedGames.length === 1 ? "game" : "games"}</span>
           </div>
@@ -149,7 +149,7 @@ export default function PublicProfilePage({
           <h2 className={styles.sectionTitle}>Games In Progress</h2>
           <span className={styles.sectionCount}>{inProgressGames.length} active</span>
         </div>
-        <p className={styles.sectionSubtitle}>Working towards more Platinum Trophies</p>
+        <p className={styles.sectionSubtitle}>Working towards more Platinums</p>
 
         {inProgressGames.length > 0 ? (
           <div className={styles.progressGrid}>
@@ -170,8 +170,8 @@ export default function PublicProfilePage({
         ) : gameProgress.length === 0 ? (
           <EmptyState
             icon={<Gamepad2 size={48} />}
-            title="No achievements yet"
-            description="This user hasn't earned any achievements yet."
+            title="No trophies yet"
+            description="This user hasn't earned any trophies yet."
           />
         ) : (
           <div className={styles.allComplete}>

@@ -104,7 +104,7 @@ export default function TrophyRoom() {
         <section className={styles.trophyShowcase}>
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
-              <Trophy className={styles.crimsonIcon} size={24} /> Platinum Trophies
+              <Trophy className={styles.crimsonIcon} size={24} /> Platinums
             </h2>
             <span className={styles.sectionCount}>{completedGames.length} {completedGames.length === 1 ? "game" : "games"}</span>
           </div>
@@ -133,7 +133,7 @@ export default function TrophyRoom() {
           <span className={styles.sectionCount}>{inProgressGames.length} active</span>
         </div>
         <p className={styles.sectionSubtitle}>
-          Keep earning achievements to unlock Platinum Trophies
+          Keep earning trophies to unlock Platinums
         </p>
 
         {inProgressGames.length > 0 ? (
@@ -155,8 +155,8 @@ export default function TrophyRoom() {
         ) : gameProgress.length === 0 ? (
           <EmptyState
             icon={<Gamepad2 size={48} />}
-            title="No achievements yet"
-            description="Start playing games and marking your achievements to fill your trophy room!"
+            title="No trophies yet"
+            description="Start playing games and marking your trophies to fill your trophy room!"
             action={<Button href="/games">Browse Games</Button>}
           />
         ) : (

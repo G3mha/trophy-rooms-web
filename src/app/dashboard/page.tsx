@@ -182,7 +182,7 @@ export default function Dashboard() {
           </div>
           {latestTrophy ? (
             <div className={styles.milestoneCard}>
-              <span className={styles.milestoneBadge}>New Trophy</span>
+              <span className={styles.milestoneBadge}>New Platinum</span>
               <h2 className={styles.milestoneTitle}>{latestTrophy.game.title}</h2>
               <p className={styles.milestoneText}>
                 Earned {new Date(latestTrophy.createdAt).toLocaleDateString()}
@@ -203,7 +203,7 @@ export default function Dashboard() {
               <span className={styles.milestoneBadge}>Getting Started</span>
               <h2 className={styles.milestoneTitle}>Your room is waiting</h2>
               <p className={styles.milestoneText}>
-                Browse games and mark your first achievement to start building momentum.
+                Browse games and mark your first trophy to start building momentum.
               </p>
             </div>
           )}
@@ -214,13 +214,13 @@ export default function Dashboard() {
         <StatCard
           icon={<Trophy size={24} />}
           value={trophyCount}
-          label="Trophies"
+          label="Platinums"
           variant="gold"
         />
         <StatCard
           icon={<Star size={24} />}
           value={achievementCount}
-          label="Achievements"
+          label="Trophies"
           variant="red"
         />
         <StatCard
@@ -234,7 +234,7 @@ export default function Dashboard() {
       <div className={styles.columns}>
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Achievements</h2>
+            <h2 className={styles.sectionTitle}>Trophies</h2>
             <Button href="/activity" variant="ghost" className={styles.sectionLink}>
               View feed <ArrowRight size={14} />
             </Button>
@@ -257,8 +257,8 @@ export default function Dashboard() {
           ) : (
             <EmptyState
               icon={<Star size={48} />}
-              title="No achievements yet"
-              description="Start playing games and mark your achievements!"
+              title="No trophies yet"
+              description="Start playing games and mark your trophies!"
               action={<Button href="/games">Browse Games</Button>}
             />
           )}
@@ -266,7 +266,7 @@ export default function Dashboard() {
 
         <section className={styles.section}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Your Trophies</h2>
+            <h2 className={styles.sectionTitle}>Your Platinums</h2>
             <Button href="/trophy-room" variant="ghost" className={styles.sectionLink}>
               Open room <ArrowRight size={14} />
             </Button>
@@ -300,8 +300,8 @@ export default function Dashboard() {
           ) : (
             <EmptyState
               icon={<Trophy size={48} />}
-              title="No trophies yet"
-              description="Complete all achievements in a game to earn a trophy!"
+              title="No Platinums yet"
+              description="Earn every trophy in a game to get its Platinum!"
             />
           )}
         </section>
