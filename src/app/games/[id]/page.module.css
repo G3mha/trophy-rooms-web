@@ -646,3 +646,30 @@
     right: 10px;
   }
 }
+
+.progressPanel .achievementGroupList,
+.achievementGroupList + .listForms {
+  margin-top: 18px;
+}
+
+.sectionNote {
+  margin: -6px 0 18px;
+  color: var(--text-secondary);
+}
+
+.setActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.listForms summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.listForms[open] summary {
+  margin-bottom: 16px;
+}
