@@ -169,6 +169,11 @@
   }
 }
 
+/* Keeps the trophy icon on the same line as its count */
+.spotlightTrophies {
+  white-space: nowrap;
+}
+
 .spotlightNav {
   display: flex;
   gap: 8px;

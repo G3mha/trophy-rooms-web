@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
-import { ArrowRight, ChevronLeft, ChevronRight, Gamepad2 } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Gamepad2, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GroupedGameCard, AppImage, Button, Skeleton, EmptyState, ErrorState, GlobalSearch, TrophyCase, TrophyShelf } from "@/components";
 import styles from "./page.module.css";
@@ -189,7 +189,12 @@ function HeroSpotlight({ families, loading }: { families: GameGroup[]; loading: 
                   {family.platforms.length === 1
                     ? "1 tracked platform"
                     : `${family.platforms.length} tracked platforms`}
-                  , {family.totalAchievementCount} trophies
+                  ,{" "}
+                  <span className={styles.spotlightTrophies}>
+                    <Trophy size={14} className="inline align-[-0.125em]" aria-hidden />{" "}
+                    {family.totalAchievementCount}
+                    <span className="sr-only"> trophies</span>
+                  </span>
                   {family.totalTrophyCount > 0
                     ? `, and ${family.totalTrophyCount} Platinums`
                     : ""}
