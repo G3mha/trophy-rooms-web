@@ -161,7 +161,8 @@ function HeroSpotlight({ families, loading }: { families: GameGroup[]; loading: 
       onBlur={() => setPaused(false)}
     >
       <TrophyCase>
-        {loading && (
+        {/* cache-and-network keeps `loading` true while cached games show */}
+        {loading && !family && (
           <>
             <Skeleton className={styles.shelfCover} />
             <div className={styles.shelfInfo} role="status" aria-label="Loading featured game">
@@ -297,7 +298,7 @@ export default function Home() {
           </div>
         </div>
 
-        {loading && (
+        {loading && featuredFamilies.length === 0 && (
           <div
             ref={setPicksGrid}
             className={styles.gamesGrid}
