@@ -45,8 +45,9 @@ const tierPriority: Record<AchievementTier, number> = {
   BRONZE: 1,
 };
 
-// Best first, the order the trophy list is grouped in
-const TIERS: AchievementTier[] = ["PLATINUM", "GOLD", "SILVER", "BRONZE"];
+// Best first, the order the trophy list is grouped in. No Platinum: a list's
+// Platinum is the trophy itself and heads the section instead.
+const TIERS: AchievementTier[] = ["GOLD", "SILVER", "BRONZE"];
 
 function sortByTier(achievements: Achievement[]): Achievement[] {
   return [...achievements].sort((a, b) => {
@@ -204,9 +205,13 @@ export default function GameDetailPage({
   };
 
   const allAchievements = game?.achievementSets.flatMap((set) => set.achievements) ?? [];
-  // Progress only counts the sets that award the trophy
-  const trophyAchievements =
+  const gatingAchievements =
     game?.achievementSets.filter(countsTowardTrophy).flatMap((set) => set.achievements) ?? [];
+  // The Platinum is the trophy under the game's own name. The backend awards
+  // it once everything else is done, so it is neither ticked nor counted.
+  const platinum = gatingAchievements.find((a) => a.tier === "PLATINUM");
+  // Progress only counts the sets that award the trophy
+  const trophyAchievements = gatingAchievements.filter((a) => a.tier !== "PLATINUM");
   const trophyAchievementCount = trophyAchievements.length;
   const completedCount = trophyAchievements.filter((a: Achievement) => a.isCompleted).length;
   const isTrophyComplete = trophyAchievementCount > 0 && completedCount === trophyAchievementCount;
@@ -504,12 +509,15 @@ export default function GameDetailPage({
             <div className={styles.trophyBody}>
               <div className={styles.progressHeading}>
                 <h2 className={styles.sectionTitle}>
-                  {isTrophyComplete ? "Trophy Earned" : "The Trophy"}
+                  {platinum?.title ?? (isTrophyComplete ? "Trophy Earned" : "The Trophy")}
                 </h2>
                 {isSignedIn && !isTrophyComplete && (
                   <span className={styles.progressPercent}>{progress}%</span>
                 )}
               </div>
+              {platinum?.description && (
+                <p className={styles.trophyDescription}>{platinum.description}</p>
+              )}
               {isSignedIn ? (
                 <>
                   <div className={styles.progressBar}>
@@ -530,9 +538,11 @@ export default function GameDetailPage({
                   </div>
                 </>
               ) : (
-                <p className={styles.trophyLine}>
-                  Complete all {trophyAchievementCount} achievements to earn it.
-                </p>
+                !platinum?.description && (
+                  <p className={styles.trophyLine}>
+                    Complete all {trophyAchievementCount} achievements to earn it.
+                  </p>
+                )
               )}
             </div>
           </div>
