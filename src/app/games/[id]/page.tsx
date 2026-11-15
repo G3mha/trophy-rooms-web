@@ -46,14 +46,6 @@ function sortByTier(achievements: Achievement[]): Achievement[] {
   });
 }
 
-function formatEnumLabel(value: string): string {
-  return value
-    .toLowerCase()
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
 interface Trophy {
   id: string;
   createdAt: string;
@@ -283,6 +275,66 @@ export default function GameDetailPage({
     ? Math.max(...allAchievements.map((a) => a.userCount))
     : 0;
 
+  // The three groups the page shows. A set's role, not its type, is what a
+  // player needs: does it gate the trophy, is it a bonus, or is it their own.
+  const requiredSets = game?.achievementSets.filter(countsTowardTrophy) ?? [];
+  const myPrivateSets = ownedCustomSets.filter((set) => set.visibility === "PRIVATE");
+  const extraSets =
+    game?.achievementSets.filter(
+      (set) => !countsTowardTrophy(set) && !myPrivateSets.includes(set)
+    ) ?? [];
+
+  const renderSet = (set: AchievementSet, showProgress: boolean) => (
+    <div key={set.id} className={styles.setCard}>
+      <div className={styles.setHeader}>
+        <h3 className={styles.setTitle}>{set.title}</h3>
+        <div className={styles.setActions}>
+          {showProgress && set.achievements.length > 0 && (
+            <span className={styles.progressSummary}>
+              {isSignedIn && `${set.achievements.filter((a) => a.isCompleted).length} / `}
+              {set.achievements.length}
+            </span>
+          )}
+          {set.visibility === "PRIVATE" && myPrivateSets.includes(set) && (
+            <Button
+              variant="secondary"
+              onClick={() => publishAchievementSet({ variables: { id: set.id } })}
+              loading={publishingSet}
+            >
+              Publish
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {set.achievements.length > 0 ? (
+        <div className={styles.achievementList}>
+          {sortByTier(set.achievements).map((achievement) => (
+            <AchievementCard
+              key={achievement.id}
+              id={achievement.id}
+              title={achievement.title}
+              description={achievement.description}
+              iconUrl={achievement.iconUrl}
+              tier={achievement.tier}
+              isCompleted={achievement.isCompleted}
+              userCount={achievement.userCount}
+              totalPlayers={totalPlayers}
+              onToggle={isSignedIn ? handleToggleAchievement : undefined}
+              loading={togglingId === achievement.id}
+            />
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon={<Star size={48} />}
+          title="No achievements yet"
+          description="Add achievements to this set."
+        />
+      )}
+    </div>
+  );
+
   const handleCreateCustomSet = async (e: React.FormEvent) => {
     e.preventDefault();
     setSetError(null);
@@ -452,10 +504,6 @@ export default function GameDetailPage({
               <span className={styles.statLabel}>Achievements</span>
             </div>
             <div className={styles.statCard}>
-              <span className={styles.statValue}>{game.achievementSets.length}</span>
-              <span className={styles.statLabel}>Set Collections</span>
-            </div>
-            <div className={styles.statCard}>
               <span className={styles.statValue}>{game.trophyCount}</span>
               <span className={styles.statLabel}>Platinum Trophies</span>
             </div>
@@ -556,23 +604,27 @@ export default function GameDetailPage({
         </div>
       )}
 
-      {isSignedIn && trophyAchievementCount > 0 && (
+      {requiredSets.length > 0 && (
         <section className={styles.progressPanel}>
           <div className={styles.sectionHeader}>
             <div className={styles.progressHeading}>
-              <h2 className={styles.sectionTitle}>Your Progress</h2>
-              <span className={styles.progressPercent}>{progress}%</span>
+              <h2 className={styles.sectionTitle}>For the Trophy</h2>
+              {isSignedIn && <span className={styles.progressPercent}>{progress}%</span>}
             </div>
-            <span className={styles.progressSummary}>
-              {completedCount} / {trophyAchievementCount}
-            </span>
+            {isSignedIn && (
+              <span className={styles.progressSummary}>
+                {completedCount} / {trophyAchievementCount}
+              </span>
+            )}
           </div>
-          <div className={styles.progressBar}>
-            <div
-              className={styles.progressFill}
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+          {isSignedIn && (
+            <div className={styles.progressBar}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          )}
           {isTrophyComplete && (
             <div className={styles.crimsonTrophy}>
               <div className={styles.crimsonIcon}>
@@ -584,193 +636,152 @@ export default function GameDetailPage({
               </div>
             </div>
           )}
+          <div className={styles.achievementGroupList}>
+            {/* With one set, its count is the number already in the header */}
+            {requiredSets.map((set) => renderSet(set, requiredSets.length > 1))}
+          </div>
         </section>
       )}
 
-      <section className={styles.sectionPanel}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Achievement Sets</h2>
-          <span className={styles.countPill}>{game.achievementSets.length}</span>
-        </div>
-
-        {game.achievementSets.length > 0 ? (
-          <div className={styles.achievementGroupList}>
-            {game.achievementSets.map((set) => (
-              <div key={set.id} className={styles.setCard}>
-                <div className={styles.setHeader}>
-                  <div>
-                    <h3 className={styles.setTitle}>{set.title}</h3>
-                    <div className={styles.setMetaRow}>
-                      <span className={styles.metaBadge}>{formatEnumLabel(set.type)}</span>
-                      <span className={styles.metaBadgeMuted}>{formatEnumLabel(set.visibility)}</span>
-                      <span className={styles.metaBadgeMuted}>
-                        {set.achievements.length} achievement{set.achievements.length === 1 ? "" : "s"}
-                      </span>
-                    </div>
-                  </div>
-                  {isSignedIn &&
-                    set.type === "CUSTOM" &&
-                    set.createdByUserId === me?.id &&
-                    set.visibility === "PRIVATE" && (
-                      <Button
-                        variant="secondary"
-                        onClick={() =>
-                          publishAchievementSet({ variables: { id: set.id } })
-                        }
-                        loading={publishingSet}
-                      >
-                        Publish
-                      </Button>
-                    )}
-                </div>
-
-                {set.achievements.length > 0 ? (
-                  <div className={styles.achievementList}>
-                    {sortByTier(set.achievements).map((achievement) => (
-                      <AchievementCard
-                        key={achievement.id}
-                        id={achievement.id}
-                        title={achievement.title}
-                        description={achievement.description}
-                        iconUrl={achievement.iconUrl}
-                        tier={achievement.tier}
-                        isCompleted={achievement.isCompleted}
-                        userCount={achievement.userCount}
-                        totalPlayers={totalPlayers}
-                        onToggle={isSignedIn ? handleToggleAchievement : undefined}
-                        loading={togglingId === achievement.id}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <EmptyState
-                    icon={<Star size={48} />}
-                    title="No achievements yet"
-                    description="Add achievements to this set."
-                  />
-                )}
-              </div>
-            ))}
+      {extraSets.length > 0 && (
+        <section className={styles.sectionPanel}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>Extra Lists</h2>
           </div>
-        ) : (
+          <p className={styles.sectionNote}>These don&apos;t count toward the trophy.</p>
+          <div className={styles.achievementGroupList}>
+            {extraSets.map((set) => renderSet(set, true))}
+          </div>
+        </section>
+      )}
+
+      {game.achievementSets.length === 0 && (
+        <section className={styles.sectionPanel}>
           <EmptyState
             icon={<Star size={48} />}
             title="No achievement sets yet"
             description="This game doesn't have any achievement sets defined yet."
           />
-        )}
-      </section>
+        </section>
+      )}
 
       {isSignedIn && (
         <section className={styles.creatorPanel}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Build Your Custom Challenge Set</h2>
+            <h2 className={styles.sectionTitle}>Your Lists</h2>
           </div>
-
-          <div className={styles.creatorGrid}>
-            <div className={styles.formCard}>
-              <h3 className={styles.formTitle}>Start a New Set</h3>
-              <p className={styles.formCopy}>
-                Create a personal ruleset for speedruns, challenge runs, or community events.
-              </p>
-              <form onSubmit={handleCreateCustomSet} className={styles.form}>
-                {setError && (
-                  <div className={styles.error}>
-                    <p>{setError}</p>
-                  </div>
-                )}
-                <div className={styles.field}>
-                  <label htmlFor="setTitle" className={styles.label}>
-                    Set Title
-                  </label>
-                  <input
-                    id="setTitle"
-                    type="text"
-                    value={newSetTitle}
-                    onChange={(e) => setNewSetTitle(e.target.value)}
-                    className={styles.input}
-                    placeholder="e.g. Speedrunner Challenges"
-                  />
-                </div>
-                <Button type="submit" loading={creatingSet}>
-                  Create Custom Set
-                </Button>
-              </form>
+          {myPrivateSets.length > 0 && (
+            <div className={styles.achievementGroupList}>
+              {myPrivateSets.map((set) => renderSet(set, true))}
             </div>
-
-            {ownedCustomSets.length > 0 && (
+          )}
+          <details className={styles.listForms}>
+            <summary>New list or achievement</summary>
+            <div className={styles.creatorGrid}>
               <div className={styles.formCard}>
-                <h3 className={styles.formTitle}>Add Achievements</h3>
+                <h3 className={styles.formTitle}>Start a New Set</h3>
                 <p className={styles.formCopy}>
-                  Expand one of your custom sets with new goals, descriptions, and iconography.
+                  Create a personal ruleset for speedruns, challenge runs, or community events.
                 </p>
-                <form onSubmit={handleCreateAchievement} className={styles.form}>
-                  {achievementError && (
+                <form onSubmit={handleCreateCustomSet} className={styles.form}>
+                  {setError && (
                     <div className={styles.error}>
-                      <p>{achievementError}</p>
+                      <p>{setError}</p>
                     </div>
                   )}
                   <div className={styles.field}>
-                    <label htmlFor="achievementSet" className={styles.label}>
-                      Custom Set
-                    </label>
-                    <select
-                      id="achievementSet"
-                      className={styles.select}
-                      value={achievementSetId}
-                      onChange={(e) => setAchievementSetId(e.target.value)}
-                    >
-                      <option value="">Select a set</option>
-                      {ownedCustomSets.map((set) => (
-                        <option key={set.id} value={set.id}>
-                          {set.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className={styles.field}>
-                    <label htmlFor="achievementTitle" className={styles.label}>
-                      Achievement Title
+                    <label htmlFor="setTitle" className={styles.label}>
+                      Set Title
                     </label>
                     <input
-                      id="achievementTitle"
+                      id="setTitle"
                       type="text"
-                      value={achievementTitle}
-                      onChange={(e) => setAchievementTitle(e.target.value)}
+                      value={newSetTitle}
+                      onChange={(e) => setNewSetTitle(e.target.value)}
                       className={styles.input}
+                      placeholder="e.g. Speedrunner Challenges"
                     />
                   </div>
-                  <div className={styles.field}>
-                    <label htmlFor="achievementDescription" className={styles.label}>
-                      Description
-                    </label>
-                    <textarea
-                      id="achievementDescription"
-                      value={achievementDescription}
-                      onChange={(e) => setAchievementDescription(e.target.value)}
-                      className={styles.textarea}
-                      rows={3}
-                    />
-                  </div>
-                  <div className={styles.field}>
-                    <label htmlFor="achievementIconUrl" className={styles.label}>
-                      Icon URL
-                    </label>
-                    <input
-                      id="achievementIconUrl"
-                      type="url"
-                      value={achievementIconUrl}
-                      onChange={(e) => setAchievementIconUrl(e.target.value)}
-                      className={styles.input}
-                    />
-                  </div>
-                  <Button type="submit" loading={creatingAchievement}>
-                    Add Achievement
+                  <Button type="submit" loading={creatingSet}>
+                    Create Custom Set
                   </Button>
                 </form>
               </div>
-            )}
-          </div>
+
+              {ownedCustomSets.length > 0 && (
+                <div className={styles.formCard}>
+                  <h3 className={styles.formTitle}>Add Achievements</h3>
+                  <p className={styles.formCopy}>
+                    Expand one of your custom sets with new goals, descriptions, and iconography.
+                  </p>
+                  <form onSubmit={handleCreateAchievement} className={styles.form}>
+                    {achievementError && (
+                      <div className={styles.error}>
+                        <p>{achievementError}</p>
+                      </div>
+                    )}
+                    <div className={styles.field}>
+                      <label htmlFor="achievementSet" className={styles.label}>
+                        Custom Set
+                      </label>
+                      <select
+                        id="achievementSet"
+                        className={styles.select}
+                        value={achievementSetId}
+                        onChange={(e) => setAchievementSetId(e.target.value)}
+                      >
+                        <option value="">Select a set</option>
+                        {ownedCustomSets.map((set) => (
+                          <option key={set.id} value={set.id}>
+                            {set.title}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className={styles.field}>
+                      <label htmlFor="achievementTitle" className={styles.label}>
+                        Achievement Title
+                      </label>
+                      <input
+                        id="achievementTitle"
+                        type="text"
+                        value={achievementTitle}
+                        onChange={(e) => setAchievementTitle(e.target.value)}
+                        className={styles.input}
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <label htmlFor="achievementDescription" className={styles.label}>
+                        Description
+                      </label>
+                      <textarea
+                        id="achievementDescription"
+                        value={achievementDescription}
+                        onChange={(e) => setAchievementDescription(e.target.value)}
+                        className={styles.textarea}
+                        rows={3}
+                      />
+                    </div>
+                    <div className={styles.field}>
+                      <label htmlFor="achievementIconUrl" className={styles.label}>
+                        Icon URL
+                      </label>
+                      <input
+                        id="achievementIconUrl"
+                        type="url"
+                        value={achievementIconUrl}
+                        onChange={(e) => setAchievementIconUrl(e.target.value)}
+                        className={styles.input}
+                      />
+                    </div>
+                    <Button type="submit" loading={creatingAchievement}>
+                      Add Achievement
+                    </Button>
+                  </form>
+                </div>
+              )}
+            </div>
+          </details>
         </section>
       )}
 
