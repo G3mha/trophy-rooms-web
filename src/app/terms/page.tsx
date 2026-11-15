@@ -28,7 +28,7 @@ export default function TermsOfService() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>2. Description of Service</h2>
           <p className={styles.paragraph}>
-            Trophy Rooms is a cross-platform achievement tracking service that allows users to:
+            Trophy Rooms is a cross-platform trophy tracking service that allows users to:
           </p>
           <ul className={styles.list}>
             <li>Track video game trophies across multiple platforms</li>
