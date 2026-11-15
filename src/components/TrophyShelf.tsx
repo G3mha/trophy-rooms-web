@@ -69,6 +69,16 @@ const SHAPES = {
 
 type Shape = keyof typeof SHAPES;
 
+// One silhouette on its own, for a surface that builds its own niche
+export function TrophySilhouette({ shape = "cup", className }: { shape?: Shape; className?: string }) {
+  const { viewBox, paths } = SHAPES[shape];
+  return (
+    <svg className={className} viewBox={viewBox} aria-hidden>
+      {paths}
+    </svg>
+  );
+}
+
 // Each bay is one compartment of the cabinet: [shape, base width in px].
 const BAYS: [Shape, number][][] = [
   [["cup", 104], ["star", 56], ["medal", 74]],
