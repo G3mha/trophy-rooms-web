@@ -7,7 +7,19 @@ import { useAuth } from "@/lib/auth";
 import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon } from "lucide-react";
 import { useAdminMode } from "@/contexts/AdminModeContext";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
-import { MARK_ACHIEVEMENT_COMPLETE, UNMARK_ACHIEVEMENT_COMPLETE } from "@/graphql/mutations";
+import {
+  MARK_ACHIEVEMENT_COMPLETE,
+  MARK_ALL_ACHIEVEMENTS_COMPLETE,
+  UNMARK_ACHIEVEMENT_COMPLETE,
+} from "@/graphql/mutations";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { AchievementCard, AppImage, Button, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, PlatformIcon, PageSkeleton, QueryState } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import { TrophySilhouette } from "@/components/TrophyShelf";
@@ -136,6 +148,25 @@ export default function GameDetailPage({
     onError: (error) => {
       setTogglingId(null);
       toast.error(error.message || "Failed to unmark achievement.");
+    },
+  });
+
+  const [confirmingMarkAll, setConfirmingMarkAll] = useState(false);
+  const [markAllComplete, { loading: markingAll }] = useMutation(MARK_ALL_ACHIEVEMENTS_COMPLETE, {
+    onCompleted: (result) => {
+      setConfirmingMarkAll(false);
+      if (result.markAllAchievementsComplete.success) {
+        refetch();
+        toast.success("Trophy earned.");
+      } else {
+        toast.error(
+          result.markAllAchievementsComplete.error?.message || "Failed to mark achievements."
+        );
+      }
+    },
+    onError: (error) => {
+      setConfirmingMarkAll(false);
+      toast.error(error.message || "Failed to mark achievements.");
     },
   });
 
@@ -484,11 +515,19 @@ export default function GameDetailPage({
                   <div className={styles.progressBar}>
                     <div className={styles.progressFill} style={{ width: `${progress}%` }} />
                   </div>
-                  <p className={styles.trophyLine}>
-                    {isTrophyComplete && myTrophy
-                      ? `Earned on ${new Date(myTrophy.createdAt).toLocaleDateString()}`
-                      : `${completedCount} / ${trophyAchievementCount}`}
-                  </p>
+                  <div className={styles.trophyFooter}>
+                    <p className={styles.trophyLine}>
+                      {isTrophyComplete && myTrophy
+                        ? `Earned on ${new Date(myTrophy.createdAt).toLocaleDateString()}`
+                        : `${completedCount} / ${trophyAchievementCount}`}
+                    </p>
+                    {/* For a player who already finished the game elsewhere */}
+                    {!isTrophyComplete && (
+                      <Button variant="secondary" size="sm" onClick={() => setConfirmingMarkAll(true)}>
+                        Mark all complete
+                      </Button>
+                    )}
+                  </div>
                 </>
               ) : (
                 <p className={styles.trophyLine}>
@@ -513,6 +552,29 @@ export default function GameDetailPage({
           <p className={styles.listSource}>{requiredSets.map((set) => set.title).join(" + ")}</p>
         </section>
       )}
+
+      <Dialog open={confirmingMarkAll} onOpenChange={setConfirmingMarkAll}>
+        <DialogContent className="sm:max-w-[420px]">
+          <DialogHeader>
+            <DialogTitle>Mark all {trophyAchievementCount} complete?</DialogTitle>
+            <DialogDescription>
+              This marks every achievement for the trophy as done and awards it. To undo it, you
+              untick achievements one at a time.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setConfirmingMarkAll(false)}>
+              Cancel
+            </Button>
+            <Button
+              loading={markingAll}
+              onClick={() => markAllComplete({ variables: { gameFamilyId: game.gameFamilyId } })}
+            >
+              Mark all complete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {extraSets.length > 0 && (
         <section className={styles.sectionPanel}>
