@@ -1,6 +1,7 @@
 "use client";
 
-import { Trophy } from "lucide-react";
+import { useState } from "react";
+import { Eye, EyeOff, Trophy } from "lucide-react";
 import { AppImage } from "./AppImage";
 import styles from "./AchievementCard.module.css";
 
@@ -86,6 +87,8 @@ export function AchievementCard({
   loading = false,
 }: AchievementCardProps) {
   const tierInfo = tierConfig[tier];
+  // Descriptions can spoil the game, so each one stays hidden until asked for
+  const [showDescription, setShowDescription] = useState(false);
 
   // Calculate rarity percentage
   const rarityPercentage = totalPlayers > 0
@@ -109,8 +112,19 @@ export function AchievementCard({
       <div className={styles.info}>
         <div className={styles.titleRow}>
           <h4 className={styles.title}>{title}</h4>
+          {description && (
+            <button
+              type="button"
+              className={styles.revealBtn}
+              onClick={() => setShowDescription((shown) => !shown)}
+              aria-expanded={showDescription}
+              aria-label={showDescription ? "Hide description" : "Show description"}
+            >
+              {showDescription ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          )}
         </div>
-        {description && (
+        {description && showDescription && (
           <p className={styles.description}>{description}</p>
         )}
         <div className={styles.meta}>

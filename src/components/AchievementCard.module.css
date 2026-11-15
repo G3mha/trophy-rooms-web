@@ -119,6 +119,27 @@
   margin: 0;
 }
 
+.revealBtn {
+  display: inline-flex;
+  flex: none;
+  padding: 4px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.revealBtn:hover,
+.revealBtn[aria-expanded="true"] {
+  color: var(--text-secondary);
+}
+
+.revealBtn:focus-visible {
+  outline: 2px solid var(--cabinet-brass);
+  outline-offset: 2px;
+}
+
 .description {
   font-size: 14px;
   color: var(--text-secondary);
