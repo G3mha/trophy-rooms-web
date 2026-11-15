@@ -353,8 +353,16 @@
     padding: 20px;
   }
 
+  /* Tight enough that the longest step stays on one line at 320px */
   .step {
+    gap: 12px;
     font-size: 1.25rem;
+    letter-spacing: 0.04em;
+  }
+
+  .step::before {
+    min-width: 1.5rem;
+    font-size: 2.2rem;
   }
 
   .heroActions,
