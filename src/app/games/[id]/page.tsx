@@ -235,6 +235,10 @@ export default function GameDetailPage({
   // signed-out visitor sees it fully lit, and it never goes dark enough to
   // hide the silhouette.
   const trophyGlow = isSignedIn ? 0.25 + 0.75 * (progress / 100) : 1;
+  // The platinum's own icon when it has one, else the box art, framed like a
+  // display piece. Icons are square, covers are 3:4.
+  const trophyArt = platinum?.iconUrl ?? game?.coverUrl;
+  const trophyArtRatio = platinum?.iconUrl ? "1" : game?.coverUrl ? "3 / 4" : undefined;
 
   const renderAchievement = (achievement: Achievement) => (
     <AchievementCard
@@ -498,10 +502,14 @@ export default function GameDetailPage({
           <div className={styles.trophyHero}>
             <div
               className={styles.trophyNiche}
-              style={{ "--glow": trophyGlow } as React.CSSProperties}
+              style={{ "--glow": trophyGlow, "--ratio": trophyArtRatio } as React.CSSProperties}
               aria-hidden
             >
-              <TrophySilhouette className={styles.trophyShape} />
+              <AppImage
+                src={trophyArt}
+                className={styles.trophyArt}
+                fallback={<TrophySilhouette className={styles.trophyShape} />}
+              />
             </div>
             <div className={styles.trophyBody}>
               <div className={styles.progressHeading}>
