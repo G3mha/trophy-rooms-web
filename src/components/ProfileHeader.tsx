@@ -107,7 +107,10 @@ export function ProfileHeader({
             </div>
             <div className={styles.quickStat}>
               <span className={styles.quickStatValue}>{achievementCount}</span>
-              <span className={styles.quickStatLabel}>Achievements</span>
+              <span className={styles.quickStatLabel}>
+                <Trophy size={14} aria-hidden />
+                <span className="sr-only">Achievements</span>
+              </span>
             </div>
             <div className={styles.quickStat}>
               <span className={styles.quickStatValue}>{gamesPlayed}</span>
