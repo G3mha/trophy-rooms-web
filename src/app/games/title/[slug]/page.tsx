@@ -115,11 +115,11 @@ export default function GameFamilyPage({
               </div>
               <div className={styles.statCard}>
                 <span className={styles.statValue}>{totalAchievements}</span>
-                <span className={styles.statLabel}>Total Achievements</span>
+                <span className={styles.statLabel}>Total Trophies</span>
               </div>
               <div className={styles.statCard}>
                 <span className={styles.statValue}>{totalTrophies}</span>
-                <span className={styles.statLabel}>Total Trophies</span>
+                <span className={styles.statLabel}>Total Platinums</span>
               </div>
             </div>
             <div className={styles.platformCount}>
@@ -152,12 +152,12 @@ export default function GameFamilyPage({
                 <div className={styles.versionStats}>
                   <div className={styles.versionStat}>
                     <Star size={16} className={styles.versionStatIcon} />
-                    <span>{game.achievementCount} achievements</span>
+                    <span>{game.achievementCount} trophies</span>
                   </div>
                   {game.trophyCount > 0 && (
                     <div className={styles.versionStat}>
                       <Trophy size={16} className={styles.versionStatIcon} />
-                      <span>{game.trophyCount} trophies</span>
+                      <span>{game.trophyCount} Platinums</span>
                     </div>
                   )}
                 </div>

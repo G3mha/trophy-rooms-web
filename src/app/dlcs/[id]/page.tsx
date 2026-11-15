@@ -99,10 +99,10 @@ function groupSets(sets: AchievementSet[]) {
   const gatesTrophy = (set: AchievementSet) =>
     set.countsTowardTrophy && (set.type !== "CUSTOM" || set.visibility === "PUBLIC");
   return [
-    { title: "For the Trophy", note: null, sets: sets.filter(gatesTrophy) },
+    { title: "For the Platinum", note: null, sets: sets.filter(gatesTrophy) },
     {
       title: "Extra Lists",
-      note: "These don't count toward the trophy.",
+      note: "These don't count toward the Platinum.",
       sets: sets.filter((set) => !gatesTrophy(set) && !isPrivateCustom(set)),
     },
     { title: "Your Lists", note: null, sets: sets.filter(isPrivateCustom) },
@@ -313,7 +313,7 @@ export default function DLCDetailPage({
           <div className={styles.statGrid}>
             <div className={styles.statCard}>
               <span className={styles.statValue}>{dlc.achievementSetCount}</span>
-              <span className={styles.statLabel}>Achievement Sets</span>
+              <span className={styles.statLabel}>Trophy Lists</span>
             </div>
             <div className={styles.statCard}>
               <span className={styles.statValue}>{dlc.bundles.length}</span>
@@ -396,7 +396,7 @@ export default function DLCDetailPage({
                 <div className={styles.contentBody}>
                   <h3 className={styles.contentName}>{set.title}</h3>
                   <span className={styles.contentPill}>
-                    {set.achievementCount} {set.achievementCount === 1 ? "achievement" : "achievements"}
+                    {set.achievementCount} {set.achievementCount === 1 ? "trophy" : "trophies"}
                   </span>
                 </div>
               </div>
@@ -445,7 +445,7 @@ export default function DLCDetailPage({
           <EmptyState
             icon={<Puzzle size={48} />}
             title="No additional content"
-            description="This DLC doesn't have any associated achievement sets, bundles, or parent game."
+            description="This DLC doesn't have any associated trophy lists, bundles, or parent game."
           />
         </section>
       )}

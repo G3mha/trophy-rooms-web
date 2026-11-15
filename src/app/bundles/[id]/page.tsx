@@ -381,7 +381,7 @@ export default function BundleDetailPage({
                   )}
                   <span className={styles.contentPill}>
                     {game.achievementCount} achievements
-                    {game.trophyCount > 0 ? ` • ${game.trophyCount} trophies` : ""}
+                    {game.trophyCount > 0 ? ` • ${game.trophyCount} Platinums` : ""}
                   </span>
                 </div>
               </Link>

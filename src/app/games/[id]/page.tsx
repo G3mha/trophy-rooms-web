@@ -132,11 +132,11 @@ export default function GameDetailPage({
     onCompleted: () => {
       refetch();
       setTogglingId(null);
-      toast.success("Achievement marked complete.");
+      toast.success("Trophy marked complete.");
     },
     onError: (error) => {
       setTogglingId(null);
-      toast.error(error.message || "Failed to mark achievement.");
+      toast.error(error.message || "Failed to mark trophy.");
     },
   });
 
@@ -144,11 +144,11 @@ export default function GameDetailPage({
     onCompleted: () => {
       refetch();
       setTogglingId(null);
-      toast.success("Achievement unmarked.");
+      toast.success("Trophy unmarked.");
     },
     onError: (error) => {
       setTogglingId(null);
-      toast.error(error.message || "Failed to unmark achievement.");
+      toast.error(error.message || "Failed to unmark trophy.");
     },
   });
 
@@ -158,16 +158,16 @@ export default function GameDetailPage({
       setConfirmingMarkAll(false);
       if (result.markAllAchievementsComplete.success) {
         refetch();
-        toast.success("Trophy earned.");
+        toast.success("Platinum earned.");
       } else {
         toast.error(
-          result.markAllAchievementsComplete.error?.message || "Failed to mark achievements."
+          result.markAllAchievementsComplete.error?.message || "Failed to mark trophies."
         );
       }
     },
     onError: (error) => {
       setConfirmingMarkAll(false);
-      toast.error(error.message || "Failed to mark achievements.");
+      toast.error(error.message || "Failed to mark trophies.");
     },
   });
 
@@ -272,8 +272,8 @@ export default function GameDetailPage({
       ) : (
         <EmptyState
           icon={<Star size={48} />}
-          title="No achievements yet"
-          description="Add achievements to this set."
+          title="No trophies yet"
+          description="Add trophies to this list."
         />
       )}
     </div>
@@ -393,15 +393,11 @@ export default function GameDetailPage({
           <div className={styles.statGrid}>
             <div className={styles.statCard}>
               <span className={styles.statValue}>{trophyAchievementCount}</span>
-              <span className={styles.statLabel}>Achievements</span>
-            </div>
-            <div className={styles.statCard}>
-              <span className={styles.statValue}>{game.trophyCount}</span>
-              <span className={styles.statLabel}>Platinum Trophies</span>
+              <span className={styles.statLabel}>Trophies</span>
             </div>
             <div className={styles.statCard}>
               <span className={styles.statValue}>{game.trophies.length}</span>
-              <span className={styles.statLabel}>Trophy Holders</span>
+              <span className={styles.statLabel}>Platinum Holders</span>
             </div>
             <div className={styles.statCard}>
               <span className={styles.statValue}>{screenshotCount}</span>
@@ -509,7 +505,7 @@ export default function GameDetailPage({
             <div className={styles.trophyBody}>
               <div className={styles.progressHeading}>
                 <h2 className={styles.sectionTitle}>
-                  {platinum?.title ?? (isTrophyComplete ? "Trophy Earned" : "The Trophy")}
+                  {platinum?.title ?? (isTrophyComplete ? "Platinum Earned" : "The Platinum")}
                 </h2>
                 {isSignedIn && !isTrophyComplete && (
                   <span className={styles.progressPercent}>{progress}%</span>
@@ -540,7 +536,7 @@ export default function GameDetailPage({
               ) : (
                 !platinum?.description && (
                   <p className={styles.trophyLine}>
-                    Complete all {trophyAchievementCount} achievements to earn it.
+                    Earn all {trophyAchievementCount} trophies to get it.
                   </p>
                 )
               )}
@@ -568,8 +564,8 @@ export default function GameDetailPage({
           <DialogHeader>
             <DialogTitle>Mark all {trophyAchievementCount} complete?</DialogTitle>
             <DialogDescription>
-              This marks every achievement for the trophy as done and awards it. To undo it, you
-              untick achievements one at a time.
+              This marks every trophy as earned and awards the Platinum. To undo it, you untick
+              trophies one at a time.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -591,7 +587,7 @@ export default function GameDetailPage({
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>Extra Lists</h2>
           </div>
-          <p className={styles.sectionNote}>These don&apos;t count toward the trophy.</p>
+          <p className={styles.sectionNote}>These don&apos;t count toward the Platinum.</p>
           <div className={styles.achievementGroupList}>
             {extraSets.map((set) => renderSet(set, true))}
           </div>
@@ -602,8 +598,8 @@ export default function GameDetailPage({
         <section className={styles.sectionPanel}>
           <EmptyState
             icon={<Star size={48} />}
-            title="No achievement sets yet"
-            description="This game doesn't have any achievement sets defined yet."
+            title="No trophies yet"
+            description="This game doesn't have a trophy list yet."
           />
         </section>
       )}
@@ -611,7 +607,7 @@ export default function GameDetailPage({
       {game.trophies.length > 0 && (
         <section className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Trophy Holders</h2>
+            <h2 className={styles.sectionTitle}>Platinum Holders</h2>
             <span className={styles.countPill}>{game.trophies.length}</span>
           </div>
           <div className={styles.trophyHolders}>

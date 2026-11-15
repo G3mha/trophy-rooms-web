@@ -164,7 +164,7 @@ export default function GamesPage() {
           },
           {
             icon: <Trophy size={16} />,
-            label: `${trophyRichGroups} with trophies`,
+            label: `${trophyRichGroups} with Platinums`,
           },
         ]}
       />
@@ -202,16 +202,16 @@ export default function GamesPage() {
             }
           >
             <option value="all">All</option>
-            <option value="with">With Achievements</option>
-            <option value="without">Without Achievements</option>
+            <option value="with">With Trophies</option>
+            <option value="without">Without Trophies</option>
           </CatalogSelectField>
           <CatalogSelectField value={orderBy} onChange={(e) => setOrderBy(e.target.value)}>
             <option value="TITLE_ASC">Title (A → Z)</option>
             <option value="TITLE_DESC">Title (Z → A)</option>
             <option value="CREATED_AT_DESC">Newest</option>
             <option value="CREATED_AT_ASC">Oldest</option>
-            <option value="ACHIEVEMENT_COUNT_DESC">Most Achievements</option>
-            <option value="TROPHY_COUNT_DESC">Most Trophies</option>
+            <option value="ACHIEVEMENT_COUNT_DESC">Most Trophies</option>
+            <option value="TROPHY_COUNT_DESC">Most Platinums</option>
           </CatalogSelectField>
         </CatalogFilterRow>
       </CatalogFilterPanel>
