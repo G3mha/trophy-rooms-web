@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Medal } from "lucide-react";
+import { Trophy } from "lucide-react";
 import styles from "./RecentActivity.module.css";
 
 type AchievementTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
@@ -52,7 +52,7 @@ function getTierIcon(tier?: AchievementTier): React.ReactNode {
     BRONZE: "#CD7F32",
   };
   const color = colors[tier || "BRONZE"];
-  return <Medal size={16} color={color} />;
+  return <Trophy size={16} color={color} />;
 }
 
 export function RecentActivity({ achievements }: RecentActivityProps) {
