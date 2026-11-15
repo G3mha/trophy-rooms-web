@@ -227,11 +227,6 @@
   margin-bottom: 24px;
 }
 
-.sectionIntro {
-  max-width: 70ch;
-  margin-bottom: 20px;
-}
-
 .sectionTitle {
   margin: 0;
   color: var(--text-primary);
@@ -243,53 +238,59 @@
   text-shadow: 4px 4px 0 var(--cabinet-shadow-red);
 }
 
-.sectionCopy {
-  margin: 12px 0 0;
-  color: var(--text-secondary);
-  line-height: 1.75;
-}
-
-.featureGrid {
+/* Headline on the left, numbered steps on the right, split by hairlines
+   instead of boxes */
+.features {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.feature {
-  padding: 22px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.feature:hover {
-  transform: translateY(-2px);
-  border-color: rgba(217, 185, 138, 0.3);
-}
-
-.featureIcon {
-  display: inline-flex;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
   align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  margin-bottom: 16px;
-  border-radius: 18px;
-  background: rgba(201, 44, 60, 0.1);
-  color: var(--cabinet-brass-light);
+  gap: 24px 56px;
+  padding: 44px 48px;
 }
 
-.featureTitle {
-  margin: 0 0 8px;
-  color: var(--text-primary);
-  font-size: 1.15rem;
+.stepsTitle {
+  font-size: clamp(2rem, 4.2vw, 3.4rem);
+  line-height: 1.05;
 }
 
-.featureDescription {
+.stepsTitle span {
+  display: block;
+  color: var(--cabinet-brass);
+}
+
+.steps {
   margin: 0;
-  color: var(--text-secondary);
-  line-height: 1.65;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step {
+  display: flex;
+  align-items: baseline;
+  gap: 24px;
+  padding: 18px 0;
+  border-top: 1px solid rgba(201, 164, 92, 0.22);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--cabinet-bone);
+}
+
+.step:last-child {
+  border-bottom: 1px solid rgba(201, 164, 92, 0.22);
+}
+
+/* The numeral is a counter so it isn't duplicated in copied text */
+.step::before {
+  counter-increment: step;
+  content: counter(step);
+  min-width: 2rem;
+  font-size: 2.6rem;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--cabinet-brass);
 }
 
 .gamesSection {
@@ -335,8 +336,9 @@
     grid-template-columns: 1fr;
   }
 
-  .featureGrid {
+  .features {
     grid-template-columns: 1fr;
+    padding: 32px;
   }
 }
 
@@ -349,6 +351,10 @@
   .features,
   .gamesSection {
     padding: 20px;
+  }
+
+  .step {
+    font-size: 1.25rem;
   }
 
   .heroActions,

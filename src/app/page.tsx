@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
-import { ArrowRight, ChevronLeft, ChevronRight, Gamepad2, Star, Trophy } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Gamepad2 } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GroupedGameCard, AppImage, Button, Skeleton, EmptyState, ErrorState, GlobalSearch, TrophyCase, TrophyShelf } from "@/components";
 import styles from "./page.module.css";
@@ -125,6 +125,9 @@ function TypedWord() {
     </span>
   );
 }
+
+// How a trophy is earned. The hero already covers tracking and collecting.
+const STEPS = ["Pick a set", "Earn every achievement", "Get the trophy"];
 
 const SPOTLIGHT_INTERVAL_MS = 6000;
 
@@ -360,42 +363,16 @@ export default function Home() {
       </section>
 
       <section className={styles.features}>
-        <div className={styles.sectionIntro}>
-          <h2 className={styles.sectionTitle}>One place for the whole game loop</h2>
-          <p className={styles.sectionCopy}>
-            Trophy Rooms keeps discovery, ownership, and completion in the same rhythm so your
-            progress does not get fragmented by platform.
-          </p>
-        </div>
-        <div className={styles.featureGrid}>
-          <div className={styles.feature}>
-            <div className={styles.featureIcon}>
-              <Gamepad2 size={28} />
-            </div>
-            <h3 className={styles.featureTitle}>Track Games</h3>
-            <p className={styles.featureDescription}>
-              Group platform variants, browse full game families, and keep the library readable.
-            </p>
-          </div>
-          <div className={styles.feature}>
-            <div className={styles.featureIcon}>
-              <Star size={28} />
-            </div>
-            <h3 className={styles.featureTitle}>Shape Your Challenges</h3>
-            <p className={styles.featureDescription}>
-              Follow official sets, build custom challenge lists, and keep rare runs visible.
-            </p>
-          </div>
-          <div className={styles.feature}>
-            <div className={styles.featureIcon}>
-              <Trophy size={28} />
-            </div>
-            <h3 className={styles.featureTitle}>Show Completion</h3>
-            <p className={styles.featureDescription}>
-              Turn finished hunts into trophies, public profile moments, and dashboard milestones.
-            </p>
-          </div>
-        </div>
+        <h2 className={`${styles.sectionTitle} ${styles.stepsTitle}`}>
+          Clear the set. <span>Keep the trophy.</span>
+        </h2>
+        <ol className={styles.steps}>
+          {STEPS.map((step) => (
+            <li key={step} className={styles.step}>
+              {step}
+            </li>
+          ))}
+        </ol>
       </section>
       <TrophyShelf />
     </div>
