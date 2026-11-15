@@ -275,28 +275,10 @@ export const GET_GAME_VERSIONS = gql`
   ${GAME_VERSION_FRAGMENT}
 `;
 
-export const GET_GAME_VERSION = gql`
-  query GetGameVersion($id: ID!) {
-    gameVersion(id: $id) {
-      ...GameVersionFields
-    }
-  }
-  ${GAME_VERSION_FRAGMENT}
-`;
-
 // DLC queries
 export const GET_DLCS = gql`
   query GetDLCs($gameFamilyId: ID!) {
     dlcs(gameFamilyId: $gameFamilyId) {
-      ...DLCFields
-    }
-  }
-  ${DLC_FRAGMENT}
-`;
-
-export const GET_DLC = gql`
-  query GetDLC($id: ID!) {
-    dlc(id: $id) {
       ...DLCFields
     }
   }
@@ -313,11 +295,3 @@ export const GET_BUNDLES = gql`
   ${BUNDLE_FRAGMENT}
 `;
 
-export const GET_BUNDLE = gql`
-  query GetBundle($id: ID!) {
-    bundle(id: $id) {
-      ...BundleFields
-    }
-  }
-  ${BUNDLE_FRAGMENT}
-`;

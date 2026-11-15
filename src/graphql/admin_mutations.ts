@@ -492,40 +492,6 @@ export const BULK_DELETE_DLCS = gql`
   }
 `;
 
-export const ADD_DLC_TO_VERSION = gql`
-  mutation AddDLCToVersion($dlcId: ID!, $versionId: ID!) {
-    addDLCToVersion(dlcId: $dlcId, versionId: $versionId) {
-      success
-      dlc {
-        id
-        name
-      }
-      error {
-        code
-        message
-        field
-      }
-    }
-  }
-`;
-
-export const REMOVE_DLC_FROM_VERSION = gql`
-  mutation RemoveDLCFromVersion($dlcId: ID!, $versionId: ID!) {
-    removeDLCFromVersion(dlcId: $dlcId, versionId: $versionId) {
-      success
-      dlc {
-        id
-        name
-      }
-      error {
-        code
-        message
-        field
-      }
-    }
-  }
-`;
-
 // Bundle mutations
 export const CREATE_BUNDLE = gql`
   mutation CreateBundle($input: CreateBundleInput!) {
@@ -580,74 +546,6 @@ export const BULK_DELETE_BUNDLES = gql`
     bulkDeleteBundles(ids: $ids) {
       success
       deletedCount
-      error {
-        code
-        message
-        field
-      }
-    }
-  }
-`;
-
-export const ADD_GAME_TO_BUNDLE = gql`
-  mutation AddGameToBundle($gameFamilyId: ID!, $bundleId: ID!) {
-    addGameFamilyToBundle(gameFamilyId: $gameFamilyId, bundleId: $bundleId) {
-      success
-      bundle {
-        id
-        name
-      }
-      error {
-        code
-        message
-        field
-      }
-    }
-  }
-`;
-
-export const REMOVE_GAME_FROM_BUNDLE = gql`
-  mutation RemoveGameFromBundle($gameFamilyId: ID!, $bundleId: ID!) {
-    removeGameFamilyFromBundle(gameFamilyId: $gameFamilyId, bundleId: $bundleId) {
-      success
-      bundle {
-        id
-        name
-      }
-      error {
-        code
-        message
-        field
-      }
-    }
-  }
-`;
-
-export const ADD_DLC_TO_BUNDLE = gql`
-  mutation AddDLCToBundle($dlcId: ID!, $bundleId: ID!) {
-    addDLCToBundle(dlcId: $dlcId, bundleId: $bundleId) {
-      success
-      bundle {
-        id
-        name
-      }
-      error {
-        code
-        message
-        field
-      }
-    }
-  }
-`;
-
-export const REMOVE_DLC_FROM_BUNDLE = gql`
-  mutation RemoveDLCFromBundle($dlcId: ID!, $bundleId: ID!) {
-    removeDLCFromBundle(dlcId: $dlcId, bundleId: $bundleId) {
-      success
-      bundle {
-        id
-        name
-      }
       error {
         code
         message
