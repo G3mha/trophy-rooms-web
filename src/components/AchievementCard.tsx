@@ -1,6 +1,6 @@
 "use client";
 
-import { Medal } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { AppImage } from "./AppImage";
 import styles from "./AchievementCard.module.css";
 
@@ -101,7 +101,7 @@ export function AchievementCard({
           alt={title}
           className={styles.iconImage}
           fallback={
-            <Medal className={styles.tierIcon} size={24} color={tierInfo.color} />
+            <Trophy className={styles.tierIcon} size={24} color={tierInfo.color} />
           }
         />
         {!isCompleted && <div className={styles.iconShade} />}
