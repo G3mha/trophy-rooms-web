@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
 import {
   Trophy,
-  Star,
   Gamepad2,
   Zap,
   LucideIcon,
@@ -66,7 +65,7 @@ const TABS: {
   {
     id: "achievements",
     label: "Achievement Hunters",
-    Icon: Star,
+    Icon: Trophy,
     description: "Most achievements earned",
   },
   {
@@ -83,15 +82,23 @@ const TABS: {
   },
 ];
 
-const VALUE_LABELS: Record<LeaderboardTab, string> = {
+// Achievements show as a trophy icon; the word stays for screen readers
+const ACHIEVEMENTS_LABEL = (
+  <>
+    <Trophy size={12} className="inline align-[-0.125em]" aria-hidden />
+    <span className="sr-only">Achievements</span>
+  </>
+);
+
+const VALUE_LABELS: Record<LeaderboardTab, ReactNode> = {
   trophies: "Trophies",
-  achievements: "Achievements",
+  achievements: ACHIEVEMENTS_LABEL,
   games: "Games",
   fastest: "",
 };
 
-const SECONDARY_LABELS: Record<LeaderboardTab, string> = {
-  trophies: "Achievements",
+const SECONDARY_LABELS: Record<LeaderboardTab, ReactNode> = {
+  trophies: ACHIEVEMENTS_LABEL,
   achievements: "Trophies",
   games: "Trophies",
   fastest: "",
