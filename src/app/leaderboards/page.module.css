@@ -107,7 +107,9 @@
 
 .podiumGrid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* One equal column per card, so a podium of 1 or 2 still fills the row */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 12px;
 }
 
@@ -198,6 +200,10 @@
   .hero,
   .podiumGrid {
     grid-template-columns: 1fr;
+  }
+
+  .podiumGrid {
+    grid-auto-flow: row;
   }
 }
 
