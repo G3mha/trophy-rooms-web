@@ -4,7 +4,7 @@ import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
-import { ArrowRight, ChevronLeft, ChevronRight, Gamepad2, Trophy } from "lucide-react";
+import { ChevronLeft, ChevronRight, Gamepad2, Trophy } from "lucide-react";
 import { GET_GAMES, GET_ME } from "@/graphql/queries";
 import { GroupedGameCard, AppImage, Button, Skeleton, EmptyState, ErrorState, GlobalSearch, TrophyCase, TrophyShelf } from "@/components";
 import styles from "./page.module.css";
@@ -168,23 +168,28 @@ function HeroSpotlight({ families, loading }: { families: GameGroup[]; loading: 
             <div className={styles.shelfInfo} role="status" aria-label="Loading featured game">
               <Skeleton className={styles.skeletonTitle} />
               <Skeleton className={styles.skeletonLine} />
-              <Skeleton className={styles.skeletonButton} />
             </div>
           </>
         )}
         {family && (
           <>
+            {/* The title link below is the one keyboard and screen readers use */}
             <Link
               key={family.slug}
               href={`/games/title/${family.slug}`}
               className={styles.shelfCover}
-              aria-label={family.title}
+              tabIndex={-1}
+              aria-hidden
             >
               <AppImage src={family.coverUrl} alt="" />
             </Link>
             <div className={styles.shelfInfo}>
               <div key={family.slug} className={styles.spotlightText}>
-                <h2 className={styles.spotlightTitle}>{family.title}</h2>
+                <h2 className={styles.spotlightTitle}>
+                  <Link href={`/games/title/${family.slug}`} className={styles.spotlightLink}>
+                    {family.title}
+                  </Link>
+                </h2>
                 <p className={styles.spotlightCopy}>
                   {family.platforms.length === 1
                     ? "1 tracked platform"
@@ -200,10 +205,6 @@ function HeroSpotlight({ families, loading }: { families: GameGroup[]; loading: 
                     : ""}
                   .
                 </p>
-                <Button href={`/games/title/${family.slug}`} variant="secondary" size="sm">
-                  Open Family
-                  <ArrowRight size={14} />
-                </Button>
               </div>
               {count > 1 && (
                 <div className={styles.spotlightNav}>
