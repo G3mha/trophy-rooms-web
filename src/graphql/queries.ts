@@ -175,45 +175,6 @@ export const GET_GAME = gql`
   ${GAME_WITH_ACHIEVEMENTS_FRAGMENT}
 `;
 
-export const GET_ACHIEVEMENTS = gql`
-  query GetAchievements($first: Int, $after: String, $filter: AchievementsFilterInput, $orderBy: AchievementOrderBy) {
-    achievements(first: $first, after: $after, filter: $filter, orderBy: $orderBy) {
-      edges {
-        cursor
-        node {
-          ...AchievementFields
-        }
-      }
-      pageInfo {
-        hasNextPage
-        hasPreviousPage
-        startCursor
-        endCursor
-      }
-      totalCount
-    }
-  }
-  ${ACHIEVEMENT_FRAGMENT}
-`;
-
-export const GET_ACHIEVEMENT = gql`
-  query GetAchievement($id: ID!) {
-    achievement(id: $id) {
-      ...AchievementFields
-    }
-  }
-  ${ACHIEVEMENT_FRAGMENT}
-`;
-
-export const GET_ACHIEVEMENT_SETS = gql`
-  query GetAchievementSets($gameFamilyId: ID, $visibility: AchievementSetVisibility, $type: AchievementSetType) {
-    achievementSets(gameFamilyId: $gameFamilyId, visibility: $visibility, type: $type) {
-      ...AchievementSetFields
-    }
-  }
-  ${ACHIEVEMENT_SET_FRAGMENT}
-`;
-
 export const GET_ME = gql`
   query GetMe {
     me {
@@ -221,16 +182,6 @@ export const GET_ME = gql`
     }
   }
   ${USER_FRAGMENT}
-`;
-
-export const GET_MY_STATS = gql`
-  query GetMyStats {
-    myStats {
-      totalTrophies
-      totalAchievements
-      totalGamesPlayed
-    }
-  }
 `;
 
 export const GET_MY_ACHIEVEMENTS = gql`
@@ -330,42 +281,6 @@ export const GET_USER = gql`
   }
 `;
 
-export const GET_USER_ACHIEVEMENTS = gql`
-  query GetUserAchievements($userId: ID!, $first: Int, $after: String) {
-    userAchievements(userId: $userId, first: $first, after: $after) {
-      edges {
-        cursor
-        node {
-          id
-          createdAt
-          achievement {
-            id
-            title
-            description
-            iconUrl
-            tier
-            achievementSet {
-              id
-              title
-              gameFamilyId
-              gameFamily {
-                id
-                title
-                slug
-              }
-            }
-          }
-        }
-      }
-      pageInfo {
-        hasNextPage
-        endCursor
-      }
-      totalCount
-    }
-  }
-`;
-
 export const GET_USER_TROPHIES = gql`
   query GetUserTrophies($userId: ID!, $first: Int, $after: String) {
     userTrophies(userId: $userId, first: $first, after: $after) {
@@ -459,22 +374,6 @@ export const GET_ACTIVITY_FEED = gql`
   }
 `;
 
-export const GET_RECENT_ACHIEVEMENT_ACTIVITY = gql`
-  query GetRecentAchievementActivity($limit: Int) {
-    recentAchievementActivity(limit: $limit) {
-      id
-      userId
-      userName
-      achievementId
-      achievementTitle
-      achievementTier
-      gameFamilyId
-      gameTitle
-      earnedAt
-    }
-  }
-`;
-
 export const GET_RECENT_TROPHY_ACTIVITY = gql`
   query GetRecentTrophyActivity($limit: Int) {
     recentTrophyActivity(limit: $limit) {
@@ -550,18 +449,6 @@ export const GET_MY_GAMES_BY_STATUS = gql`
   }
 `;
 
-export const GET_LIBRARY_COUNT = gql`
-  query GetLibraryCount {
-    libraryCount
-  }
-`;
-
-export const GET_LIBRARY_COUNT_BY_STATUS = gql`
-  query GetLibraryCountByStatus($status: GameStatus!) {
-    libraryCountByStatus(status: $status)
-  }
-`;
-
 // Collection fragments
 export const COLLECTION_ITEM_FRAGMENT = gql`
   fragment CollectionItemFields on CollectionItem {
@@ -628,12 +515,6 @@ export const GET_COLLECTION_STATS = gql`
         count
       }
     }
-  }
-`;
-
-export const GET_COLLECTION_COUNT = gql`
-  query GetCollectionCount {
-    collectionCount
   }
 `;
 

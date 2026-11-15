@@ -389,27 +389,6 @@ export const REMOVE_FROM_BUYLIST = gql`
   }
 `;
 
-export const UPDATE_BUYLIST_ITEM = gql`
-  mutation UpdateBuylistItem($id: ID!, $input: UpdateBuylistItemInput!) {
-    updateBuylistItem(id: $id, input: $input) {
-      success
-      buylistItem {
-        id
-        priority
-        notes
-        estimatedPrice
-        gameVersionId
-        updatedAt
-      }
-      error {
-        code
-        message
-        field
-      }
-    }
-  }
-`;
-
 export const MARK_AS_PURCHASED = gql`
   mutation MarkAsPurchased($id: ID!, $platformId: ID, $purchasePrice: Float, $purchasedAt: DateTime) {
     markAsPurchased(id: $id, platformId: $platformId, purchasePrice: $purchasePrice, purchasedAt: $purchasedAt) {
