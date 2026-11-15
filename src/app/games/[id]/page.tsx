@@ -1,21 +1,16 @@
 "use client";
 
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon } from "lucide-react";
 import { useAdminMode } from "@/contexts/AdminModeContext";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
-import {
-  MARK_ACHIEVEMENT_COMPLETE,
-  UNMARK_ACHIEVEMENT_COMPLETE,
-  CREATE_ACHIEVEMENT_SET,
-  CREATE_ACHIEVEMENT,
-  PUBLISH_ACHIEVEMENT_SET,
-} from "@/graphql/mutations";
+import { MARK_ACHIEVEMENT_COMPLETE, UNMARK_ACHIEVEMENT_COMPLETE } from "@/graphql/mutations";
 import { AchievementCard, AppImage, Button, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, PlatformIcon, PageSkeleton, QueryState } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
+import { TrophySilhouette } from "@/components/TrophyShelf";
 import { getDisplayName } from "@/lib/avatar-utils";
 import styles from "./page.module.css";
 
@@ -37,6 +32,9 @@ const tierPriority: Record<AchievementTier, number> = {
   SILVER: 2,
   BRONZE: 1,
 };
+
+// Best first, the order the trophy list is grouped in
+const TIERS: AchievementTier[] = ["PLATINUM", "GOLD", "SILVER", "BRONZE"];
 
 function sortByTier(achievements: Achievement[]): Achievement[] {
   return [...achievements].sort((a, b) => {
@@ -107,13 +105,6 @@ export default function GameDetailPage({
   const { isSignedIn } = useAuth();
   const { setCurrentEntity, clearEntity } = useAdminMode();
   const [togglingId, setTogglingId] = useState<string | null>(null);
-  const [newSetTitle, setNewSetTitle] = useState("");
-  const [setError, setSetError] = useState<string | null>(null);
-  const [achievementSetId, setAchievementSetId] = useState("");
-  const [achievementTitle, setAchievementTitle] = useState("");
-  const [achievementDescription, setAchievementDescription] = useState("");
-  const [achievementIconUrl, setAchievementIconUrl] = useState("");
-  const [achievementError, setAchievementError] = useState<string | null>(null);
   const [selectedScreenshot, setSelectedScreenshot] = useState<number | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_GAME, {
@@ -148,85 +139,8 @@ export default function GameDetailPage({
     },
   });
 
-  const [createAchievementSet, { loading: creatingSet }] = useMutation(
-    CREATE_ACHIEVEMENT_SET,
-    {
-      onCompleted: (result) => {
-        if (result.createAchievementSet.success) {
-          setNewSetTitle("");
-          setSetError(null);
-          refetch();
-          toast.success("Achievement set created.");
-        } else {
-          const errorMsg = result.createAchievementSet.error?.message || "Failed to create achievement set";
-          setSetError(errorMsg);
-          toast.error(errorMsg);
-        }
-      },
-      onError: (err) => {
-        setSetError(err.message);
-        toast.error(err.message);
-      },
-    }
-  );
-
-  const [createAchievement, { loading: creatingAchievement }] = useMutation(
-    CREATE_ACHIEVEMENT,
-    {
-      onCompleted: (result) => {
-        if (result.createAchievement.success) {
-          setAchievementTitle("");
-          setAchievementDescription("");
-          setAchievementIconUrl("");
-          setAchievementError(null);
-          refetch();
-          toast.success("Achievement created.");
-        } else {
-          const errorMsg = result.createAchievement.error?.message || "Failed to create achievement";
-          setAchievementError(errorMsg);
-          toast.error(errorMsg);
-        }
-      },
-      onError: (err) => {
-        setAchievementError(err.message);
-        toast.error(err.message);
-      },
-    }
-  );
-
-  const [publishAchievementSet, { loading: publishingSet }] = useMutation(
-    PUBLISH_ACHIEVEMENT_SET,
-    {
-      onCompleted: (result) => {
-        if (result.publishAchievementSet.success) {
-          refetch();
-          toast.success("Achievement set published.");
-        } else {
-          toast.error(result.publishAchievementSet.error?.message || "Failed to publish achievement set.");
-        }
-      },
-      onError: (error) => toast.error(error.message || "Failed to publish achievement set."),
-    }
-  );
-
   const game: Game | undefined = data?.game;
   const me = meData?.me;
-
-  // Compute owned custom sets for useEffect dependency
-  const ownedCustomSets = useMemo(
-    () =>
-      game?.achievementSets.filter(
-        (set) => set.type === "CUSTOM" && set.createdByUserId === me?.id
-      ) ?? [],
-    [game?.achievementSets, me?.id]
-  );
-
-  // Set default achievement set - must be before any conditional returns
-  useEffect(() => {
-    if (!achievementSetId && ownedCustomSets.length > 0) {
-      setAchievementSetId(ownedCustomSets[0].id);
-    }
-  }, [achievementSetId, ownedCustomSets]);
 
   // Register current entity for admin toolbar
   useEffect(() => {
@@ -275,14 +189,31 @@ export default function GameDetailPage({
     ? Math.max(...allAchievements.map((a) => a.userCount))
     : 0;
 
-  // The three groups the page shows. A set's role, not its type, is what a
-  // player needs: does it gate the trophy, is it a bonus, or is it their own.
+  // The trophy has one list: every achievement in the sets that gate it.
+  // Sets that don't gate stay below as extras.
   const requiredSets = game?.achievementSets.filter(countsTowardTrophy) ?? [];
-  const myPrivateSets = ownedCustomSets.filter((set) => set.visibility === "PRIVATE");
-  const extraSets =
-    game?.achievementSets.filter(
-      (set) => !countsTowardTrophy(set) && !myPrivateSets.includes(set)
-    ) ?? [];
+  const extraSets = game?.achievementSets.filter((set) => !countsTowardTrophy(set)) ?? [];
+  const myTrophy = game?.trophies.find((trophy) => trophy.user.id === me?.id);
+  // The cabinet light comes up as the player closes in on the trophy. A
+  // signed-out visitor sees it fully lit, and it never goes dark enough to
+  // hide the silhouette.
+  const trophyGlow = isSignedIn ? 0.25 + 0.75 * (progress / 100) : 1;
+
+  const renderAchievement = (achievement: Achievement) => (
+    <AchievementCard
+      key={achievement.id}
+      id={achievement.id}
+      title={achievement.title}
+      description={achievement.description}
+      iconUrl={achievement.iconUrl}
+      tier={achievement.tier}
+      isCompleted={achievement.isCompleted}
+      userCount={achievement.userCount}
+      totalPlayers={totalPlayers}
+      onToggle={isSignedIn ? handleToggleAchievement : undefined}
+      loading={togglingId === achievement.id}
+    />
+  );
 
   const renderSet = (set: AchievementSet, showProgress: boolean) => (
     <div key={set.id} className={styles.setCard}>
@@ -295,35 +226,12 @@ export default function GameDetailPage({
               {set.achievements.length}
             </span>
           )}
-          {set.visibility === "PRIVATE" && myPrivateSets.includes(set) && (
-            <Button
-              variant="secondary"
-              onClick={() => publishAchievementSet({ variables: { id: set.id } })}
-              loading={publishingSet}
-            >
-              Publish
-            </Button>
-          )}
         </div>
       </div>
 
       {set.achievements.length > 0 ? (
         <div className={styles.achievementList}>
-          {sortByTier(set.achievements).map((achievement) => (
-            <AchievementCard
-              key={achievement.id}
-              id={achievement.id}
-              title={achievement.title}
-              description={achievement.description}
-              iconUrl={achievement.iconUrl}
-              tier={achievement.tier}
-              isCompleted={achievement.isCompleted}
-              userCount={achievement.userCount}
-              totalPlayers={totalPlayers}
-              onToggle={isSignedIn ? handleToggleAchievement : undefined}
-              loading={togglingId === achievement.id}
-            />
-          ))}
+          {sortByTier(set.achievements).map(renderAchievement)}
         </div>
       ) : (
         <EmptyState
@@ -334,58 +242,6 @@ export default function GameDetailPage({
       )}
     </div>
   );
-
-  const handleCreateCustomSet = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSetError(null);
-
-    if (!newSetTitle.trim()) {
-      setSetError("Title is required");
-      return;
-    }
-
-    // Sets belong to the game family, so they show up on every platform's page
-    if (!game?.gameFamilyId) {
-      setSetError("This game isn't linked to a game family yet");
-      return;
-    }
-
-    await createAchievementSet({
-      variables: {
-        input: {
-          title: newSetTitle.trim(),
-          type: "CUSTOM",
-          gameFamilyId: game.gameFamilyId,
-        },
-      },
-    });
-  };
-
-  const handleCreateAchievement = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAchievementError(null);
-
-    if (!achievementSetId) {
-      setAchievementError("Select a custom set");
-      return;
-    }
-
-    if (!achievementTitle.trim()) {
-      setAchievementError("Title is required");
-      return;
-    }
-
-    await createAchievement({
-      variables: {
-        input: {
-          title: achievementTitle.trim(),
-          description: achievementDescription.trim() || null,
-          iconUrl: achievementIconUrl.trim() || null,
-          achievementSetId,
-        },
-      },
-    });
-  };
 
   return (
     <div className={styles.container}>
@@ -604,42 +460,57 @@ export default function GameDetailPage({
         </div>
       )}
 
-      {requiredSets.length > 0 && (
+      {trophyAchievementCount > 0 && (
         <section className={styles.progressPanel}>
-          <div className={styles.sectionHeader}>
-            <div className={styles.progressHeading}>
-              <h2 className={styles.sectionTitle}>For the Trophy</h2>
-              {isSignedIn && <span className={styles.progressPercent}>{progress}%</span>}
+          <div className={styles.trophyHero}>
+            <div
+              className={styles.trophyNiche}
+              style={{ "--glow": trophyGlow } as React.CSSProperties}
+              aria-hidden
+            >
+              <TrophySilhouette className={styles.trophyShape} />
             </div>
-            {isSignedIn && (
-              <span className={styles.progressSummary}>
-                {completedCount} / {trophyAchievementCount}
-              </span>
-            )}
-          </div>
-          {isSignedIn && (
-            <div className={styles.progressBar}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          )}
-          {isTrophyComplete && (
-            <div className={styles.crimsonTrophy}>
-              <div className={styles.crimsonIcon}>
-                <Trophy size={32} />
+            <div className={styles.trophyBody}>
+              <div className={styles.progressHeading}>
+                <h2 className={styles.sectionTitle}>
+                  {isTrophyComplete ? "Trophy Earned" : "The Trophy"}
+                </h2>
+                {isSignedIn && !isTrophyComplete && (
+                  <span className={styles.progressPercent}>{progress}%</span>
+                )}
               </div>
-              <div className={styles.crimsonContent}>
-                <span className={styles.crimsonTitle}>Platinum Trophy Earned</span>
-                <span className={styles.crimsonSubtitle}>100% completion achieved</span>
-              </div>
+              {isSignedIn ? (
+                <>
+                  <div className={styles.progressBar}>
+                    <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+                  </div>
+                  <p className={styles.trophyLine}>
+                    {isTrophyComplete && myTrophy
+                      ? `Earned on ${new Date(myTrophy.createdAt).toLocaleDateString()}`
+                      : `${completedCount} / ${trophyAchievementCount}`}
+                  </p>
+                </>
+              ) : (
+                <p className={styles.trophyLine}>
+                  Complete all {trophyAchievementCount} achievements to earn it.
+                </p>
+              )}
             </div>
-          )}
-          <div className={styles.achievementGroupList}>
-            {/* With one set, its count is the number already in the header */}
-            {requiredSets.map((set) => renderSet(set, requiredSets.length > 1))}
           </div>
+
+          {TIERS.map((tier) => {
+            const inTier = trophyAchievements.filter((a) => (a.tier ?? "BRONZE") === tier);
+            return (
+              inTier.length > 0 && (
+                <div key={tier} className={styles.tierGroup}>
+                  <h3 className={styles.tierHeading}>{tier.toLowerCase()}</h3>
+                  <div className={styles.achievementList}>{inTier.map(renderAchievement)}</div>
+                </div>
+              )
+            );
+          })}
+
+          <p className={styles.listSource}>{requiredSets.map((set) => set.title).join(" + ")}</p>
         </section>
       )}
 
@@ -662,126 +533,6 @@ export default function GameDetailPage({
             title="No achievement sets yet"
             description="This game doesn't have any achievement sets defined yet."
           />
-        </section>
-      )}
-
-      {isSignedIn && (
-        <section className={styles.creatorPanel}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Your Lists</h2>
-          </div>
-          {myPrivateSets.length > 0 && (
-            <div className={styles.achievementGroupList}>
-              {myPrivateSets.map((set) => renderSet(set, true))}
-            </div>
-          )}
-          <details className={styles.listForms}>
-            <summary>New list or achievement</summary>
-            <div className={styles.creatorGrid}>
-              <div className={styles.formCard}>
-                <h3 className={styles.formTitle}>Start a New Set</h3>
-                <p className={styles.formCopy}>
-                  Create a personal ruleset for speedruns, challenge runs, or community events.
-                </p>
-                <form onSubmit={handleCreateCustomSet} className={styles.form}>
-                  {setError && (
-                    <div className={styles.error}>
-                      <p>{setError}</p>
-                    </div>
-                  )}
-                  <div className={styles.field}>
-                    <label htmlFor="setTitle" className={styles.label}>
-                      Set Title
-                    </label>
-                    <input
-                      id="setTitle"
-                      type="text"
-                      value={newSetTitle}
-                      onChange={(e) => setNewSetTitle(e.target.value)}
-                      className={styles.input}
-                      placeholder="e.g. Speedrunner Challenges"
-                    />
-                  </div>
-                  <Button type="submit" loading={creatingSet}>
-                    Create Custom Set
-                  </Button>
-                </form>
-              </div>
-
-              {ownedCustomSets.length > 0 && (
-                <div className={styles.formCard}>
-                  <h3 className={styles.formTitle}>Add Achievements</h3>
-                  <p className={styles.formCopy}>
-                    Expand one of your custom sets with new goals, descriptions, and iconography.
-                  </p>
-                  <form onSubmit={handleCreateAchievement} className={styles.form}>
-                    {achievementError && (
-                      <div className={styles.error}>
-                        <p>{achievementError}</p>
-                      </div>
-                    )}
-                    <div className={styles.field}>
-                      <label htmlFor="achievementSet" className={styles.label}>
-                        Custom Set
-                      </label>
-                      <select
-                        id="achievementSet"
-                        className={styles.select}
-                        value={achievementSetId}
-                        onChange={(e) => setAchievementSetId(e.target.value)}
-                      >
-                        <option value="">Select a set</option>
-                        {ownedCustomSets.map((set) => (
-                          <option key={set.id} value={set.id}>
-                            {set.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className={styles.field}>
-                      <label htmlFor="achievementTitle" className={styles.label}>
-                        Achievement Title
-                      </label>
-                      <input
-                        id="achievementTitle"
-                        type="text"
-                        value={achievementTitle}
-                        onChange={(e) => setAchievementTitle(e.target.value)}
-                        className={styles.input}
-                      />
-                    </div>
-                    <div className={styles.field}>
-                      <label htmlFor="achievementDescription" className={styles.label}>
-                        Description
-                      </label>
-                      <textarea
-                        id="achievementDescription"
-                        value={achievementDescription}
-                        onChange={(e) => setAchievementDescription(e.target.value)}
-                        className={styles.textarea}
-                        rows={3}
-                      />
-                    </div>
-                    <div className={styles.field}>
-                      <label htmlFor="achievementIconUrl" className={styles.label}>
-                        Icon URL
-                      </label>
-                      <input
-                        id="achievementIconUrl"
-                        type="url"
-                        value={achievementIconUrl}
-                        onChange={(e) => setAchievementIconUrl(e.target.value)}
-                        className={styles.input}
-                      />
-                    </div>
-                    <Button type="submit" loading={creatingAchievement}>
-                      Add Achievement
-                    </Button>
-                  </form>
-                </div>
-              )}
-            </div>
-          </details>
         </section>
       )}
 
