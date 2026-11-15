@@ -82,13 +82,13 @@ export function AdminFloatingToolbar() {
         router.push(`/admin/bundles?search=${encodeURIComponent(currentEntity.title)}`);
         break;
       case "achievementSet":
-        router.push(`/admin/achievement-sets?search=${encodeURIComponent(currentEntity.title)}`);
+        router.push(`/admin/trophy-lists?search=${encodeURIComponent(currentEntity.title)}`);
         break;
     }
   };
 
   const handleManageAchievements = () => {
-    router.push(`/admin/achievement-sets?gameId=${currentEntity.id}`);
+    router.push(`/admin/trophy-lists?gameId=${currentEntity.id}`);
   };
 
   const getActions = (): ActionButton[] => {

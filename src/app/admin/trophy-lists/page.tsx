@@ -462,7 +462,7 @@ export default function AdminAchievementSetsPage() {
             </span>
             <div className={styles.itemActions}>
               <Link
-                href={`/admin/achievements?setId=${set.id}`}
+                href={`/admin/trophies?setId=${set.id}`}
                 className={styles.actionBtn}
                 title="View Trophies"
               >

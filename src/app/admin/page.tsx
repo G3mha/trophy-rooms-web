@@ -99,7 +99,7 @@ export default function AdminDashboardPage() {
       title: "Trophy Lists",
       count: setCount,
       icon: <Trophy size={24} />,
-      href: "/admin/achievement-sets",
+      href: "/admin/trophy-lists",
       loading: setsLoading,
     },
     {
@@ -142,13 +142,13 @@ export default function AdminDashboardPage() {
     {
       title: "Trophy Lists",
       description: "Organize official, custom, and completionist progression tracks.",
-      href: "/admin/achievement-sets",
+      href: "/admin/trophy-lists",
       icon: <Trophy size={20} />,
     },
     {
       title: "Trophies",
       description: "Edit titles, tiers and icons, or import trophies in bulk.",
-      href: "/admin/achievements",
+      href: "/admin/trophies",
       icon: <Star size={20} />,
     },
     {
