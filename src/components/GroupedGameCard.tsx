@@ -57,9 +57,9 @@ export function GroupedGameCard({
       <div className={styles.content}>
         <h3 className={styles.title}>{title}</h3>
         <div className={styles.stats}>
-          <div className={styles.stat} title={`${totalAchievementCount} achievements`}>
+          <div className={styles.stat} title={`${totalAchievementCount} trophies`}>
             <Trophy size={14} className={styles.statIcon} aria-hidden />
-            <span>{totalAchievementCount}<span className="sr-only"> achievements</span></span>
+            <span>{totalAchievementCount}<span className="sr-only"> trophies</span></span>
           </div>
         </div>
         <div className={styles.platformsRow}>

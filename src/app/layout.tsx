@@ -18,7 +18,7 @@ const yellowtail = Yellowtail({ weight: "400", subsets: ["latin"], variable: "--
 export const metadata: Metadata = {
   title: "Trophy Rooms - Game Library and Collection Tracker",
   description:
-    "Track the games you play and the copies you own, log your play time, and mark achievements as you earn them.",
+    "Track the games you play and the copies you own, log your play time, and mark trophies as you earn them.",
 };
 
 export default function RootLayout({

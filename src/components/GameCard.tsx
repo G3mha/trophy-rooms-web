@@ -60,9 +60,9 @@ export function GameCard({
         )}
         {!compact && (
           <div className={styles.stats}>
-            <div className={styles.stat} title={`${achievementCount} achievements`}>
+            <div className={styles.stat} title={`${achievementCount} trophies`}>
               <Trophy size={14} className={styles.statIcon} aria-hidden />
-              <span>{achievementCount}<span className="sr-only"> achievements</span></span>
+              <span>{achievementCount}<span className="sr-only"> trophies</span></span>
             </div>
             {platform && (
               <div className={styles.stat}>

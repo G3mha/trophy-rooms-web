@@ -127,7 +127,7 @@ function TypedWord() {
 }
 
 // How a trophy is earned. The hero already covers tracking and collecting.
-const STEPS = ["Pick a set", "Earn every achievement", "Get the trophy"];
+const STEPS = ["Pick a set", "Earn every trophy", "Get the Platinum"];
 
 const SPOTLIGHT_INTERVAL_MS = 6000;
 
@@ -189,9 +189,9 @@ function HeroSpotlight({ families, loading }: { families: GameGroup[]; loading: 
                   {family.platforms.length === 1
                     ? "1 tracked platform"
                     : `${family.platforms.length} tracked platforms`}
-                  , {family.totalAchievementCount} achievements
+                  , {family.totalAchievementCount} trophies
                   {family.totalTrophyCount > 0
-                    ? `, and ${family.totalTrophyCount} trophies`
+                    ? `, and ${family.totalTrophyCount} Platinums`
                     : ""}
                   .
                 </p>
@@ -269,7 +269,7 @@ export default function Home() {
             </span>
           </h1>
           <p className={styles.heroSubtitle}>
-            Track achievements, platform variants, and turn your backlog,
+            Track trophies, platform variants, and turn your backlog,
             buylist, and collection into a single place.
           </p>
           <GlobalSearch className={styles.heroSearch} />
@@ -365,7 +365,7 @@ export default function Home() {
 
       <section className={styles.features}>
         <h2 className={`${styles.sectionTitle} ${styles.stepsTitle}`}>
-          Clear the set. <span>Keep the trophy.</span>
+          Clear the set. <span>Keep the Platinum.</span>
         </h2>
         <ol className={styles.steps}>
           {STEPS.map((step) => (
