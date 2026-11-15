@@ -417,6 +417,18 @@
   color: var(--text-primary);
 }
 
+/* Skeletons sized to the line box of the number they stand in for */
+.sidecardValueSkeleton {
+  width: 96px;
+  height: 40px;
+}
+
+.miniStatValueSkeleton {
+  width: 40px;
+  height: 20px;
+  margin: 2px 0;
+}
+
 .dashboardMiniStatLabel {
   display: block;
   margin-top: 4px;
@@ -952,6 +964,13 @@
   font-weight: 700;
   color: var(--text-primary);
   line-height: 1.2;
+}
+
+/* Same height as .statCount's line box, so the card doesn't jump on load */
+.statCountSkeleton {
+  width: 56px;
+  height: 28px;
+  margin: 3px 0;
 }
 
 .statTitle {

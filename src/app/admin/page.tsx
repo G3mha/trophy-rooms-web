@@ -20,6 +20,7 @@ import {
   Package,
   ChevronRight,
 } from "lucide-react";
+import { Skeleton } from "@/components";
 import styles from "./page.module.css";
 
 interface StatCardProps {
@@ -37,9 +38,11 @@ function StatCard({ eyebrow, title, count, icon, href, loading }: StatCardProps)
       <div className={styles.statIcon}>{icon}</div>
       <div className={styles.statContent}>
         <span className={styles.statEyebrow}>{eyebrow}</span>
-        <span className={styles.statCount}>
-          {loading ? "..." : count.toLocaleString()}
-        </span>
+        {loading ? (
+          <Skeleton className={styles.statCountSkeleton} />
+        ) : (
+          <span className={styles.statCount}>{count.toLocaleString()}</span>
+        )}
         <span className={styles.statTitle}>{title}</span>
       </div>
       <ChevronRight size={16} className={styles.statArrow} />
@@ -65,6 +68,14 @@ export default function AdminDashboardPage() {
   const bundleCount = bundlesData?.bundles?.length || 0;
   const totalManagedRecords =
     platformCount + gameCount + setCount + userCount + bundleCount;
+  const totalLoading =
+    platformsLoading || gamesLoading || setsLoading || usersLoading || bundlesLoading;
+  const miniStats = [
+    { label: "Platforms", count: platformCount, loading: platformsLoading },
+    { label: "Games", count: gameCount, loading: gamesLoading },
+    { label: "Sets", count: setCount, loading: setsLoading },
+    { label: "Bundles", count: bundleCount, loading: bundlesLoading },
+  ];
 
   const statCards = [
     {
@@ -199,29 +210,27 @@ export default function AdminDashboardPage() {
 
         <aside className={styles.dashboardSidecard}>
           <p className={styles.dashboardSidecardLabel}>Managed Records</p>
-          <p className={styles.dashboardSidecardValue}>
-            {totalManagedRecords.toLocaleString()}
-          </p>
+          {totalLoading ? (
+            <Skeleton className={styles.sidecardValueSkeleton} />
+          ) : (
+            <p className={styles.dashboardSidecardValue}>
+              {totalManagedRecords.toLocaleString()}
+            </p>
+          )}
           <p className={styles.dashboardSidecardText}>
             Snapshot across the core admin entities surfaced on this dashboard.
           </p>
           <div className={styles.dashboardMiniStats}>
-            <div className={styles.dashboardMiniStat}>
-              <span className={styles.dashboardMiniStatValue}>{platformCount}</span>
-              <span className={styles.dashboardMiniStatLabel}>Platforms</span>
-            </div>
-            <div className={styles.dashboardMiniStat}>
-              <span className={styles.dashboardMiniStatValue}>{gameCount}</span>
-              <span className={styles.dashboardMiniStatLabel}>Games</span>
-            </div>
-            <div className={styles.dashboardMiniStat}>
-              <span className={styles.dashboardMiniStatValue}>{setCount}</span>
-              <span className={styles.dashboardMiniStatLabel}>Sets</span>
-            </div>
-            <div className={styles.dashboardMiniStat}>
-              <span className={styles.dashboardMiniStatValue}>{bundleCount}</span>
-              <span className={styles.dashboardMiniStatLabel}>Bundles</span>
-            </div>
+            {miniStats.map((stat) => (
+              <div key={stat.label} className={styles.dashboardMiniStat}>
+                {stat.loading ? (
+                  <Skeleton className={styles.miniStatValueSkeleton} />
+                ) : (
+                  <span className={styles.dashboardMiniStatValue}>{stat.count}</span>
+                )}
+                <span className={styles.dashboardMiniStatLabel}>{stat.label}</span>
+              </div>
+            ))}
           </div>
         </aside>
       </div>
