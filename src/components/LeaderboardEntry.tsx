@@ -10,9 +10,9 @@ interface LeaderboardEntryProps {
   userId: string;
   userName: string | null;
   value: number;
-  valueLabel: string;
+  valueLabel: React.ReactNode;
   secondaryValue?: number;
-  secondaryLabel?: string;
+  secondaryLabel?: React.ReactNode;
   highlight?: boolean;
 }
 
