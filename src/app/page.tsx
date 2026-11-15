@@ -127,7 +127,7 @@ function TypedWord() {
 }
 
 // How a trophy is earned. The hero already covers tracking and collecting.
-const STEPS = ["Pick a set", "Earn every trophy", "Get the Platinum"];
+const STEPS = ["Pick a list", "Earn every trophy", "Get the Platinum"];
 
 const SPOTLIGHT_INTERVAL_MS = 6000;
 
@@ -371,7 +371,7 @@ export default function Home() {
 
       <section className={styles.features}>
         <h2 className={`${styles.sectionTitle} ${styles.stepsTitle}`}>
-          Clear the set. <span>Keep the Platinum.</span>
+          Clear the list. <span>Keep the Platinum.</span>
         </h2>
         <ol className={styles.steps}>
           {STEPS.map((step) => (
