@@ -4,7 +4,8 @@ import { use, useEffect, useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon } from "lucide-react";
+import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon, Info } from "lucide-react";
+import { Popover } from "@base-ui/react/popover";
 import { useAdminMode } from "@/contexts/AdminModeContext";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
 import {
@@ -507,13 +508,29 @@ export default function GameDetailPage({
                 <h2 className={styles.sectionTitle}>
                   {platinum?.title ?? (isTrophyComplete ? "Platinum Earned" : "The Platinum")}
                 </h2>
+                {platinum?.description && (
+                  <Popover.Root>
+                    <Popover.Trigger
+                      openOnHover
+                      delay={100}
+                      className={styles.infoTrigger}
+                      aria-label="About this trophy"
+                    >
+                      <Info size={18} />
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Positioner side="top" sideOffset={8} className="z-50">
+                        <Popover.Popup className={styles.infoBubble}>
+                          {platinum.description}
+                        </Popover.Popup>
+                      </Popover.Positioner>
+                    </Popover.Portal>
+                  </Popover.Root>
+                )}
                 {isSignedIn && !isTrophyComplete && (
                   <span className={styles.progressPercent}>{progress}%</span>
                 )}
               </div>
-              {platinum?.description && (
-                <p className={styles.trophyDescription}>{platinum.description}</p>
-              )}
               {isSignedIn ? (
                 <>
                   <div className={styles.progressBar}>

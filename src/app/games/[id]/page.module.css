@@ -547,9 +547,35 @@
   font-weight: 700;
 }
 
-.trophyDescription {
-  margin: 0;
+.infoTrigger {
+  display: inline-flex;
+  align-self: center;
+  padding: 2px;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  cursor: help;
+  border-radius: 50%;
+}
+
+.infoTrigger:hover,
+.infoTrigger[data-popup-open] {
+  color: var(--cabinet-brass);
+}
+
+.infoTrigger:focus-visible {
+  outline: 2px solid var(--cabinet-brass);
+  outline-offset: 2px;
+}
+
+.infoBubble {
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-card);
   color: var(--text-secondary);
+  font-size: 0.875rem;
   line-height: 1.5;
 }
 
