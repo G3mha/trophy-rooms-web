@@ -31,7 +31,7 @@ export default function TermsOfService() {
             Trophy Rooms is a cross-platform achievement tracking service that allows users to:
           </p>
           <ul className={styles.list}>
-            <li>Track video game achievements and trophies across multiple platforms</li>
+            <li>Track video game trophies across multiple platforms</li>
             <li>Maintain a personal gaming library and collection</li>
             <li>Compare progress with other users via leaderboards</li>
             <li>Share gaming activity and accomplishments</li>
@@ -73,7 +73,7 @@ export default function TermsOfService() {
             <li>Interfere with or disrupt the service or servers</li>
             <li>Harass, abuse, or harm other users</li>
             <li>Use automated systems to access the service without permission</li>
-            <li>Falsify achievement data or game progress</li>
+            <li>Falsify trophy data or game progress</li>
           </ul>
         </section>
 
@@ -85,7 +85,7 @@ export default function TermsOfService() {
             other intellectual property laws.
           </p>
           <p className={styles.paragraph}>
-            Game titles, logos, and achievement data displayed on Trophy Rooms are the property
+            Game titles, logos, and trophy data displayed on Trophy Rooms are the property
             of their respective owners. Trophy Rooms does not claim ownership of third-party
             intellectual property.
           </p>

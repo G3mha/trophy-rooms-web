@@ -39,7 +39,7 @@ export default function PrivacyPolicy() {
           </p>
           <ul className={styles.list}>
             <li>Account information (email address, username, profile picture)</li>
-            <li>Gaming data (games you track, achievements you mark as completed)</li>
+            <li>Gaming data (games you track, trophies you mark as earned)</li>
             <li>Communications with us (support requests, feedback)</li>
           </ul>
           <p className={styles.paragraph}>
@@ -60,7 +60,7 @@ export default function PrivacyPolicy() {
           <ul className={styles.list}>
             <li>Provide, maintain, and improve our services</li>
             <li>Create and manage your account</li>
-            <li>Track your gaming achievements and progress</li>
+            <li>Track your trophies and progress</li>
             <li>Generate leaderboards and activity feeds</li>
             <li>Respond to your comments, questions, and support requests</li>
             <li>Send you technical notices and updates</li>
@@ -99,7 +99,7 @@ export default function PrivacyPolicy() {
             Apple account data.
           </p>
           <p className={styles.paragraph}>
-            <strong>Cloudflare (Images):</strong> Achievement images are served from
+            <strong>Cloudflare (Images):</strong> Trophy images are served from
             Cloudflare&apos;s network at assets.trophyrooms.org. When the website or app loads
             one, Cloudflare receives your IP address and standard request details, like your
             browser type, to deliver it. Visit{" "}
