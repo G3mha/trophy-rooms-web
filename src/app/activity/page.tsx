@@ -108,7 +108,7 @@ export default function ActivityPage() {
             className={`${styles.filterBtn} ${filter === "trophies" ? styles.filterActive : ""}`}
           >
             <Trophy className={styles.filterIcon} size={16} />
-            Trophies Only
+            Platinums Only
           </button>
         </div>
 
@@ -119,7 +119,7 @@ export default function ActivityPage() {
           </div>
           <div className={styles.heroStat}>
             <Trophy size={16} />
-            <span>{trophyCount} trophy moments</span>
+            <span>{trophyCount} Platinums</span>
           </div>
           <div className={styles.heroStat}>
             <Flame size={16} />
@@ -164,7 +164,7 @@ export default function ActivityPage() {
       <div className={styles.infoBanner}>
         <Lightbulb className={styles.infoIcon} size={18} />
         <p>
-          Activity shows the latest achievements and trophies earned by the community.
+          Activity shows the latest trophies and Platinums earned by the community.
           Your own activity is highlighted!
         </p>
       </div>

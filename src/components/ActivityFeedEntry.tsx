@@ -84,7 +84,7 @@ export function ActivityFeedEntry({
             {displayName}
           </Link>
           <span className={styles.action}>
-            {type === "trophy" ? "earned the Platinum Trophy for" : "unlocked"}
+            {type === "trophy" ? "earned the Platinum for" : "unlocked"}
           </span>
         </div>
 

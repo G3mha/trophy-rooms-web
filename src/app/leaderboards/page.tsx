@@ -64,9 +64,9 @@ const TABS: {
   },
   {
     id: "achievements",
-    label: "Achievement Hunters",
+    label: "Trophy Hunters",
     Icon: Trophy,
-    description: "Most achievements earned",
+    description: "Most trophies earned",
   },
   {
     id: "games",
@@ -82,16 +82,16 @@ const TABS: {
   },
 ];
 
-// Achievements show as a trophy icon; the word stays for screen readers
+// Trophies show as a trophy icon; the word stays for screen readers
 const ACHIEVEMENTS_LABEL = (
   <>
     <Trophy size={12} className="inline align-[-0.125em]" aria-hidden />
-    <span className="sr-only">Achievements</span>
+    <span className="sr-only">Trophies</span>
   </>
 );
 
 const VALUE_LABELS: Record<LeaderboardTab, ReactNode> = {
-  trophies: "Trophies",
+  trophies: "Platinums",
   achievements: ACHIEVEMENTS_LABEL,
   games: "Games",
   fastest: "",
@@ -99,8 +99,8 @@ const VALUE_LABELS: Record<LeaderboardTab, ReactNode> = {
 
 const SECONDARY_LABELS: Record<LeaderboardTab, ReactNode> = {
   trophies: ACHIEVEMENTS_LABEL,
-  achievements: "Trophies",
-  games: "Trophies",
+  achievements: "Platinums",
+  games: "Platinums",
   fastest: "",
 };
 
