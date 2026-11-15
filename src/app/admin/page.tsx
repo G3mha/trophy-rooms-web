@@ -147,7 +147,7 @@ export default function AdminDashboardPage() {
     },
     {
       title: "Trophies",
-      description: "Edit individual tasks, imports, and point values inside each list.",
+      description: "Edit titles, tiers and icons, or import trophies in bulk.",
       href: "/admin/achievements",
       icon: <Star size={20} />,
     },
