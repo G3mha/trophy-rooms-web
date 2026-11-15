@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus } from "lucide-react";
+import { Package, Gamepad2, Puzzle, Calendar, DollarSign, Check, Plus, Trophy } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
 import { AppImage, Button, EmptyState, BuylistSelector, ExpandableText, PageSkeleton, QueryState } from "@/components";
@@ -380,7 +380,9 @@ export default function BundleDetailPage({
                     </p>
                   )}
                   <span className={styles.contentPill}>
-                    {game.achievementCount} achievements
+                    <Trophy size={12} aria-hidden />
+                    {game.achievementCount}
+                    <span className="sr-only"> trophies</span>
                     {game.trophyCount > 0 ? ` • ${game.trophyCount} Platinums` : ""}
                   </span>
                 </div>
