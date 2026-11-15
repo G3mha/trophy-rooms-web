@@ -221,14 +221,6 @@
   gap: 12px;
 }
 
-.progressPercent {
-  color: var(--cabinet-brass);
-  font-family: var(--font-script);
-  font-size: 1.35rem;
-  line-height: 1;
-  transform: rotate(-2.5deg);
-}
-
 .countPill,
 .progressSummary {
   flex-shrink: 0;

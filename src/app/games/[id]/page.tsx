@@ -527,9 +527,6 @@ export default function GameDetailPage({
                     </Popover.Portal>
                   </Popover.Root>
                 )}
-                {isSignedIn && !isTrophyComplete && (
-                  <span className={styles.progressPercent}>{progress}%</span>
-                )}
               </div>
               {isSignedIn ? (
                 <>
