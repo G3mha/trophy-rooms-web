@@ -136,7 +136,7 @@ export default function ActivityPage() {
             <Inbox className={styles.emptyIcon} size={48} />
             <h3 className={styles.emptyTitle}>No activity yet</h3>
             <p className={styles.emptyText}>
-              Be the first to earn an achievement!
+              Be the first to earn a trophy!
             </p>
           </div>
         ) : (
