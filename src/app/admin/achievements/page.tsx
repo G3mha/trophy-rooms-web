@@ -144,9 +144,9 @@ export default function AdminAchievementsPage() {
       setCursors(new Map([[1, null]]));
       setIsAddModalOpen(false);
       resetAddForm();
-      toast.success("Achievement created.");
+      toast.success("Trophy created.");
     },
-    onError: (error) => toast.error(error.message || "Failed to create achievement."),
+    onError: (error) => toast.error(error.message || "Failed to create trophy."),
   });
 
   const [updateAchievement, { loading: updating }] = useMutation(UPDATE_ACHIEVEMENT, {
@@ -159,9 +159,9 @@ export default function AdminAchievementsPage() {
       refetch();
       setIsEditModalOpen(false);
       resetEditForm();
-      toast.success("Achievement updated.");
+      toast.success("Trophy updated.");
     },
-    onError: (error) => toast.error(error.message || "Failed to update achievement."),
+    onError: (error) => toast.error(error.message || "Failed to update trophy."),
   });
 
   const [deleteAchievement] = useMutation(DELETE_ACHIEVEMENT, {
@@ -172,9 +172,9 @@ export default function AdminAchievementsPage() {
         return;
       }
       refetch();
-      toast.success("Achievement deleted.");
+      toast.success("Trophy deleted.");
     },
-    onError: (error) => toast.error(error.message || "Failed to delete achievement."),
+    onError: (error) => toast.error(error.message || "Failed to delete trophy."),
   });
 
   const [bulkDelete, { loading: bulkDeleting }] = useMutation(BULK_DELETE_ACHIEVEMENTS, {
@@ -188,7 +188,7 @@ export default function AdminAchievementsPage() {
       setSelectedIds(new Set());
       toast.success(`Deleted ${data?.bulkDeleteAchievements?.deletedCount || 0} achievement(s).`);
     },
-    onError: (error) => toast.error(error.message || "Failed to delete achievements."),
+    onError: (error) => toast.error(error.message || "Failed to delete trophies."),
   });
 
   const [bulkCreate, { loading: importing }] = useMutation(BULK_CREATE_ACHIEVEMENTS, {
@@ -205,7 +205,7 @@ export default function AdminAchievementsPage() {
       setCursors(new Map([[1, null]]));
       toast.success(`Imported ${data?.bulkCreateAchievements?.createdCount || 0} achievement(s).`);
     },
-    onError: (error) => toast.error(error.message || "Failed to import achievements."),
+    onError: (error) => toast.error(error.message || "Failed to import trophies."),
   });
 
   const sets: AchievementSet[] = setsData?.achievementSets || [];
@@ -220,7 +220,7 @@ export default function AdminAchievementsPage() {
   const totalCount = achievementsData?.achievements?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / pageSize);
 
-  // Filter achievements by search (client-side for current page)
+  // Filter trophies by search (client-side for current page)
   const filteredAchievements = debouncedSearch
     ? achievements.filter(
         (a) =>
@@ -353,8 +353,8 @@ export default function AdminAchievementsPage() {
     <div>
       <div className={styles.sectionHeader}>
         <div>
-          <h1 className={styles.pageTitle}>Achievements</h1>
-          <p className={styles.sectionSubtitle}>Manage individual achievements.</p>
+          <h1 className={styles.pageTitle}>Trophies</h1>
+          <p className={styles.sectionSubtitle}>Manage individual trophies.</p>
         </div>
         <div className={styles.headerActions}>
           {selectedSetId && (
@@ -380,12 +380,12 @@ export default function AdminAchievementsPage() {
         </div>
       </div>
 
-      {/* Achievement Set Selector */}
+      {/* Trophy List Selector */}
       <div className={`${styles.contextPanel} ${styles.contextPanelCompact}`}>
         <div className={styles.contextPanelHeader}>
-          <h2 className={styles.contextPanelTitle}>Achievement Set</h2>
+          <h2 className={styles.contextPanelTitle}>Trophy List</h2>
           <p className={styles.contextPanelDescription}>
-            Pick the set you want to manage before editing individual achievements.
+            Pick the list you want to manage before editing individual trophies.
           </p>
         </div>
         <Select value={selectedSetId} onValueChange={handleSetChange}>
@@ -395,7 +395,7 @@ export default function AdminAchievementsPage() {
                 const selectedSet = sets.find((s) => s.id === selectedSetId);
                 return selectedSet
                   ? `${selectedSet.title} (${selectedSet.gameFamily?.title || "No game"})`
-                  : "Select an achievement set...";
+                  : "Select a trophy list...";
               })()}
             </span>
           </SelectTrigger>
@@ -415,7 +415,7 @@ export default function AdminAchievementsPage() {
           <div className={styles.contextPanelHeader}>
             <h2 className={styles.contextPanelTitle}>CSV Import</h2>
             <p className={styles.contextPanelDescription}>
-              Paste rows in the format `title,description` to create achievements in bulk.
+              Paste rows in the format `title,description` to create trophies in bulk.
             </p>
           </div>
           <Textarea
@@ -444,7 +444,7 @@ export default function AdminAchievementsPage() {
               <input
                 type="text"
                 className={styles.searchInput}
-                placeholder="Search achievements..."
+                placeholder="Search trophies..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -455,13 +455,13 @@ export default function AdminAchievementsPage() {
             </Button>
           </div>
 
-          {/* Add Achievement Modal */}
+          {/* Add Trophy Modal */}
           <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
             <DialogContent className="sm:max-w-[480px]">
               <DialogHeader>
-                <DialogTitle>Add New Achievement</DialogTitle>
+                <DialogTitle>Add New Trophy</DialogTitle>
                 <DialogDescription>
-                  Create a new achievement for {selectedSet?.title || "this set"}.
+                  Create a new trophy for {selectedSet?.title || "this list"}.
                 </DialogDescription>
               </DialogHeader>
 
@@ -483,7 +483,7 @@ export default function AdminAchievementsPage() {
                   />
                 </FormField>
 
-                <FormField label="Icon URL" hint="Optional direct image URL for the achievement icon.">
+                <FormField label="Icon URL" hint="Optional direct image URL for the trophy icon.">
                   <Input
                     placeholder="https://example.com/icon.png"
                     value={newIconUrl}
@@ -513,16 +513,16 @@ export default function AdminAchievementsPage() {
             </DialogContent>
           </Dialog>
 
-          {/* Edit Achievement Modal */}
+          {/* Edit Trophy Modal */}
           <Dialog open={isEditModalOpen} onOpenChange={(open) => {
             setIsEditModalOpen(open);
             if (!open) resetEditForm();
           }}>
             <DialogContent className="sm:max-w-[480px]">
               <DialogHeader>
-                <DialogTitle>Edit Achievement</DialogTitle>
+                <DialogTitle>Edit Trophy</DialogTitle>
                 <DialogDescription>
-                  Update achievement details.
+                  Update trophy details.
                 </DialogDescription>
               </DialogHeader>
 
@@ -544,7 +544,7 @@ export default function AdminAchievementsPage() {
                   />
                 </FormField>
 
-                <FormField label="Icon URL" hint="Optional direct image URL for the achievement icon.">
+                <FormField label="Icon URL" hint="Optional direct image URL for the trophy icon.">
                   <Input
                     placeholder="https://example.com/icon.png"
                     value={editIconUrl}
@@ -575,7 +575,7 @@ export default function AdminAchievementsPage() {
           </Dialog>
 
           {loading ? (
-            <PageSkeleton variant="rows" label="Loading achievements" header={false} />
+            <PageSkeleton variant="rows" label="Loading trophies" header={false} />
           ) : (
             <>
               {/* Select All Bar */}
@@ -603,7 +603,7 @@ export default function AdminAchievementsPage() {
                 </div>
               )}
 
-              {/* Achievements List */}
+              {/* Trophies List */}
               <div className={styles.itemsGrid}>
                 {filteredAchievements.map((achievement) => (
                   <div
@@ -654,8 +654,8 @@ export default function AdminAchievementsPage() {
                 {filteredAchievements.length === 0 && (
                   <p className={styles.emptyState}>
                     {searchQuery
-                      ? `No achievements found matching "${searchQuery}"`
-                      : "No achievements in this set yet. Click Add Achievement to create one."}
+                      ? `No trophies found matching "${searchQuery}"`
+                      : "No trophies in this list yet. Click Add Trophy to create one."}
                   </p>
                 )}
               </div>
@@ -678,7 +678,7 @@ export default function AdminAchievementsPage() {
 
       {!selectedSetId && (
         <p className={styles.emptyState}>
-          Select an achievement set above to manage its achievements.
+          Select a trophy list above to manage its trophies.
         </p>
       )}
 
@@ -695,8 +695,8 @@ export default function AdminAchievementsPage() {
         }
         description={
           confirmAction === "bulk"
-            ? "All selected achievements will be permanently deleted."
-            : "This achievement will be permanently deleted."
+            ? "All selected trophies will be permanently deleted."
+            : "This trophy will be permanently deleted."
         }
         confirmLabel="Delete"
       />
