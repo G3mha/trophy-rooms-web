@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Trophy, Medal } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { getInitials, getAvatarColor, getDisplayName } from "@/lib/avatar-utils";
 import styles from "./ActivityFeedEntry.module.css";
 
@@ -98,7 +98,7 @@ export function ActivityFeedEntry({
           </div>
         ) : (
           <div className={styles.achievementInfo}>
-            <Medal className={styles.tierIcon} size={16} color={getTierColor(achievementTier)} />
+            <Trophy className={styles.tierIcon} size={16} color={getTierColor(achievementTier)} />
             <span className={styles.achievementTitle}>{achievementTitle}</span>
           </div>
         )}
