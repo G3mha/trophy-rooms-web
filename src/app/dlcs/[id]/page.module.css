@@ -351,3 +351,8 @@
     height: 112px;
   }
 }
+
+.sectionNote {
+  margin: -6px 0 18px;
+  color: var(--text-secondary);
+}
