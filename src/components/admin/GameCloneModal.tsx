@@ -23,7 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 interface GameCloneModalProps {
   gameFamilyId: string;
   gameTitle: string;
-  /** Source game ID for clone with achievements (required if copyAchievements is used) */
+  /** Source game ID for clone with trophies (required if copyAchievements is used) */
   gameId?: string;
   /** Current platform ID to exclude from selection */
   currentPlatformId?: string;
@@ -63,14 +63,14 @@ export function GameCloneModal({
       return;
     }
 
-    // Clone with achievements requires gameId and single platform selection
+    // Clone with trophies requires gameId and single platform selection
     if (copyAchievements) {
       if (!gameId) {
-        setError("Cannot copy achievements without source game ID.");
+        setError("Cannot copy trophies without source game ID.");
         return;
       }
       if (targetPlatformIds.size > 1) {
-        setError("Select only one platform when copying achievements.");
+        setError("Select only one platform when copying trophies.");
         return;
       }
     }
@@ -82,7 +82,7 @@ export function GameCloneModal({
 
       for (const platformId of targetPlatformIds) {
         if (copyAchievements && gameId) {
-          // Use cloneGameToPlatform for achievement copying
+          // Use cloneGameToPlatform for trophy copying
           const { data } = await cloneGame({
             variables: {
               gameId,
@@ -115,7 +115,7 @@ export function GameCloneModal({
       if (successCount === 0) {
         toast.error("Failed to add platforms.");
       } else if (copyAchievements) {
-        toast.success(`Cloned ${gameTitle} with achievement sets.`);
+        toast.success(`Cloned ${gameTitle} with trophy lists.`);
       } else if (successCount === 1) {
         toast.success(`Added ${gameTitle} to 1 platform.`);
       } else {
@@ -201,10 +201,10 @@ export function GameCloneModal({
                   htmlFor="copyAchievements"
                   className="text-sm font-medium text-[var(--text-primary)] cursor-pointer"
                 >
-                  Copy achievement sets
+                  Copy trophy lists
                 </label>
                 <span className="text-xs text-[var(--text-muted)]">
-                  Clone all achievement sets and achievements to the new platform
+                  Clone all trophy lists and trophies to the new platform
                 </span>
               </div>
             </div>

@@ -34,7 +34,7 @@ function getEntityLabel(type: EntityType): string {
     case "bundle":
       return "Bundle";
     case "achievementSet":
-      return "Achievement Set";
+      return "Trophy List";
     case "dlc":
       return "DLC";
   }
@@ -107,7 +107,7 @@ export function AdminFloatingToolbar() {
           },
           {
             icon: <Trophy size={16} />,
-            label: "Manage Achievements",
+            label: "Manage Trophies",
             onClick: handleManageAchievements,
           },
           {
@@ -139,7 +139,7 @@ export function AdminFloatingToolbar() {
         return [
           {
             icon: <Pencil size={16} />,
-            label: "Edit Set",
+            label: "Edit List",
             onClick: handleViewInAdmin,
           },
           {
