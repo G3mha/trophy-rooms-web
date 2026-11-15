@@ -24,7 +24,7 @@ import {
 import styles from "./page.module.css";
 
 interface GameProgressData {
-  gameId: string;
+  gameFamilyId: string;
   gameTitle: string;
   gameCoverUrl: string | null;
   earnedCount: number;
@@ -129,8 +129,7 @@ export default function PublicProfilePage({
           <div className={styles.progressGrid}>
             {completedGames.map((game) => (
               <GameProgressCard
-                key={game.gameId}
-                gameId={game.gameId}
+                key={game.gameFamilyId}
                 gameTitle={game.gameTitle}
                 gameCoverUrl={game.gameCoverUrl}
                 earnedCount={game.earnedCount}
@@ -155,8 +154,7 @@ export default function PublicProfilePage({
           <div className={styles.progressGrid}>
             {inProgressGames.map((game) => (
               <GameProgressCard
-                key={game.gameId}
-                gameId={game.gameId}
+                key={game.gameFamilyId}
                 gameTitle={game.gameTitle}
                 gameCoverUrl={game.gameCoverUrl}
                 earnedCount={game.earnedCount}

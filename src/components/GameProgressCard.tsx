@@ -6,7 +6,6 @@ import { AppImage } from "./AppImage";
 import styles from "./GameProgressCard.module.css";
 
 interface GameProgressCardProps {
-  gameId: string;
   gameTitle: string;
   gameCoverUrl?: string | null;
   earnedCount: number;
@@ -18,7 +17,6 @@ interface GameProgressCardProps {
 }
 
 export function GameProgressCard({
-  gameId,
   gameTitle,
   gameCoverUrl,
   earnedCount,
@@ -31,10 +29,13 @@ export function GameProgressCard({
   // The API reports 0 to 1. Round down, so 199 of 200 reads 99% rather than 100%
   const percent = Math.floor(percentComplete * 100);
   const isComplete = percent === 100;
+  // Progress is tracked per family, so the card opens the family page. Its
+  // slug is the lowercased title with dashes, the same as the home page's.
+  const href = `/games/title/${encodeURIComponent(gameTitle.toLowerCase().replace(/\s+/g, "-"))}`;
 
   return (
     <Link
-      href={`/games/${gameId}`}
+      href={href}
       className={`${styles.card} ${isComplete ? styles.cardComplete : ""} ${compact ? styles.cardCompact : ""}`}
     >
       {/* Cover Image */}
