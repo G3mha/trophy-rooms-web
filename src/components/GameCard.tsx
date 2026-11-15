@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Gamepad2, Trophy, Star } from "lucide-react";
+import { Gamepad2, Trophy } from "lucide-react";
 import { AppImage } from "./AppImage";
 import { PlatformIcon } from "./PlatformIcon";
 import styles from "./GameCard.module.css";
@@ -60,9 +60,9 @@ export function GameCard({
         )}
         {!compact && (
           <div className={styles.stats}>
-            <div className={styles.stat}>
-              <Star size={14} className={styles.statIcon} />
-              <span>{achievementCount} achievements</span>
+            <div className={styles.stat} title={`${achievementCount} achievements`}>
+              <Trophy size={14} className={styles.statIcon} aria-hidden />
+              <span>{achievementCount}<span className="sr-only"> achievements</span></span>
             </div>
             {platform && (
               <div className={styles.stat}>

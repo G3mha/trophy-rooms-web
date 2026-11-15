@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Gamepad2, Trophy, Star } from "lucide-react";
+import { Gamepad2, Trophy } from "lucide-react";
 import { AppImage } from "./AppImage";
 import { PlatformIcon } from "./PlatformIcon";
 import styles from "./GroupedGameCard.module.css";
@@ -57,9 +57,9 @@ export function GroupedGameCard({
       <div className={styles.content}>
         <h3 className={styles.title}>{title}</h3>
         <div className={styles.stats}>
-          <div className={styles.stat}>
-            <Star size={14} className={styles.statIcon} />
-            <span>{totalAchievementCount} achievements</span>
+          <div className={styles.stat} title={`${totalAchievementCount} achievements`}>
+            <Trophy size={14} className={styles.statIcon} aria-hidden />
+            <span>{totalAchievementCount}<span className="sr-only"> achievements</span></span>
           </div>
         </div>
         <div className={styles.platformsRow}>
