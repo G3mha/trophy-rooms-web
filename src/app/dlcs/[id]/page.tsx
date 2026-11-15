@@ -34,6 +34,9 @@ const GET_DLC_DETAIL = gql`
       achievementSets {
         id
         title
+        type
+        visibility
+        countsTowardTrophy
         achievementCount
       }
       achievementSetCount
@@ -82,7 +85,28 @@ interface GameFamily {
 interface AchievementSet {
   id: string;
   title: string;
+  type: "OFFICIAL" | "COMPLETIONIST" | "CUSTOM";
+  visibility: "PRIVATE" | "PUBLIC";
+  countsTowardTrophy: boolean;
   achievementCount: number;
+}
+
+// Same three groups as the game page: sets that gate the trophy, bonus lists,
+// and the viewer's own private checklists
+function groupSets(sets: AchievementSet[]) {
+  const isPrivateCustom = (set: AchievementSet) =>
+    set.type === "CUSTOM" && set.visibility === "PRIVATE";
+  const gatesTrophy = (set: AchievementSet) =>
+    set.countsTowardTrophy && (set.type !== "CUSTOM" || set.visibility === "PUBLIC");
+  return [
+    { title: "For the Trophy", note: null, sets: sets.filter(gatesTrophy) },
+    {
+      title: "Extra Lists",
+      note: "These don't count toward the trophy.",
+      sets: sets.filter((set) => !gatesTrophy(set) && !isPrivateCustom(set)),
+    },
+    { title: "Your Lists", note: null, sets: sets.filter(isPrivateCustom) },
+  ].filter((group) => group.sets.length > 0);
 }
 
 interface Bundle {
@@ -357,14 +381,14 @@ export default function DLCDetailPage({
         </section>
       )}
 
-      {dlc.achievementSets.length > 0 && (
-        <section className={styles.sectionPanel}>
+      {groupSets(dlc.achievementSets).map((group) => (
+        <section key={group.title} className={styles.sectionPanel}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Achievement Sets</h2>
-            <span className={styles.countPill}>{dlc.achievementSets.length}</span>
+            <h2 className={styles.sectionTitle}>{group.title}</h2>
           </div>
+          {group.note && <p className={styles.sectionNote}>{group.note}</p>}
           <div className={styles.contentList}>
-            {dlc.achievementSets.map((set) => (
+            {group.sets.map((set) => (
               <div key={set.id} className={styles.contentCard}>
                 <div className={styles.iconTile}>
                   <Award size={20} />
@@ -379,7 +403,7 @@ export default function DLCDetailPage({
             ))}
           </div>
         </section>
-      )}
+      ))}
 
       {dlc.bundles.length > 0 && (
         <section className={styles.sectionPanel}>
