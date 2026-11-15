@@ -647,9 +647,89 @@
   }
 }
 
-.progressPanel .achievementGroupList,
-.achievementGroupList + .listForms {
-  margin-top: 18px;
+/* The trophy stands in a backlit cabinet niche; --glow is how lit it is */
+.trophyHero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 26px;
+}
+
+.trophyNiche {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 150px;
+  height: 172px;
+  border: 1px solid rgba(201, 164, 92, 0.28);
+  border-bottom: 9px solid #b08d54;
+  border-radius: 6px;
+  background:
+    radial-gradient(
+      ellipse 62% 105% at 50% 100%,
+      rgba(255, 196, 116, calc(0.78 * var(--glow))),
+      rgba(255, 190, 110, calc(0.3 * var(--glow))) 58%,
+      transparent 82%
+    ),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.5) 0%, transparent 38%),
+    linear-gradient(90deg, #1d1108 0%, #33200f 50%, #1d1108 100%);
+}
+
+.trophyShape {
+  display: block;
+  width: 98px;
+  color: var(--cabinet-ink);
+  fill: var(--cabinet-ink);
+}
+
+.trophyBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trophyLine {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.tierGroup + .tierGroup {
+  margin-top: 24px;
+}
+
+.tierHeading {
+  margin: 0 0 10px;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.listSource {
+  margin: 20px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+
+@media (max-width: 520px) {
+  .trophyHero {
+    gap: 16px;
+  }
+
+  .trophyNiche {
+    width: 96px;
+    height: 116px;
+  }
+
+  .trophyShape {
+    width: 62px;
+  }
 }
 
 .sectionNote {
@@ -662,14 +742,4 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
-}
-
-.listForms summary {
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-weight: 700;
-}
-
-.listForms[open] summary {
-  margin-bottom: 16px;
 }
