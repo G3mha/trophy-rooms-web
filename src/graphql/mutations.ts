@@ -170,23 +170,6 @@ export const DELETE_ACHIEVEMENT_SET = gql`
   }
 `;
 
-export const PUBLISH_ACHIEVEMENT_SET = gql`
-  mutation PublishAchievementSet($id: ID!) {
-    publishAchievementSet(id: $id) {
-      success
-      achievementSet {
-        ...AchievementSetFields
-      }
-      error {
-        code
-        message
-        field
-      }
-    }
-  }
-  ${ACHIEVEMENT_SET_FRAGMENT}
-`;
-
 // User achievement mutations
 export const MARK_ACHIEVEMENT_COMPLETE = gql`
   mutation MarkAchievementComplete($achievementId: ID!) {

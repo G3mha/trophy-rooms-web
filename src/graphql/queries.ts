@@ -214,15 +214,6 @@ export const GET_ACHIEVEMENT_SETS = gql`
   ${ACHIEVEMENT_SET_FRAGMENT}
 `;
 
-export const GET_MY_ACHIEVEMENT_SETS = gql`
-  query GetMyAchievementSets {
-    myAchievementSets {
-      ...AchievementSetFields
-    }
-  }
-  ${ACHIEVEMENT_SET_FRAGMENT}
-`;
-
 export const GET_ME = gql`
   query GetMe {
     me {
