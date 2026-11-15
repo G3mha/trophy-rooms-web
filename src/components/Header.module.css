@@ -64,24 +64,6 @@
   position: relative;
 }
 
-.dropdownTrigger {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.dropdownArrow {
-  transition: transform 0.2s ease;
-}
-
-.dropdown:hover .dropdownArrow {
-  transform: rotate(180deg);
-}
-
 .dropdownMenu {
   position: absolute;
   top: 100%;
@@ -227,6 +209,12 @@
   max-width: 240px;
 }
 
+.menuDivider {
+  height: 1px;
+  margin: 6px 0;
+  background: var(--border-color);
+}
+
 .signOutItem {
   width: 100%;
   background: none;
@@ -234,24 +222,6 @@
   cursor: pointer;
   font-family: inherit;
   text-align: left;
-}
-
-.userSection {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.adminBadge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  background: rgba(201, 44, 60, 0.15);
-  border: 1px solid var(--nintendo-red);
-  border-radius: 6px;
-  color: var(--nintendo-red);
 }
 
 @media (max-width: 768px) {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@apollo/client";
-import { ChevronDown, LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield, CalendarClock, LogOut } from "lucide-react";
+import { LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield, CalendarClock, LogOut } from "lucide-react";
 import { GET_ME } from "@/graphql/queries";
 import { useAuth } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -26,8 +26,12 @@ const myStuffLinks = [
   { href: "/collection", label: "My Collection", Icon: Disc },
 ];
 
-function UserMenu() {
+function UserMenu({ isAdmin }: { isAdmin: boolean }) {
   const { user } = useAuth();
+  const pathname = usePathname();
+  const menuLinks = isAdmin
+    ? [...myStuffLinks, { href: "/admin", label: "Admin", Icon: Shield }]
+    : myStuffLinks;
 
   const metadata = user?.user_metadata ?? {};
   const avatarUrl = metadata.avatar_url ?? metadata.picture;
@@ -52,6 +56,20 @@ function UserMenu() {
       </button>
       <div className={`${styles.dropdownMenu} ${styles.userMenuDropdown}`}>
         <p className={styles.userEmail}>{user?.email}</p>
+        {menuLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            prefetch={false}
+            className={`${styles.dropdownItem} ${
+              pathname === link.href ? styles.dropdownItemActive : ""
+            }`}
+          >
+            <link.Icon className={styles.dropdownIcon} size={16} />
+            {link.label}
+          </Link>
+        ))}
+        <div className={styles.menuDivider} />
         <button
           type="button"
           className={`${styles.dropdownItem} ${styles.signOutItem}`}
@@ -71,8 +89,6 @@ export function Header() {
   const { data } = useQuery(GET_ME, { skip: !isSignedIn });
   const role = data?.me?.role;
   const isAdmin = role === "ADMIN" || role === "TRUSTED";
-
-  const isMyStuffActive = myStuffLinks.some((link) => pathname === link.href);
 
   return (
     <header className={styles.header}>
@@ -100,43 +116,6 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          {isSignedIn && (
-            <div className={styles.dropdown}>
-              <button
-                className={`${styles.navLink} ${styles.dropdownTrigger} ${
-                  isMyStuffActive ? styles.navLinkActive : ""
-                }`}
-              >
-                My Stuff
-                <ChevronDown className={styles.dropdownArrow} size={14} />
-              </button>
-              <div className={styles.dropdownMenu}>
-                {myStuffLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    prefetch={false}
-                    className={`${styles.dropdownItem} ${
-                      pathname === link.href ? styles.dropdownItemActive : ""
-                    }`}
-                  >
-                    <link.Icon className={styles.dropdownIcon} size={16} />
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className={`${styles.navLink} ${
-                pathname === "/admin" ? styles.navLinkActive : ""
-              }`}
-            >
-              Admin
-            </Link>
-          )}
         </nav>
 
         <div className={styles.actions}>
@@ -150,16 +129,7 @@ export function Header() {
               </Link>
             </>
           )}
-          {isSignedIn && (
-            <div className={styles.userSection}>
-              {isAdmin && (
-                <span className={styles.adminBadge} title="Admin">
-                  <Shield size={14} />
-                </span>
-              )}
-              <UserMenu />
-            </div>
-          )}
+          {isSignedIn && <UserMenu isAdmin={isAdmin} />}
         </div>
       </div>
     </header>
