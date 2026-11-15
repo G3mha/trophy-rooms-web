@@ -6,8 +6,7 @@
 
 .hero,
 .sectionPanel,
-.progressPanel,
-.creatorPanel {
+.progressPanel {
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 20px 48px rgba(0, 0, 0, 0.18);
 }
@@ -184,8 +183,7 @@
 }
 
 .sectionPanel,
-.progressPanel,
-.creatorPanel {
+.progressPanel {
   margin-bottom: 24px;
   padding: 24px;
   border-radius: 28px;
@@ -309,45 +307,6 @@
   transition: width 0.35s ease;
 }
 
-.crimsonTrophy {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 18px;
-  padding: 16px 18px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, rgba(229, 228, 226, 0.12), rgba(188, 196, 207, 0.12));
-  border: 1px solid rgba(229, 228, 226, 0.35);
-}
-
-.crimsonIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.07);
-  color: #e5e4e2;
-}
-
-.crimsonContent {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.crimsonTitle {
-  color: var(--text-primary);
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.crimsonSubtitle {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
 .achievementGroupList,
 .achievementList {
   display: flex;
@@ -355,8 +314,7 @@
   gap: 16px;
 }
 
-.setCard,
-.formCard {
+.setCard {
   padding: 20px;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.03);
@@ -371,103 +329,10 @@
   margin-bottom: 16px;
 }
 
-.setTitle,
-.formTitle {
+.setTitle {
   margin: 0;
   color: var(--text-primary);
   font-size: 1.1rem;
-}
-
-.setMetaRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.metaBadge,
-.metaBadgeMuted {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 0.73rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.metaBadge {
-  background: rgba(255, 208, 138, 0.14);
-  color: #ffda75;
-}
-
-.metaBadgeMuted {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
-}
-
-.creatorGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-.formCopy {
-  margin: 10px 0 0;
-  color: var(--text-secondary);
-  line-height: 1.65;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 18px;
-}
-
-.inlineFields {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.label {
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.input,
-.textarea,
-.select {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.035);
-  color: var(--text-primary);
-  font-size: 14px;
-}
-
-.input:focus,
-.textarea:focus,
-.select:focus {
-  outline: none;
-  border-color: rgba(255, 159, 171, 0.36);
-  box-shadow: 0 0 0 3px rgba(201, 44, 60, 0.12);
-}
-
-.textarea {
-  min-height: 110px;
-  resize: vertical;
 }
 
 .trophyHolders {
@@ -589,17 +454,6 @@
   font-weight: 600;
 }
 
-.error {
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(201, 44, 60, 0.08);
-  color: var(--cabinet-brass-light);
-}
-
-.error p {
-  margin: 0;
-}
-
 @media (max-width: 960px) {
   .hero {
     grid-template-columns: 1fr;
@@ -618,13 +472,8 @@
 
   .hero,
   .sectionPanel,
-  .progressPanel,
-  .creatorPanel {
+  .progressPanel {
     padding: 20px;
-  }
-
-  .inlineFields {
-    grid-template-columns: 1fr;
   }
 
   .modalImage {
