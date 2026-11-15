@@ -4,7 +4,7 @@ import { use, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@apollo/client";
-import { ArrowLeft, Gamepad2, Monitor, Star, Trophy } from "lucide-react";
+import { ArrowLeft, Gamepad2, Monitor, Trophy } from "lucide-react";
 import { GET_GAMES_BY_TITLE } from "@/graphql/queries";
 import { AppImage, Button, EmptyState, PlatformIcon, PageSkeleton, QueryState } from "@/components";
 import styles from "./page.module.css";
@@ -150,9 +150,12 @@ export default function GameFamilyPage({
                   </span>
                 </div>
                 <div className={styles.versionStats}>
-                  <div className={styles.versionStat}>
-                    <Star size={16} className={styles.versionStatIcon} />
-                    <span>{game.achievementCount} trophies</span>
+                  <div className={styles.versionStat} title={`${game.achievementCount} trophies`}>
+                    <Trophy size={16} className={styles.versionStatIcon} aria-hidden />
+                    <span>
+                      {game.achievementCount}
+                      <span className="sr-only"> trophies</span>
+                    </span>
                   </div>
                   {game.trophyCount > 0 && (
                     <div className={styles.versionStat}>
