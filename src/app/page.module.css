@@ -105,6 +105,7 @@
 }
 
 .heroPanel {
+  position: relative;
   display: flex;
   flex-direction: column;
 }
@@ -143,7 +144,8 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 12px;
-  padding-bottom: 24px;
+  /* Clears the arrows: 16px off the shelf, 32px tall, then a 12px gap */
+  padding-bottom: 60px;
 }
 
 .spotlightText {
@@ -170,7 +172,12 @@
   white-space: nowrap;
 }
 
+/* Sits on the shelf in the cabinet's bottom-right corner. The shelf is
+   14px tall, so 14px + 16px leaves the same 16px gap as the right edge. */
 .spotlightNav {
+  position: absolute;
+  right: 16px;
+  bottom: 30px;
   display: flex;
   gap: 8px;
 }

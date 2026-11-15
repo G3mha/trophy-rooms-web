@@ -206,30 +206,30 @@ function HeroSpotlight({ families, loading }: { families: GameGroup[]; loading: 
                   .
                 </p>
               </div>
-              {count > 1 && (
-                <div className={styles.spotlightNav}>
-                  <button
-                    type="button"
-                    className={styles.spotlightArrow}
-                    aria-label="Previous game"
-                    onClick={() => setIndex((index - 1 + count) % count)}
-                  >
-                    <ChevronLeft size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.spotlightArrow}
-                    aria-label="Next game"
-                    onClick={() => setIndex((index + 1) % count)}
-                  >
-                    <ChevronRight size={18} />
-                  </button>
-                </div>
-              )}
             </div>
           </>
         )}
       </TrophyCase>
+      {family && count > 1 && (
+        <div className={styles.spotlightNav}>
+          <button
+            type="button"
+            className={styles.spotlightArrow}
+            aria-label="Previous game"
+            onClick={() => setIndex((index - 1 + count) % count)}
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            type="button"
+            className={styles.spotlightArrow}
+            aria-label="Next game"
+            onClick={() => setIndex((index + 1) % count)}
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
