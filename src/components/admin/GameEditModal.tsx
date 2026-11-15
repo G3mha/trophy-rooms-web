@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { GET_GAME } from "@/graphql/queries";
 import { GET_GAMES_ADMIN, GET_PLATFORMS } from "@/graphql/admin_queries";
 import { CREATE_GAME, UPDATE_GAME } from "@/graphql/admin_mutations";
-import { Button } from "@/components";
+import { Button, Skeleton } from "@/components";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -305,8 +305,13 @@ export function GameEditModal({
             <DialogDescription>Loading game data...</DialogDescription>
           </DialogHeader>
           <DialogBody>
-            <div className="flex items-center justify-center py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--nintendo-red)] border-t-transparent" />
+            <div role="status" aria-label="Loading game" className="space-y-5 py-2">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="space-y-2">
+                  <Skeleton className="h-3.5 w-24" />
+                  <Skeleton className="h-10 w-full rounded-md" />
+                </div>
+              ))}
             </div>
           </DialogBody>
         </DialogContent>
