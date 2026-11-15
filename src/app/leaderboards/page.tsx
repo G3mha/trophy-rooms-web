@@ -104,6 +104,11 @@ const SECONDARY_LABELS: Record<LeaderboardTab, ReactNode> = {
   fastest: "",
 };
 
+// "1 Platinum", not "1 Platinums". Icon labels pass through unchanged
+function labelFor(label: ReactNode, count?: number): ReactNode {
+  return count === 1 && typeof label === "string" ? label.replace(/s$/, "") : label;
+}
+
 export default function LeaderboardsPage() {
   const [activeTab, setActiveTab] = useState<LeaderboardTab>("trophies");
   const { isSignedIn } = useAuth();
@@ -224,7 +229,7 @@ export default function LeaderboardsPage() {
                 </h3>
                 {"value" in entry && (
                   <p className={styles.podiumValue}>
-                    {entry.value} {VALUE_LABELS[activeTab]}
+                    {entry.value} {labelFor(VALUE_LABELS[activeTab], entry.value)}
                   </p>
                 )}
                 {"completionTimeHours" in entry && (
@@ -274,9 +279,9 @@ export default function LeaderboardsPage() {
                 userId={entry.userId}
                 userName={entry.userName}
                 value={entry.value}
-                valueLabel={VALUE_LABELS[activeTab]}
+                valueLabel={labelFor(VALUE_LABELS[activeTab], entry.value)}
                 secondaryValue={entry.secondaryValue}
-                secondaryLabel={SECONDARY_LABELS[activeTab]}
+                secondaryLabel={labelFor(SECONDARY_LABELS[activeTab], entry.secondaryValue)}
                 highlight={entry.userId === currentUserId}
               />
             ))}
