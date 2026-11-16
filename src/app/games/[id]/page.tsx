@@ -216,7 +216,8 @@ export default function GameDetailPage({
       tier={achievement.tier}
       isCompleted={achievement.isCompleted}
       earnedPercent={achievement.earnedPercent}
-      onToggle={isSignedIn ? handleToggleAchievement : undefined}
+      // The backend awards the Platinum, so an extra list shows it without a tick
+      onToggle={isSignedIn && achievement.tier !== "PLATINUM" ? handleToggleAchievement : undefined}
       loading={togglingId === achievement.id}
     />
   );
