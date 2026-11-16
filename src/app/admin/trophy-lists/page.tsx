@@ -133,7 +133,8 @@ export default function AdminAchievementSetsPage() {
       }
       refetch();
       setSelectedIds(new Set());
-      toast.success(`Deleted ${data?.bulkDeleteAchievementSets?.deletedCount || 0} set(s).`);
+      const count = payload.deletedCount || 0;
+      toast.success(`Deleted ${count} ${count === 1 ? "trophy list" : "trophy lists"}.`);
     },
     onError: (error) => toast.error(error.message || "Failed to delete trophy lists."),
   });
@@ -290,7 +291,7 @@ export default function AdminAchievementSetsPage() {
         </div>
         <Button onClick={() => setIsAddModalOpen(true)}>
           <Plus size={18} />
-          Add Set
+          Add List
         </Button>
       </div>
 
@@ -351,7 +352,7 @@ export default function AdminAchievementSetsPage() {
               loading={creating}
               disabled={!newTitle || !newGameId}
             >
-              Create Set
+              Create List
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -502,7 +503,7 @@ export default function AdminAchievementSetsPage() {
         loading={bulkDeleting}
         title={
           confirmAction === "bulk"
-            ? `Delete ${selectedIds.size} set(s)?`
+            ? `Delete ${selectedIds.size} ${selectedIds.size === 1 ? "trophy list" : "trophy lists"}?`
             : `Delete ${setToDelete?.title}?`
         }
         description={
