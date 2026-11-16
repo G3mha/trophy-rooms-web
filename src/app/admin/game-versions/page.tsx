@@ -157,7 +157,8 @@ export default function AdminGameVersionsPage() {
       }
       refetch();
       setSelectedIds(new Set());
-      toast.success(`Deleted ${data?.bulkDeleteGameVersions?.deletedCount || 0} version(s).`);
+      const count = data?.bulkDeleteGameVersions?.deletedCount || 0;
+      toast.success(`Deleted ${count} ${count === 1 ? "game version" : "game versions"}.`);
     },
     onError: (error) => toast.error(error.message || "Failed to delete versions."),
   });
@@ -655,7 +656,7 @@ export default function AdminGameVersionsPage() {
         loading={bulkDeleting}
         title={
           confirmAction === "bulk"
-            ? `Delete ${selectedIds.size} version(s)?`
+            ? `Delete ${selectedIds.size} ${selectedIds.size === 1 ? "game version" : "game versions"}?`
             : `Delete ${versionToDelete?.name}?`
         }
         description={
