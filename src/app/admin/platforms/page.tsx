@@ -143,7 +143,8 @@ export default function AdminPlatformsPage() {
       }
       refetch();
       setSelectedIds(new Set());
-      toast.success(`Deleted ${data?.bulkDeletePlatforms?.deletedCount || 0} platform(s).`);
+      const count = data?.bulkDeletePlatforms?.deletedCount || 0;
+      toast.success(`Deleted ${count} ${count === 1 ? "platform" : "platforms"}.`);
     },
     onError: (error) => toast.error(error.message || "Failed to delete platforms."),
   });
@@ -862,7 +863,7 @@ export default function AdminPlatformsPage() {
         loading={bulkDeleting}
         title={
           confirmAction === "bulk"
-            ? `Delete ${selectedIds.size} platform(s)?`
+            ? `Delete ${selectedIds.size} ${selectedIds.size === 1 ? "platform" : "platforms"}?`
             : `Delete ${platformToDelete?.name}?`
         }
         description={
