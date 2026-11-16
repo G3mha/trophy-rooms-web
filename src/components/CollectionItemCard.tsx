@@ -28,14 +28,11 @@ interface Platform {
   slug: string;
 }
 
-interface Game {
-  id: string;
+interface CollectionItemCardProps {
+  // A game or a bundle: the card only needs what to show and where it links
   title: string;
   coverUrl?: string | null;
-}
-
-interface CollectionItemCardProps {
-  game: Game;
+  href: string;
   platform?: Platform | null;
   hasDisc: boolean;
   hasBox: boolean;
@@ -49,7 +46,9 @@ interface CollectionItemCardProps {
 }
 
 export function CollectionItemCard({
-  game,
+  title,
+  coverUrl,
+  href,
   platform,
   hasDisc,
   hasBox,
@@ -65,10 +64,10 @@ export function CollectionItemCard({
 
   return (
     <div className={styles.card}>
-      <Link href={`/games/${game.id}`} className={styles.imageContainer}>
+      <Link href={href} className={styles.imageContainer}>
         <AppImage
-          src={game.coverUrl}
-          alt={game.title}
+          src={coverUrl}
+          alt={title}
           className={styles.image}
           fallback={
             <div className={styles.placeholder}>
@@ -91,8 +90,8 @@ export function CollectionItemCard({
       </Link>
 
       <div className={styles.content}>
-        <Link href={`/games/${game.id}`} className={styles.titleLink}>
-          <h3 className={styles.title}>{game.title}</h3>
+        <Link href={href} className={styles.titleLink}>
+          <h3 className={styles.title}>{title}</h3>
         </Link>
 
         {platform && (

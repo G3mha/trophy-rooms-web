@@ -264,7 +264,9 @@ export default function CollectionPage() {
           {items.map((item) => (
             <CollectionItemCard
               key={item.id}
-              game={item.game}
+              title={item.game.title}
+              coverUrl={item.game.coverUrl}
+              href={`/games/${item.game.id}`}
               platform={item.platform}
               hasDisc={item.hasDisc}
               hasBox={item.hasBox}
