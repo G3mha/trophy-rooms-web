@@ -401,7 +401,7 @@ export default function AdminBundlesPage() {
       await refetch();
       setSelectedIds(new Set());
       setConfirmState(null);
-      toast.success(`Deleted ${payload.deletedCount} bundle(s).`);
+      toast.success(`Deleted ${payload.deletedCount} ${payload.deletedCount === 1 ? "bundle" : "bundles"}.`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to delete bundles."
@@ -449,7 +449,7 @@ export default function AdminBundlesPage() {
             onClick={() =>
               setConfirmState({
                 kind: "bulk",
-                title: `Delete ${selectedIds.size} bundles?`,
+                title: `Delete ${selectedIds.size} ${selectedIds.size === 1 ? "bundle" : "bundles"}?`,
                 description:
                   "Remove every selected bundle from the current filtered list.",
               })
