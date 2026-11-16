@@ -508,7 +508,7 @@ export default function AdminGamesPage() {
       await refetch();
       setSelectedIds(new Set());
       setConfirmState(null);
-      toast.success(`Deleted ${payload.deletedCount} game(s).`);
+      toast.success(`Deleted ${payload.deletedCount} ${payload.deletedCount === 1 ? "game" : "games"}.`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to delete games."
@@ -553,7 +553,7 @@ export default function AdminGamesPage() {
               onClick={() =>
                 setConfirmState({
                   kind: "bulk",
-                  title: `Delete ${selectedIds.size} games?`,
+                  title: `Delete ${selectedIds.size} ${selectedIds.size === 1 ? "game" : "games"}?`,
                   description:
                     "Remove every selected game from this page. Related content may become orphaned if it depends on these entries.",
                 })
