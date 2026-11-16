@@ -41,6 +41,9 @@ const tierPriority: Record<AchievementTier, number> = {
 // Platinum is the trophy itself and heads the section instead.
 const TIERS: AchievementTier[] = ["GOLD", "SILVER", "BRONZE"];
 
+// The backend awards the Platinum, so progress counts never include it
+const notPlatinum = (a: Achievement) => a.tier !== "PLATINUM";
+
 function sortByTier(achievements: Achievement[]): Achievement[] {
   return [...achievements].sort((a, b) => {
     const aTier = a.tier ?? "BRONZE";
@@ -186,7 +189,7 @@ export default function GameDetailPage({
   // it once everything else is done, so it is neither ticked nor counted.
   const platinum = gatingAchievements.find((a) => a.tier === "PLATINUM");
   // Progress only counts the sets that award the trophy
-  const trophyAchievements = gatingAchievements.filter((a) => a.tier !== "PLATINUM");
+  const trophyAchievements = gatingAchievements.filter(notPlatinum);
   const trophyAchievementCount = trophyAchievements.length;
   const completedCount = trophyAchievements.filter((a: Achievement) => a.isCompleted).length;
   const isTrophyComplete = trophyAchievementCount > 0 && completedCount === trophyAchievementCount;
@@ -225,15 +228,17 @@ export default function GameDetailPage({
     />
   );
 
-  const renderSet = (set: AchievementSet, showProgress: boolean) => (
+  const renderSet = (set: AchievementSet, showProgress: boolean) => {
+    const counted = set.achievements.filter(notPlatinum);
+    return (
     <div key={set.id} className={styles.setCard}>
       <div className={styles.setHeader}>
         <h3 className={styles.setTitle}>{set.title}</h3>
         <div className={styles.setActions}>
-          {showProgress && set.achievements.length > 0 && (
+          {showProgress && counted.length > 0 && (
             <span className={styles.progressSummary}>
-              {isSignedIn && `${set.achievements.filter((a) => a.isCompleted).length} / `}
-              {set.achievements.length}
+              {isSignedIn && `${counted.filter((a) => a.isCompleted).length} / `}
+              {counted.length}
             </span>
           )}
         </div>
@@ -251,7 +256,8 @@ export default function GameDetailPage({
         />
       )}
     </div>
-  );
+    );
+  };
 
   return (
     <div className={styles.container}>
