@@ -25,7 +25,7 @@ interface Achievement {
   iconUrl?: string | null;
   tier?: AchievementTier;
   isCompleted?: boolean;
-  userCount: number;
+  earnedPercent: number | null;
   achievementSetId: string;
 }
 
@@ -177,7 +177,6 @@ export default function GameDetailPage({
     }
   };
 
-  const allAchievements = game?.achievementSets.flatMap((set) => set.achievements) ?? [];
   const gatingAchievements =
     game?.achievementSets.filter(countsTowardTrophy).flatMap((set) => set.achievements) ?? [];
   // The Platinum is the trophy under the game's own name. The backend awards
@@ -192,11 +191,6 @@ export default function GameDetailPage({
   const progress =
     trophyAchievementCount > 0 ? Math.floor((completedCount / trophyAchievementCount) * 100) : 0;
   const screenshotCount = game?.screenshots.length ?? 0;
-
-  // Calculate total players for rarity (max userCount across all achievements)
-  const totalPlayers = allAchievements.length > 0
-    ? Math.max(...allAchievements.map((a) => a.userCount))
-    : 0;
 
   // The trophy has one list: every achievement in the sets that gate it.
   // Sets that don't gate stay below as extras.
@@ -221,8 +215,7 @@ export default function GameDetailPage({
       iconUrl={achievement.iconUrl}
       tier={achievement.tier}
       isCompleted={achievement.isCompleted}
-      userCount={achievement.userCount}
-      totalPlayers={totalPlayers}
+      earnedPercent={achievement.earnedPercent}
       onToggle={isSignedIn ? handleToggleAchievement : undefined}
       loading={togglingId === achievement.id}
     />

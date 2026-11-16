@@ -14,8 +14,8 @@ interface AchievementCardProps {
   iconUrl?: string | null;
   tier?: AchievementTier;
   isCompleted?: boolean;
-  userCount?: number;
-  totalPlayers?: number;
+  // Share of the game's players who earned it. Null when nobody has the game.
+  earnedPercent?: number | null;
   gameName?: string;
   onToggle?: (id: string) => void;
   loading?: boolean;
@@ -80,8 +80,7 @@ export function AchievementCard({
   iconUrl,
   tier = "BRONZE",
   isCompleted = false,
-  userCount = 0,
-  totalPlayers = 0,
+  earnedPercent = null,
   gameName,
   onToggle,
   loading = false,
@@ -90,10 +89,8 @@ export function AchievementCard({
   // Descriptions can spoil the game, so each one stays hidden until asked for
   const [showDescription, setShowDescription] = useState(false);
 
-  // Calculate rarity percentage
-  const rarityPercentage = totalPlayers > 0
-    ? Math.round((userCount / totalPlayers) * 100 * 10) / 10
-    : 0;
+  const hasRarity = earnedPercent != null;
+  const rarityPercentage = earnedPercent ?? 0;
   const rarityInfo = getRarityLabel(rarityPercentage);
 
   return (
@@ -131,14 +128,14 @@ export function AchievementCard({
           <span className={`${styles.tierBadge} ${tierInfo.badgeClass}`}>
             {tierInfo.label}
           </span>
-          {totalPlayers > 0 && (
+          {hasRarity && (
             <span className={`${styles.rarityBadge} ${rarityInfo.className}`}>
               {rarityPercentage}% · {rarityInfo.label}
             </span>
           )}
           {gameName && <span className={styles.game}>{gameName}</span>}
         </div>
-        {totalPlayers > 0 && (
+        {hasRarity && (
           <div className={styles.rarityBar}>
             <div
               className={`${styles.rarityFill} ${rarityInfo.className}`}

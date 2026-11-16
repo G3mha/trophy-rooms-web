@@ -79,7 +79,7 @@ export const GAME_WITH_ACHIEVEMENTS_FRAGMENT = gql`
         iconUrl
         tier
         isCompleted
-        userCount
+        earnedPercent
         achievementSetId
       }
     }
@@ -97,7 +97,7 @@ export const ACHIEVEMENT_FRAGMENT = gql`
     tier
     achievementSetId
     isCompleted
-    userCount
+    earnedPercent
     createdAt
     updatedAt
     achievementSet {

@@ -182,7 +182,7 @@ export const MARK_ACHIEVEMENT_COMPLETE = gql`
           id
           title
           isCompleted
-          userCount
+          earnedPercent
         }
       }
       error {
