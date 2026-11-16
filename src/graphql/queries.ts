@@ -459,6 +459,12 @@ export const COLLECTION_ITEM_FRAGMENT = gql`
       title
       coverUrl
     }
+    bundleId
+    bundle {
+      id
+      name
+      coverUrl
+    }
     platformId
     platform {
       id
