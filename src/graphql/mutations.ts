@@ -194,19 +194,6 @@ export const MARK_ACHIEVEMENT_COMPLETE = gql`
   }
 `;
 
-export const MARK_ALL_ACHIEVEMENTS_COMPLETE = gql`
-  mutation MarkAllAchievementsComplete($gameFamilyId: ID!) {
-    markAllAchievementsComplete(gameFamilyId: $gameFamilyId) {
-      success
-      markedCount
-      error {
-        code
-        message
-      }
-    }
-  }
-`;
-
 export const UNMARK_ACHIEVEMENT_COMPLETE = gql`
   mutation UnmarkAchievementComplete($achievementId: ID!) {
     unmarkAchievementComplete(achievementId: $achievementId) {
