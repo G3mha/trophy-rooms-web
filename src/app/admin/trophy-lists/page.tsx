@@ -64,6 +64,8 @@ export default function AdminAchievementSetsPage() {
   // Search state
   const searchParams = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") ?? "");
+  // Set by the admin toolbar's "Manage Trophies" to show one game's lists only
+  const familyId = searchParams.get("familyId");
   // Add modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
@@ -149,19 +151,23 @@ export default function AdminAchievementSetsPage() {
     () => setsData?.achievementSets || [],
     [setsData]
   );
+  const familySets = useMemo(
+    () => (familyId ? sets.filter((s) => s.gameFamily?.id === familyId) : sets),
+    [familyId, sets]
+  );
   const filteredSets = useMemo(() => {
     if (!searchQuery.trim()) {
-      return sets;
+      return familySets;
     }
 
     const query = searchQuery.toLowerCase();
-    return sets.filter(
+    return familySets.filter(
       (s) =>
         s.title.toLowerCase().includes(query) ||
         s.gameFamily?.title.toLowerCase().includes(query) ||
         s.type.toLowerCase().includes(query)
     );
-  }, [searchQuery, sets]);
+  }, [searchQuery, familySets]);
 
   const resetAddForm = () => {
     setNewTitle("");
@@ -296,6 +302,15 @@ export default function AdminAchievementSetsPage() {
           Add List
         </Button>
       </div>
+
+      {familyId && (
+        <p className={styles.sectionSubtitle} style={{ margin: "-8px 0 16px" }}>
+          Showing lists for {familySets[0]?.gameFamily?.title || "this game"}.{" "}
+          <Link href="/admin/trophy-lists" style={{ textDecoration: "underline" }}>
+            Show all
+          </Link>
+        </p>
+      )}
 
       {/* Add Trophy List Modal */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
