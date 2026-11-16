@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
 import { Package, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { generateSlug } from "@/lib/slug-utils";
@@ -136,7 +137,8 @@ function toGameFamilyIds(games: SearchableGame[]) {
 }
 
 export default function AdminBundlesPage() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") ?? "");
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newName, setNewName] = useState("");
