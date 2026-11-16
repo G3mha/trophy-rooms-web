@@ -186,7 +186,8 @@ export default function AdminAchievementsPage() {
       }
       refetch();
       setSelectedIds(new Set());
-      toast.success(`Deleted ${data?.bulkDeleteAchievements?.deletedCount || 0} achievement(s).`);
+      const count = payload.deletedCount || 0;
+      toast.success(`Deleted ${count} ${count === 1 ? "trophy" : "trophies"}.`);
     },
     onError: (error) => toast.error(error.message || "Failed to delete trophies."),
   });
@@ -203,7 +204,8 @@ export default function AdminAchievementsPage() {
       setShowImport(false);
       setCurrentPage(1);
       setCursors(new Map([[1, null]]));
-      toast.success(`Imported ${data?.bulkCreateAchievements?.createdCount || 0} achievement(s).`);
+      const count = payload.createdCount || 0;
+      toast.success(`Imported ${count} ${count === 1 ? "trophy" : "trophies"}.`);
     },
     onError: (error) => toast.error(error.message || "Failed to import trophies."),
   });
@@ -690,7 +692,7 @@ export default function AdminAchievementsPage() {
         loading={bulkDeleting}
         title={
           confirmAction === "bulk"
-            ? `Delete ${selectedIds.size} achievement(s)?`
+            ? `Delete ${selectedIds.size} ${selectedIds.size === 1 ? "trophy" : "trophies"}?`
             : `Delete ${achievementToDelete?.title}?`
         }
         description={
