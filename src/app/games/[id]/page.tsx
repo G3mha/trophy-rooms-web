@@ -104,6 +104,27 @@ interface Game {
   trophies: Trophy[];
 }
 
+// What the tick mutations select, see MARK_ACHIEVEMENT_COMPLETE and
+// UNMARK_ACHIEVEMENT_COMPLETE
+interface TickResult {
+  success: boolean;
+  error: { code: string; message: string; field: string | null } | null;
+}
+
+interface MarkCompleteData {
+  markAchievementComplete: TickResult & {
+    userAchievement: {
+      id: string;
+      createdAt: string;
+      achievement: Pick<Achievement, "id" | "title" | "isCompleted" | "earnedPercent">;
+    } | null;
+  };
+}
+
+interface UnmarkCompleteData {
+  unmarkAchievementComplete: TickResult;
+}
+
 export default function GameDetailPage({
   params,
 }: {
@@ -123,7 +144,7 @@ export default function GameDetailPage({
     skip: !isSignedIn,
   });
 
-  const [markComplete] = useMutation(MARK_ACHIEVEMENT_COMPLETE, {
+  const [markComplete] = useMutation<MarkCompleteData>(MARK_ACHIEVEMENT_COMPLETE, {
     onCompleted: ({ markAchievementComplete: result }) => {
       // Refetch either way, so a rejected tick shows what the server holds
       refetch();
@@ -137,7 +158,7 @@ export default function GameDetailPage({
     },
   });
 
-  const [unmarkComplete] = useMutation(UNMARK_ACHIEVEMENT_COMPLETE, {
+  const [unmarkComplete] = useMutation<UnmarkCompleteData>(UNMARK_ACHIEVEMENT_COMPLETE, {
     onCompleted: ({ unmarkAchievementComplete: result }) => {
       refetch();
       setTogglingId(null);
