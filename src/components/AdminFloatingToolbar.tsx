@@ -88,7 +88,8 @@ export function AdminFloatingToolbar() {
   };
 
   const handleManageAchievements = () => {
-    router.push(`/admin/trophy-lists?gameId=${currentEntity.id}`);
+    // Trophy lists hang off the game family, so filter by title like the search box does
+    router.push(`/admin/trophy-lists?search=${encodeURIComponent(currentEntity.title)}`);
   };
 
   const getActions = (): ActionButton[] => {
