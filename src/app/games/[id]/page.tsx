@@ -333,26 +333,21 @@ export default function GameDetailPage({
               </span>
             )}
           </div>
+          {game.releaseDate && (
+            <p className={styles.releaseDate}>
+              <Calendar size={14} aria-label="Released" />
+              {new Date(game.releaseDate).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+            </p>
+          )}
           {game.description && (
             <ExpandableText text={game.description} maxLines={4} className={styles.description} />
           )}
 
           <div className={styles.metadataGrid}>
-            {game.releaseDate && (
-              <div className={styles.metaCard}>
-                <Calendar className={styles.metaIcon} size={16} />
-                <div>
-                  <p className={styles.metaLabel}>Released</p>
-                  <p className={styles.metaValue}>
-                    {new Date(game.releaseDate).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </p>
-                </div>
-              </div>
-            )}
             {game.developer && (
               <div className={styles.metaCard}>
                 <Code2 className={styles.metaIcon} size={16} />
