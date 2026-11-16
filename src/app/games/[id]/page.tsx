@@ -121,10 +121,12 @@ export default function GameDetailPage({
   });
 
   const [markComplete] = useMutation(MARK_ACHIEVEMENT_COMPLETE, {
-    onCompleted: () => {
+    onCompleted: ({ markAchievementComplete: result }) => {
+      // Refetch either way, so a rejected tick shows what the server holds
       refetch();
       setTogglingId(null);
-      toast.success("Trophy marked complete.");
+      if (result.success) toast.success("Trophy marked complete.");
+      else toast.error(result.error?.message || "Failed to mark trophy.");
     },
     onError: (error) => {
       setTogglingId(null);
@@ -133,10 +135,11 @@ export default function GameDetailPage({
   });
 
   const [unmarkComplete] = useMutation(UNMARK_ACHIEVEMENT_COMPLETE, {
-    onCompleted: () => {
+    onCompleted: ({ unmarkAchievementComplete: result }) => {
       refetch();
       setTogglingId(null);
-      toast.success("Trophy unmarked.");
+      if (result.success) toast.success("Trophy unmarked.");
+      else toast.error(result.error?.message || "Failed to unmark trophy.");
     },
     onError: (error) => {
       setTogglingId(null);
