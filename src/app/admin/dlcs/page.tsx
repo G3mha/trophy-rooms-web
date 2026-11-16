@@ -142,7 +142,8 @@ export default function AdminDLCsPage() {
       }
       refetch();
       setSelectedIds(new Set());
-      toast.success(`Deleted ${data?.bulkDeleteDLCs?.deletedCount || 0} DLC(s).`);
+      const count = data?.bulkDeleteDLCs?.deletedCount || 0;
+      toast.success(`Deleted ${count} ${count === 1 ? "DLC" : "DLCs"}.`);
     },
     onError: (error) => toast.error(error.message || "Failed to delete DLCs."),
   });
@@ -607,7 +608,7 @@ export default function AdminDLCsPage() {
         loading={confirmAction === "bulk" ? bulkDeleting : deleting}
         title={
           confirmAction === "bulk"
-            ? `Delete ${selectedIds.size} DLC(s)?`
+            ? `Delete ${selectedIds.size} ${selectedIds.size === 1 ? "DLC" : "DLCs"}?`
             : `Delete ${dlcToDelete?.name}?`
         }
         description={
