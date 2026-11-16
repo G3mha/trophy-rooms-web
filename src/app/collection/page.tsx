@@ -44,10 +44,18 @@ interface Platform {
   slug: string;
 }
 
+interface Bundle {
+  id: string;
+  name: string;
+  coverUrl?: string | null;
+}
+
 interface CollectionItem {
   id: string;
-  gameId: string;
-  game: Game;
+  gameId?: string | null;
+  game?: Game | null;
+  bundleId?: string | null;
+  bundle?: Bundle | null;
   platformId?: string | null;
   platform?: Platform | null;
   gameVersionId?: string | null;
@@ -73,6 +81,19 @@ interface CollectionStats {
   sealedCount: number;
   completeCount: number;
   byRegion: RegionCount[];
+}
+
+// A collection item holds exactly one game or one bundle
+function itemSubject(item: CollectionItem) {
+  if (item.game) {
+    const { id, title, coverUrl } = item.game;
+    return { id, title, coverUrl, href: `/games/${id}` };
+  }
+  if (item.bundle) {
+    const { id, name, coverUrl } = item.bundle;
+    return { id, title: name, coverUrl, href: `/bundles/${id}` };
+  }
+  return null;
 }
 
 type FilterRegion = GameRegion | "ALL";
@@ -187,6 +208,8 @@ export default function CollectionPage() {
     setEditingItem(null);
   };
 
+  const editingSubject = editingItem && itemSubject(editingItem);
+
   return (
     <div className={styles.container}>
       <CatalogHero
@@ -261,24 +284,28 @@ export default function CollectionPage() {
 
       {items.length > 0 ? (
         <div className={styles.grid}>
-          {items.map((item) => (
-            <CollectionItemCard
-              key={item.id}
-              title={item.game.title}
-              coverUrl={item.game.coverUrl}
-              href={`/games/${item.game.id}`}
-              platform={item.platform}
-              hasDisc={item.hasDisc}
-              hasBox={item.hasBox}
-              hasManual={item.hasManual}
-              hasExtras={item.hasExtras}
-              isSealed={item.isSealed}
-              region={item.region}
-              notes={item.notes}
-              onEdit={() => handleEdit(item)}
-              onRemove={() => handleRemove(item.id)}
-            />
-          ))}
+          {items.map((item) => {
+            const subject = itemSubject(item);
+            if (!subject) return null;
+            return (
+              <CollectionItemCard
+                key={item.id}
+                title={subject.title}
+                coverUrl={subject.coverUrl}
+                href={subject.href}
+                platform={item.platform}
+                hasDisc={item.hasDisc}
+                hasBox={item.hasBox}
+                hasManual={item.hasManual}
+                hasExtras={item.hasExtras}
+                isSealed={item.isSealed}
+                region={item.region}
+                notes={item.notes}
+                onEdit={() => handleEdit(item)}
+                onRemove={() => handleRemove(item.id)}
+              />
+            );
+          })}
         </div>
       ) : (
         <EmptyState
@@ -314,11 +341,11 @@ export default function CollectionPage() {
         />
       )}
 
-      {editingItem && (
+      {editingItem && editingSubject && (
         <AddToCollectionModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          game={editingItem.game}
+          game={editingSubject}
           editingItem={editingItem}
         />
       )}

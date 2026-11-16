@@ -40,7 +40,6 @@ interface GameVersion {
 
 interface CollectionItem {
   id: string;
-  gameId: string;
   platformId?: string | null;
   gameVersionId?: string | null;
   hasDisc: boolean;
