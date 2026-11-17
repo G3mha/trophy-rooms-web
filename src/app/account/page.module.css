@@ -84,3 +84,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.note {
+  font-size: 14px;
+  color: var(--text-secondary);
+}

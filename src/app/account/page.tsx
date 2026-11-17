@@ -1,12 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { Settings } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { PageSkeleton, FormAlert, Button } from "@/components";
+import { AdminConfirmDialog } from "@/components/admin";
+import { DELETE_MY_ACCOUNT } from "@/graphql";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
 import styles from "./page.module.css";
@@ -35,6 +38,10 @@ export default function AccountPage() {
 
   const [providerError, setProviderError] = useState<string>();
   const [busyProvider, setBusyProvider] = useState<string | null>(null);
+
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string>();
+  const [deleteMyAccount, { loading: deleting }] = useMutation(DELETE_MY_ACCOUNT);
 
   const loadUser = useCallback(async () => {
     const { data } = await getSupabaseBrowserClient().auth.getUser();
@@ -126,6 +133,24 @@ export default function AccountPage() {
     }
     toast.success("Disconnected");
     loadUser();
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteError(undefined);
+    try {
+      const { data } = await deleteMyAccount();
+      if (!data?.deleteMyAccount?.success) {
+        throw new Error(data?.deleteMyAccount?.error?.message ?? "Couldn't delete your account");
+      }
+    } catch (err) {
+      setConfirmingDelete(false);
+      setDeleteError(err instanceof Error ? err.message : "Couldn't delete your account");
+      return;
+    }
+    // The identity is already gone server-side, so only clear this browser's session
+    await getSupabaseBrowserClient().auth.signOut({ scope: "local" });
+    // Full reload so the Apollo cache drops the deleted user's data
+    window.location.assign("/");
   };
 
   return (
@@ -239,6 +264,33 @@ export default function AccountPage() {
         </ul>
         {providerError && <FormAlert message={providerError} />}
       </section>
+
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Delete account</h2>
+        <p className={styles.note}>
+          Deletes your sign-in and everything you&apos;ve tracked: library, collection,
+          trophies, play journal, buylist, sell list and any achievement sets you made.
+        </p>
+        {deleteError && <FormAlert message={deleteError} />}
+        <Button
+          variant="destructive"
+          size="sm"
+          className="self-start"
+          onClick={() => setConfirmingDelete(true)}
+        >
+          Delete account
+        </Button>
+      </section>
+
+      <AdminConfirmDialog
+        open={confirmingDelete}
+        title="Delete your account?"
+        description="Your account and all of its data will be deleted, and you'll be signed out."
+        confirmLabel="Delete account"
+        loading={deleting}
+        onOpenChange={(open) => !deleting && setConfirmingDelete(open)}
+        onConfirm={handleDeleteAccount}
+      />
     </div>
   );
 }
