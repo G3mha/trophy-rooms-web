@@ -525,7 +525,7 @@ export default function AdminAchievementSetsPage() {
         }
         description={
           confirmAction === "bulk"
-            ? "All selected trophy lists and their trophies will be permanently deleted."
+            ? `The selected ${selectedIds.size === 1 ? "trophy list and all its trophies" : "trophy lists and all their trophies"} will be permanently deleted.`
             : "This trophy list and all its trophies will be permanently deleted."
         }
         confirmLabel="Delete"
