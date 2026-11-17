@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@apollo/client";
-import { LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield, CalendarClock, LogOut } from "lucide-react";
+import { LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield, CalendarClock, LogOut, Settings } from "lucide-react";
 import { GET_ME } from "@/graphql/queries";
 import { useAuth } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -29,9 +29,11 @@ const myStuffLinks = [
 function UserMenu({ isAdmin }: { isAdmin: boolean }) {
   const { user } = useAuth();
   const pathname = usePathname();
-  const menuLinks = isAdmin
-    ? [...myStuffLinks, { href: "/admin", label: "Admin", Icon: Shield }]
-    : myStuffLinks;
+  const menuLinks = [
+    ...myStuffLinks,
+    ...(isAdmin ? [{ href: "/admin", label: "Admin", Icon: Shield }] : []),
+    { href: "/account", label: "Account", Icon: Settings },
+  ];
 
   const metadata = user?.user_metadata ?? {};
   const avatarUrl = metadata.avatar_url ?? metadata.picture;
