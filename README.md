@@ -1,176 +1,98 @@
-# 🏆 Scarlet Trophies - Nintendo Achievement Tracker
+# Trophy Rooms for the web
 
-A modern web application for tracking Nintendo Switch game achievements and trophies, built with Next.js, TypeScript, and Prisma. Follows Nintendo's visual design principles for a clean, playful, and user-friendly experience.
+The web client for [Trophy Rooms](https://trophyrooms.org): organize the games you play, catalog the copies you own, keep a play journal, and record achievements.
 
-## ✨ Features
+Built by Enricco Gemha with Next.js 15, React 19, TypeScript, and Tailwind CSS 4. Apollo Client talks to the shared [GraphQL API](https://github.com/G3mha/trophy-rooms-backend); Supabase handles authentication. The [native iOS app](https://github.com/G3mha/trophy-rooms-ios) uses the same backend.
 
-- **Game Library Management**: Add and organize your Nintendo Switch games
-- **Achievement Tracking**: Create and track custom achievements for each game
-- **Trophy System**: Earn trophies for completing special challenges
-- **User Dashboard**: View your progress and recent accomplishments
-- **Nintendo-Inspired Design**: Clean, playful UI following Nintendo's visual identity
-- **Authentication**: Secure user accounts with Clerk
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
+## Features
 
-## 🎮 Tech Stack
+- Browse games, platform releases, editions, and bundles.
+- Manage your backlog and current, paused, completed, or dropped games.
+- Catalog physical copies with region, condition, and packaging details.
+- Maintain buy and sell lists.
+- Log play sessions and review your journal.
+- Record achievement progress manually and display earned trophies.
+- View community activity, leaderboards, and public profiles.
+- Administer catalog data through role-controlled screens.
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: Clerk
-- **Styling**: Tailwind CSS
-- **Testing**: Jest with React Testing Library
-- **Deployment**: Ready for Vercel deployment
+Trophy Rooms covers multiple gaming platforms. Achievement lists are available for a subset of the catalog; progress does not automatically synchronize from consoles or PC stores.
 
-## 🚀 Getting Started
+## Run locally
 
-### Prerequisites
+You need Node.js 20 or later, npm, a running [Trophy Rooms backend](https://github.com/G3mha/trophy-rooms-backend#local-setup), and a Supabase development project shared with that backend.
 
-- Node.js 18+ 
-- PostgreSQL database
-- Clerk account for authentication
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd trophy-rooms
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   Create a `.env.local` file in the root directory:
-   ```env
-   DATABASE_URL="postgresql://username:password@localhost:5432/trophy_rooms"
-   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key"
-   CLERK_SECRET_KEY="your_clerk_secret_key"
-   ```
-
-4. **Set up the database**
-   ```bash
-   npx prisma generate
-   npx prisma db push
-   ```
-
-5. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-6. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-## 🧪 Testing
-
-Run the test suite:
 ```bash
-# Run all tests
-npm test
-
-# Run API tests only
-npm run test:api
-
-# Run tests in watch mode
-npm test -- --watch
+git clone https://github.com/G3mha/trophy-rooms-web.git
+cd trophy-rooms-web
+npm ci
+cp .env.example .env.local
 ```
 
-## 📁 Project Structure
+Set the three client variables in `.env.local`:
 
-```
-trophy-rooms/
-├── src/
-│   ├── app/                    # Next.js App Router pages
-│   │   ├── api/               # API routes
-│   │   ├── games/             # Game management pages
-│   │   ├── achievements/      # Achievement pages
-│   │   └── dashboard/         # User dashboard
-│   ├── components/            # Reusable React components
-│   └── __tests__/            # Test files
-├── prisma/                   # Database schema and migrations
-├── public/                   # Static assets
-└── terraform/               # Infrastructure as Code
+| Variable | Value |
+|---|---|
+| `NEXT_PUBLIC_GRAPHQL_URL` | Your backend URL; local default `http://localhost:4000/graphql` |
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase development project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | That project's public/publishable key |
+
+Enable the sign-in providers you intend to use in Supabase Auth. For local OAuth, allow `http://localhost:3000/sso-callback` as a redirect URL. Use the matching HTTPS callback for a deployed frontend. The callback exchanges the authorization code for a cookie-backed session.
+
+```bash
+npm run dev
 ```
 
-## 🎨 Design System
+Open [localhost:3000](http://localhost:3000). Start the API separately on port 4000 and keep both clients and backend pointed at the same Supabase project.
 
-The application follows Nintendo's visual identity guidelines:
+All `NEXT_PUBLIC_*` values are included in the browser bundle. Never put a Supabase service-role key, database password, or other server credential in them. Prisma and database migrations live in the backend repository.
 
-- **Colors**: Nintendo Red (#E60012), clean whites and grays
-- **Typography**: Nunito font family for a friendly, rounded feel
-- **Components**: Rounded corners, subtle shadows, playful interactions
-- **Layout**: Clean, spacious design with clear information hierarchy
+## Architecture and layout
 
-## 🔧 API Endpoints
+Supabase manages the browser's session. Authenticated GraphQL requests carry the user's access token to the API, which verifies identity and applies authorization. Apollo manages client-side GraphQL data; the API owns database access and catalog rules.
 
-### Games
-- `GET /api/games` - List all games
-- `POST /api/games` - Create a new game
-- `GET /api/games/[id]` - Get game details
-- `PUT /api/games/[id]` - Update game
-- `DELETE /api/games/[id]` - Delete game
+| Path | Purpose |
+|---|---|
+| `src/app/` | App Router pages, layouts, and the OAuth callback |
+| `src/components/` | Shared UI and authentication components |
+| `src/lib/auth.tsx` | Authentication state and sign-in flows |
+| `src/lib/supabase/` | Supabase browser client |
+| `src/lib/apollo-wrapper.tsx` | Authenticated Apollo provider |
+| `src/lib/apollo-client.ts` | Shared Apollo configuration |
+| `src/graphql/` | GraphQL operations |
+| `src/generated/` | Generated GraphQL types and hooks |
+| `codegen.ts` | GraphQL Code Generator configuration |
+| `public/` | Static assets |
 
-### Achievements
-- `GET /api/achievements` - List all achievements
-- `POST /api/achievements` - Create a new achievement
+## Development commands
 
-### User Achievements
-- `GET /api/user-achievements` - Get user's completed achievements
-- `POST /api/user-achievements` - Mark achievement as completed
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the development server |
+| `npm run lint` | Run the configured Next.js lint command |
+| `npm run build` | Build the production application |
+| `npm start` | Serve an existing production build |
+| `npm run codegen` | Generate types and React Apollo hooks from the API schema |
+| `npm run codegen:watch` | Regenerate on operation changes |
 
-## 🗄️ Database Schema
+GraphQL Code Generator reads `NEXT_PUBLIC_GRAPHQL_URL` from its process environment, falling back to the local API. Run it against a development API with introspection enabled:
 
-The application uses the following main entities:
+```bash
+NEXT_PUBLIC_GRAPHQL_URL=http://localhost:4000/graphql npm run codegen
+```
 
-- **User**: User accounts and profiles
-- **Game**: Nintendo Switch games in the library
-- **Achievement**: Custom achievements for each game
-- **UserAchievement**: User's completed achievements
-- **Trophy**: Special trophies earned by users
+Do not point code generation at the production API, where introspection is disabled. Generated artifacts live in `src/generated/graphql.ts`.
 
-## 🚀 Deployment
+Run lint and a production build before committing code changes. There is currently no `npm test` script or configured Jest dependency. See [CLAUDE.md](CLAUDE.md) for repository conventions, including visual identity and icon rules.
 
-### Vercel (Recommended)
+## Deployment
 
-1. Connect your GitHub repository to Vercel
-2. Set up environment variables in Vercel dashboard
-3. Deploy automatically on push to main branch
+The public application runs at [trophyrooms.org](https://trophyrooms.org). For a Vercel deployment, set the three public environment variables with the deployed API and Supabase project, configure Supabase's site and callback URLs, and ensure the API accepts the frontend origin. Changes to public environment variables require a new frontend build.
 
-### Manual Deployment
+## Related repositories
 
-1. Build the application:
-   ```bash
-   npm run build
-   ```
+- [trophy-rooms-backend](https://github.com/G3mha/trophy-rooms-backend) — GraphQL API, Prisma schema, and catalog tools.
+- [trophy-rooms-ios](https://github.com/G3mha/trophy-rooms-ios) — SwiftUI client.
 
-2. Start the production server:
-   ```bash
-   npm start
-   ```
+## Author
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Nintendo for the visual design inspiration
-- Next.js team for the amazing framework
-- Clerk for authentication services
-- Prisma for the excellent ORM
-
----
-
-**Note**: This project is not affiliated with Nintendo. It's a fan-made application for tracking gaming achievements.
+Created and maintained by Enricco Gemha.
