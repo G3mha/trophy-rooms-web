@@ -3,3 +3,4 @@ export { AppleButton } from "./AppleButton";
 export { EmailForm } from "./EmailForm";
 export { VerificationCodeInput } from "./VerificationCodeInput";
 export { AuthCard, AuthDivider } from "./AuthCard";
+export { GoogleLogo, AppleLogo } from "./BrandLogos";
