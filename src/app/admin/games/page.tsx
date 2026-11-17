@@ -554,8 +554,7 @@ export default function AdminGamesPage() {
                 setConfirmState({
                   kind: "bulk",
                   title: `Delete ${selectedIds.size} ${selectedIds.size === 1 ? "game" : "games"}?`,
-                  description:
-                    "Remove every selected game from this page. Related content may become orphaned if it depends on these entries.",
+                  description: `The selected ${selectedIds.size === 1 ? "game" : "games"} will be permanently deleted. Related content that depends on ${selectedIds.size === 1 ? "it" : "them"} may become orphaned.`,
                 })
               }
             >
