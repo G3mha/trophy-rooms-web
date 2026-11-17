@@ -613,7 +613,7 @@ export default function AdminDLCsPage() {
         }
         description={
           confirmAction === "bulk"
-            ? "All selected DLCs will be permanently deleted."
+            ? `The selected ${selectedIds.size === 1 ? "DLC" : "DLCs"} will be permanently deleted.`
             : "This DLC will be permanently deleted."
         }
         confirmLabel="Delete"
