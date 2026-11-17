@@ -1,91 +1,139 @@
 .container {
-  max-width: 560px;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 24px 16px 64px;
+  padding: 40px 16px 80px;
 }
 
 .title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 28px;
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 5vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cabinet-bone);
+  text-shadow: 3px 3px 0 var(--cabinet-shadow-red);
 }
 
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 18px 16px;
-  margin-bottom: 16px;
+.groupTitle {
+  margin: 36px 0 10px;
+  padding: 0 4px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cabinet-brass);
+}
+
+.list {
+  list-style: none;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
 }
 
-.sectionTitle {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.current {
-  font-size: 15px;
-  color: var(--text-secondary);
-  word-break: break-all;
-}
-
-.pending {
-  font-size: 14px;
-  color: var(--cabinet-brass);
-}
-
-.form {
+.row {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.form > div {
-  width: 100%;
-}
-
-.providerList {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-}
-
-.providerRow {
-  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
+  gap: 8px 16px;
+  min-height: 72px;
+  padding: 14px 20px;
 }
 
-.providerRow + .providerRow {
+.row + .row {
   border-top: 1px solid var(--border-color);
 }
 
-.providerInfo {
+.rowMain {
   display: flex;
   flex-direction: column;
+  gap: 2px;
+  flex: 1;
   min-width: 0;
 }
 
-.providerName {
+.rowLabel {
+  font-size: 15px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
-.providerEmail {
-  font-size: 13px;
-  color: var(--text-muted);
+.rowValue {
+  font-size: 14px;
+  color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.note {
-  font-size: 14px;
-  color: var(--text-secondary);
+.rowHint {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.pending {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--cabinet-brass);
+}
+
+/* Opens under its row, full width */
+.editor {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 6px 0 4px;
+}
+
+.editorActions {
+  display: flex;
+  gap: 8px;
+}
+
+.logoTile {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.logo {
+  width: 20px;
+  height: 20px;
+}
+
+.dangerRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 56px;
+  padding: 20px 4px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.dangerRow .dangerButton {
+  flex-shrink: 0;
+  color: var(--nintendo-red-light);
+  border-color: rgba(201, 44, 60, 0.45);
+}
+
+.dangerRow .dangerButton:hover {
+  color: var(--text-primary);
+  background: var(--nintendo-red);
+  border-color: var(--nintendo-red);
+}
+
+@media (max-width: 480px) {
+  .row {
+    padding: 14px 16px;
+  }
 }

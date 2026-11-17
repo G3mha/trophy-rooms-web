@@ -3,20 +3,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { toast } from "sonner";
-import { Settings } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { PageSkeleton, FormAlert, Button } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
+import { GoogleLogo, AppleLogo } from "@/components/auth";
 import { DELETE_MY_ACCOUNT } from "@/graphql";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
 import styles from "./page.module.css";
 
 const PROVIDERS = [
-  { id: "google", label: "Google" },
-  { id: "apple", label: "Apple" },
+  { id: "google", label: "Google", Logo: GoogleLogo },
+  { id: "apple", label: "Apple", Logo: AppleLogo },
 ] as const;
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -26,6 +26,7 @@ export default function AccountPage() {
   // Fetched from the server (not the session) so identities and a pending
   // email change are current after linking, unlinking, or confirming.
   const [user, setUser] = useState<User | null>(null);
+  const [editing, setEditing] = useState<"email" | "password" | null>(null);
 
   const [newEmail, setNewEmail] = useState("");
   const [emailError, setEmailError] = useState<string>();
@@ -69,6 +70,15 @@ export default function AccountPage() {
   const identities = user.identities ?? [];
   const redirectTo = `${window.location.origin}/account`;
 
+  const closeEditor = () => {
+    setEditing(null);
+    setNewEmail("");
+    setEmailError(undefined);
+    setPassword("");
+    setConfirmPassword("");
+    setPasswordError(undefined);
+  };
+
   const handleEmailChange = async (e: React.FormEvent) => {
     e.preventDefault();
     setSavingEmail(true);
@@ -82,7 +92,7 @@ export default function AccountPage() {
       setEmailError(error.message);
       return;
     }
-    setNewEmail("");
+    closeEditor();
     toast.success("Check both inboxes to confirm the change");
     loadUser();
   };
@@ -101,8 +111,7 @@ export default function AccountPage() {
       setPasswordError(error.message);
       return;
     }
-    setPassword("");
-    setConfirmPassword("");
+    closeEditor();
     toast.success("Password saved");
   };
 
@@ -155,132 +164,166 @@ export default function AccountPage() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>
-        <Settings size={22} /> Account
-      </h1>
+      <h1 className={styles.title}>Account</h1>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Email</h2>
-        <p className={styles.current}>{user.email}</p>
-        {user.new_email && (
-          <p className={styles.pending}>
-            Waiting for confirmation to switch to {user.new_email}. Open the links sent to
-            both addresses.
-          </p>
-        )}
-        <form className={styles.form} onSubmit={handleEmailChange}>
-          <FormField label="New email">
-            <Input
-              type="email"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              autoComplete="email"
-              required
-              disabled={savingEmail}
-            />
-          </FormField>
-          {emailError && <FormAlert message={emailError} />}
-          <Button type="submit" size="sm" loading={savingEmail} disabled={!newEmail.trim()}>
-            Change email
-          </Button>
-        </form>
-      </section>
+      <ul className={styles.list}>
+        <li className={styles.row}>
+          <div className={styles.rowMain}>
+            <span className={styles.rowLabel}>Email</span>
+            <span className={styles.rowValue}>{user.email}</span>
+            {user.new_email && (
+              <span className={styles.pending}>
+                Switching to {user.new_email} once you open the links sent to both addresses
+              </span>
+            )}
+          </div>
+          {editing !== "email" && (
+            <Button variant="secondary" size="sm" onClick={() => { closeEditor(); setEditing("email"); }}>
+              Change
+            </Button>
+          )}
+          {editing === "email" && (
+            <form className={styles.editor} onSubmit={handleEmailChange}>
+              <FormField label="New email">
+                <Input
+                  type="email"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  autoComplete="email"
+                  autoFocus
+                  required
+                  disabled={savingEmail}
+                />
+              </FormField>
+              {emailError && <FormAlert message={emailError} />}
+              <div className={styles.editorActions}>
+                <Button type="submit" size="sm" loading={savingEmail} disabled={!newEmail.trim()}>
+                  Save email
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={closeEditor}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          )}
+        </li>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Password</h2>
-        <form className={styles.form} onSubmit={handlePasswordChange}>
-          <FormField label="New password" hint={`At least ${MIN_PASSWORD_LENGTH} characters`}>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              minLength={MIN_PASSWORD_LENGTH}
-              required
-              disabled={savingPassword}
-            />
-          </FormField>
-          <FormField label="Confirm new password">
-            <Input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              autoComplete="new-password"
-              minLength={MIN_PASSWORD_LENGTH}
-              required
-              disabled={savingPassword}
-            />
-          </FormField>
-          {passwordError && <FormAlert message={passwordError} />}
-          <Button
-            type="submit"
-            size="sm"
-            loading={savingPassword}
-            disabled={!password || !confirmPassword}
-          >
-            Save password
-          </Button>
-        </form>
-      </section>
+        <li className={styles.row}>
+          <div className={styles.rowMain}>
+            <span className={styles.rowLabel}>Password</span>
+          </div>
+          {editing !== "password" && (
+            <Button variant="secondary" size="sm" onClick={() => { closeEditor(); setEditing("password"); }}>
+              Change
+            </Button>
+          )}
+          {editing === "password" && (
+            <form className={styles.editor} onSubmit={handlePasswordChange}>
+              <FormField label="New password" hint={`At least ${MIN_PASSWORD_LENGTH} characters`}>
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="new-password"
+                  autoFocus
+                  minLength={MIN_PASSWORD_LENGTH}
+                  required
+                  disabled={savingPassword}
+                />
+              </FormField>
+              <FormField label="Confirm new password">
+                <Input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  autoComplete="new-password"
+                  minLength={MIN_PASSWORD_LENGTH}
+                  required
+                  disabled={savingPassword}
+                />
+              </FormField>
+              {passwordError && <FormAlert message={passwordError} />}
+              <div className={styles.editorActions}>
+                <Button
+                  type="submit"
+                  size="sm"
+                  loading={savingPassword}
+                  disabled={!password || !confirmPassword}
+                >
+                  Save password
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={closeEditor}>
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          )}
+        </li>
+      </ul>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Sign-in methods</h2>
-        <ul className={styles.providerList}>
-          {PROVIDERS.map(({ id, label }) => {
-            const identity = identities.find((i) => i.provider === id);
-            const identityEmail = identity?.identity_data?.email as string | undefined;
-            return (
-              <li key={id} className={styles.providerRow}>
-                <div className={styles.providerInfo}>
-                  <span className={styles.providerName}>{label}</span>
-                  {identity && identityEmail && (
-                    <span className={styles.providerEmail}>{identityEmail}</span>
-                  )}
-                </div>
-                {identity ? (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    loading={busyProvider === id}
-                    // Supabase refuses to remove the last way to sign in
-                    disabled={identities.length < 2}
-                    onClick={() => handleDisconnect(id)}
-                  >
-                    Disconnect
-                  </Button>
-                ) : (
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    loading={busyProvider === id}
-                    onClick={() => handleConnect(id)}
-                  >
-                    Connect
-                  </Button>
+      <h2 className={styles.groupTitle}>Connected accounts</h2>
+      <ul className={styles.list}>
+        {PROVIDERS.map(({ id, label, Logo }) => {
+          const identity = identities.find((i) => i.provider === id);
+          const identityEmail = identity?.identity_data?.email as string | undefined;
+          // Supabase refuses to remove the last way to sign in
+          const onlySignIn = identities.length < 2;
+          return (
+            <li key={id} className={styles.row}>
+              <span className={styles.logoTile}>
+                <Logo className={styles.logo} />
+              </span>
+              <div className={styles.rowMain}>
+                <span className={styles.rowLabel}>{label}</span>
+                {identity && identityEmail && (
+                  <span className={styles.rowValue}>{identityEmail}</span>
                 )}
-              </li>
-            );
-          })}
-        </ul>
-        {providerError && <FormAlert message={providerError} />}
-      </section>
+              </div>
+              {identity ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  loading={busyProvider === id}
+                  disabled={onlySignIn}
+                  title={onlySignIn ? "Add another way to sign in first" : undefined}
+                  onClick={() => handleDisconnect(id)}
+                >
+                  Disconnect
+                </Button>
+              ) : (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  loading={busyProvider === id}
+                  onClick={() => handleConnect(id)}
+                >
+                  Connect
+                </Button>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      {providerError && <FormAlert message={providerError} />}
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>Delete account</h2>
-        <p className={styles.note}>
-          Deletes your sign-in and everything you&apos;ve tracked: library, collection,
-          trophies, play journal, buylist, sell list and any achievement sets you made.
-        </p>
-        {deleteError && <FormAlert message={deleteError} />}
+      <div className={styles.dangerRow}>
+        <div className={styles.rowMain}>
+          <span className={styles.rowLabel}>Delete account</span>
+          <span className={styles.rowHint}>
+            Deletes your sign-in and everything you&apos;ve tracked: library, collection,
+            trophies, play journal, buylist, sell list and any achievement sets you made.
+          </span>
+        </div>
         <Button
-          variant="destructive"
+          variant="outline"
           size="sm"
-          className="self-start"
+          className={styles.dangerButton}
           onClick={() => setConfirmingDelete(true)}
         >
-          Delete account
+          Delete
         </Button>
-      </section>
+      </div>
+      {deleteError && <FormAlert message={deleteError} />}
 
       <AdminConfirmDialog
         open={confirmingDelete}
