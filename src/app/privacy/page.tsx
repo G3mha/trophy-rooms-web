@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className={styles.title}>Privacy Policy</h1>
-        <p className={styles.lastUpdated}>Last Updated: November 10, 2026</p>
+        <p className={styles.lastUpdated}>Last Updated: November 17, 2026</p>
       </header>
 
       <div className={styles.content}>
@@ -128,9 +128,20 @@ export default function PrivacyPolicy() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>6. Data Retention</h2>
           <p className={styles.paragraph}>
-            We retain your personal information for as long as your account is active or as
-            needed to provide you services. You may request deletion of your account and
-            associated data at any time by contacting us.
+            We keep your personal information for as long as your account is active or as
+            needed to provide you services.
+          </p>
+          <p className={styles.paragraph}>
+            <strong>Deleting your account:</strong> You can delete your account at any time
+            from the Account page on the website or the Account screen in the iOS app.
+            Deletion is immediate and can&apos;t be undone. It removes your email address and
+            sign-in record (including from Supabase), your library, collection, trophies,
+            achievement progress, play journal, buylist, sell list and any achievement sets
+            you created. Trophy Rooms doesn&apos;t store files you upload, so there are none
+            to delete.
+          </p>
+          <p className={styles.paragraph}>
+            If you can&apos;t sign in, you can also ask us to delete your account by email.
           </p>
         </section>
 
@@ -143,7 +154,7 @@ export default function PrivacyPolicy() {
           <ul className={styles.list}>
             <li>Access and receive a copy of your personal data</li>
             <li>Rectify inaccurate personal data</li>
-            <li>Request deletion of your personal data</li>
+            <li>Delete your account and personal data (see Data Retention above)</li>
             <li>Object to or restrict processing of your personal data</li>
             <li>Data portability</li>
             <li>Withdraw consent at any time</li>
