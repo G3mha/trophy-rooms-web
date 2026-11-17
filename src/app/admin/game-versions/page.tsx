@@ -661,7 +661,7 @@ export default function AdminGameVersionsPage() {
         }
         description={
           confirmAction === "bulk"
-            ? "All selected versions will be permanently deleted."
+            ? `The selected ${selectedIds.size === 1 ? "game version" : "game versions"} will be permanently deleted.`
             : "This version will be permanently deleted."
         }
         confirmLabel="Delete"
