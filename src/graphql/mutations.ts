@@ -411,3 +411,14 @@ export const DELETE_PLAY_SESSION = gql`
   }
 `;
 
+
+export const DELETE_MY_ACCOUNT = gql`
+  mutation DeleteMyAccount {
+    deleteMyAccount {
+      success
+      error {
+        message
+      }
+    }
+  }
+`;
