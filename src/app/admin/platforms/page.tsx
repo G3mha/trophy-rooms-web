@@ -868,7 +868,7 @@ export default function AdminPlatformsPage() {
         }
         description={
           confirmAction === "bulk"
-            ? "All selected platforms will be permanently deleted."
+            ? `The selected ${selectedIds.size === 1 ? "platform" : "platforms"} will be permanently deleted.`
             : "This platform will be permanently deleted."
         }
         confirmLabel="Delete"
