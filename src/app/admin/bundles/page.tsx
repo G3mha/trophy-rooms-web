@@ -450,8 +450,7 @@ export default function AdminBundlesPage() {
               setConfirmState({
                 kind: "bulk",
                 title: `Delete ${selectedIds.size} ${selectedIds.size === 1 ? "bundle" : "bundles"}?`,
-                description:
-                  "Remove every selected bundle from the current filtered list.",
+                description: `The selected ${selectedIds.size === 1 ? "bundle" : "bundles"} will be permanently deleted.`,
               })
             }
           >
