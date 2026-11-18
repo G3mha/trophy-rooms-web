@@ -3,7 +3,8 @@
 import { ApolloClient, ApolloProvider, InMemoryCache, createHttpLink, from } from "@apollo/client";
 import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
-import { useMemo } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
+import { useAuth } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function createApolloClientWithAuth(getToken: () => Promise<string | null>) {
@@ -88,6 +89,21 @@ export function ApolloWrapper({ children }: { children: React.ReactNode }) {
   const client = useMemo(() => {
     return createApolloClientWithAuth(getSupabaseToken);
   }, []);
+
+  // The cache holds what the signed-in user (or a visitor) was shown. When
+  // that user changes without a page load, e.g. a session from another tab,
+  // drop it and refetch. A layout effect runs before newly mounted queries
+  // start, so the reset doesn't cancel them mid-flight.
+  const { isLoaded, userId } = useAuth();
+  const cachedFor = useRef<string | null | undefined>(undefined);
+  useLayoutEffect(() => {
+    if (!isLoaded) return;
+    if (cachedFor.current !== undefined && cachedFor.current !== userId) {
+      // Each refetched query reports its own failure
+      client.resetStore().catch(() => {});
+    }
+    cachedFor.current = userId;
+  }, [client, isLoaded, userId]);
 
   return <ApolloProvider client={client}>{children}</ApolloProvider>;
 }
