@@ -1,55 +1,93 @@
-.showcases {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  margin-bottom: 28px;
+/* Pinned lists as a trophy cabinet: one lit shelf per list, covers standing
+   on it, a brass nameplate above (see .claude/skills/trophy-cabinet-design) */
+.cabinet {
+  container-type: inline-size;
+  margin-bottom: 32px;
+  border: 1px solid rgba(201, 164, 92, 0.28);
+  border-radius: 6px;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 216px, rgba(0, 0, 0, 0.18) 216px 219px),
+    linear-gradient(90deg, var(--cabinet-walnut-deep) 0%, #2f1d0e 50%, var(--cabinet-walnut-deep) 100%);
 }
 
-.section {
-  padding: 24px;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: var(--bg-secondary);
+.shelf {
+  /* Ten covers fit one shelf on desktop; narrower screens scroll the shelf */
+  --gap: 16px;
+  --cover-w: clamp(92px, calc((100cqw - 56px - 9 * var(--gap)) / 10), 132px);
+  --cover-h: calc(var(--cover-w) * 4 / 3);
+  --shelf-top: 22px;
+  padding-top: 22px;
+  background: radial-gradient(ellipse 60% 70% at 50% 0%, rgba(255, 208, 138, 0.12), transparent 75%);
 }
 
-.title {
-  margin: 0 0 16px;
+.shelf + .shelf {
+  border-top: 10px solid #160d06;
+}
+
+.plaque {
+  display: inline-block;
+  margin: 0 0 0 28px;
+  padding: 5px 14px 4px;
+  border: 2px solid #4a3418;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #e3c582 0%, var(--cabinet-brass) 45%, var(--cabinet-brass-deep) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 200, 0.55),
+    3px 3px 0 var(--cabinet-ink);
+  color: #3a2a12;
   font-family: var(--font-display), sans-serif;
+  font-size: 13px;
   font-weight: 400;
-  font-size: 1.4rem;
-  letter-spacing: 1.5px;
+  line-height: 1.3;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--cabinet-bone);
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 16px;
+.scroller {
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201, 164, 92, 0.35) transparent;
+}
+
+.row {
+  display: flex;
+  gap: var(--gap);
+  width: max-content;
+  min-width: 100%;
   margin: 0;
-  padding: 0;
+  padding: var(--shelf-top) 28px 20px;
   list-style: none;
+  /* The lit shelf edge the covers stand on, drawn across the whole row */
+  background: linear-gradient(180deg, #e8d5ac 0%, #b08d54 22%, #5c3f22 60%, #1c1108 100%)
+    0 calc(var(--shelf-top) + var(--cover-h)) / 100% 12px no-repeat;
+}
+
+.item {
+  width: var(--cover-w);
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  scroll-margin-left: 28px;
 }
 
 .card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   color: var(--text-primary);
   text-decoration: none;
 }
 
 .cover {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 3 / 4;
-  border-radius: 8px;
+  height: var(--cover-h);
   overflow: hidden;
+  border-radius: 2px;
   background: var(--bg-card);
   color: var(--text-muted);
-  border: 1px solid var(--border-color);
+  box-shadow: 4px 0 0 rgba(13, 8, 5, 0.55);
 }
 
 .cover img {
@@ -60,37 +98,59 @@
 
 .card:hover .cover,
 .card:focus-visible .cover {
-  border-color: var(--cabinet-brass);
+  outline: 2px solid var(--cabinet-brass);
+  outline-offset: 2px;
+}
+
+.card:focus-visible {
+  outline: none;
+}
+
+.caption {
+  display: flex;
+  gap: 6px;
+  margin-top: 22px;
 }
 
 .rank {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  min-width: 26px;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: linear-gradient(180deg, var(--cabinet-brass), var(--cabinet-brass-deep));
-  color: #3a2a12;
+  flex-shrink: 0;
+  color: var(--cabinet-brass);
   font-family: var(--font-display), sans-serif;
-  font-size: 14px;
-  text-align: center;
-  box-shadow: 2px 2px 0 var(--cabinet-ink);
+  font-size: 15px;
+  line-height: 1.2;
 }
 
 .gameTitle {
-  font-size: 13px;
-  line-height: 1.3;
-  overflow-wrap: anywhere;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.35;
 }
 
-@media (max-width: 480px) {
-  .section {
-    padding: 16px;
+.card:hover .gameTitle,
+.card:focus-visible .gameTitle {
+  color: var(--text-primary);
+}
+
+@media (max-width: 600px) {
+  .shelf {
+    --gap: 12px;
+    --cover-w: 92px;
   }
 
-  .grid {
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-    gap: 12px;
+  .plaque {
+    margin-left: 16px;
+  }
+
+  .row {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .item {
+    scroll-margin-left: 16px;
   }
 }
