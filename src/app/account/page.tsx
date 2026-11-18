@@ -184,7 +184,10 @@ export default function AccountPage() {
           )}
           {editing === "email" && (
             <form className={styles.editor} onSubmit={handleEmailChange}>
-              <FormField label="New email">
+              <FormField
+                label="New email"
+                hint="Nothing changes until you open the links we send to both addresses"
+              >
                 <Input
                   type="email"
                   value={newEmail}
