@@ -249,6 +249,12 @@ export default function GameDetailPage({
     }
   };
 
+  const trophyLine = !isSignedIn
+    ? `Earn all ${trophyAchievementCount} trophies`
+    : isTrophyComplete && myTrophy
+      ? `Earned ${new Date(myTrophy.createdAt).toLocaleDateString()}`
+      : `${completedCount} of ${trophyAchievementCount} trophies`;
+
   const renderAchievement = (achievement: Achievement) => (
     <AchievementCard
       key={achievement.id}
@@ -520,7 +526,7 @@ export default function GameDetailPage({
             <div className={styles.trophyBody}>
               <div className={styles.progressHeading}>
                 <h2 className={styles.sectionTitle}>
-                  {platinum?.title ?? (isTrophyComplete ? "Platinum Earned" : "The Platinum")}
+                  {platinum?.title ?? "Platinum"}
                 </h2>
                 {platinum?.description && (
                   <Popover.Root>
@@ -542,24 +548,23 @@ export default function GameDetailPage({
                   </Popover.Root>
                 )}
               </div>
-              {isSignedIn ? (
-                <>
-                  <div className={styles.progressBar}>
-                    <div className={styles.progressFill} style={{ width: `${progress}%` }} />
-                  </div>
-                  <p className={styles.trophyLine}>
-                    {isTrophyComplete && myTrophy
-                      ? `Earned on ${new Date(myTrophy.createdAt).toLocaleDateString()}`
-                      : `${completedCount} / ${trophyAchievementCount}`}
-                  </p>
-                </>
-              ) : (
-                !platinum?.description && (
-                  <p className={styles.trophyLine}>
-                    Earn all {trophyAchievementCount} trophies to get it.
-                  </p>
-                )
+              {isSignedIn && (
+                <div
+                  className={styles.progressBar}
+                  role="progressbar"
+                  aria-label="Platinum progress"
+                  aria-valuenow={progress}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+                </div>
               )}
+              <p className={styles.trophyLine}>
+                {platinum?.title && "Platinum · "}
+                {trophyLine}
+              </p>
+              <p className={styles.listSource}>{requiredSets.map((set) => set.title).join(" + ")}</p>
             </div>
           </div>
 
@@ -575,7 +580,6 @@ export default function GameDetailPage({
             );
           })}
 
-          <p className={styles.listSource}>{requiredSets.map((set) => set.title).join(" + ")}</p>
         </section>
       )}
 

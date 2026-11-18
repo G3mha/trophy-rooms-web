@@ -205,12 +205,6 @@
   background: var(--bg-secondary);
 }
 
-.progressPanel {
-  background:
-    radial-gradient(circle at top right, rgba(255, 208, 138, 0.12), transparent 30%),
-    var(--bg-secondary);
-}
-
 .sectionHeader {
   display: flex;
   align-items: flex-start;
@@ -301,7 +295,7 @@
 }
 
 .progressBar {
-  height: 14px;
+  height: 10px;
   background: rgba(255, 255, 255, 0.06);
   border-radius: 999px;
   overflow: hidden;
@@ -310,7 +304,7 @@
 .progressFill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #ff6b77 0%, #ffcd38 100%);
+  background: var(--cabinet-brass);
   transition: width 0.35s ease;
 }
 
@@ -555,7 +549,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .trophyLine {
@@ -610,10 +604,9 @@
 }
 
 .listSource {
-  margin: 20px 0 0;
-  color: var(--text-secondary);
-  font-size: 0.78rem;
-  opacity: 0.7;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
 }
 
 @media (max-width: 520px) {
