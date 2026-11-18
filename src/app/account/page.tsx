@@ -358,7 +358,8 @@ export default function AccountPage() {
           <span className={styles.rowLabel}>Delete account</span>
           <span className={styles.rowHint}>
             Deletes your sign-in and everything you&apos;ve tracked: library, collection,
-            trophies, play journal, buylist, sell list and any achievement sets you made.
+            trophies, play journal, buylist, sell list, profile and picture, and any achievement
+            sets you made.
           </span>
         </div>
         <Button

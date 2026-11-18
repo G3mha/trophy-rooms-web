@@ -39,6 +39,11 @@ export default function PrivacyPolicy() {
           </p>
           <ul className={styles.list}>
             <li>Account information (email address, username, profile picture)</li>
+            <li>
+              Profile details you choose to add (display name, bio, profile picture, social
+              network handles, and the games you pin to your profile). These appear on your
+              public profile, so anyone can see them
+            </li>
             <li>Gaming data (games you track, trophies you mark as earned)</li>
             <li>Communications with us (support requests, feedback)</li>
           </ul>
@@ -74,8 +79,9 @@ export default function PrivacyPolicy() {
             Trophy Rooms integrates with the following third-party services:
           </p>
           <p className={styles.paragraph}>
-            <strong>Supabase (Authentication &amp; Database):</strong> We use Supabase for
-            user authentication and data storage. When you sign up or sign in, Supabase
+            <strong>Supabase (Authentication, Database &amp; File Storage):</strong> We use
+            Supabase for user authentication and data storage, including the profile picture
+            you upload, which is kept in private storage and shown through links that expire. When you sign up or sign in, Supabase
             processes your authentication data according to their privacy policy. Visit{" "}
             <a
               href="https://supabase.com/privacy"
@@ -136,9 +142,9 @@ export default function PrivacyPolicy() {
             from the Account page on the website or the Account screen in the iOS app.
             Deletion is immediate and can&apos;t be undone. It removes your email address and
             sign-in record (including from Supabase), your library, collection, trophies,
-            achievement progress, play journal, buylist, sell list and any achievement sets
-            you created. Trophy Rooms doesn&apos;t store files you upload, so there are none
-            to delete.
+            achievement progress, play journal, buylist, sell list, any achievement sets
+            you created, and your profile, including the profile picture file itself.
+            Replacing or removing a profile picture deletes the old file too.
           </p>
           <p className={styles.paragraph}>
             If you can&apos;t sign in, you can also ask us to delete your account by email.
