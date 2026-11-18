@@ -22,10 +22,12 @@ SHAPES = {
       <circle cx="37" cy="34" r="26"/>
       <rect x="31" y="56" width="12" height="16" rx="3"/>
       <rect x="17" y="72" width="41" height="18" rx="4"/>"""),
-    "obelisk": (55, 102, """
-      <rect x="20" y="4" width="15" height="60" rx="4"/>
-      <polygon points="27,0 34,12 21,12"/>
-      <rect x="10" y="64" width="35" height="16" rx="3"/>
+    # Shield on a stand. Replaces the obelisk (rejected Nov 2026: tall narrow
+    # columns read as phallic); same shape as TrophySilhouette.shield on iOS
+    "shield": (55, 102, """
+      <path d="M6 6 L27.5 1 L49 6 V30 C49 44 42 53 32 58 H23 C13 53 6 44 6 30 Z"/>
+      <rect x="22" y="58" width="11" height="8" rx="2"/>
+      <rect x="10" y="66" width="35" height="14" rx="3"/>
       <rect x="4" y="80" width="47" height="22" rx="4"/>"""),
     "bigcup": (120, 222, """
       <path d="M18 8 h84 v34 c0 40 -19 62 -42 62 c-23 0 -42 -22 -42 -62 z"/>
@@ -51,11 +53,11 @@ CARDS_DEF = [
     dict(slug="library", shot="library", kicker="Your Library",
          headline="Every game.<br>One room.", plaque="Library",
          sils=[("cup", "left", 60, 190), ("star", "left", 270, 120), ("medal", "left", 405, 150),
-               ("cup", "right", 60, 170), ("obelisk", "right", 250, 110)],
+               ("cup", "right", 60, 170), ("shield", "right", 250, 110)],
          flanks=[("bigcup", "left", -95, 240), ("bigcup", "right", -85, 220)]),
     dict(slug="collection", shot="collection", kicker="Your Collection",
          headline="Boxed. Sealed.<br>On the shelf.", plaque="The Collection",
-         sils=[("medal", "left", 70, 160), ("obelisk", "left", 220, 120),
+         sils=[("medal", "left", 70, 160), ("shield", "left", 220, 120),
                ("cup", "right", 70, 200), ("star", "right", 290, 110), ("medal", "right", 420, 140)],
          flanks=[("bigcup", "left", -100, 250)]),
     dict(slug="journal", shot="journal", kicker="Day by day",
@@ -65,17 +67,17 @@ CARDS_DEF = [
          flanks=[("bigcup", "right", -95, 235)]),
     dict(slug="quicklog", shot="log-play", kicker="One tap",
          headline="Tonight&rsquo;s play,<br>logged.", plaque="Quick Log",
-         sils=[("obelisk", "left", 60, 115), ("medal", "left", 200, 150), ("cup", "left", 350, 175),
+         sils=[("shield", "left", 60, 115), ("medal", "left", 200, 150), ("cup", "left", 350, 175),
                ("cup", "right", 90, 155)],
          flanks=[]),
     dict(slug="search", shot="search", kicker="Find anything",
          headline="28,000 games.<br>One search.", plaque="The Archive",
          sils=[("cup", "left", 90, 165), ("medal", "left", 290, 135),
-               ("obelisk", "right", 90, 120), ("cup", "right", 230, 190), ("star", "right", 430, 110)],
+               ("shield", "right", 90, 120), ("cup", "right", 230, 190), ("star", "right", 430, 110)],
          flanks=[("bigcup", "left", -90, 215), ("bigcup", "right", -100, 245)]),
     dict(slug="detail", shot="game-detail", kicker="The full story",
          headline="Every detail,<br>on record.", plaque="Game Details",
-         sils=[("star", "left", 60, 125), ("obelisk", "left", 210, 115),
+         sils=[("star", "left", 60, 125), ("shield", "left", 210, 115),
                ("medal", "right", 60, 155), ("cup", "right", 240, 185)],
          flanks=[("bigcup", "left", -105, 255)]),
 ]
