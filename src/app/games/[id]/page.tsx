@@ -1,21 +1,17 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { useQuery, useMutation, type ApolloCache } from "@apollo/client";
-import { toast } from "sonner";
+import { useQuery } from "@apollo/client";
 import { useAuth } from "@/lib/auth";
-import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon, Info, Eye, EyeOff, ChevronRight } from "lucide-react";
+import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon, Info } from "lucide-react";
 import { Popover } from "@base-ui/react/popover";
 import { useAdminMode } from "@/contexts/AdminModeContext";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
-import {
-  MARK_ACHIEVEMENT_COMPLETE,
-  UNMARK_ACHIEVEMENT_COMPLETE,
-} from "@/graphql/mutations";
-import { AchievementCard, AppImage, Button, EmptyState, FilterTabs, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, PlatformIcon, PageSkeleton, QueryState, type FilterTab } from "@/components";
+import { AchievementCard, AppImage, Button, EmptyState, FilterEmpty, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, PlatformIcon, PageSkeleton, QueryState, TrophyGrid, TrophySet, TrophyToolbar, notPlatinum, showsUnderFilter, type TrophyFilter } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import { TrophySilhouette } from "@/components/TrophyShelf";
 import { getDisplayName } from "@/lib/avatar-utils";
+import { useTrophyTick } from "@/lib/use-trophy-tick";
 import styles from "./page.module.css";
 
 interface Achievement {
@@ -29,36 +25,9 @@ interface Achievement {
   achievementSetId: string;
 }
 
-// Tier sort priority (higher = more rare = shown first)
-const tierPriority: Record<AchievementTier, number> = {
-  PLATINUM: 4,
-  GOLD: 3,
-  SILVER: 2,
-  BRONZE: 1,
-};
-
 // Best first, the order the trophy list is grouped in. No Platinum: a list's
 // Platinum is the trophy itself and heads the section instead.
 const TIERS: AchievementTier[] = ["GOLD", "SILVER", "BRONZE"];
-
-// The backend awards the Platinum, so progress counts never include it
-const notPlatinum = (a: Achievement) => a.tier !== "PLATINUM";
-
-function sortByTier(achievements: Achievement[]): Achievement[] {
-  return [...achievements].sort((a, b) => {
-    const aTier = a.tier ?? "BRONZE";
-    const bTier = b.tier ?? "BRONZE";
-    return tierPriority[bTier] - tierPriority[aTier];
-  });
-}
-
-type TrophyFilter = "all" | "left" | "earned";
-
-const FILTER_TABS: FilterTab<TrophyFilter>[] = [
-  { label: "All", value: "all" },
-  { label: "Not earned", value: "left" },
-  { label: "Earned", value: "earned" },
-];
 
 interface Trophy {
   id: string;
@@ -112,28 +81,6 @@ interface Game {
   trophies: Trophy[];
 }
 
-// What the tick mutations select, see MARK_ACHIEVEMENT_COMPLETE and
-// UNMARK_ACHIEVEMENT_COMPLETE
-interface TickResult {
-  __typename?: string;
-  success: boolean;
-  error: { code: string; message: string; field: string | null } | null;
-}
-
-interface MarkCompleteData {
-  markAchievementComplete: TickResult & {
-    userAchievement: {
-      id: string;
-      createdAt: string;
-      achievement: Pick<Achievement, "id" | "title" | "isCompleted" | "earnedPercent">;
-    } | null;
-  };
-}
-
-interface UnmarkCompleteData {
-  unmarkAchievementComplete: TickResult;
-}
-
 export default function GameDetailPage({
   params,
 }: {
@@ -154,8 +101,7 @@ export default function GameDetailPage({
     skip: !isSignedIn,
   });
 
-  const [markComplete] = useMutation<MarkCompleteData>(MARK_ACHIEVEMENT_COMPLETE);
-  const [unmarkComplete] = useMutation<UnmarkCompleteData>(UNMARK_ACHIEVEMENT_COMPLETE);
+  const tick = useTrophyTick();
 
   const game: Game | undefined = data?.game;
   const me = meData?.me;
@@ -204,65 +150,21 @@ export default function GameDetailPage({
   const trophyArt = platinum?.iconUrl ?? game?.coverUrl;
   const trophyArtRatio = platinum?.iconUrl ? "1" : game?.coverUrl ? "3 / 4" : undefined;
 
-  // A tick shows at once: the cache flips isCompleted ahead of the server and
-  // rolls back if the server refuses it.
   const handleToggleAchievement = (achievementId: string) => {
     const achievement = game?.achievementSets
       .flatMap((set) => set.achievements)
       .find((a) => a.id === achievementId);
     if (!isSignedIn || !achievement) return;
 
-    const earned = !achievement.isCompleted;
     // Finishing or breaking the list awards or takes the Platinum, which
     // changes the earned date and the holders, so only then refetch
     const changesPlatinum =
       trophyAchievements.some((a) => a.id === achievementId) &&
-      (earned ? completedCount + 1 === trophyAchievementCount : isTrophyComplete);
-    const writeTick = (cache: ApolloCache<unknown>, succeeded = false) => {
-      if (!succeeded) return;
-      cache.modify({
-        id: cache.identify({ __typename: "Achievement", id: achievementId }),
-        fields: { isCompleted: () => earned },
-      });
-    };
-    const settle = (result: TickResult) => {
-      if (!result.success) toast.error(result.error?.message || "Couldn’t update the trophy.");
-      else if (changesPlatinum) refetch();
-    };
-    const onError = (error: Error) => toast.error(error.message || "Couldn’t update the trophy.");
-
-    if (earned) {
-      markComplete({
-        variables: { achievementId },
-        optimisticResponse: {
-          markAchievementComplete: {
-            __typename: "UserAchievementMutationResult",
-            success: true,
-            error: null,
-            userAchievement: null,
-          },
-        },
-        update: (cache, { data }) => writeTick(cache, data?.markAchievementComplete.success),
-        onCompleted: (data) => settle(data.markAchievementComplete),
-        onError,
-      });
-    } else {
-      unmarkComplete({
-        variables: { achievementId },
-        optimisticResponse: {
-          unmarkAchievementComplete: { __typename: "DeleteResult", success: true, error: null },
-        },
-        update: (cache, { data }) => writeTick(cache, data?.unmarkAchievementComplete.success),
-        onCompleted: (data) => settle(data.unmarkAchievementComplete),
-        onError,
-      });
-    }
+      (achievement.isCompleted ? isTrophyComplete : completedCount + 1 === trophyAchievementCount);
+    tick(achievement, changesPlatinum ? () => refetch() : undefined);
   };
 
-  const showsUnderFilter = (a: Achievement) =>
-    filter === "all" || (filter === "earned") === Boolean(a.isCompleted);
-  const visibleTrophies = trophyAchievements.filter(showsUnderFilter);
-  const filterEmptyText = filter === "earned" ? "Nothing earned yet." : "All earned.";
+  const visibleTrophies = trophyAchievements.filter((a) => showsUnderFilter(filter, a));
   const hasDescriptions =
     game?.achievementSets.some((set) => set.achievements.some((a) => a.description)) ?? false;
   const trophyLine = !isSignedIn
@@ -286,31 +188,6 @@ export default function GameDetailPage({
       onToggle={isSignedIn && achievement.tier !== "PLATINUM" ? handleToggleAchievement : undefined}
     />
   );
-
-  const renderExtraSet = (set: AchievementSet) => {
-    const counted = set.achievements.filter(notPlatinum);
-    const visible = sortByTier(set.achievements).filter(showsUnderFilter);
-    return (
-      <details key={set.id} className={styles.extraSet}>
-        <summary className={styles.extraSummary}>
-          <ChevronRight size={18} className={styles.extraChevron} aria-hidden />
-          <span className={styles.extraName}>{set.title}</span>
-          <span className={styles.extraCount}>
-            {isSignedIn
-              ? `${counted.filter((a) => a.isCompleted).length} of ${counted.length}`
-              : `${counted.length} ${counted.length === 1 ? "trophy" : "trophies"}`}
-          </span>
-        </summary>
-        {visible.length > 0 ? (
-          <div className={styles.achievementList}>{visible.map(renderAchievement)}</div>
-        ) : (
-          <p className={styles.filterEmpty}>
-            {set.achievements.length > 0 ? filterEmptyText : "No trophies in this list yet."}
-          </p>
-        )}
-      </details>
-    );
-  };
 
   return (
     <div className={styles.container}>
@@ -579,28 +456,14 @@ export default function GameDetailPage({
             </div>
           )}
 
-          {(isSignedIn || hasDescriptions) && (
-            <div className={styles.trophyToolbar}>
-              {isSignedIn && (
-                <FilterTabs
-                  tabs={FILTER_TABS}
-                  value={filter}
-                  onChange={setFilter}
-                  className={styles.filterTabs}
-                />
-              )}
-              {hasDescriptions && (
-                <button
-                  type="button"
-                  className={styles.revealAll}
-                  onClick={() => setRevealAll((shown) => !shown)}
-                >
-                  {revealAll ? <EyeOff size={16} /> : <Eye size={16} />}
-                  {revealAll ? "Hide descriptions" : "Show descriptions"}
-                </button>
-              )}
-            </div>
-          )}
+          <TrophyToolbar
+            showFilter={isSignedIn}
+            filter={filter}
+            onFilterChange={setFilter}
+            showReveal={hasDescriptions}
+            revealAll={revealAll}
+            onRevealAllChange={setRevealAll}
+          />
 
           {TIERS.map((tier) => {
             const inTier = visibleTrophies.filter((a) => (a.tier ?? "BRONZE") === tier);
@@ -608,20 +471,29 @@ export default function GameDetailPage({
               inTier.length > 0 && (
                 <div key={tier} className={styles.tierGroup}>
                   <h3 className={styles.tierHeading}>{tier.toLowerCase()}</h3>
-                  <div className={styles.achievementList}>{inTier.map(renderAchievement)}</div>
+                  <TrophyGrid>{inTier.map(renderAchievement)}</TrophyGrid>
                 </div>
               )
             );
           })}
           {trophyAchievementCount > 0 && visibleTrophies.length === 0 && (
-            <p className={styles.filterEmpty}>{filterEmptyText}</p>
+            <FilterEmpty filter={filter} />
           )}
 
           {extraSets.length > 0 && (
             <div className={styles.extraLists}>
               <h2 className={styles.extraTitle}>Extra lists</h2>
               <p className={styles.sectionNote}>These don&apos;t count toward the Platinum.</p>
-              {extraSets.map(renderExtraSet)}
+              {extraSets.map((set) => (
+                <TrophySet
+                  key={set.id}
+                  title={set.title}
+                  achievements={set.achievements}
+                  filter={filter}
+                  isSignedIn={isSignedIn}
+                  renderAchievement={renderAchievement}
+                />
+              ))}
             </div>
           )}
         </section>

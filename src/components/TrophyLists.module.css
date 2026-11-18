@@ -1,0 +1,93 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 400px), 1fr));
+  align-items: start;
+  gap: 8px;
+}
+
+.empty {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filterTabs {
+  justify-content: flex-start;
+}
+
+.revealAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  margin-left: auto;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.revealAll:hover {
+  color: var(--text-primary);
+}
+
+.revealAll:focus-visible,
+.summary:focus-visible {
+  outline: 2px solid var(--cabinet-brass);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.set + .set {
+  border-top: 1px solid var(--border-color);
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  color: var(--text-primary);
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+.chevron {
+  flex: none;
+  color: var(--text-muted);
+}
+
+.set[open] .chevron {
+  transform: rotate(90deg);
+}
+
+.name {
+  flex: 1;
+  min-width: 0;
+}
+
+.count {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.setBody {
+  margin-bottom: 16px;
+}

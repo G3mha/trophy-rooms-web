@@ -35,6 +35,16 @@ export { AddToCollectionModal } from "./AddToCollectionModal";
 export { BundleCard } from "./BundleCard";
 export { Pagination } from "./Pagination";
 export { FilterTabs, type FilterTab } from "./FilterTabs";
+export {
+  TrophyToolbar,
+  TrophySet,
+  TrophyGrid,
+  FilterEmpty,
+  showsUnderFilter,
+  notPlatinum,
+  sortByTier,
+  type TrophyFilter,
+} from "./TrophyLists";
 export { GlobalSearch } from "./GlobalSearch";
 export { ExpandableText } from "./ExpandableText";
 export { TrophyCase, TrophyShelf } from "./TrophyShelf";
