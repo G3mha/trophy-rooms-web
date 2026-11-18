@@ -8,7 +8,7 @@ import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { PageSkeleton, FormAlert, Button } from "@/components";
 import { AdminConfirmDialog } from "@/components/admin";
-import { GoogleLogo, AppleLogo } from "@/components/auth";
+import { GoogleLogo, AppleLogo, VerificationCodeInput } from "@/components/auth";
 import { DELETE_MY_ACCOUNT } from "@/graphql";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/ui/form-field";
@@ -36,6 +36,8 @@ export default function AccountPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState<string>();
   const [savingPassword, setSavingPassword] = useState(false);
+  // Supabase wants an emailed code when the sign-in is over 24 hours old
+  const [needsCode, setNeedsCode] = useState(false);
 
   const [providerError, setProviderError] = useState<string>();
   const [busyProvider, setBusyProvider] = useState<string | null>(null);
@@ -77,6 +79,7 @@ export default function AccountPage() {
     setPassword("");
     setConfirmPassword("");
     setPasswordError(undefined);
+    setNeedsCode(false);
   };
 
   const handleEmailChange = async (e: React.FormEvent) => {
@@ -97,15 +100,22 @@ export default function AccountPage() {
     loadUser();
   };
 
-  const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setPasswordError("Passwords don't match");
-      return;
-    }
+  const sendPasswordCode = async () => {
+    const { error } = await getSupabaseBrowserClient().auth.reauthenticate();
+    if (error) setPasswordError(error.message);
+    return !error;
+  };
+
+  const savePassword = async (nonce?: string) => {
     setSavingPassword(true);
     setPasswordError(undefined);
-    const { error } = await getSupabaseBrowserClient().auth.updateUser({ password });
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.auth.updateUser({ password, nonce });
+    if (error?.code === "reauthentication_needed") {
+      if (await sendPasswordCode()) setNeedsCode(true);
+      setSavingPassword(false);
+      return;
+    }
     setSavingPassword(false);
     if (error) {
       setPasswordError(error.message);
@@ -113,6 +123,20 @@ export default function AccountPage() {
     }
     closeEditor();
     toast.success("Password saved");
+  };
+
+  const handlePasswordChange = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords don't match");
+      return;
+    }
+    savePassword();
+  };
+
+  const handleResendCode = async () => {
+    setPasswordError(undefined);
+    if (await sendPasswordCode()) toast.success("New code sent");
   };
 
   const handleConnect = async (provider: (typeof PROVIDERS)[number]["id"]) => {
@@ -220,7 +244,27 @@ export default function AccountPage() {
               Change
             </Button>
           )}
-          {editing === "password" && (
+          {editing === "password" && needsCode && (
+            <div className={`${styles.editor} ${styles.codeStep}`}>
+              <p className={styles.codePrompt}>
+                Enter the code we emailed to {user.email} to confirm it&apos;s you.
+              </p>
+              <VerificationCodeInput
+                onComplete={(code) => savePassword(code)}
+                loading={savingPassword}
+                error={passwordError}
+              />
+              <div className={styles.editorActions}>
+                <Button type="button" variant="ghost" size="sm" onClick={handleResendCode}>
+                  Resend code
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={closeEditor}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+          {editing === "password" && !needsCode && (
             <form className={styles.editor} onSubmit={handlePasswordChange}>
               <FormField label="New password" hint={`At least ${MIN_PASSWORD_LENGTH} characters`}>
                 <Input

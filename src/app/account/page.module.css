@@ -83,10 +83,26 @@
 /* Opens under its row, full width */
 .editor {
   flex-basis: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
   padding: 6px 0 4px;
+}
+
+/* The code boxes center themselves, so the step centers around them */
+.codeStep {
+  text-align: center;
+}
+
+.codeStep .editorActions {
+  justify-content: center;
+}
+
+.codePrompt {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
 }
 
 .editorActions {
