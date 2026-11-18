@@ -245,11 +245,66 @@ export const GET_MY_TROPHIES = gql`
 `;
 
 // Public profile queries
+// Bio, avatar, social links and the three pinned game lists
+export const PROFILE_FRAGMENT = gql`
+  fragment ProfileFields on User {
+    id
+    name
+    bio
+    avatarUrl
+    socialLinks {
+      id
+      network
+      handle
+      url
+    }
+    allTime: showcase(list: ALL_TIME) {
+      id
+      title
+      slug
+      coverUrl
+    }
+    platinums: showcase(list: PLATINUMS) {
+      id
+      title
+      slug
+      coverUrl
+    }
+    collection: showcase(list: COLLECTION) {
+      id
+      title
+      slug
+      coverUrl
+    }
+  }
+`;
+
+export const GET_MY_PROFILE = gql`
+  query GetMyProfile {
+    me {
+      ...ProfileFields
+    }
+  }
+  ${PROFILE_FRAGMENT}
+`;
+
+export const GET_MY_SHOWCASE_CANDIDATES = gql`
+  query GetMyShowcaseCandidates($list: ShowcaseList!) {
+    myShowcaseCandidates(list: $list) {
+      id
+      title
+      slug
+      coverUrl
+    }
+  }
+`;
+
 export const GET_USER = gql`
   query GetUser($id: ID!) {
     user(id: $id) {
       id
       name
+      ...ProfileFields
       achievementCount
       trophyCount
       gamesWithAchievementsCount
@@ -279,6 +334,7 @@ export const GET_USER = gql`
       }
     }
   }
+  ${PROFILE_FRAGMENT}
 `;
 
 export const GET_USER_TROPHIES = gql`

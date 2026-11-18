@@ -3,6 +3,7 @@ import {
   GAME_FRAGMENT,
   ACHIEVEMENT_FRAGMENT,
   ACHIEVEMENT_SET_FRAGMENT,
+  PROFILE_FRAGMENT,
 } from "./queries";
 
 // Game mutations
@@ -421,4 +422,35 @@ export const DELETE_MY_ACCOUNT = gql`
       }
     }
   }
+`;
+
+export const UPDATE_MY_PROFILE = gql`
+  mutation UpdateMyProfile($input: UpdateMyProfileInput!) {
+    updateMyProfile(input: $input) {
+      success
+      error {
+        message
+        field
+      }
+      user {
+        ...ProfileFields
+      }
+    }
+  }
+  ${PROFILE_FRAGMENT}
+`;
+
+export const SET_PROFILE_SHOWCASE = gql`
+  mutation SetProfileShowcase($list: ShowcaseList!, $gameFamilyIds: [ID!]!) {
+    setProfileShowcase(list: $list, gameFamilyIds: $gameFamilyIds) {
+      success
+      error {
+        message
+      }
+      user {
+        ...ProfileFields
+      }
+    }
+  }
+  ${PROFILE_FRAGMENT}
 `;
