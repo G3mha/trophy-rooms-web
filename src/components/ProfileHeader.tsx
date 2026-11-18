@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
-import { Trophy, Share2, Medal, Pencil } from "lucide-react";
+import { Trophy, Share2, Pencil } from "lucide-react";
 import { getDisplayName } from "@/lib/avatar-utils";
 import { SOCIAL_NETWORKS, socialLabel, type SocialLink } from "@/lib/profile";
 import { AppImage } from "./AppImage";
+import { Button } from "./Button";
 import styles from "./ProfileHeader.module.css";
 
 interface UserStats {
@@ -41,7 +41,7 @@ function getInitials(name: string | null | undefined, userId: string): string {
   return userId.slice(-2).toUpperCase();
 }
 
-function getAvatarColor(name: string | null | undefined, userId: string): string {
+export function getAvatarColor(name: string | null | undefined, userId: string): string {
   const str = name || userId;
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -80,183 +80,132 @@ export function ProfileHeader({
   const sortedLinks = [...socialLinks].sort(
     (a, b) => networkOrder.indexOf(a.network) - networkOrder.indexOf(b.network)
   );
-  const initials = getInitials(name, userId);
-  const avatarColor = getAvatarColor(name, userId);
   const displayName = getDisplayName(name, userId);
-
-  const memberDate = new Date(memberSince);
-  const formattedDate = memberDate.toLocaleDateString("en-US", {
+  const formattedDate = new Date(memberSince).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
   });
-  const platinumCount = stats?.platinumCount ?? 0;
+
+  const tiers = stats
+    ? [
+        { key: "platinum", label: "Platinum", count: stats.platinumCount ?? 0 },
+        { key: "gold", label: "Gold", count: stats.goldCount },
+        { key: "silver", label: "Silver", count: stats.silverCount },
+        { key: "bronze", label: "Bronze", count: stats.bronzeCount },
+      ]
+    : [];
+  const tierTotal = tiers.reduce((sum, tier) => sum + tier.count, 0);
 
   return (
-    <div className={styles.header}>
-      <div className={styles.profileCard}>
-        {/* Avatar */}
-        <div
-          className={styles.avatar}
-          style={{ backgroundColor: avatarColor }}
-        >
+    <section className={styles.plate} aria-label="Profile">
+      {isOwnProfile && (
+        <div className={styles.actions}>
+          <Button variant="secondary" size="sm" href="/profile">
+            <Pencil size={15} aria-hidden /> Edit profile
+          </Button>
+          {onShare && (
+            <Button variant="secondary" size="icon" aria-label="Share profile" onClick={onShare}>
+              <Share2 size={16} aria-hidden />
+            </Button>
+          )}
+        </div>
+      )}
+
+      <div className={styles.identity}>
+        <div className={styles.avatar} style={{ backgroundColor: getAvatarColor(name, userId) }}>
           <AppImage
             src={avatarUrl}
             alt=""
             className={styles.avatarImage}
-            fallback={<span className={styles.initials}>{initials}</span>}
+            fallback={<span className={styles.initials}>{getInitials(name, userId)}</span>}
           />
           {trophyCount >= 10 && (
-            <div className={styles.badge} title="Platinum Master">
-              <Trophy size={14} />
-            </div>
+            <span className={styles.badge} title="Platinum Master">
+              <Trophy size={14} aria-label="Platinum Master" />
+            </span>
           )}
         </div>
-
-        {/* Profile Info */}
-        <div className={styles.info}>
+        <div className={styles.nameBlock}>
           <h1 className={styles.name}>{displayName}</h1>
           <p className={styles.memberSince}>Member since {formattedDate}</p>
+        </div>
+      </div>
+
+      {(bio || sortedLinks.length > 0) && (
+        <div className={styles.about}>
           {bio && <p className={styles.bio}>{bio}</p>}
           {sortedLinks.length > 0 && (
             <ul className={styles.socialLinks}>
               {sortedLinks.map((link) => (
-                <li key={link.id}>
+                <li key={link.id} className={styles.social}>
+                  <span className={styles.socialNetwork}>{socialLabel(link.network)}</span>
                   {link.url ? (
                     <a
-                      className={styles.socialLink}
+                      className={styles.socialHandle}
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer nofollow"
                     >
-                      <span className={styles.socialNetwork}>{socialLabel(link.network)}</span>
                       {link.handle}
                     </a>
                   ) : (
-                    <span className={styles.socialLink}>
-                      <span className={styles.socialNetwork}>{socialLabel(link.network)}</span>
-                      {link.handle}
-                    </span>
+                    <span className={styles.socialHandle}>{link.handle}</span>
                   )}
                 </li>
               ))}
             </ul>
           )}
-
-          {/* Quick Stats */}
-          <div className={styles.quickStats}>
-            <div className={styles.quickStat}>
-              <span className={styles.quickStatValue}>{trophyCount}</span>
-              <span className={styles.quickStatLabel}>Platinums</span>
-            </div>
-            <div className={styles.quickStat}>
-              <span className={styles.quickStatValue}>{achievementCount}</span>
-              <span className={styles.quickStatLabel}>
-                <Trophy size={14} aria-hidden />
-                <span className="sr-only">Trophies</span>
-              </span>
-            </div>
-            <div className={styles.quickStat}>
-              <span className={styles.quickStatValue}>{gamesPlayed}</span>
-              <span className={styles.quickStatLabel}>Games</span>
-            </div>
-          </div>
         </div>
+      )}
 
-        {/* Actions */}
-        {isOwnProfile && (
-          <div className={styles.actions}>
-            <Link href="/profile" className={styles.shareButton}>
-              <Pencil size={16} /> Edit Profile
-            </Link>
-            {onShare && (
-              <button className={styles.shareButton} onClick={onShare}>
-                <Share2 size={16} /> Share Profile
-              </button>
-            )}
+      <div className={styles.ledger}>
+        <dl className={styles.stats}>
+          <div className={styles.stat}>
+            <dt>Platinums</dt>
+            <dd>{trophyCount}</dd>
+          </div>
+          <div className={styles.stat}>
+            <dt>Trophies</dt>
+            <dd>{achievementCount}</dd>
+          </div>
+          <div className={styles.stat}>
+            <dt>Games</dt>
+            <dd>{gamesPlayed}</dd>
+          </div>
+          {stats && (
+            <div className={styles.stat}>
+              <dt>Completion</dt>
+              <dd>{stats.completionRate}%</dd>
+            </div>
+          )}
+        </dl>
+
+        {tierTotal > 0 && (
+          <div className={styles.tiers}>
+            <div className={styles.tierBar} aria-hidden>
+              {tiers.map(
+                (tier) =>
+                  tier.count > 0 && (
+                    <span
+                      key={tier.key}
+                      className={styles[tier.key]}
+                      style={{ flexGrow: tier.count }}
+                    />
+                  )
+              )}
+            </div>
+            <ul className={styles.tierLegend} aria-label="Trophies by tier">
+              {tiers.map((tier) => (
+                <li key={tier.key}>
+                  <span className={`${styles.tierDot} ${styles[tier.key]}`} aria-hidden />
+                  {tier.label}
+                  <strong>{tier.count}</strong>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </div>
-
-      {/* Tier Distribution */}
-      {stats &&
-        (platinumCount > 0 ||
-          stats.goldCount > 0 ||
-          stats.silverCount > 0 ||
-          stats.bronzeCount > 0) && (
-        <div className={styles.tierDistribution}>
-          <h3 className={styles.tierTitle}>Trophy Breakdown</h3>
-          <div className={styles.tierBars}>
-            <div className={styles.tierBar}>
-              <div className={styles.tierLabel}>
-                <Medal className={styles.tierIcon} size={16} color="#E5E4E2" />
-                <span>Platinum</span>
-                <span className={styles.tierCount}>{platinumCount}</span>
-              </div>
-              <div className={styles.barContainer}>
-                <div
-                  className={`${styles.barFill} ${styles.barPlatinum}`}
-                  style={{
-                    width: `${achievementCount > 0 ? (platinumCount / achievementCount) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-            </div>
-            <div className={styles.tierBar}>
-              <div className={styles.tierLabel}>
-                <Medal className={styles.tierIcon} size={16} color="#FFD700" />
-                <span>Gold</span>
-                <span className={styles.tierCount}>{stats.goldCount}</span>
-              </div>
-              <div className={styles.barContainer}>
-                <div
-                  className={`${styles.barFill} ${styles.barGold}`}
-                  style={{
-                    width: `${achievementCount > 0 ? (stats.goldCount / achievementCount) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-            </div>
-            <div className={styles.tierBar}>
-              <div className={styles.tierLabel}>
-                <Medal className={styles.tierIcon} size={16} color="#C0C0C0" />
-                <span>Silver</span>
-                <span className={styles.tierCount}>{stats.silverCount}</span>
-              </div>
-              <div className={styles.barContainer}>
-                <div
-                  className={`${styles.barFill} ${styles.barSilver}`}
-                  style={{
-                    width: `${achievementCount > 0 ? (stats.silverCount / achievementCount) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-            </div>
-            <div className={styles.tierBar}>
-              <div className={styles.tierLabel}>
-                <Medal className={styles.tierIcon} size={16} color="#CD7F32" />
-                <span>Bronze</span>
-                <span className={styles.tierCount}>{stats.bronzeCount}</span>
-              </div>
-              <div className={styles.barContainer}>
-                <div
-                  className={`${styles.barFill} ${styles.barBronze}`}
-                  style={{
-                    width: `${achievementCount > 0 ? (stats.bronzeCount / achievementCount) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Extra Stats */}
-          <div className={styles.extraStats}>
-            <div className={styles.extraStat}>
-              <span className={styles.extraStatValue}>{stats.completionRate}%</span>
-              <span className={styles.extraStatLabel}>Completion Rate</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </section>
   );
 }
