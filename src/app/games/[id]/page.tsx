@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation, type ApolloCache } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon, Info } from "lucide-react";
@@ -107,6 +107,7 @@ interface Game {
 // What the tick mutations select, see MARK_ACHIEVEMENT_COMPLETE and
 // UNMARK_ACHIEVEMENT_COMPLETE
 interface TickResult {
+  __typename?: string;
   success: boolean;
   error: { code: string; message: string; field: string | null } | null;
 }
@@ -133,7 +134,6 @@ export default function GameDetailPage({
   const { id } = use(params);
   const { isSignedIn } = useAuth();
   const { setCurrentEntity, clearEntity } = useAdminMode();
-  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [selectedScreenshot, setSelectedScreenshot] = useState<number | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_GAME, {
@@ -144,32 +144,8 @@ export default function GameDetailPage({
     skip: !isSignedIn,
   });
 
-  const [markComplete] = useMutation<MarkCompleteData>(MARK_ACHIEVEMENT_COMPLETE, {
-    onCompleted: ({ markAchievementComplete: result }) => {
-      // Refetch either way, so a rejected tick shows what the server holds
-      refetch();
-      setTogglingId(null);
-      if (result.success) toast.success("Trophy marked complete.");
-      else toast.error(result.error?.message || "Failed to mark trophy.");
-    },
-    onError: (error) => {
-      setTogglingId(null);
-      toast.error(error.message || "Failed to mark trophy.");
-    },
-  });
-
-  const [unmarkComplete] = useMutation<UnmarkCompleteData>(UNMARK_ACHIEVEMENT_COMPLETE, {
-    onCompleted: ({ unmarkAchievementComplete: result }) => {
-      refetch();
-      setTogglingId(null);
-      if (result.success) toast.success("Trophy unmarked.");
-      else toast.error(result.error?.message || "Failed to unmark trophy.");
-    },
-    onError: (error) => {
-      setTogglingId(null);
-      toast.error(error.message || "Failed to unmark trophy.");
-    },
-  });
+  const [markComplete] = useMutation<MarkCompleteData>(MARK_ACHIEVEMENT_COMPLETE);
+  const [unmarkComplete] = useMutation<UnmarkCompleteData>(UNMARK_ACHIEVEMENT_COMPLETE);
 
   const game: Game | undefined = data?.game;
   const me = meData?.me;
@@ -188,21 +164,6 @@ export default function GameDetailPage({
     }
     return () => clearEntity();
   }, [game, setCurrentEntity, clearEntity]);
-
-  const handleToggleAchievement = async (achievementId: string) => {
-    if (!isSignedIn) return;
-
-    setTogglingId(achievementId);
-    const achievement = game?.achievementSets
-      .flatMap((set) => set.achievements)
-      .find((a: Achievement) => a.id === achievementId);
-
-    if (achievement?.isCompleted) {
-      await unmarkComplete({ variables: { achievementId } });
-    } else {
-      await markComplete({ variables: { achievementId } });
-    }
-  };
 
   const gatingAchievements =
     game?.achievementSets.filter(countsTowardTrophy).flatMap((set) => set.achievements) ?? [];
@@ -233,6 +194,61 @@ export default function GameDetailPage({
   const trophyArt = platinum?.iconUrl ?? game?.coverUrl;
   const trophyArtRatio = platinum?.iconUrl ? "1" : game?.coverUrl ? "3 / 4" : undefined;
 
+  // A tick shows at once: the cache flips isCompleted ahead of the server and
+  // rolls back if the server refuses it.
+  const handleToggleAchievement = (achievementId: string) => {
+    const achievement = game?.achievementSets
+      .flatMap((set) => set.achievements)
+      .find((a) => a.id === achievementId);
+    if (!isSignedIn || !achievement) return;
+
+    const earned = !achievement.isCompleted;
+    // Finishing or breaking the list awards or takes the Platinum, which
+    // changes the earned date and the holders, so only then refetch
+    const changesPlatinum =
+      trophyAchievements.some((a) => a.id === achievementId) &&
+      (earned ? completedCount + 1 === trophyAchievementCount : isTrophyComplete);
+    const writeTick = (cache: ApolloCache<unknown>, succeeded = false) => {
+      if (!succeeded) return;
+      cache.modify({
+        id: cache.identify({ __typename: "Achievement", id: achievementId }),
+        fields: { isCompleted: () => earned },
+      });
+    };
+    const settle = (result: TickResult) => {
+      if (!result.success) toast.error(result.error?.message || "Couldn’t update the trophy.");
+      else if (changesPlatinum) refetch();
+    };
+    const onError = (error: Error) => toast.error(error.message || "Couldn’t update the trophy.");
+
+    if (earned) {
+      markComplete({
+        variables: { achievementId },
+        optimisticResponse: {
+          markAchievementComplete: {
+            __typename: "UserAchievementMutationResult",
+            success: true,
+            error: null,
+            userAchievement: null,
+          },
+        },
+        update: (cache, { data }) => writeTick(cache, data?.markAchievementComplete.success),
+        onCompleted: (data) => settle(data.markAchievementComplete),
+        onError,
+      });
+    } else {
+      unmarkComplete({
+        variables: { achievementId },
+        optimisticResponse: {
+          unmarkAchievementComplete: { __typename: "DeleteResult", success: true, error: null },
+        },
+        update: (cache, { data }) => writeTick(cache, data?.unmarkAchievementComplete.success),
+        onCompleted: (data) => settle(data.unmarkAchievementComplete),
+        onError,
+      });
+    }
+  };
+
   const renderAchievement = (achievement: Achievement) => (
     <AchievementCard
       key={achievement.id}
@@ -245,7 +261,6 @@ export default function GameDetailPage({
       earnedPercent={achievement.earnedPercent}
       // The backend awards the Platinum, so an extra list shows it without a tick
       onToggle={isSignedIn && achievement.tier !== "PLATINUM" ? handleToggleAchievement : undefined}
-      loading={togglingId === achievement.id}
     />
   );
 
