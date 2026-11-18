@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useQuery } from "@apollo/client";
 import { ArrowDown, ArrowUp, Gamepad2, X } from "lucide-react";
 import { AppImage, Button } from "@/components";
-import { GameFamilySearchPicker } from "@/components/admin";
 import { GameCombobox } from "@/components/ui/game-combobox";
+import { GLOBAL_SEARCH } from "@/graphql/queries";
 import { SHOWCASE_MAX_GAMES, type ShowcaseGame } from "@/lib/profile";
 import styles from "./page.module.css";
 
@@ -89,13 +91,7 @@ export function ShowcaseEditor({
       )}
 
       {full ? null : candidates === undefined ? (
-        <GameFamilySearchPicker
-          value={null}
-          onChange={(family) => add(family)}
-          disabled={disabled}
-          placeholder="Add a game..."
-          filterOption={(family) => !pickedIds.includes(family.id)}
-        />
+        <CatalogGamePicker pickedIds={pickedIds} onPick={add} disabled={disabled} />
       ) : candidates.length === 0 ? (
         <p className={styles.hint}>{emptyCandidatesText}</p>
       ) : (
@@ -109,5 +105,48 @@ export function ShowcaseEditor({
         />
       )}
     </section>
+  );
+}
+
+/** Any catalog game, searched on the server as the user types */
+function CatalogGamePicker({
+  pickedIds,
+  onPick,
+  disabled,
+}: {
+  pickedIds: string[];
+  onPick: (game: ShowcaseGame | undefined) => void;
+  disabled: boolean;
+}) {
+  const [search, setSearch] = useState("");
+  const [term, setTerm] = useState("");
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setTerm(search.trim()), 250);
+    return () => window.clearTimeout(timer);
+  }, [search]);
+
+  // The header's public search; its GAME results are game families, in rank order
+  const { data, loading } = useQuery<{
+    globalSearch: { items: { id: string; type: string; title: string; coverUrl: string | null }[] };
+  }>(GLOBAL_SEARCH, { variables: { query: term, limit: 25 }, skip: term === "" });
+  const results: ShowcaseGame[] =
+    term === ""
+      ? []
+      : (data?.globalSearch.items ?? [])
+          .filter((item) => item.type === "GAME")
+          .map(({ id, title, coverUrl }) => ({ id, title, slug: "", coverUrl }));
+
+  return (
+    <GameCombobox
+      games={results}
+      value=""
+      onChange={(id) => onPick(results.find((game) => game.id === id))}
+      onSearchChange={setSearch}
+      loading={loading || search.trim() !== term}
+      excludeIds={pickedIds}
+      disabled={disabled}
+      placeholder="Add a game..."
+    />
   );
 }
