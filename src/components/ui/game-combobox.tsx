@@ -4,6 +4,7 @@ import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { Search, X, ChevronDown } from "lucide-react";
 import { AppImage } from "@/components/AppImage";
+import { Skeleton } from "@/components/Skeleton";
 import { cn } from "@/lib/utils";
 
 interface Game {
@@ -20,6 +21,9 @@ interface GameComboboxProps {
   placeholder?: string;
   disabled?: boolean;
   excludeIds?: string[];
+  /** Search on the server instead: games is then the result list for the typed term */
+  onSearchChange?: (search: string) => void;
+  loading?: boolean;
 }
 
 export function GameCombobox({
@@ -29,6 +33,8 @@ export function GameCombobox({
   placeholder = "Search for a game...",
   disabled = false,
   excludeIds = [],
+  onSearchChange,
+  loading = false,
 }: GameComboboxProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -41,6 +47,7 @@ export function GameCombobox({
     .filter((g) => !excludeIds.includes(g.id))
     .filter(
       (g) =>
+        onSearchChange !== undefined ||
         search === "" ||
         g.title.toLowerCase().includes(search.toLowerCase())
     );
@@ -63,6 +70,7 @@ export function GameCombobox({
   const handleSelect = (gameId: string) => {
     onChange(gameId);
     setSearch("");
+    onSearchChange?.("");
     setIsOpen(false);
   };
 
@@ -93,7 +101,10 @@ export function GameCombobox({
             ref={inputRef}
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              onSearchChange?.(e.target.value);
+            }}
             placeholder={placeholder}
             className="flex-1 bg-transparent outline-none placeholder:text-[var(--text-muted)]"
             onClick={(e) => e.stopPropagation()}
@@ -123,9 +134,18 @@ export function GameCombobox({
 
       {isOpen && (
         <div className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-[var(--border-radius)] border border-[var(--border-color)] bg-[var(--bg-card)] p-1 shadow-lg">
-          {filteredGames.length === 0 ? (
+          {loading && filteredGames.length === 0 ? (
+            <div role="status" aria-label="Loading games" className="py-1">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2">
+                  <Skeleton className="size-8 shrink-0 rounded" />
+                  <Skeleton className="h-3.5 w-2/3" />
+                </div>
+              ))}
+            </div>
+          ) : filteredGames.length === 0 ? (
             <div className="px-3 py-6 text-center text-sm text-[var(--text-muted)]">
-              No games found
+              {onSearchChange && search.trim() === "" ? "Type to search games" : "No games found"}
             </div>
           ) : (
             filteredGames.map((game) => (
