@@ -18,6 +18,7 @@ import {
   EmptyState,
   Button,
   ProfileHeader,
+  ProfileShowcases,
   RecentActivity,
   GameProgressCard,
 } from "@/components";
@@ -101,7 +102,12 @@ export default function PublicProfilePage({
         trophyCount={trophyCount}
         gamesPlayed={gameProgress.length}
         stats={user.stats}
+        avatarUrl={user.avatarUrl}
+        bio={user.bio}
+        socialLinks={user.socialLinks}
       />
+
+      <ProfileShowcases profile={user} />
 
       {user.recentAchievements && user.recentAchievements.length > 0 && (
         <section className={styles.activitySection}>

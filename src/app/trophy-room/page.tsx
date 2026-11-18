@@ -12,12 +12,14 @@ import {
   GET_ME,
   GET_MY_TROPHIES,
   GET_MY_GAME_PROGRESS,
+  GET_MY_PROFILE,
 } from "@/graphql/queries";
 import {
   PageSkeleton,
   EmptyState,
   Button,
   ProfileHeader,
+  ProfileShowcases,
   GameProgressCard,
 } from "@/components";
 import styles from "./page.module.css";
@@ -56,6 +58,10 @@ export default function TrophyRoom() {
     }
   );
 
+  const { data: profileData, loading: profileLoading } = useQuery(GET_MY_PROFILE, {
+    skip: !isSignedIn,
+  });
+
   if (!isLoaded) {
     return <div className={styles.container}><PageSkeleton variant="rows" label="Loading your trophy room" /></div>;
   }
@@ -64,7 +70,8 @@ export default function TrophyRoom() {
     return <RedirectToSignIn />;
   }
 
-  const loading = userLoading || trophiesLoading || progressLoading;
+  const loading = userLoading || trophiesLoading || progressLoading || profileLoading;
+  const profile = profileData?.me;
   const user = userData?.me;
   const trophyCount = trophiesData?.myTrophies?.totalCount || 0;
   const gameProgress: GameProgressData[] = progressData?.myGameProgress || [];
@@ -98,7 +105,12 @@ export default function TrophyRoom() {
         stats={user?.stats}
         isOwnProfile={true}
         onShare={handleShare}
+        avatarUrl={profile?.avatarUrl}
+        bio={profile?.bio}
+        socialLinks={profile?.socialLinks}
       />
+
+      {profile && <ProfileShowcases profile={profile} />}
 
       {completedGames.length > 0 && (
         <section className={styles.trophyShowcase}>
