@@ -13,6 +13,7 @@ export { FormAlert } from "./FormAlert";
 export { StatCard } from "./StatCard";
 export { Button } from "./Button";
 export { ProfileHeader } from "./ProfileHeader";
+export { ProfileShowcases } from "./ProfileShowcases";
 export { RecentActivity } from "./RecentActivity";
 export { LeaderboardEntry, FastestCompletionEntry } from "./LeaderboardEntry";
 export { ActivityFeedEntry } from "./ActivityFeedEntry";
