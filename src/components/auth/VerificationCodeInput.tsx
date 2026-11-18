@@ -38,9 +38,9 @@ export function VerificationCodeInput({
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Check if all digits are filled
+    // Each box holds one digit or "", so full length means every box is filled
     const code = newValues.join("");
-    if (code.length === length && !code.includes("")) {
+    if (code.length === length) {
       onComplete(code);
     }
   };
