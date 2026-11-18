@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, Trophy } from "lucide-react";
+import { Check, Eye, EyeOff, Trophy } from "lucide-react";
 import { AppImage } from "./AppImage";
 import styles from "./AchievementCard.module.css";
 
@@ -13,65 +13,22 @@ interface AchievementCardProps {
   description?: string | null;
   iconUrl?: string | null;
   tier?: AchievementTier;
+  // Undefined when there's no viewer to have earned it, e.g. signed out
   isCompleted?: boolean;
-  // Share of the game's players who earned it. Null when nobody has the game.
+  // Share of the game's players who earned it. Null until enough people have the game.
   earnedPercent?: number | null;
   gameName?: string;
+  // Shows the description without the per-trophy reveal
+  revealDescription?: boolean;
   onToggle?: (id: string) => void;
-  loading?: boolean;
 }
 
-const TIER_COLORS: Record<AchievementTier, string> = {
-  BRONZE: "#CD7F32",
-  SILVER: "#C0C0C0",
-  GOLD: "#FFD700",
-  PLATINUM: "#E5E4E2",
+const TIERS: Record<AchievementTier, { label: string; className: string; color: string }> = {
+  BRONZE: { label: "Bronze", className: styles.bronze, color: "#cd7f32" },
+  SILVER: { label: "Silver", className: styles.silver, color: "#c0c0c0" },
+  GOLD: { label: "Gold", className: styles.gold, color: "#ffd700" },
+  PLATINUM: { label: "Platinum", className: styles.platinum, color: "#e5e4e2" },
 };
-
-const tierConfig: Record<AchievementTier, {
-  label: string;
-  cardClass: string;
-  badgeClass: string;
-  color: string;
-  iconClass: string;
-}> = {
-  BRONZE: {
-    label: "Bronze",
-    cardClass: styles.tierBronze,
-    badgeClass: styles.badgeBronze,
-    color: TIER_COLORS.BRONZE,
-    iconClass: styles.iconBronze,
-  },
-  SILVER: {
-    label: "Silver",
-    cardClass: styles.tierSilver,
-    badgeClass: styles.badgeSilver,
-    color: TIER_COLORS.SILVER,
-    iconClass: styles.iconSilver,
-  },
-  GOLD: {
-    label: "Gold",
-    cardClass: styles.tierGold,
-    badgeClass: styles.badgeGold,
-    color: TIER_COLORS.GOLD,
-    iconClass: styles.iconGold,
-  },
-  PLATINUM: {
-    label: "Platinum",
-    cardClass: styles.tierPlatinum,
-    badgeClass: styles.badgePlatinum,
-    color: TIER_COLORS.PLATINUM,
-    iconClass: styles.iconPlatinum,
-  },
-};
-
-function getRarityLabel(percentage: number): { label: string; className: string } {
-  if (percentage <= 5) return { label: "Ultra Rare", className: styles.rarityUltraRare };
-  if (percentage <= 15) return { label: "Very Rare", className: styles.rarityVeryRare };
-  if (percentage <= 30) return { label: "Rare", className: styles.rarityRare };
-  if (percentage <= 50) return { label: "Uncommon", className: styles.rarityUncommon };
-  return { label: "Common", className: styles.rarityCommon };
-}
 
 export function AchievementCard({
   id,
@@ -79,37 +36,46 @@ export function AchievementCard({
   description,
   iconUrl,
   tier = "BRONZE",
-  isCompleted = false,
+  isCompleted,
   earnedPercent = null,
   gameName,
+  revealDescription = false,
   onToggle,
-  loading = false,
 }: AchievementCardProps) {
-  const tierInfo = tierConfig[tier];
+  const tierInfo = TIERS[tier];
   // Descriptions can spoil the game, so each one stays hidden until asked for
   const [showDescription, setShowDescription] = useState(false);
-
-  const hasRarity = earnedPercent != null;
-  const rarityPercentage = earnedPercent ?? 0;
-  const rarityInfo = getRarityLabel(rarityPercentage);
+  const descriptionShown = revealDescription || showDescription;
+  const stateClass = isCompleted ? styles.earned : isCompleted === false ? styles.locked : "";
 
   return (
-    <div className={`${styles.card} ${tierInfo.cardClass} ${isCompleted ? styles.completed : ""}`}>
-      <div className={`${styles.icon} ${tierInfo.iconClass} ${isCompleted ? styles.iconCompleted : ""}`}>
+    <div className={`${styles.card} ${stateClass}`}>
+      {onToggle && (
+        <button
+          type="button"
+          className={styles.check}
+          onClick={() => onToggle(id)}
+          aria-pressed={isCompleted}
+          aria-label={`${title} earned`}
+        >
+          <span className={styles.checkMark}>{isCompleted && <Check size={16} strokeWidth={3} />}</span>
+        </button>
+      )}
+      <div className={`${styles.icon} ${tierInfo.className}`}>
         <AppImage
           src={iconUrl}
-          alt={title}
+          alt=""
           className={styles.iconImage}
-          fallback={
-            <Trophy className={styles.tierIcon} size={24} color={tierInfo.color} />
-          }
+          fallback={<Trophy size={20} color={tierInfo.color} />}
         />
-        {!isCompleted && <div className={styles.iconShade} />}
       </div>
       <div className={styles.info}>
         <div className={styles.titleRow}>
-          <h4 className={styles.title}>{title}</h4>
-          {description && (
+          <h4 className={styles.title}>
+            {title}
+            <span className="sr-only">, {tierInfo.label}</span>
+          </h4>
+          {description && !revealDescription && (
             <button
               type="button"
               className={styles.revealBtn}
@@ -121,44 +87,14 @@ export function AchievementCard({
             </button>
           )}
         </div>
-        {description && showDescription && (
-          <p className={styles.description}>{description}</p>
-        )}
-        <div className={styles.meta}>
-          <span className={`${styles.tierBadge} ${tierInfo.badgeClass}`}>
-            {tierInfo.label}
-          </span>
-          {hasRarity && (
-            <span className={`${styles.rarityBadge} ${rarityInfo.className}`}>
-              {rarityPercentage}% · {rarityInfo.label}
-            </span>
-          )}
-          {gameName && <span className={styles.game}>{gameName}</span>}
-        </div>
-        {hasRarity && (
-          <div className={styles.rarityBar}>
-            <div
-              className={`${styles.rarityFill} ${rarityInfo.className}`}
-              style={{ width: `${Math.min(rarityPercentage, 100)}%` }}
-            />
-          </div>
+        {description && descriptionShown && <p className={styles.description}>{description}</p>}
+        {(earnedPercent != null || gameName) && (
+          <p className={styles.meta}>
+            {gameName && <span className={styles.game}>{gameName}</span>}
+            {earnedPercent != null && <span>{earnedPercent}% of players</span>}
+          </p>
         )}
       </div>
-      {onToggle && (
-        <button
-          className={`${styles.toggleBtn} ${isCompleted ? styles.toggleBtnCompleted : ""}`}
-          onClick={() => onToggle(id)}
-          disabled={loading}
-        >
-          {loading ? (
-            <span className={styles.spinner} />
-          ) : isCompleted ? (
-            "✓"
-          ) : (
-            "○"
-          )}
-        </button>
-      )}
     </div>
   );
 }

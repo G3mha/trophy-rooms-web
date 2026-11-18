@@ -1,103 +1,105 @@
 .card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  min-height: 68px;
+  padding: 10px 14px 10px 10px;
   background: var(--bg-card);
-  border-radius: var(--border-radius);
   border: 1px solid var(--border-color);
-  transition: all 0.2s ease;
-  position: relative;
+  border-radius: var(--border-radius);
 }
 
-/* Tier-specific border styles */
-.tierBronze {
-  border-left: 4px solid #cd7f32;
+.earned {
+  border-color: rgba(201, 164, 92, 0.45);
 }
 
-.tierSilver {
-  border-left: 4px solid #c0c0c0;
+/* 44px target around a 24px mark, pulled in so it doesn't pad the row */
+.check {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: -6px -8px -6px -4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
 }
 
-.tierGold {
-  border-left: 4px solid #ffd700;
-}
-
-.tierPlatinum {
-  border-left: 4px solid #e5e4e2;
-}
-
-.card:hover {
-  background: var(--bg-card-hover);
-}
-
-.completed {
-  border-color: var(--switch-gold);
-  background: linear-gradient(135deg, var(--bg-card) 0%, rgba(201, 164, 92, 0.1) 100%);
-}
-
-.icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--bg-secondary);
+.checkMark {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  flex-shrink: 0;
-  position: relative;
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--text-muted);
+  border-radius: 50%;
+  color: var(--cabinet-ink);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.check:hover .checkMark {
+  border-color: var(--cabinet-brass);
+}
+
+.check:focus-visible {
+  outline: none;
+}
+
+.check:focus-visible .checkMark {
+  outline: 2px solid var(--cabinet-brass);
+  outline-offset: 2px;
+}
+
+.earned .checkMark {
+  background: var(--cabinet-brass);
+  border-color: var(--cabinet-brass);
+}
+
+/* The tier shows as a metal ring around the icon */
+.icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 3px;
+  border-radius: 50%;
   overflow: hidden;
 }
 
-/* Dims a locked achievement's icon. It sits above the icon and inside the
-   tier ring, so the tier stays readable. */
-.iconShade {
-  position: absolute;
-  inset: 3px;
-  z-index: 2;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 50%;
-}
-
-.iconCompleted .iconShade {
-  display: none;
-}
-
-.tierIcon {
-  position: relative;
-  z-index: 1;
-}
-
-/* Tier-specific icon backgrounds */
-.iconBronze {
+.bronze {
   background: linear-gradient(135deg, #cd7f32 0%, #8b4513 100%);
 }
 
-.iconSilver {
+.silver {
   background: linear-gradient(135deg, #c0c0c0 0%, #808080 100%);
 }
 
-.iconGold {
+.gold {
   background: linear-gradient(135deg, #ffd700 0%, #daa520 100%);
 }
 
-.iconPlatinum {
+.platinum {
   background: linear-gradient(135deg, #f2f2f0 0%, #b6bcc8 100%);
 }
 
-.iconCompleted {
-  box-shadow: 0 0 12px rgba(201, 164, 92, 0.5);
+.iconImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-secondary);
+  transition: filter 0.2s ease;
 }
 
-/* Inset so the tier gradient behind it shows as a ring */
-.iconImage {
-  width: calc(100% - 6px);
-  height: calc(100% - 6px);
-  object-fit: cover;
-  border-radius: 50%;
-  position: relative;
-  z-index: 1;
+/* Not earned yet: the art goes grey, the tier ring keeps its metal */
+.locked .iconImage {
+  filter: grayscale(1) brightness(0.65);
 }
 
 .info {
@@ -108,15 +110,19 @@
 .titleRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 6px;
 }
 
 .title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
   margin: 0;
+  color: var(--text-primary);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.locked .title {
+  color: var(--text-secondary);
 }
 
 .revealBtn {
@@ -141,179 +147,22 @@
 }
 
 .description {
-  font-size: 14px;
+  margin: 4px 0 0;
   color: var(--text-secondary);
-  margin: 0 0 8px 0;
-  line-height: 1.4;
+  font-size: 13.5px;
+  line-height: 1.45;
 }
 
 .meta {
   display: flex;
-  gap: 12px;
-  font-size: 13px;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 2px 0 0;
   color: var(--text-muted);
+  font-size: 12.5px;
 }
 
 .game {
-  color: var(--nintendo-red);
+  color: var(--nintendo-red-light);
   font-weight: 500;
-}
-
-.userCount::before {
-  content: "•";
-  margin-right: 12px;
-}
-
-.toggleBtn {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 2px solid var(--border-color);
-  background: transparent;
-  color: var(--text-muted);
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.toggleBtn:hover:not(:disabled) {
-  border-color: var(--switch-gold);
-  color: var(--switch-gold);
-}
-
-.toggleBtn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.toggleBtnCompleted {
-  background: var(--switch-gold);
-  border-color: var(--switch-gold);
-  color: var(--switch-darkest);
-}
-
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid transparent;
-  border-top-color: currentColor;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Tier Badge */
-.tierBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.badgeBronze {
-  background: rgba(205, 127, 50, 0.15);
-  /* Lifted from #cd7f32, which reads 4.03:1 on its own tint - just under AA.
-     Silver, gold and platinum already clear it and are left alone. */
-  color: #d28b44;
-}
-
-.badgeSilver {
-  background: rgba(192, 192, 192, 0.15);
-  color: #a8a8a8;
-}
-
-.badgeGold {
-  background: rgba(201, 164, 92, 0.15);
-  color: #d4a800;
-}
-
-.badgePlatinum {
-  background: rgba(229, 228, 226, 0.18);
-  color: #d9d7d2;
-}
-
-/* Rarity Badge */
-.rarityBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-/* Rarity Bar */
-.rarityBar {
-  height: 4px;
-  background: var(--bg-secondary);
-  border-radius: 2px;
-  margin-top: 8px;
-  overflow: hidden;
-}
-
-.rarityFill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.3s ease;
-}
-
-/* Rarity Colors */
-.rarityUltraRare {
-  background: rgba(147, 51, 234, 0.15);
-  color: var(--tint-violet);
-}
-
-.rarityVeryRare {
-  background: rgba(236, 72, 153, 0.15);
-  color: var(--tint-violet);
-}
-
-.rarityRare {
-  background: rgba(201, 164, 92, 0.15);
-  color: var(--tint-info);
-}
-
-.rarityUncommon {
-  background: rgba(128, 179, 126, 0.15);
-  color: var(--tint-positive);
-}
-
-.rarityCommon {
-  background: rgba(156, 163, 175, 0.15);
-  color: var(--tint-muted-text);
-}
-
-/* Rarity Fill Colors */
-.rarityFill.rarityUltraRare {
-  background: linear-gradient(90deg, var(--tint-violet), #7c3aed);
-}
-
-.rarityFill.rarityVeryRare {
-  background: linear-gradient(90deg, var(--tint-violet), #db2777);
-}
-
-.rarityFill.rarityRare {
-  background: linear-gradient(90deg, var(--tint-info), #2563eb);
-}
-
-.rarityFill.rarityUncommon {
-  background: linear-gradient(90deg, var(--tint-positive), var(--tint-positive-deep));
-}
-
-.rarityFill.rarityCommon {
-  background: linear-gradient(90deg, var(--tint-muted), var(--tint-muted));
 }
