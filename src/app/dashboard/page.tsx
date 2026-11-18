@@ -23,6 +23,7 @@ import {
   EmptyState,
   Button,
 } from "@/components";
+import type { AchievementTier } from "@/components/AchievementCard";
 import styles from "./page.module.css";
 
 interface UserAchievementNode {
@@ -33,6 +34,7 @@ interface UserAchievementNode {
     title: string;
     description?: string | null;
     iconUrl?: string | null;
+    tier: AchievementTier;
     achievementSet: {
       id: string;
       title: string;
@@ -249,6 +251,7 @@ export default function Dashboard() {
                   title={node.achievement.title}
                   description={node.achievement.description}
                   iconUrl={node.achievement.iconUrl}
+                  tier={node.achievement.tier}
                   gameName={node.achievement.achievementSet.gameFamily.title}
                   isCompleted={true}
                 />
