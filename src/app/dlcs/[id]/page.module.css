@@ -238,21 +238,13 @@
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.18);
 }
 
-.contentMedia,
-.iconTile {
+.contentMedia {
   width: 112px;
   min-width: 112px;
   height: 112px;
   border-radius: 18px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
-}
-
-.iconTile {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--tint-violet);
 }
 
 .contentImage {
@@ -340,19 +332,19 @@
     align-items: flex-start;
   }
 
-  .contentMedia,
-  .iconTile {
+  .contentMedia {
     width: 100%;
     min-width: 0;
     height: 180px;
   }
-
-  .iconTile {
-    height: 112px;
-  }
 }
 
-.sectionNote {
-  margin: -6px 0 18px;
+.trophyGroup + .trophyGroup {
+  margin-top: 28px;
+}
+
+.groupNote {
+  margin: 4px 0 4px;
   color: var(--text-secondary);
+  font-size: 0.9rem;
 }

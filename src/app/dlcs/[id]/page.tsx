@@ -1,14 +1,16 @@
 "use client";
 
-import { use, useEffect } from "react";
+import { use, useEffect, useState } from "react";
 import Link from "next/link";
 import { useQuery, useMutation } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { Puzzle, Gamepad2, Package, Calendar, DollarSign, Check, Plus, Award } from "lucide-react";
+import { Puzzle, Gamepad2, Package, Calendar, DollarSign, Check, Plus } from "lucide-react";
 import { gql } from "@apollo/client";
 import { useAdminMode } from "@/contexts/AdminModeContext";
-import { AppImage, Button, EmptyState, BuylistSelector, ExpandableText, PageSkeleton, QueryState } from "@/components";
+import { AchievementCard, AppImage, Button, EmptyState, BuylistSelector, ExpandableText, PageSkeleton, QueryState, TrophySet, TrophyToolbar, type TrophyFilter } from "@/components";
+import type { AchievementTier } from "@/components/AchievementCard";
+import { useTrophyTick } from "@/lib/use-trophy-tick";
 import styles from "./page.module.css";
 
 const GET_DLC_DETAIL = gql`
@@ -37,7 +39,15 @@ const GET_DLC_DETAIL = gql`
         type
         visibility
         countsTowardTrophy
-        achievementCount
+        achievements {
+          id
+          title
+          description
+          iconUrl
+          tier
+          isCompleted
+          earnedPercent
+        }
       }
       achievementSetCount
       bundles {
@@ -82,13 +92,23 @@ interface GameFamily {
   coverUrl?: string | null;
 }
 
+interface Achievement {
+  id: string;
+  title: string;
+  description?: string | null;
+  iconUrl?: string | null;
+  tier?: AchievementTier;
+  isCompleted?: boolean;
+  earnedPercent: number | null;
+}
+
 interface AchievementSet {
   id: string;
   title: string;
   type: "OFFICIAL" | "COMPLETIONIST" | "CUSTOM";
   visibility: "PRIVATE" | "PUBLIC";
   countsTowardTrophy: boolean;
-  achievementCount: number;
+  achievements: Achievement[];
 }
 
 // Same three groups as the game page: sets that gate the trophy, bonus lists,
@@ -184,6 +204,9 @@ export default function DLCDetailPage({
   const { id } = use(params);
   const { isSignedIn } = useAuth();
   const { setCurrentEntity, clearEntity } = useAdminMode();
+  const [filter, setFilter] = useState<TrophyFilter>("all");
+  const [revealAll, setRevealAll] = useState(false);
+  const tick = useTrophyTick();
 
   const { data, loading, error, refetch } = useQuery(GET_DLC_DETAIL, {
     variables: { id },
@@ -232,6 +255,32 @@ export default function DLCDetailPage({
   };
 
   const coverImage = dlc?.effectiveCoverUrl || dlc?.coverUrl;
+
+  const handleToggleAchievement = (achievementId: string) => {
+    const achievement = dlc?.achievementSets
+      .flatMap((set) => set.achievements)
+      .find((a) => a.id === achievementId);
+    if (isSignedIn && achievement) tick(achievement);
+  };
+
+  const hasDescriptions =
+    dlc?.achievementSets.some((set) => set.achievements.some((a) => a.description)) ?? false;
+
+  const renderAchievement = (achievement: Achievement) => (
+    <AchievementCard
+      key={achievement.id}
+      id={achievement.id}
+      title={achievement.title}
+      description={achievement.description}
+      iconUrl={achievement.iconUrl}
+      tier={achievement.tier}
+      isCompleted={isSignedIn ? achievement.isCompleted : undefined}
+      earnedPercent={achievement.earnedPercent}
+      revealDescription={revealAll}
+      // The backend awards the Platinum, so it shows without a tick
+      onToggle={isSignedIn && achievement.tier !== "PLATINUM" ? handleToggleAchievement : undefined}
+    />
+  );
 
   return (
     <div className={styles.container}>
@@ -381,29 +430,35 @@ export default function DLCDetailPage({
         </section>
       )}
 
-      {groupSets(dlc.achievementSets).map((group) => (
-        <section key={group.title} className={styles.sectionPanel}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>{group.title}</h2>
-          </div>
-          {group.note && <p className={styles.sectionNote}>{group.note}</p>}
-          <div className={styles.contentList}>
-            {group.sets.map((set) => (
-              <div key={set.id} className={styles.contentCard}>
-                <div className={styles.iconTile}>
-                  <Award size={20} />
-                </div>
-                <div className={styles.contentBody}>
-                  <h3 className={styles.contentName}>{set.title}</h3>
-                  <span className={styles.contentPill}>
-                    {set.achievementCount} {set.achievementCount === 1 ? "trophy" : "trophies"}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+      {dlc.achievementSets.length > 0 && (
+        <section className={styles.sectionPanel}>
+          <TrophyToolbar
+            showFilter={isSignedIn}
+            filter={filter}
+            onFilterChange={setFilter}
+            showReveal={hasDescriptions}
+            revealAll={revealAll}
+            onRevealAllChange={setRevealAll}
+          />
+          {groupSets(dlc.achievementSets).map((group) => (
+            <div key={group.title} className={styles.trophyGroup}>
+              <h2 className={styles.sectionTitle}>{group.title}</h2>
+              {group.note && <p className={styles.groupNote}>{group.note}</p>}
+              {group.sets.map((set) => (
+                <TrophySet
+                  key={set.id}
+                  title={set.title}
+                  achievements={set.achievements}
+                  filter={filter}
+                  isSignedIn={isSignedIn}
+                  defaultOpen
+                  renderAchievement={renderAchievement}
+                />
+              ))}
+            </div>
+          ))}
         </section>
-      ))}
+      )}
 
       {dlc.bundles.length > 0 && (
         <section className={styles.sectionPanel}>
