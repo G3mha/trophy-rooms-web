@@ -12,7 +12,7 @@ interface VerificationCodeInputProps {
 }
 
 // Matches mailer_otp_length in the Supabase project's Auth settings
-const EMAIL_CODE_LENGTH = 8;
+const EMAIL_CODE_LENGTH = 6;
 
 export function VerificationCodeInput({
   length = EMAIL_CODE_LENGTH,
