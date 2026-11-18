@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 import { useQuery, useMutation, type ApolloCache } from "@apollo/client";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon, Info } from "lucide-react";
+import { Gamepad2, Trophy, Star, Target, Calendar, Code2, Building2, ShieldAlert, ImageIcon, Info, Eye, EyeOff, ChevronRight } from "lucide-react";
 import { Popover } from "@base-ui/react/popover";
 import { useAdminMode } from "@/contexts/AdminModeContext";
 import { GET_GAME, GET_ME } from "@/graphql/queries";
@@ -12,7 +12,7 @@ import {
   MARK_ACHIEVEMENT_COMPLETE,
   UNMARK_ACHIEVEMENT_COMPLETE,
 } from "@/graphql/mutations";
-import { AchievementCard, AppImage, Button, EmptyState, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, PlatformIcon, PageSkeleton, QueryState } from "@/components";
+import { AchievementCard, AppImage, Button, EmptyState, FilterTabs, GameStatusSelector, BuylistSelector, CollectionSelector, ExpandableText, PlatformIcon, PageSkeleton, QueryState, type FilterTab } from "@/components";
 import type { AchievementTier } from "@/components/AchievementCard";
 import { TrophySilhouette } from "@/components/TrophyShelf";
 import { getDisplayName } from "@/lib/avatar-utils";
@@ -51,6 +51,14 @@ function sortByTier(achievements: Achievement[]): Achievement[] {
     return tierPriority[bTier] - tierPriority[aTier];
   });
 }
+
+type TrophyFilter = "all" | "left" | "earned";
+
+const FILTER_TABS: FilterTab<TrophyFilter>[] = [
+  { label: "All", value: "all" },
+  { label: "Not earned", value: "left" },
+  { label: "Earned", value: "earned" },
+];
 
 interface Trophy {
   id: string;
@@ -134,6 +142,8 @@ export default function GameDetailPage({
   const { id } = use(params);
   const { isSignedIn } = useAuth();
   const { setCurrentEntity, clearEntity } = useAdminMode();
+  const [filter, setFilter] = useState<TrophyFilter>("all");
+  const [revealAll, setRevealAll] = useState(false);
   const [selectedScreenshot, setSelectedScreenshot] = useState<number | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_GAME, {
@@ -249,6 +259,12 @@ export default function GameDetailPage({
     }
   };
 
+  const showsUnderFilter = (a: Achievement) =>
+    filter === "all" || (filter === "earned") === Boolean(a.isCompleted);
+  const visibleTrophies = trophyAchievements.filter(showsUnderFilter);
+  const filterEmptyText = filter === "earned" ? "Nothing earned yet." : "All earned.";
+  const hasDescriptions =
+    game?.achievementSets.some((set) => set.achievements.some((a) => a.description)) ?? false;
   const trophyLine = !isSignedIn
     ? `Earn all ${trophyAchievementCount} trophies`
     : isTrophyComplete && myTrophy
@@ -265,39 +281,34 @@ export default function GameDetailPage({
       tier={achievement.tier}
       isCompleted={isSignedIn ? achievement.isCompleted : undefined}
       earnedPercent={achievement.earnedPercent}
+      revealDescription={revealAll}
       // The backend awards the Platinum, so an extra list shows it without a tick
       onToggle={isSignedIn && achievement.tier !== "PLATINUM" ? handleToggleAchievement : undefined}
     />
   );
 
-  const renderSet = (set: AchievementSet, showProgress: boolean) => {
+  const renderExtraSet = (set: AchievementSet) => {
     const counted = set.achievements.filter(notPlatinum);
+    const visible = sortByTier(set.achievements).filter(showsUnderFilter);
     return (
-    <div key={set.id} className={styles.setCard}>
-      <div className={styles.setHeader}>
-        <h3 className={styles.setTitle}>{set.title}</h3>
-        <div className={styles.setActions}>
-          {showProgress && counted.length > 0 && (
-            <span className={styles.progressSummary}>
-              {isSignedIn && `${counted.filter((a) => a.isCompleted).length} / `}
-              {counted.length}
-            </span>
-          )}
-        </div>
-      </div>
-
-      {set.achievements.length > 0 ? (
-        <div className={styles.achievementList}>
-          {sortByTier(set.achievements).map(renderAchievement)}
-        </div>
-      ) : (
-        <EmptyState
-          icon={<Star size={48} />}
-          title="No trophies yet"
-          description="Add trophies to this list."
-        />
-      )}
-    </div>
+      <details key={set.id} className={styles.extraSet}>
+        <summary className={styles.extraSummary}>
+          <ChevronRight size={18} className={styles.extraChevron} aria-hidden />
+          <span className={styles.extraName}>{set.title}</span>
+          <span className={styles.extraCount}>
+            {isSignedIn
+              ? `${counted.filter((a) => a.isCompleted).length} of ${counted.length}`
+              : `${counted.length} ${counted.length === 1 ? "trophy" : "trophies"}`}
+          </span>
+        </summary>
+        {visible.length > 0 ? (
+          <div className={styles.achievementList}>{visible.map(renderAchievement)}</div>
+        ) : (
+          <p className={styles.filterEmpty}>
+            {set.achievements.length > 0 ? filterEmptyText : "No trophies in this list yet."}
+          </p>
+        )}
+      </details>
     );
   };
 
@@ -509,67 +520,90 @@ export default function GameDetailPage({
         </div>
       )}
 
-      {trophyAchievementCount > 0 && (
+      {(trophyAchievementCount > 0 || extraSets.length > 0) && (
         <section className={styles.progressPanel}>
-          <div className={styles.trophyHero}>
-            <div
-              className={styles.trophyNiche}
-              style={{ "--glow": trophyGlow, "--ratio": trophyArtRatio } as React.CSSProperties}
-              aria-hidden
-            >
-              <AppImage
-                src={trophyArt}
-                className={styles.trophyArt}
-                fallback={<TrophySilhouette className={styles.trophyShape} />}
-              />
-            </div>
-            <div className={styles.trophyBody}>
-              <div className={styles.progressHeading}>
-                <h2 className={styles.sectionTitle}>
-                  {platinum?.title ?? "Platinum"}
-                </h2>
-                {platinum?.description && (
-                  <Popover.Root>
-                    <Popover.Trigger
-                      openOnHover
-                      delay={100}
-                      className={styles.infoTrigger}
-                      aria-label="About this trophy"
-                    >
-                      <Info size={18} />
-                    </Popover.Trigger>
-                    <Popover.Portal>
-                      <Popover.Positioner side="top" sideOffset={8} className="z-50">
-                        <Popover.Popup className={styles.infoBubble}>
-                          {platinum.description}
-                        </Popover.Popup>
-                      </Popover.Positioner>
-                    </Popover.Portal>
-                  </Popover.Root>
-                )}
+          {trophyAchievementCount > 0 && (
+            <div className={styles.trophyHero}>
+              <div
+                className={styles.trophyNiche}
+                style={{ "--glow": trophyGlow, "--ratio": trophyArtRatio } as React.CSSProperties}
+                aria-hidden
+              >
+                <AppImage
+                  src={trophyArt}
+                  className={styles.trophyArt}
+                  fallback={<TrophySilhouette className={styles.trophyShape} />}
+                />
               </div>
-              {isSignedIn && (
-                <div
-                  className={styles.progressBar}
-                  role="progressbar"
-                  aria-label="Platinum progress"
-                  aria-valuenow={progress}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                >
-                  <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+              <div className={styles.trophyBody}>
+                <div className={styles.progressHeading}>
+                  <h2 className={styles.sectionTitle}>{platinum?.title ?? "Platinum"}</h2>
+                  {platinum?.description && (
+                    <Popover.Root>
+                      <Popover.Trigger
+                        openOnHover
+                        delay={100}
+                        className={styles.infoTrigger}
+                        aria-label="About this trophy"
+                      >
+                        <Info size={18} />
+                      </Popover.Trigger>
+                      <Popover.Portal>
+                        <Popover.Positioner side="top" sideOffset={8} className="z-50">
+                          <Popover.Popup className={styles.infoBubble}>
+                            {platinum.description}
+                          </Popover.Popup>
+                        </Popover.Positioner>
+                      </Popover.Portal>
+                    </Popover.Root>
+                  )}
                 </div>
-              )}
-              <p className={styles.trophyLine}>
-                {platinum?.title && "Platinum · "}
-                {trophyLine}
-              </p>
-              <p className={styles.listSource}>{requiredSets.map((set) => set.title).join(" + ")}</p>
+                {isSignedIn && (
+                  <div
+                    className={styles.progressBar}
+                    role="progressbar"
+                    aria-label="Platinum progress"
+                    aria-valuenow={progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                  >
+                    <div className={styles.progressFill} style={{ width: `${progress}%` }} />
+                  </div>
+                )}
+                <p className={styles.trophyLine}>
+                  {platinum?.title && "Platinum · "}
+                  {trophyLine}
+                </p>
+                <p className={styles.listSource}>{requiredSets.map((set) => set.title).join(" + ")}</p>
+              </div>
             </div>
-          </div>
+          )}
+
+          {(isSignedIn || hasDescriptions) && (
+            <div className={styles.trophyToolbar}>
+              {isSignedIn && (
+                <FilterTabs
+                  tabs={FILTER_TABS}
+                  value={filter}
+                  onChange={setFilter}
+                  className={styles.filterTabs}
+                />
+              )}
+              {hasDescriptions && (
+                <button
+                  type="button"
+                  className={styles.revealAll}
+                  onClick={() => setRevealAll((shown) => !shown)}
+                >
+                  {revealAll ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {revealAll ? "Hide descriptions" : "Show descriptions"}
+                </button>
+              )}
+            </div>
+          )}
 
           {TIERS.map((tier) => {
-            const inTier = trophyAchievements.filter((a) => (a.tier ?? "BRONZE") === tier);
+            const inTier = visibleTrophies.filter((a) => (a.tier ?? "BRONZE") === tier);
             return (
               inTier.length > 0 && (
                 <div key={tier} className={styles.tierGroup}>
@@ -579,19 +613,17 @@ export default function GameDetailPage({
               )
             );
           })}
+          {trophyAchievementCount > 0 && visibleTrophies.length === 0 && (
+            <p className={styles.filterEmpty}>{filterEmptyText}</p>
+          )}
 
-        </section>
-      )}
-
-      {extraSets.length > 0 && (
-        <section className={styles.sectionPanel}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Extra Lists</h2>
-          </div>
-          <p className={styles.sectionNote}>These don&apos;t count toward the Platinum.</p>
-          <div className={styles.achievementGroupList}>
-            {extraSets.map((set) => renderSet(set, true))}
-          </div>
+          {extraSets.length > 0 && (
+            <div className={styles.extraLists}>
+              <h2 className={styles.extraTitle}>Extra lists</h2>
+              <p className={styles.sectionNote}>These don&apos;t count toward the Platinum.</p>
+              {extraSets.map(renderExtraSet)}
+            </div>
+          )}
         </section>
       )}
 
