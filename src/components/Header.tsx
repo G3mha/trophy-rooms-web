@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@apollo/client";
-import { LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield, CalendarClock, LogOut, Settings } from "lucide-react";
+import { LayoutDashboard, Trophy, Library, Disc, ShoppingCart, Shield, CalendarClock, LogOut, Settings, UserPen } from "lucide-react";
 import { GET_ME } from "@/graphql/queries";
 import { useAuth } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -32,6 +32,7 @@ function UserMenu({ isAdmin }: { isAdmin: boolean }) {
   const menuLinks = [
     ...myStuffLinks,
     ...(isAdmin ? [{ href: "/admin", label: "Admin", Icon: Shield }] : []),
+    { href: "/profile", label: "Edit Profile", Icon: UserPen },
     { href: "/account", label: "Account", Icon: Settings },
   ];
 
