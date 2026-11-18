@@ -6,7 +6,9 @@ import { toast } from "sonner";
 import { useAuth, RedirectToSignIn } from "@/lib/auth";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { getMutationMessage } from "@/lib/mutation-utils";
-import { getInitials, getAvatarColor } from "@/lib/avatar-utils";
+import { getInitials } from "@/lib/avatar-utils";
+// The profile page's own cabinet palette, so the editor matches it
+import { getAvatarColor } from "@/components/ProfileHeader";
 import {
   BIO_MAX_LENGTH,
   NAME_MAX_LENGTH,
@@ -56,6 +58,21 @@ async function toAvatarBlob(file: File): Promise<Blob> {
   );
 }
 
+// What the save button would send, to tell whether anything changed
+function formSnapshot(
+  name: string,
+  bio: string,
+  handles: Partial<Record<SocialNetwork, string>>,
+  showcases: Record<ShowcaseKey, ShowcaseGame[]>
+): string {
+  return JSON.stringify([
+    name.trim(),
+    bio.trim(),
+    SOCIAL_NETWORKS.map(({ network }) => (handles[network] ?? "").trim()),
+    SHOWCASE_LISTS.map(({ key }) => showcases[key].map((game) => game.id)),
+  ]);
+}
+
 export default function EditProfilePage() {
   const { isLoaded, isSignedIn, userId: supabaseId } = useAuth();
   const { data, loading } = useQuery(GET_MY_PROFILE, { skip: !isSignedIn });
@@ -85,22 +102,39 @@ export default function EditProfilePage() {
   const [avatarError, setAvatarError] = useState<string>();
   const fileInput = useRef<HTMLInputElement>(null);
   const loadedFor = useRef<string | null>(null);
+  const [savedSnapshot, setSavedSnapshot] = useState<string>();
+  const snapshot = formSnapshot(name, bio, handles, showcases);
+  const dirty = savedSnapshot !== undefined && snapshot !== savedSnapshot;
+
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
 
   // Fill the form once per profile; later refetches (after a save) must not
   // overwrite what the user is typing
   useEffect(() => {
     if (!profile || loadedFor.current === profile.id) return;
     loadedFor.current = profile.id;
-    setName(profile.name ?? "");
-    setBio(profile.bio ?? "");
-    setHandles(
-      Object.fromEntries((profile.socialLinks as SocialLink[]).map((link) => [link.network, link.handle]))
-    );
-    setShowcases({
-      allTime: profile.allTime,
-      platinums: profile.platinums,
-      collection: profile.collection,
-    });
+    const loaded = {
+      name: profile.name ?? "",
+      bio: profile.bio ?? "",
+      handles: Object.fromEntries(
+        (profile.socialLinks as SocialLink[]).map((link) => [link.network, link.handle])
+      ),
+      showcases: {
+        allTime: profile.allTime,
+        platinums: profile.platinums,
+        collection: profile.collection,
+      },
+    };
+    setName(loaded.name);
+    setBio(loaded.bio);
+    setHandles(loaded.handles);
+    setShowcases(loaded.showcases);
+    setSavedSnapshot(formSnapshot(loaded.name, loaded.bio, loaded.handles, loaded.showcases));
   }, [profile]);
 
   if (!isLoaded || (isSignedIn && (loading || !profile))) {
@@ -192,6 +226,7 @@ export default function EditProfilePage() {
           }
         })
       );
+      setSavedSnapshot(snapshot);
       toast.success("Profile saved");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't save your profile");
@@ -202,99 +237,129 @@ export default function EditProfilePage() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Edit Profile</h1>
-
-      <div className={styles.avatarRow}>
-        <span className={styles.avatar} style={{ backgroundColor: getAvatarColor(profile.name, profile.id) }}>
-          <AppImage
-            src={profile.avatarUrl}
-            alt="Your profile picture"
-            fallback={<span className={styles.initials}>{getInitials(profile.name, profile.id)}</span>}
-          />
-        </span>
-        <div className={styles.avatarActions}>
-          <input
-            ref={fileInput}
-            type="file"
-            accept={AVATAR_TYPES.join(",")}
-            className="sr-only"
-            id="avatar-file"
-            onChange={(e) => handleAvatarFile(e.target.files?.[0])}
-          />
-          <Button
-            variant="secondary"
-            size="sm"
-            loading={avatarBusy}
-            onClick={() => fileInput.current?.click()}
-          >
-            {profile.avatarUrl ? "Change picture" : "Upload picture"}
-          </Button>
-          {profile.avatarUrl && (
-            <Button variant="ghost" size="sm" disabled={avatarBusy} onClick={handleRemoveAvatar}>
-              Remove
-            </Button>
-          )}
-        </div>
+      <div className={styles.pageHeader}>
+        <h1 className={styles.title}>Edit Profile</h1>
+        <Button variant="secondary" size="sm" href={`/users/${profile.id}`}>
+          View profile
+        </Button>
       </div>
-      {avatarError && <FormAlert message={avatarError} />}
 
       <form onSubmit={handleSave}>
-        <div className={styles.fields}>
-          <FormField label="Display name">
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={NAME_MAX_LENGTH}
-              autoComplete="nickname"
-              disabled={saving}
-            />
-          </FormField>
-          <FormField label="Bio" hint={`${bio.length}/${BIO_MAX_LENGTH}`}>
-            <Textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              maxLength={BIO_MAX_LENGTH}
-              rows={3}
-              disabled={saving}
-            />
-          </FormField>
-        </div>
-
-        <h2 className={styles.groupTitle}>Social networks</h2>
-        <div className={styles.socialGrid}>
-          {SOCIAL_NETWORKS.map(({ network, label, placeholder }) => (
-            <FormField key={network} label={label}>
-              <Input
-                value={handles[network] ?? ""}
-                onChange={(e) => setHandles({ ...handles, [network]: e.target.value })}
-                placeholder={placeholder}
-                maxLength={64}
-                disabled={saving}
+        <section className={styles.panel} aria-labelledby="profile-heading">
+          <h2 id="profile-heading" className={styles.groupTitle}>
+            Profile
+          </h2>
+          <div className={styles.profileGrid}>
+            <div className={styles.avatarColumn}>
+              <span
+                className={styles.avatar}
+                style={{ backgroundColor: getAvatarColor(profile.name, profile.id) }}
+              >
+                <AppImage
+                  src={profile.avatarUrl}
+                  alt="Your profile picture"
+                  fallback={<span className={styles.initials}>{getInitials(profile.name, profile.id)}</span>}
+                />
+              </span>
+              <input
+                ref={fileInput}
+                type="file"
+                accept={AVATAR_TYPES.join(",")}
+                className="sr-only"
+                id="avatar-file"
+                onChange={(e) => handleAvatarFile(e.target.files?.[0])}
               />
-            </FormField>
+              <div className={styles.avatarActions}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  loading={avatarBusy}
+                  onClick={() => fileInput.current?.click()}
+                >
+                  {profile.avatarUrl ? "Change" : "Upload picture"}
+                </Button>
+                {profile.avatarUrl && (
+                  <Button variant="ghost" size="sm" disabled={avatarBusy} onClick={handleRemoveAvatar}>
+                    Remove
+                  </Button>
+                )}
+              </div>
+            </div>
+            <div className={styles.fields}>
+              <FormField label="Display name">
+                <Input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={NAME_MAX_LENGTH}
+                  autoComplete="nickname"
+                  disabled={saving}
+                />
+              </FormField>
+              <FormField label="Bio" hint={`${bio.length}/${BIO_MAX_LENGTH}`}>
+                <Textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  maxLength={BIO_MAX_LENGTH}
+                  rows={4}
+                  disabled={saving}
+                />
+              </FormField>
+            </div>
+          </div>
+          {avatarError && <FormAlert message={avatarError} />}
+        </section>
+
+        <section className={styles.panel} aria-labelledby="social-heading">
+          <h2 id="social-heading" className={styles.groupTitle}>
+            Social networks
+          </h2>
+          <div className={styles.socialGrid}>
+            {SOCIAL_NETWORKS.map(({ network, label, placeholder }) => (
+              <label key={network} className={styles.socialField}>
+                <span className={styles.socialLabel}>{label}</span>
+                <input
+                  className={styles.socialInput}
+                  value={handles[network] ?? ""}
+                  onChange={(e) => setHandles({ ...handles, [network]: e.target.value })}
+                  placeholder={placeholder}
+                  maxLength={64}
+                  disabled={saving}
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck={false}
+                />
+              </label>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.panel} aria-label="Pinned games">
+          {SHOWCASE_LISTS.map(({ key, title }) => (
+            <ShowcaseEditor
+              key={key}
+              title={title}
+              games={showcases[key]}
+              onChange={(games) => setShowcases({ ...showcases, [key]: games })}
+              candidates={candidates[key]}
+              emptyCandidatesText={EMPTY_CANDIDATES[key]}
+              disabled={saving}
+            />
           ))}
-        </div>
+        </section>
 
-        {SHOWCASE_LISTS.map(({ key, title }) => (
-          <ShowcaseEditor
-            key={key}
-            title={title}
-            games={showcases[key]}
-            onChange={(games) => setShowcases({ ...showcases, [key]: games })}
-            candidates={candidates[key]}
-            emptyCandidatesText={EMPTY_CANDIDATES[key]}
-            disabled={saving}
-          />
-        ))}
-
-        {error && <FormAlert message={error} />}
-        <div className={styles.saveRow}>
-          <Button type="submit" loading={saving}>
-            Save profile
-          </Button>
-          <Button variant="ghost" href={`/users/${profile.id}`}>
-            View profile
-          </Button>
+        <div className={styles.saveBar}>
+          <div className={styles.saveBarInner}>
+            {error ? (
+              <FormAlert message={error} />
+            ) : (
+              <span className={styles.saveStatus} aria-live="polite">
+                {dirty ? "Unsaved changes" : "All changes saved"}
+              </span>
+            )}
+            <Button type="submit" loading={saving} disabled={!dirty}>
+              Save profile
+            </Button>
+          </div>
         </div>
       </form>
     </div>

@@ -58,33 +58,35 @@ export function ShowcaseEditor({
                 <AppImage src={game.coverUrl} alt="" fallback={<Gamepad2 size={18} aria-hidden />} />
               </span>
               <span className={styles.showcaseTitle}>{game.title}</span>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={`Move ${game.title} up`}
-                disabled={disabled || index === 0}
-                onClick={() => move(index, index - 1)}
-              >
-                <ArrowUp size={16} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={`Move ${game.title} down`}
-                disabled={disabled || index === games.length - 1}
-                onClick={() => move(index, index + 1)}
-              >
-                <ArrowDown size={16} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                aria-label={`Remove ${game.title}`}
-                disabled={disabled}
-                onClick={() => onChange(games.filter((g) => g.id !== game.id))}
-              >
-                <X size={16} />
-              </Button>
+              <div className={styles.rowActions}>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Move ${game.title} up`}
+                  disabled={disabled || index === 0}
+                  onClick={() => move(index, index - 1)}
+                >
+                  <ArrowUp size={16} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Move ${game.title} down`}
+                  disabled={disabled || index === games.length - 1}
+                  onClick={() => move(index, index + 1)}
+                >
+                  <ArrowDown size={16} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label={`Remove ${game.title}`}
+                  disabled={disabled}
+                  onClick={() => onChange(games.filter((g) => g.id !== game.id))}
+                >
+                  <X size={16} />
+                </Button>
+              </div>
             </li>
           ))}
         </ol>
