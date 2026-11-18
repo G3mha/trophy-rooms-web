@@ -1,7 +1,10 @@
 "use client";
 
-import { Trophy, Share2, Medal } from "lucide-react";
+import Link from "next/link";
+import { Trophy, Share2, Medal, Pencil } from "lucide-react";
 import { getDisplayName } from "@/lib/avatar-utils";
+import { SOCIAL_NETWORKS, socialLabel, type SocialLink } from "@/lib/profile";
+import { AppImage } from "./AppImage";
 import styles from "./ProfileHeader.module.css";
 
 interface UserStats {
@@ -22,6 +25,9 @@ interface ProfileHeaderProps {
   stats?: UserStats;
   isOwnProfile?: boolean;
   onShare?: () => void;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  socialLinks?: SocialLink[];
 }
 
 function getInitials(name: string | null | undefined, userId: string): string {
@@ -66,7 +72,14 @@ export function ProfileHeader({
   stats,
   isOwnProfile = false,
   onShare,
+  avatarUrl,
+  bio,
+  socialLinks = [],
 }: ProfileHeaderProps) {
+  const networkOrder = SOCIAL_NETWORKS.map((n) => n.network as string);
+  const sortedLinks = [...socialLinks].sort(
+    (a, b) => networkOrder.indexOf(a.network) - networkOrder.indexOf(b.network)
+  );
   const initials = getInitials(name, userId);
   const avatarColor = getAvatarColor(name, userId);
   const displayName = getDisplayName(name, userId);
@@ -86,7 +99,12 @@ export function ProfileHeader({
           className={styles.avatar}
           style={{ backgroundColor: avatarColor }}
         >
-          <span className={styles.initials}>{initials}</span>
+          <AppImage
+            src={avatarUrl}
+            alt=""
+            className={styles.avatarImage}
+            fallback={<span className={styles.initials}>{initials}</span>}
+          />
           {trophyCount >= 10 && (
             <div className={styles.badge} title="Platinum Master">
               <Trophy size={14} />
@@ -98,6 +116,31 @@ export function ProfileHeader({
         <div className={styles.info}>
           <h1 className={styles.name}>{displayName}</h1>
           <p className={styles.memberSince}>Member since {formattedDate}</p>
+          {bio && <p className={styles.bio}>{bio}</p>}
+          {sortedLinks.length > 0 && (
+            <ul className={styles.socialLinks}>
+              {sortedLinks.map((link) => (
+                <li key={link.id}>
+                  {link.url ? (
+                    <a
+                      className={styles.socialLink}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer nofollow"
+                    >
+                      <span className={styles.socialNetwork}>{socialLabel(link.network)}</span>
+                      {link.handle}
+                    </a>
+                  ) : (
+                    <span className={styles.socialLink}>
+                      <span className={styles.socialNetwork}>{socialLabel(link.network)}</span>
+                      {link.handle}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
 
           {/* Quick Stats */}
           <div className={styles.quickStats}>
@@ -120,10 +163,17 @@ export function ProfileHeader({
         </div>
 
         {/* Actions */}
-        {isOwnProfile && onShare && (
-          <button className={styles.shareButton} onClick={onShare}>
-            <Share2 size={16} /> Share Profile
-          </button>
+        {isOwnProfile && (
+          <div className={styles.actions}>
+            <Link href="/profile" className={styles.shareButton}>
+              <Pencil size={16} /> Edit Profile
+            </Link>
+            {onShare && (
+              <button className={styles.shareButton} onClick={onShare}>
+                <Share2 size={16} /> Share Profile
+              </button>
+            )}
+          </div>
         )}
       </div>
 
